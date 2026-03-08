@@ -72,6 +72,7 @@ Coordinator foundation:
 Media ingest enrichment:
 - Added a second-stage enrichment scaffold that converts local ingest entries into deterministic metadata lookup candidates with provider-specific placeholder slots
 - Added a reviewed metadata overlay in `import-data/media-metadata-reviewed.json` with first-pass verified or manual-review outcomes for the current local library sample
+- Added a third-stage import seed generator and a fourth-stage Prisma payload generator so local library assets can now move from raw scan -> reviewed metadata -> import seed -> Prisma-friendly staging payload
 
 Media Ingest:
 - Added a new Media Ingest role and ownership boundaries in `AGENTS.md`, plus README notes and an `ingest:scan` script entry for local library scanning

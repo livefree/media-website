@@ -1,0 +1,2245 @@
+{
+  "manifestVersion": 1,
+  "sourceSeedPath": "import-data/media-import-seed.json",
+  "sourceSeedSha256": "44332145d3c26d2774f49514902df84abb514924a9aef48a73852b39b4cfc157",
+  "importableEntryCount": 4,
+  "gatedEntryCount": 1,
+  "skippedEntryCount": 1,
+  "mediaTitles": [
+    {
+      "slug": "沙丘-2021",
+      "title": "沙丘",
+      "originalTitle": "Dune",
+      "summary": "Imported from local library staging: 沙丘.",
+      "description": null,
+      "tagline": null,
+      "type": "MOVIE",
+      "status": "DRAFT",
+      "releaseYear": 2021,
+      "endYear": null,
+      "originCountry": null,
+      "language": null,
+      "runtimeMinutes": 155,
+      "episodeRuntimeMinutes": null,
+      "seasonCount": null,
+      "episodeCount": null,
+      "ratingValue": null,
+      "ratingCount": 0,
+      "popularityScore": 0,
+      "isFeatured": false,
+      "publishedAt": null,
+      "importGate": {
+        "reviewStatus": "matched",
+        "importStatus": "ready",
+        "confidence": 0.99,
+        "requiresManualReview": false,
+        "notes": [
+          "Matched from bilingual local title and year.",
+          "Both Douban and IMDb candidates align with the local file naming and movie runtime."
+        ]
+      },
+      "alternateTitles": [
+        {
+          "languageCode": "en",
+          "value": "Dune"
+        },
+        {
+          "languageCode": "zh-CN",
+          "value": "沙丘 Dune (2021)"
+        },
+        {
+          "languageCode": "en",
+          "value": "Dune (2021)"
+        }
+      ],
+      "artwork": [],
+      "externalReferences": [
+        {
+          "provider": "douban",
+          "providerId": "34805219",
+          "title": "沙丘 Dune (2021)",
+          "url": "https://movie.douban.com/subject/34805219/",
+          "status": "verified"
+        },
+        {
+          "provider": "imdb",
+          "providerId": "tt1160419",
+          "title": "Dune (2021)",
+          "url": "https://www.imdb.com/title/tt1160419/",
+          "status": "verified"
+        }
+      ],
+      "seasons": [],
+      "episodes": [],
+      "resources": [
+        {
+          "kind": "STREAM",
+          "provider": "OTHER",
+          "format": "MKV",
+          "label": "Local feature file",
+          "quality": "3840x2160",
+          "url": "local://[沙丘]Dune.2021.2160p.HMAX.WEB-DL.SDR.H265.Atmos.DDP5.1.CHS-ENG.BOBO/[沙丘]Dune.2021.2160p.HMAX.WEB-DL.SDR.H265.Atmos.DDP5.1.CHS-ENG.BOBO.mkv",
+          "maskedUrl": null,
+          "accessCode": null,
+          "status": "PENDING",
+          "mirrorOrder": 0,
+          "reportCount": 0,
+          "localFile": "[沙丘]Dune.2021.2160p.HMAX.WEB-DL.SDR.H265.Atmos.DDP5.1.CHS-ENG.BOBO/[沙丘]Dune.2021.2160p.HMAX.WEB-DL.SDR.H265.Atmos.DDP5.1.CHS-ENG.BOBO.mkv",
+          "notes": [
+            "Local file placeholder generated from import seed."
+          ]
+        }
+      ],
+      "localAssets": {
+        "subtitleFiles": [],
+        "sidecarFiles": []
+      }
+    },
+    {
+      "slug": "异物志-2022",
+      "title": "异物志",
+      "originalTitle": null,
+      "summary": "Imported from local library staging: 异物志.",
+      "description": null,
+      "tagline": null,
+      "type": "SERIES",
+      "status": "DRAFT",
+      "releaseYear": 2022,
+      "endYear": null,
+      "originCountry": null,
+      "language": null,
+      "runtimeMinutes": null,
+      "episodeRuntimeMinutes": 41,
+      "seasonCount": 1,
+      "episodeCount": 36,
+      "ratingValue": null,
+      "ratingCount": 0,
+      "popularityScore": 0,
+      "isFeatured": false,
+      "publishedAt": null,
+      "importGate": {
+        "reviewStatus": "matched",
+        "importStatus": "ready",
+        "confidence": 0.98,
+        "requiresManualReview": false,
+        "notes": [
+          "Matched from exact Chinese title, year, and 36-episode local structure.",
+          "Douban entry aligns with the local folder naming."
+        ]
+      },
+      "alternateTitles": [
+        {
+          "languageCode": "zh-CN",
+          "value": "异物志 (2022)"
+        }
+      ],
+      "artwork": [
+        {
+          "kind": "POSTER",
+          "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/345.cool.webp",
+          "altText": "异物志 poster-candidate",
+          "isPrimary": true,
+          "sourceFile": "【国产剧】异物志.全36集.国语中字.2022.4K/345.cool.webp"
+        }
+      ],
+      "externalReferences": [
+        {
+          "provider": "douban",
+          "providerId": "35633796",
+          "title": "异物志 (2022)",
+          "url": "https://movie.douban.com/subject/35633796/",
+          "status": "verified"
+        }
+      ],
+      "seasons": [
+        {
+          "seasonNumber": 1,
+          "title": "Season 1",
+          "releaseYear": 2022,
+          "episodeCount": 36
+        }
+      ],
+      "episodes": [
+        {
+          "slug": "异物志-2022-s01e01",
+          "title": "01",
+          "summary": null,
+          "runtimeMinutes": 41,
+          "seasonNumber": 1,
+          "episodeNumber": 1,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/01.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E1",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/01.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/01.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e02",
+          "title": "02",
+          "summary": null,
+          "runtimeMinutes": 36,
+          "seasonNumber": 1,
+          "episodeNumber": 2,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/02.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E2",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/02.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/02.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e03",
+          "title": "03",
+          "summary": null,
+          "runtimeMinutes": 32,
+          "seasonNumber": 1,
+          "episodeNumber": 3,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/03.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E3",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/03.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/03.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e04",
+          "title": "04",
+          "summary": null,
+          "runtimeMinutes": 41,
+          "seasonNumber": 1,
+          "episodeNumber": 4,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/04.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E4",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/04.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/04.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e05",
+          "title": "05",
+          "summary": null,
+          "runtimeMinutes": 32,
+          "seasonNumber": 1,
+          "episodeNumber": 5,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/05.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E5",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/05.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/05.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e06",
+          "title": "06",
+          "summary": null,
+          "runtimeMinutes": 41,
+          "seasonNumber": 1,
+          "episodeNumber": 6,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/06.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E6",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/06.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/06.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e07",
+          "title": "07",
+          "summary": null,
+          "runtimeMinutes": 30,
+          "seasonNumber": 1,
+          "episodeNumber": 7,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/07.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E7",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/07.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/07.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e08",
+          "title": "08",
+          "summary": null,
+          "runtimeMinutes": 35,
+          "seasonNumber": 1,
+          "episodeNumber": 8,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/08.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E8",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/08.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/08.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e09",
+          "title": "09",
+          "summary": null,
+          "runtimeMinutes": 33,
+          "seasonNumber": 1,
+          "episodeNumber": 9,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/09.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E9",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/09.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/09.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e10",
+          "title": "10",
+          "summary": null,
+          "runtimeMinutes": 37,
+          "seasonNumber": 1,
+          "episodeNumber": 10,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/10.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E10",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/10.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/10.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e11",
+          "title": "11",
+          "summary": null,
+          "runtimeMinutes": 30,
+          "seasonNumber": 1,
+          "episodeNumber": 11,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/11.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E11",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/11.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/11.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e12",
+          "title": "12",
+          "summary": null,
+          "runtimeMinutes": 31,
+          "seasonNumber": 1,
+          "episodeNumber": 12,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/12.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E12",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/12.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/12.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e13",
+          "title": "13",
+          "summary": null,
+          "runtimeMinutes": 40,
+          "seasonNumber": 1,
+          "episodeNumber": 13,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/13.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E13",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/13.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/13.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e14",
+          "title": "14",
+          "summary": null,
+          "runtimeMinutes": 36,
+          "seasonNumber": 1,
+          "episodeNumber": 14,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/14.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E14",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/14.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/14.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e15",
+          "title": "15",
+          "summary": null,
+          "runtimeMinutes": 30,
+          "seasonNumber": 1,
+          "episodeNumber": 15,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/15.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E15",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/15.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/15.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e16",
+          "title": "16",
+          "summary": null,
+          "runtimeMinutes": 32,
+          "seasonNumber": 1,
+          "episodeNumber": 16,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/16.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E16",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/16.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/16.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e17",
+          "title": "17",
+          "summary": null,
+          "runtimeMinutes": 28,
+          "seasonNumber": 1,
+          "episodeNumber": 17,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/17.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E17",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/17.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/17.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e18",
+          "title": "18",
+          "summary": null,
+          "runtimeMinutes": 31,
+          "seasonNumber": 1,
+          "episodeNumber": 18,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/18.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E18",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/18.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/18.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e19",
+          "title": "19",
+          "summary": null,
+          "runtimeMinutes": 27,
+          "seasonNumber": 1,
+          "episodeNumber": 19,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/19.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E19",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/19.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/19.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e20",
+          "title": "20",
+          "summary": null,
+          "runtimeMinutes": 33,
+          "seasonNumber": 1,
+          "episodeNumber": 20,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/20.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E20",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/20.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/20.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e21",
+          "title": "21",
+          "summary": null,
+          "runtimeMinutes": 40,
+          "seasonNumber": 1,
+          "episodeNumber": 21,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/21.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E21",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/21.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/21.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e22",
+          "title": "22",
+          "summary": null,
+          "runtimeMinutes": 30,
+          "seasonNumber": 1,
+          "episodeNumber": 22,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/22.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E22",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/22.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/22.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e23",
+          "title": "23",
+          "summary": null,
+          "runtimeMinutes": 33,
+          "seasonNumber": 1,
+          "episodeNumber": 23,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/23.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E23",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/23.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/23.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e24",
+          "title": "24",
+          "summary": null,
+          "runtimeMinutes": 26,
+          "seasonNumber": 1,
+          "episodeNumber": 24,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/24.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E24",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/24.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/24.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e25",
+          "title": "25",
+          "summary": null,
+          "runtimeMinutes": 30,
+          "seasonNumber": 1,
+          "episodeNumber": 25,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/25.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E25",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/25.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/25.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e26",
+          "title": "26",
+          "summary": null,
+          "runtimeMinutes": 32,
+          "seasonNumber": 1,
+          "episodeNumber": 26,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/26.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E26",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/26.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/26.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e27",
+          "title": "27",
+          "summary": null,
+          "runtimeMinutes": 34,
+          "seasonNumber": 1,
+          "episodeNumber": 27,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/27.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E27",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/27.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/27.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e28",
+          "title": "28",
+          "summary": null,
+          "runtimeMinutes": 33,
+          "seasonNumber": 1,
+          "episodeNumber": 28,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/28.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E28",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/28.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/28.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e29",
+          "title": "29",
+          "summary": null,
+          "runtimeMinutes": 41,
+          "seasonNumber": 1,
+          "episodeNumber": 29,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/29.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E29",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/29.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/29.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e30",
+          "title": "30",
+          "summary": null,
+          "runtimeMinutes": 27,
+          "seasonNumber": 1,
+          "episodeNumber": 30,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/30.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E30",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/30.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/30.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e31",
+          "title": "31",
+          "summary": null,
+          "runtimeMinutes": 34,
+          "seasonNumber": 1,
+          "episodeNumber": 31,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/31.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E31",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/31.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/31.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e32",
+          "title": "32",
+          "summary": null,
+          "runtimeMinutes": 34,
+          "seasonNumber": 1,
+          "episodeNumber": 32,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/32.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E32",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/32.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/32.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e33",
+          "title": "33",
+          "summary": null,
+          "runtimeMinutes": 29,
+          "seasonNumber": 1,
+          "episodeNumber": 33,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/33.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E33",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/33.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/33.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e34",
+          "title": "34",
+          "summary": null,
+          "runtimeMinutes": 36,
+          "seasonNumber": 1,
+          "episodeNumber": 34,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/34.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E34",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/34.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/34.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e35",
+          "title": "35",
+          "summary": null,
+          "runtimeMinutes": 34,
+          "seasonNumber": 1,
+          "episodeNumber": 35,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/35.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E35",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/35.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/35.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "异物志-2022-s01e36",
+          "title": "36",
+          "summary": null,
+          "runtimeMinutes": 42,
+          "seasonNumber": 1,
+          "episodeNumber": 36,
+          "airDate": null,
+          "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/36.mp4",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MP4",
+              "label": "Local episode file S1E36",
+              "quality": "3840x2160",
+              "url": "local://【国产剧】异物志.全36集.国语中字.2022.4K/36.mp4",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "【国产剧】异物志.全36集.国语中字.2022.4K/36.mp4",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        }
+      ],
+      "resources": [],
+      "localAssets": {
+        "subtitleFiles": [],
+        "sidecarFiles": []
+      }
+    },
+    {
+      "slug": "亡念的扎姆德-2008",
+      "title": "亡念的扎姆德",
+      "originalTitle": "Xam'd: Lost Memories",
+      "summary": "Imported from local library staging: 亡念的扎姆德.",
+      "description": null,
+      "tagline": null,
+      "type": "ANIME",
+      "status": "DRAFT",
+      "releaseYear": 2008,
+      "endYear": null,
+      "originCountry": null,
+      "language": null,
+      "runtimeMinutes": null,
+      "episodeRuntimeMinutes": 24,
+      "seasonCount": 1,
+      "episodeCount": 26,
+      "ratingValue": null,
+      "ratingCount": 0,
+      "popularityScore": 0,
+      "isFeatured": false,
+      "publishedAt": null,
+      "importGate": {
+        "reviewStatus": "matched",
+        "importStatus": "ready",
+        "confidence": 0.93,
+        "requiresManualReview": false,
+        "notes": [
+          "Matched from exact English fansub title and anime-specific NCOP/NCED extras.",
+          "Local filenames did not include a year, so the year was filled from the reviewed metadata source."
+        ]
+      },
+      "alternateTitles": [
+        {
+          "languageCode": "en",
+          "value": "Xam'd: Lost Memories"
+        },
+        {
+          "languageCode": "zh-CN",
+          "value": "亡念的扎姆德 / Xam'd: Lost Memories (2008)"
+        }
+      ],
+      "artwork": [],
+      "externalReferences": [
+        {
+          "provider": "douban",
+          "providerId": "2154313",
+          "title": "亡念的扎姆德 / Xam'd: Lost Memories (2008)",
+          "url": "https://movie.douban.com/subject/2154313/",
+          "status": "verified"
+        }
+      ],
+      "seasons": [
+        {
+          "seasonNumber": 1,
+          "title": "Season 1",
+          "releaseYear": 2008,
+          "episodeCount": 26
+        }
+      ],
+      "episodes": [
+        {
+          "slug": "亡念的扎姆德-2008-s01e01",
+          "title": "Xam'd Lost Memories Xam'd at the Dawn of War",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 1,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 01 Xam'd at the Dawn of War.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E1",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 01 Xam'd at the Dawn of War.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 01 Xam'd at the Dawn of War.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e02",
+          "title": "Xam'd Lost Memories Blackout on Sentan Island",
+          "summary": null,
+          "runtimeMinutes": 26,
+          "seasonNumber": 1,
+          "episodeNumber": 2,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 02 Blackout on Sentan Island.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E2",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 02 Blackout on Sentan Island.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 02 Blackout on Sentan Island.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e03",
+          "title": "Xam'd Lost Memories The Way to Freedom",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 3,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 03 The Way to Freedom.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E3",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 03 The Way to Freedom.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 03 The Way to Freedom.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e04",
+          "title": "Xam'd Lost Memories Enlightenment",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 4,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 04 Enlightenment.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E4",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 04 Enlightenment.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 04 Enlightenment.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e05",
+          "title": "Xam'd Lost Memories Shattered Bonds",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 5,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 05 Shattered Bonds.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E5",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 05 Shattered Bonds.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 05 Shattered Bonds.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e06",
+          "title": "Xam'd Lost Memories Live Fire",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 6,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 06 Live Fire.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E6",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 06 Live Fire.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 06 Live Fire.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e07",
+          "title": "Xam'd Lost Memories Guardians of Stone",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 7,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 07 Guardians of Stone.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E7",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 07 Guardians of Stone.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 07 Guardians of Stone.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e08",
+          "title": "Xam'd Lost Memories Showdown at Tsumebara Pass",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 8,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 08 Showdown at Tsumebara Pass.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E8",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 08 Showdown at Tsumebara Pass.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 08 Showdown at Tsumebara Pass.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e09",
+          "title": "Xam'd Lost Memories The Astonishing Raigyo",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 9,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 09 The Astonishing Raigyo.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E9",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 09 The Astonishing Raigyo.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 09 The Astonishing Raigyo.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e10",
+          "title": "Xam'd Lost Memories Moving On",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 10,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 10 Moving On.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E10",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 10 Moving On.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 10 Moving On.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e11",
+          "title": "Xam'd Lost Memories Assault The Zanbani",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 11,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 11 Assault The Zanbani.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E11",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 11 Assault The Zanbani.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 11 Assault The Zanbani.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e12",
+          "title": "Xam'd Lost Memories Flowers Blooming Into the Dark",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 12,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 12 Flowers Blooming Into the Dark.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E12",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 12 Flowers Blooming Into the Dark.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 12 Flowers Blooming Into the Dark.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e13",
+          "title": "Xam'd Lost Memories Running Barefoot",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 13,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 13 Running Barefoot.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E13",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 13 Running Barefoot.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 13 Running Barefoot.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e14",
+          "title": "Xam'd Lost Memories Cerulean Skies",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 14,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 14 Cerulean Skies.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E14",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 14 Cerulean Skies.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 14 Cerulean Skies.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e15",
+          "title": "Xam'd Lost Memories Souls at Peace",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 15,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 15 Souls at Peace.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E15",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 15 Souls at Peace.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 15 Souls at Peace.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e16",
+          "title": "Xam'd Lost Memories Burning in Our Wake",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 16,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 16 Burning in Our Wake.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E16",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 16 Burning in Our Wake.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 16 Burning in Our Wake.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e17",
+          "title": "Xam'd Lost Memories Lambs to the Altar",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 17,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 17 Lambs to the Altar.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E17",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 17 Lambs to the Altar.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 17 Lambs to the Altar.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e18",
+          "title": "Xam'd Lost Memories What Can You See from There",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 18,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 18 What Can You See from There.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E18",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 18 What Can You See from There.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 18 What Can You See from There.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e19",
+          "title": "Xam'd Lost Memories Sudden Outbreak Romance Flowers Bloom",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 19,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 19 Sudden Outbreak Romance Flowers Bloom.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E19",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 19 Sudden Outbreak Romance Flowers Bloom.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 19 Sudden Outbreak Romance Flowers Bloom.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e20",
+          "title": "Xam'd Lost Memories Watered with Tears",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 20,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 20 Watered with Tears.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E20",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 20 Watered with Tears.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 20 Watered with Tears.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e21",
+          "title": "Xam'd Lost Memories Sanctuary Breached",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 21,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 21 Sanctuary Breached.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E21",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 21 Sanctuary Breached.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 21 Sanctuary Breached.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e22",
+          "title": "Xam'd Lost Memories Tojiro and Ryuzo",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 22,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 22 Tojiro and Ryuzo.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E22",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 22 Tojiro and Ryuzo.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 22 Tojiro and Ryuzo.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e23",
+          "title": "Xam'd Lost Memories Hiruken Emperor Born",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 23,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 23 Hiruken Emperor Born.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E23",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 23 Hiruken Emperor Born.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 23 Hiruken Emperor Born.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e24",
+          "title": "Xam'd Lost Memories Voices from Beyond",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 24,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 24 Voices from Beyond.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E24",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 24 Voices from Beyond.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 24 Voices from Beyond.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e25",
+          "title": "Xam'd Lost Memories Nakiami and Sannova",
+          "summary": null,
+          "runtimeMinutes": 24,
+          "seasonNumber": 1,
+          "episodeNumber": 25,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 25 Nakiami and Sannova.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E25",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 25 Nakiami and Sannova.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 25 Nakiami and Sannova.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        },
+        {
+          "slug": "亡念的扎姆德-2008-s01e26",
+          "title": "Xam'd Lost Memories The Great Rock and the Girl",
+          "summary": null,
+          "runtimeMinutes": 27,
+          "seasonNumber": 1,
+          "episodeNumber": 26,
+          "airDate": null,
+          "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 26 The Great Rock and the Girl.mkv",
+          "resources": [
+            {
+              "kind": "STREAM",
+              "provider": "OTHER",
+              "format": "MKV",
+              "label": "Local episode file S1E26",
+              "quality": "1920x1080",
+              "url": "local://Xam'd Lost Memories/Xam'd Lost Memories 26 The Great Rock and the Girl.mkv",
+              "maskedUrl": null,
+              "accessCode": null,
+              "status": "PENDING",
+              "mirrorOrder": 0,
+              "reportCount": 0,
+              "localFile": "Xam'd Lost Memories/Xam'd Lost Memories 26 The Great Rock and the Girl.mkv",
+              "notes": [
+                "Local file placeholder generated from import seed."
+              ]
+            }
+          ]
+        }
+      ],
+      "resources": [],
+      "localAssets": {
+        "subtitleFiles": [
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 01 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 01 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 02 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 02 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 03 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 03 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 04 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 04 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 05 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 05 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 06 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 06 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 07 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 07 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 08 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 08 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 09 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 09 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 10 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 10 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 11 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 11 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 12 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 12 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 13 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 13 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 14 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 14 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 15 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 15 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 16 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 16 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 17 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 17 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 18 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 18 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 19 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 19 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 20 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 20 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 21 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 21 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 22 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 22 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 23 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 23 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 24 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 24 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 25 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 25 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 26 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 26 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          }
+        ],
+        "sidecarFiles": []
+      }
+    },
+    {
+      "slug": "侏罗纪世界-重生-2025",
+      "title": "侏罗纪世界：重生",
+      "originalTitle": "Jurassic World Rebirth",
+      "summary": "Imported from local library staging: 侏罗纪世界：重生.",
+      "description": null,
+      "tagline": null,
+      "type": "MOVIE",
+      "status": "DRAFT",
+      "releaseYear": 2025,
+      "endYear": null,
+      "originCountry": null,
+      "language": null,
+      "runtimeMinutes": 134,
+      "episodeRuntimeMinutes": null,
+      "seasonCount": null,
+      "episodeCount": null,
+      "ratingValue": null,
+      "ratingCount": 0,
+      "popularityScore": 0,
+      "isFeatured": false,
+      "publishedAt": null,
+      "importGate": {
+        "reviewStatus": "matched",
+        "importStatus": "ready",
+        "confidence": 0.97,
+        "requiresManualReview": false,
+        "notes": [
+          "Matched from exact bilingual local title and year.",
+          "IMDb title aligns with the local release naming; no stable Douban subject link was confirmed in this pass."
+        ]
+      },
+      "alternateTitles": [
+        {
+          "languageCode": "en",
+          "value": "Jurassic World Rebirth"
+        },
+        {
+          "languageCode": "en",
+          "value": "Jurassic World Rebirth (2025)"
+        }
+      ],
+      "artwork": [],
+      "externalReferences": [
+        {
+          "provider": "imdb",
+          "providerId": "tt31036941",
+          "title": "Jurassic World Rebirth (2025)",
+          "url": "https://www.imdb.com/title/tt31036941/",
+          "status": "verified"
+        }
+      ],
+      "seasons": [],
+      "episodes": [],
+      "resources": [
+        {
+          "kind": "STREAM",
+          "provider": "OTHER",
+          "format": "MKV",
+          "label": "Local feature file",
+          "quality": "3840x1604",
+          "url": "local://侏罗纪世界：重生[无字片源].Jurassic.World.Rebirth.2025.2160p.iT.WEB-DL.H.265.DDP5.1.Atmos-QuickIO/Jurassic.World.Rebirth.2025.2160p.iT.WEB-DL.H.265.DDP5.1.Atmos-QuickIO.mkv",
+          "maskedUrl": null,
+          "accessCode": null,
+          "status": "PENDING",
+          "mirrorOrder": 0,
+          "reportCount": 0,
+          "localFile": "侏罗纪世界：重生[无字片源].Jurassic.World.Rebirth.2025.2160p.iT.WEB-DL.H.265.DDP5.1.Atmos-QuickIO/Jurassic.World.Rebirth.2025.2160p.iT.WEB-DL.H.265.DDP5.1.Atmos-QuickIO.mkv",
+          "notes": [
+            "Local file placeholder generated from import seed."
+          ]
+        }
+      ],
+      "localAssets": {
+        "subtitleFiles": [],
+        "sidecarFiles": []
+      }
+    }
+  ],
+  "gatedEntries": [
+    {
+      "relativeDirectory": "海市蜃楼 2025",
+      "reviewStatus": "manual-review",
+      "importStatus": "needs-review",
+      "canonicalTitle": "海市蜃楼",
+      "year": 2025,
+      "type": "series",
+      "notes": [
+        "Local naming strongly suggests a 24-episode 2025 series.",
+        "A stable official Douban or IMDb title page was not confirmed in this pass.",
+        "This entry needs a manual confirmation step before import."
+      ]
+    }
+  ],
+  "skippedEntries": [
+    {
+      "relativeDirectory": "老饭骨",
+      "reason": [
+        "This folder appears to be a collection of standalone cooking videos, not one movie/series/anime catalog entry.",
+        "Keep it outside the streaming catalog import flow unless you later want a separate creator/video model."
+      ],
+      "reviewStatus": "skipped"
+    }
+  ]
+}
