@@ -831,8 +831,7 @@ body {
 }
 
 @media (max-width: 460px) {
-  .filter-bar,
-  .media-grid {
+  .filter-bar {
     grid-template-columns: 1fr;
   }
 

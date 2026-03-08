@@ -24,6 +24,10 @@ Coordinator:
 - Audited all module skills against the current streaming-platform roadmap and upgraded them from placeholder notes to project-specific workflows with scope, rules, and deliverables
 - Standardized agent orchestration so Planner, UI Shell, Data Catalog, Search Filter, Detail Player, and Reviewer now run as Coordinator-managed sub-agents by default
 
+Reviewer:
+- Performed a final integrated review across browse, search, and detail surfaces against the planner docs and `web-to-colon` references
+- Fixed a mobile layout regression in `styles/homepage.css` so the poster grid keeps the intended 2-column browse layout on very small screens instead of collapsing to a single column
+
 Planner update:
 - Refreshed `docs/architecture.md` into the requested planning format with an explicit project tree, routing structure, component tree, and integration notes
 - Expanded the target file map to include detail/player subcomponents and shared library utility boundaries
