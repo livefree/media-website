@@ -28,6 +28,7 @@ Planner update:
 - Refreshed `docs/architecture.md` into the requested planning format with an explicit project tree, routing structure, component tree, and integration notes
 - Expanded the target file map to include detail/player subcomponents and shared library utility boundaries
 - Updated `docs/roadmap.md` and `docs/handovers/planner-init.md` to reflect the current repository state and the next handoff sequence
+- Refined the planner docs again around the canonical delivery order `planner -> data-catalog -> ui-shell -> search-filter -> detail-player -> reviewer` and added `web-to-colon`-informed layout expectations for homepage, category, search, and detail routes
 
 UI Shell update:
 - Reworked the homepage shell in `app/page.tsx` to match the `/web-to-colon` hierarchy more closely with a compact navbar, dedicated search area, filter controls, poster-first grid, and static pagination shell
