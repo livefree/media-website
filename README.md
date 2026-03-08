@@ -38,7 +38,7 @@ Agents work in parallel using the following responsibilities:
 
 1. Read `task.md`
 2. Update `docs/roadmap.md`
-3. Assign tasks to agents
+3. Assign tasks to sub-agents inside the Coordinator thread
 4. Require each agent to branch from the latest `codex/coordinator-baseline`
 5. Let each agent commit within its ownership scope
 6. Integrate accepted work back into `codex/coordinator-baseline`
@@ -49,6 +49,7 @@ Agents work in parallel using the following responsibilities:
 Agents are expected to use git during execution, not only at the end.
 
 - `codex/coordinator-baseline` is the integration branch for downstream work
+- Planner, UI Shell, Data Catalog, Search Filter, Detail Player, and Reviewer are expected to run as Coordinator-managed sub-agents
 - Each agent should work on its own `codex/*` branch
 - Each agent branch should start from the latest integration branch state
 - Each agent may run status, branch, add, and commit commands for its task

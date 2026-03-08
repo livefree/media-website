@@ -71,6 +71,7 @@ Reviewer
 - Agents should not modify files owned by other agents unless required.
 - Each task should document changes in docs/dev-log.md.
 - Coordinator decides merge order.
+- All module agents are coordinated as sub-agents under the Coordinator thread by default. Users do not need to manage separate agent threads for Planner, UI Shell, Data Catalog, Search Filter, Detail Player, or Reviewer.
 - Agents may use git directly during execution for branch, status, staging, and commit workflows within their assigned scope.
 - All agent branches must be cut from the latest Coordinator integration branch, not from stale personal branches.
 - Coordinator should merge or otherwise integrate accepted agent work back into the integration branch before assigning the next dependent task.
