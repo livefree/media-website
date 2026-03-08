@@ -64,3 +64,7 @@ Detail Player:
 - Added `/media/[slug]` in `app/media/[slug]/page.tsx`, driven by `getMediaDetail()` and query-param selection for active source, episode, and download provider
 - Added owned detail and player components in `components/detail/` and `components/player/` for the metadata header, actions area, synopsis, source tabs, player shell, episode selector, and download resource section
 - Added local CSS-module styling in `components/detail/detail-page.module.css` so the detail route can ship without modifying shared browsing styles
+
+Coordinator foundation:
+- Added the first productionization slice with `.env.example`, Prisma/NPM database scripts, server-side env helpers, and a reusable Prisma client singleton
+- Added minimal read-only API surfaces at `/api/health`, `/api/catalog`, and `/api/media/[slug]` so the app now has a real server boundary to build on beyond route-local rendering
