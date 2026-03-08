@@ -168,11 +168,14 @@ export function getCatalogConfig() {
 }
 
 export function getSearchSeed(query: CatalogQueryState) {
+  const genre = query.genre;
+  const year = query.year;
+  const region = query.region;
   const scoped = query.type === "all" ? getAllMedia() : getMediaByType(query.type);
   const byQuery = query.q ? searchMedia(query.q, query.type === "all" ? undefined : query.type) : scoped;
-  const byGenre = query.genre ? byQuery.filter((media) => media.genres.includes(query.genre)) : byQuery;
-  const byYear = query.year ? byGenre.filter((media) => media.year === query.year) : byGenre;
-  const byRegion = query.region ? byYear.filter((media) => media.originCountry === query.region) : byYear;
+  const byGenre = genre ? byQuery.filter((media) => media.genres.includes(genre)) : byQuery;
+  const byYear = year ? byGenre.filter((media) => media.year === year) : byGenre;
+  const byRegion = region ? byYear.filter((media) => media.originCountry === region) : byYear;
   const sorted = sortMedia(byRegion, query.sort);
   const pageItems = paginate(sorted, query.page, query.pageSize);
 

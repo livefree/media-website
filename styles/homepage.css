@@ -428,7 +428,7 @@ body {
 }
 
 .filter-bar-form {
-  align-items: end;
+  align-items: flex-end;
 }
 
 .filter-select {
@@ -484,7 +484,7 @@ body {
 .catalog-header,
 .catalog-feed-copy {
   display: flex;
-  align-items: end;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 20px;
 }
@@ -773,7 +773,7 @@ body {
   .catalog-header,
   .catalog-feed-copy {
     grid-template-columns: 1fr;
-    align-items: start;
+    align-items: flex-start;
     flex-direction: column;
   }
 

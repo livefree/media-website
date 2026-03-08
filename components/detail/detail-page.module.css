@@ -235,7 +235,7 @@
   display: flex;
   justify-content: space-between;
   gap: 16px;
-  align-items: start;
+  align-items: flex-start;
 }
 
 .sectionTitle,
@@ -292,7 +292,7 @@
 }
 
 .episodeLink {
-  justify-content: start;
+  justify-content: flex-start;
   border-radius: 20px;
 }
 
@@ -405,7 +405,7 @@
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  align-items: start;
+  align-items: flex-start;
 }
 
 .resourceTitle {

@@ -23,6 +23,7 @@ Coordinator:
 - Added branch synchronization rules so downstream agents must start from the latest `codex/coordinator-baseline` and accepted work is integrated before the next dependent task begins
 - Audited all module skills against the current streaming-platform roadmap and upgraded them from placeholder notes to project-specific workflows with scope, rules, and deliverables
 - Standardized agent orchestration so Planner, UI Shell, Data Catalog, Search Filter, Detail Player, and Reviewer now run as Coordinator-managed sub-agents by default
+- Added the missing Next.js runtime scaffold (`package.json`, TypeScript config, Next config, and ignore rules), installed dependencies, and fixed the remaining typecheck/build blockers so the project can be run locally
 
 Reviewer:
 - Performed a final integrated review across browse, search, and detail surfaces against the planner docs and `web-to-colon` references
