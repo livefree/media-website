@@ -1,281 +1,271 @@
 # Architecture
 
-Framework:
-- Next.js App Router
-- TypeScript
-- Shared UI components with portable styling in `app/` and `styles/`
+## Current implemented state
 
-Product shape:
-- A streaming-style media catalog with shared browsing routes, URL-backed search, and a detail route with playback and download resource shells
-- Delivery order is fixed around the dependency chain `planner -> data-catalog -> ui-shell -> search-filter -> detail-player -> reviewer`
+The repository is no longer just a static front-end structure mock. The current baseline already includes:
 
-Reference basis:
-- `web-to-colon/main.html` defines the browsing shell for homepage, category browsing, and search-adjacent UI
-- `web-to-colon/page.html` defines the detail-page composition, player area, episode switching, and download-resource expectations
+- Next.js App Router application shell
+- public browse routes for:
+  - `/`
+  - `/movie`
+  - `/series`
+  - `/anime`
+  - `/search`
+  - `/media/[slug]`
+- shared browse UI primitives in `components/`
+- detail and player shell components in `components/detail/` and `components/player/`
+- mock catalog and platform data in `data/`
+- shared TypeScript contracts in `types/`
+- browse, search, and catalog helpers in `lib/`
+- a draft Prisma schema in `prisma/schema.prisma`
+- local buildable Next.js runtime via `package.json`, `next.config.mjs`, and TypeScript config
 
-Note:
-- The tree below is the target project architecture, not proof that every file already exists yet
+What the current state represents:
+- a front-end demo baseline with shared mock data
+- URL-backed browse and search behavior
+- detail-page and player-shell composition
+- early data modeling for a future streaming platform
 
-## Project tree
+What the current state does **not** represent:
+- a real backend
+- production database integration
+- authenticated users or sessions
+- secure playback/runtime services
+- admin or content-operations tooling
+- observability, deployment, or launch readiness
 
-```text
-app/
-  layout.tsx
-  globals.css
-  page.tsx
-  movie/
-    page.tsx
-  series/
-    page.tsx
-  anime/
-    page.tsx
-  search/
-    page.tsx
-  media/
-    [slug]/
-      page.tsx
+## Production target state
 
-components/
-  Navbar.tsx
-  SearchBox.tsx
-  FilterBar.tsx
-  MediaCard.tsx
-  MediaGrid.tsx
-  Pagination.tsx
-  detail/
-    DetailHero.tsx
-    DetailMeta.tsx
-    DetailActions.tsx
-    DetailSynopsis.tsx
-    DownloadResources.tsx
-  player/
-    PlayerShell.tsx
-    EpisodeSelector.tsx
-    SourceTabs.tsx
+The production target is a launchable streaming platform with:
 
-data/
-  media.ts
-  categories.ts
+- a public web application for browse, search, detail, and playback
+- persistent catalog, playback, and user data
+- API services for catalog, search, auth, progress, and admin actions
+- authenticated user accounts with role-aware access control
+- resilient playback and resource-delivery flows
+- admin workflows for content ingestion, metadata curation, resource updates, and moderation
+- operational coverage for deployment, monitoring, error reporting, backups, and security
 
-types/
-  media.ts
+In other words, the current repository is the presentation and schema baseline. The production target adds the server, data, identity, operations, and content-management layers required to ship and sustain the product.
 
-lib/
-  media-catalog.ts
-  media-utils.ts
-  search-params.ts
-  search-filter.ts
-  pagination.ts
+## Current vs target
 
-styles/
-  homepage.css
-  catalog.css
-  detail.css
+### Current demo baseline
 
-docs/
-  architecture.md
-  roadmap.md
-  dev-log.md
-  handovers/
-```
+- Mock-backed routes and components are present
+- Search/filter behavior exists at the UI layer
+- Detail/player page structure exists at the UI layer
+- Prisma schema exists only as a planning and modeling artifact
+- No app-owned API routes are present
+- No database client or server-side data access layer is present
+- No auth/session system is present
+- No admin surface is present
+- No production deployment or observability layer is present
 
-## Route map
+### Production target
 
-`/`
-- Homepage shell
-- Should mirror the `web-to-colon/main.html` hierarchy:
-  - compact top navbar
-  - desktop search input with hot-search dropdown
-  - mobile search surface
-  - filter controls beneath search
-  - dense poster grid
-  - static pagination shell
+- Real catalog and user data stored in a production database
+- App/API boundaries that separate UI from persistence and business logic
+- Authenticated user system with protected actions and admin roles
+- Playback/runtime services that manage sources, progress, and resource health
+- Content-ops/admin workflows for publishing and maintaining the catalog
+- Operational hardening for reliability, security, and launch readiness
 
-`/movie`
-`/series`
-`/anime`
-- Category browsing shells
-- Reuse the same shared browsing primitives as `/`
-- Change only the active category context and dataset slice
-- Preserve the same filter bar, dense card grid, and pagination pattern from the homepage reference
+## Missing backend and application capabilities
 
-`/search`
-- Query-driven results page
-- Reuses the same browsing shell as `/movie`, `/series`, and `/anime`
-- Adds URL-backed state for:
-  - query text
-  - type
-  - sort
-  - optional genre, region, and year facets
-  - page
-- Search results should still read like a reference-informed catalog page rather than a separate product surface
+The following capabilities are still missing for launch:
 
-`/media/[slug]`
-- Media detail page
-- Should mirror the composition implied by `web-to-colon/page.html`:
-  - poster and metadata header
-  - title plus alternate title
-  - year, country, genre list, rating, director, and cast
-  - action area
-  - long-form synopsis block
-  - multi-source player shell
-  - episode selector when the media item is episodic
-  - download-resource section with provider tabs and actions
+### Platform foundation
 
-## Reference-informed layout expectations
+- environment configuration strategy
+- server-only module boundaries
+- database client and migration workflow
+- shared validation and error-handling conventions
+- API response contracts
 
-### Browsing shell
+### Data and persistence
 
-Homepage, category pages, and search should all inherit the same browsing language from `web-to-colon/main.html`:
+- live database integration
+- seed/import pipeline for catalog ingestion
+- normalized read/write model for titles, seasons, episodes, and resources
+- durable storage for users, lists, history, progress, and feedback events
 
-- Compact navbar with first-class routes for movie, series, and anime
-- Search box that can support a hot-search dropdown on desktop and a dedicated mobile search flow
-- Filter controls that mix quick chips and labeled select-style facets
-- Dense poster-first grid with 2:3 artwork and metadata underneath
-- Card overlays for status, rating, and availability when the data supports them
-- Pagination at the bottom of the grid for catalog continuity
+### API layer
 
-### Category pages
+- catalog read APIs
+- search/filter APIs
+- detail and playback metadata APIs
+- progress, list, and feedback APIs
+- admin and moderation APIs
 
-The category routes are not separate design systems. They are filtered views over the same browsing shell:
+### Auth and user system
 
-- `/movie`, `/series`, and `/anime` should keep the homepage search and filter affordances
-- the main difference is the active type context and the category-specific media slice
-- category pages should be ready for the same sort, genre, region, and year controls seen in the reference
+- signup, login, logout, and session persistence
+- protected routes and server-side authorization
+- user profile, preferences, and watch-state ownership
+- role model for end users vs admins/operators
 
-### Search page
+### Playback and runtime
 
-The search route should be planned as a reference-aligned results page, not just a plain list:
+- source resolution and playback-provider abstraction
+- progress persistence and resume behavior
+- episode/source switching backed by persistent data
+- download/resource health checks and invalid-resource reporting flows
+- playback analytics and rate limiting
 
-- query text belongs in the URL
-- the search page should preserve the shared browsing chrome
-- result cards should stay identical to the shared media-card contract
-- empty, partial, and paginated result states should still fit the same grid and filter system
+### Admin and content operations
 
-### Detail page
+- content ingestion and metadata editing workflows
+- source and download-resource management tools
+- moderation/report queues
+- release/publish workflow for titles and episodes
 
-The detail route should be planned around the full reference stack from `web-to-colon/page.html`:
+### Observability, deployment, and security
 
-- metadata header with poster, canonical title, alternate title, year, country, genre, rating, director, and cast
-- action cluster for share or follow-up controls
-- prose synopsis section with enough room for long-form copy
-- source tabs for multiple playback providers
-- episode selector for series-like content
-- aspect-video player shell
-- download-resource section with provider grouping, quality labels, copy/open actions, and invalid-resource feedback affordances
+- environment isolation for dev/staging/prod
+- logging, metrics, tracing, and error reporting
+- database backup and migration safety
+- secret management
+- input validation, auth hardening, and abuse controls
 
-## Component system
+## Proposed production module boundaries
 
-`RootLayout`
-- `Navbar`
+The current repo organization is suitable for the demo, but a launchable platform needs clearer backend and operational boundaries.
 
-`HomePage`
-- `SearchBox`
-- `FilterBar`
-- `MediaGrid`
-  - `MediaCard`
-- `Pagination`
+### Public application
 
-`CategoryPage`
-- `Navbar`
-- `SearchBox`
-- `FilterBar`
-- `MediaGrid`
-  - `MediaCard`
-- `Pagination`
+Purpose:
+- render browse, search, detail, and playback experiences
 
-`SearchPage`
-- `Navbar`
-- `SearchBox`
-- `FilterBar`
-- `MediaGrid`
-  - `MediaCard`
-- `Pagination`
+Suggested boundaries:
+- `app/` for routes and route composition
+- `components/` for shared UI
+- `styles/` for shared presentation
 
-`MediaDetailPage`
-- `Navbar`
-- `DetailHero`
-  - `DetailMeta`
-  - `DetailActions`
-- `DetailSynopsis`
-- `PlayerShell`
-  - `SourceTabs`
-  - `EpisodeSelector`
-- `DownloadResources`
+### Backend/API
 
-## Ownership boundaries
+Purpose:
+- expose server-side read/write capabilities to the app and admin tools
 
-Planner:
-- `docs/architecture.md`
-- `docs/roadmap.md`
-- planner handoffs in `docs/handovers/`
+Suggested boundaries:
+- `app/api/` for route handlers
+- `lib/server/` for server-only orchestration
+- `lib/http/` for response helpers, validation wrappers, and auth guards
 
-Data Catalog:
-- `data/`
-- `types/`
-- `lib/media*`
-- catalog contracts, category metadata, mock media records, and media lookup helpers
+### Data and persistence
 
-UI Shell:
-- `app/` except `app/search/` and `app/media/`
-- shared presentational files in `components/`
-- shared styling in `styles/`
+Purpose:
+- own database schema, client access, ingestion, and persistence contracts
 
-Search Filter:
-- `app/search/`
-- `lib/search*`
-- `lib/pagination.ts`
-- URL state, filtering, sorting, and pagination behavior
+Suggested boundaries:
+- `prisma/` for schema and migrations
+- `lib/db/` for client, repositories, and transactions
+- `data/` for transitional seed data only until ingestion/admin flows replace static fixtures
+- `types/` for app-facing contracts
 
-Detail Player:
-- `app/media/`
-- `components/detail/`
-- `components/player/`
-- detail layout and playback-resource surface
+### Auth and identity
 
-Reviewer:
-- consistency review only
-- may suggest fixes but should not redefine the architecture
+Purpose:
+- own sessions, users, roles, and protected actions
 
-## Implementation sequence
+Suggested boundaries:
+- `lib/auth/` for providers, sessions, and guards
+- `app/(auth)/` or equivalent auth route group for login/signup/account flows
+
+### Admin and content operations
+
+Purpose:
+- let operators manage titles, metadata, resources, reports, and publishing status
+
+Suggested boundaries:
+- `app/admin/`
+- `components/admin/`
+- `lib/admin/`
+
+### Playback and resource runtime
+
+Purpose:
+- own source resolution, episode playback metadata, progress persistence, and resource health
+
+Suggested boundaries:
+- `lib/playback/`
+- `lib/resources/`
+- `lib/progress/`
+- optional background jobs for validation and cleanup
+
+### Ops and observability
+
+Purpose:
+- own deployment readiness, runtime visibility, and security controls
+
+Suggested boundaries:
+- `lib/ops/` for logging, metrics, feature flags, and runtime config
+- platform configuration files for CI/CD, env management, and deployment
+
+## Proposed service responsibilities
+
+### Catalog service
+
+- title lookup
+- category slices
+- search indexing inputs
+- detail-page metadata reads
+
+### Search service
+
+- filter normalization
+- ranking and pagination
+- query analytics
+
+### User service
+
+- accounts
+- preferences
+- history
+- lists
+- watch progress ownership
+
+### Playback service
+
+- source selection
+- episode state
+- progress updates
+- playback/runtime events
+
+### Resource service
+
+- download resources
+- provider grouping
+- validity reports
+- resource refresh workflows
+
+### Admin service
+
+- metadata edits
+- publishing controls
+- resource updates
+- moderation/report handling
+
+## Delivery transition
+
+The current implementation sequence for the demo is complete enough to serve as the production baseline:
 
 1. Planner
-- Freeze the route map, project tree, ownership boundaries, and dependency order
-- Hand off reference-informed expectations to downstream agents
-
 2. Data Catalog
-- Define `MediaItem` and any related detail/resource contracts
-- Provide mock records and helpers that already support:
-  - homepage and category cards
-  - search facets
-  - detail metadata
-  - playback sources
-  - episodic selectors
-  - download resources
-
 3. UI Shell
-- Build or refine the shared browsing shell on `/`, `/movie`, `/series`, and `/anime`
-- Stay presentational and consume either placeholder or shared catalog-shaped data
-
 4. Search Filter
-- Wire `/search` to URL-backed query, filter, sort, and page state
-- Reuse the shared browsing shell instead of inventing a separate search layout
-
 5. Detail Player
-- Build `/media/[slug]` around the shared catalog contracts
-- Compose the metadata header, synopsis, player shell, source tabs, episode selector, and download resources
-
 6. Reviewer
-- Audit the integrated result for ownership drift, layout regressions, route drift, and missing handoffs
 
-## Integration notes
+Productionization now starts **after** that baseline. The next roadmap should assume:
 
-Phase handoff constraints:
-- UI Shell may use local placeholders only until Data Catalog exposes stable shared contracts
-- Search Filter should not start final route wiring until the shared catalog shape and browsing shell are stable
-- Detail Player should not invent ad hoc metadata or resource structures outside the shared catalog layer
+- browse, search, and detail demo routes exist
+- shared mock contracts exist
+- Prisma modeling exists
+- backend and ops layers still need to be built
 
-Reference alignment constraints:
-- Browsing routes should remain visually and structurally close to `web-to-colon/main.html`
-- The detail route should remain structurally close to `web-to-colon/page.html`
-- Exact implementation may simplify behavior, but the layout hierarchy should stay recognizable for homepage, category, search, and detail surfaces
+## Immediate planning implications
+
+- Do not describe the current system as if APIs, auth, or live persistence already exist
+- Treat the current app as a strong UI and schema prototype
+- The next major engineering move is platform foundation and data integration, not another browse-shell iteration

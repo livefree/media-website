@@ -1,124 +1,166 @@
 # Roadmap
 
-## Canonical sequence
+## Current baseline
 
-The implementation order for this project is fixed:
+Completed baseline:
+- browse routes exist for `/`, `/movie`, `/series`, `/anime`
+- `/search` exists with UI-level query behavior
+- `/media/[slug]` exists with detail and player shell composition
+- shared mock catalog data and TypeScript contracts exist
+- a draft Prisma schema exists
 
-1. Planner
-2. Data Catalog
-3. UI Shell
-4. Search Filter
-5. Detail Player
-6. Reviewer
+This baseline is sufficient for a demo. It is **not** sufficient for launch.
 
-This order exists because later agents depend on contracts created by earlier ones. The Coordinator should not bypass it unless a task is explicitly documentation-only.
+The roadmap below begins after the current UI-demo baseline.
 
-## Phase 1: Planner Baseline
+## Phase 1: Platform foundation
 
-Planner:
-- Freeze the route map and file ownership boundaries
-- Publish the project tree, route composition, and dependency order
-- Translate `web-to-colon/main.html` and `web-to-colon/page.html` into explicit route expectations for:
-  - homepage
-  - category pages
-  - search
-  - detail page
+Goals:
+- establish the server-side architecture needed to move beyond mock-only behavior
+- create the boundary between public app code and backend/application services
+- define environment, config, and server-only module patterns
 
-Exit criteria:
-- `docs/architecture.md` and `docs/roadmap.md` describe the full streaming-style delivery plan
-- downstream agents have a concrete handoff for what to build and what to defer
-
-## Phase 2: Shared Catalog Contracts
-
-Data Catalog:
-- Define `MediaItem` and any supporting title, source, episode, and resource contracts
-- Add reusable mock catalog data for homepage, category pages, search, and detail routes
-- Add helpers for slug lookup, category slicing, and browsing feed assembly
-- Ensure the shared catalog shape supports the reference-informed card and detail surfaces before downstream agents wire routes
-
-Reference targets:
-- browsing cards need status, rating, type, year, poster, and availability stats
-- detail views need alternate title, metadata lists, synopsis, player sources, optional episodes, and download resources
+Scope:
+- add server-side module boundaries for API, DB, auth, and runtime concerns
+- define environment variable strategy and secret handling expectations
+- add shared server validation, error handling, and response conventions
+- define staging vs production deployment assumptions
 
 Exit criteria:
-- shared catalog contracts exist and are stable enough for UI, Search, and Detail work
-- downstream agents no longer need page-local placeholder schemas
+- the repo has agreed module boundaries for app, API, DB, auth, admin, playback, and ops
+- environment/config strategy is documented and reflected in the codebase structure
+- downstream agents can build server capabilities without inventing architecture ad hoc
 
-## Phase 3: Shared Browsing Shell
+## Phase 2: Data and database integration
 
-UI Shell:
-- Build or refine the shared browsing shell for `/`
-- Extend the same shell to `/movie`, `/series`, and `/anime`
-- Keep the layout aligned with `web-to-colon/main.html`:
-  - compact navbar
-  - search area
-  - filter controls
-  - dense poster grid
-  - pagination shell
+Goals:
+- convert the current schema and mock-data planning work into a live persistence layer
 
-Exit criteria:
-- homepage and category pages share a consistent browsing language
-- the shared card, grid, filter, and pagination primitives are in place for search reuse
-
-## Phase 4: URL-Backed Search
-
-Search Filter:
-- Implement URL parsing and normalization for query, type, sort, page, and lightweight facets
-- Build `/search` on top of the shared catalog and browsing shell
-- Preserve the same reference-informed search/filter/grid structure instead of introducing a separate search UI model
-
-Reference targets:
-- desktop search should be compatible with hot-search behavior
-- mobile search should fit the same route model
-- results should stay in the shared poster-grid system
+Scope:
+- wire Prisma into a real database workflow
+- create DB client and repository/data-access layer
+- migrate mock media contracts toward persistent catalog reads
+- define ingestion or seed path for catalog data
+- persist users, lists, progress, and feedback-related data models where required
 
 Exit criteria:
-- `/search` responds to URL state
-- filters, sorting, and pagination stay in sync with the URL
+- the application can read core catalog data from a real database
+- schema migration workflow exists and is repeatable
+- mock-only reads are no longer the only source for core catalog flows
 
-## Phase 5: Detail and Playback Surface
+## Phase 3: API layer
 
-Detail Player:
-- Build `/media/[slug]`
-- Add the detail header, metadata, actions area, synopsis, player shell, optional episode selector, and download resources
-- Keep the layout hierarchy aligned with `web-to-colon/page.html`
+Goals:
+- introduce server APIs for public app and internal workflows
 
-Reference targets:
-- poster plus metadata header
-- rating and credits
-- long-form synopsis
-- multi-source player surface
-- episodic controls when applicable
-- provider-grouped download resources with action buttons
+Scope:
+- catalog APIs
+- search/filter APIs
+- detail/playback metadata APIs
+- progress/list/feedback APIs
+- internal/admin-facing mutation APIs where needed
 
 Exit criteria:
-- detail routes resolve catalog entries by slug
-- detail pages render both metadata and playback/download surfaces from shared contracts
+- key app flows no longer depend on page-local data access only
+- API contracts exist for catalog, search, detail, and stateful user actions
+- server-side validation and consistent error handling are in place
 
-## Phase 6: Review and Polish
+## Phase 4: Auth and user system
 
-Reviewer:
-- Audit the integrated result after Planner, Data Catalog, UI Shell, Search Filter, and Detail Player work have landed
-- Check responsive consistency, ownership adherence, route drift, and layout fidelity against the planner docs
-- Flag missing handoffs, duplicated responsibilities, or cross-route inconsistencies
+Goals:
+- add identity, session, and user-owned state
+
+Scope:
+- signup/login/logout/session persistence
+- account and preference model
+- role-aware authorization
+- protected actions for progress, lists, and admin access
 
 Exit criteria:
-- the integrated product remains aligned with the documented architecture
-- open issues are documented instead of being left implicit
+- authenticated users can sign in and keep session state
+- user-owned data is no longer anonymous-only
+- admin or operator roles can be separated from public users
 
-## Milestone handoffs
+## Phase 5: Playback and runtime
 
-1. Planner -> Data Catalog
-- Hand off the route map, component boundaries, and data expectations implied by the references
+Goals:
+- turn the current player shell into a production-capable playback/runtime layer
 
-2. Data Catalog -> UI Shell
-- Hand off shared media contracts and mock records that match homepage, category, search, and detail needs
+Scope:
+- source resolution and provider abstraction
+- episode/source switching backed by persistent data
+- progress tracking and resume behavior
+- download-resource handling and invalid-resource feedback
+- playback/runtime analytics and abuse controls
 
-3. UI Shell -> Search Filter
-- Hand off reusable browsing primitives and route shells that search can wire without restructuring
+Exit criteria:
+- playback metadata is served from real runtime-aware data
+- progress updates persist correctly for authenticated users
+- resource and playback flows are durable enough for real usage
 
-4. Search Filter -> Detail Player
-- Hand off shared query and pagination expectations while leaving detail contracts untouched
+## Phase 6: Admin and content operations
 
-5. Detail Player -> Reviewer
-- Hand off the completed cross-route implementation for final audit
+Goals:
+- enable operators to manage the catalog and resource lifecycle without code edits
+
+Scope:
+- admin UI or internal tools for titles, metadata, and release state
+- source/download resource management
+- moderation/report queue for invalid resources and content issues
+- publishing and content-update workflows
+
+Exit criteria:
+- operators can update content and resources through managed workflows
+- content/resource maintenance no longer requires direct repository edits
+- moderation/report handling path exists
+
+## Phase 7: Observability, deployment, and security
+
+Goals:
+- make the platform operable, debuggable, and defensible in production
+
+Scope:
+- deployment workflow for staging and production
+- structured logging, metrics, tracing, and error reporting
+- secret management and environment isolation
+- migration safety, backups, and rollback expectations
+- auth hardening, input validation, and abuse/rate-limit protections
+
+Exit criteria:
+- the platform can be deployed and monitored outside local development
+- failures are visible through logs and monitoring
+- security and operational basics are in place for live traffic
+
+## Phase 8: Launch hardening
+
+Goals:
+- verify the product is actually ready to launch
+
+Scope:
+- end-to-end QA across browse, search, detail, auth, playback, and admin flows
+- performance and reliability testing for core routes
+- analytics sanity checks
+- content quality review and operational runbooks
+- launch checklist and rollback plan
+
+Exit criteria:
+- launch-critical flows pass end-to-end validation
+- known risks are documented and accepted or fixed
+- operational owners have a clear launch and rollback procedure
+
+## Immediate priority order
+
+1. Platform foundation
+2. Data and database integration
+3. API layer
+4. Auth and user system
+5. Playback and runtime
+6. Admin and content operations
+7. Observability, deployment, and security
+8. Launch hardening
+
+## What should not happen next
+
+- Do not continue treating mock data as the long-term runtime source
+- Do not add launch-only features directly into route components without server/data boundaries
+- Do not assume playback, auth, or admin work can be deferred until the end; they are core platform phases now
