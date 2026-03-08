@@ -72,8 +72,15 @@ Reviewer
 - Each task should document changes in docs/dev-log.md.
 - Coordinator decides merge order.
 - Agents may use git directly during execution for branch, status, staging, and commit workflows within their assigned scope.
+- All agent branches must be cut from the latest Coordinator integration branch, not from stale personal branches.
+- Coordinator should merge or otherwise integrate accepted agent work back into the integration branch before assigning the next dependent task.
+- If multiple agents may touch shared files or adjacent surfaces, Coordinator must define execution order before work begins.
 
 ## Git Workflow
+
+Coordinator integration branch:
+
+`codex/coordinator-baseline`
 
 Each agent should work in its own branch.
 
@@ -89,10 +96,13 @@ codex/review-layout
 Rules:
 
 - Do not commit directly to main
+- Each agent branch must start from the latest `codex/coordinator-baseline`
 - Each agent may run `git status`, create or switch to its own branch, stage changes, and create commits during its task
 - Each agent commits only files within its ownership scope
 - Each agent should make small, task-scoped commits with clear messages
 - Agents must not rewrite history, force-push, or modify another agent's branch unless explicitly directed by the Coordinator
+- Accepted work should be integrated back into `codex/coordinator-baseline` before the next dependent agent starts
+- Agents should not continue new task work on top of an outdated branch after the integration branch has moved
 - Coordinator decides merge order
 - Merge order usually follows:
 
@@ -140,10 +150,19 @@ docs(coordinator): standardize agent git workflow
 
 Suggested per-agent git loop:
 
-1. `git status`
-2. `git switch -c <agent-branch>` if the branch does not exist yet, otherwise `git switch <agent-branch>`
-3. implement only within owned files
-4. update `docs/dev-log.md`
-5. `git add` only relevant files
-6. `git commit -m "<message>"`
-7. hand off branch name and commit summary to the Coordinator
+1. `git switch codex/coordinator-baseline`
+2. `git pull` if remote sync is part of the current workflow
+3. `git status`
+4. `git switch -c <agent-branch>` if the branch does not exist yet, otherwise recreate or refresh it from the latest integration branch as directed by the Coordinator
+5. implement only within owned files
+6. update `docs/dev-log.md`
+7. `git add` only relevant files
+8. `git commit -m "<message>"`
+9. hand off branch name and commit summary to the Coordinator
+
+Coordinator integration loop:
+
+1. review the agent branch and confirm ownership boundaries were respected
+2. integrate accepted work into `codex/coordinator-baseline`
+3. verify the integration branch is the new source for downstream work
+4. only then assign the next dependent agent task
