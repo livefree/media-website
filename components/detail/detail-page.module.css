@@ -1,0 +1,481 @@
+.detailShell {
+  display: grid;
+  gap: 24px;
+  padding: 20px 0 64px;
+}
+
+.heroCard,
+.playerSection,
+.synopsisCard,
+.downloadsCard,
+.metaCard,
+.playerSurface,
+.episodesCard,
+.sourceTabs,
+.downloadList,
+.downloadsEmpty {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 28px;
+  background: rgba(12, 16, 24, 0.8);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(18px);
+}
+
+.heroCard {
+  position: relative;
+  overflow: hidden;
+  padding: 32px;
+  background:
+    linear-gradient(180deg, rgba(9, 11, 17, 0.16), rgba(9, 11, 17, 0.88)),
+    radial-gradient(circle at top right, rgba(255, 122, 24, 0.2), transparent 26%),
+    rgba(12, 16, 24, 0.88);
+}
+
+.heroBackdrop {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  opacity: 0.18;
+  transform: scale(1.04);
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: 28px;
+}
+
+.posterWrap {
+  position: relative;
+}
+
+.posterImage {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+}
+
+.posterBadge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(10, 13, 19, 0.8);
+  color: rgba(244, 247, 251, 0.96);
+  font-size: 0.82rem;
+}
+
+.heroContent {
+  display: grid;
+  gap: 20px;
+  align-content: start;
+}
+
+.eyebrow,
+.sectionEyebrow,
+.metaLabel,
+.downloadHint,
+.resourceMeta {
+  margin: 0;
+  color: rgba(244, 247, 251, 0.58);
+}
+
+.eyebrow,
+.sectionEyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.heroTitle {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.alternateTitle {
+  margin: 8px 0 0;
+  color: rgba(244, 247, 251, 0.66);
+  font-size: 1rem;
+}
+
+.tagline {
+  margin: 0;
+  max-width: 64ch;
+  color: rgba(244, 247, 251, 0.82);
+  font-size: 1.02rem;
+  line-height: 1.75;
+}
+
+.metadataGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.metaCard {
+  padding: 16px 18px;
+}
+
+.metaLabel {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.metaValue {
+  margin: 8px 0 0;
+  color: rgba(244, 247, 251, 0.96);
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+
+.creditStrip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.creditPill,
+.statPill,
+.actionSecondary,
+.sourceTab,
+.episodeLink,
+.providerTab,
+.resourceStatus,
+.resourceAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.creditPill,
+.statPill,
+.resourceStatus {
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(244, 247, 251, 0.82);
+  font-size: 0.84rem;
+}
+
+.actionCluster {
+  display: grid;
+  gap: 16px;
+}
+
+.actionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.actionPrimary,
+.inlineAction,
+.resourceAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(145deg, #ff7a18, #ffb067);
+  color: #111;
+  font-weight: 700;
+}
+
+.actionSecondary {
+  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(244, 247, 251, 0.92);
+}
+
+.statsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.detailBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.9fr);
+  gap: 24px;
+}
+
+.primaryColumn,
+.secondaryColumn {
+  display: grid;
+  gap: 24px;
+  align-content: start;
+}
+
+.playerSection,
+.synopsisCard,
+.downloadsCard,
+.episodesCard {
+  padding: 24px;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+}
+
+.sectionTitle,
+.resourceTitle {
+  margin: 6px 0 0;
+  font-size: clamp(1.3rem, 2vw, 1.9rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.sourceTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 16px;
+  margin-top: 20px;
+}
+
+.sourceTab,
+.providerTab,
+.episodeLink {
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(244, 247, 251, 0.82);
+}
+
+.sourceTabActive,
+.providerTabActive,
+.episodeLinkActive {
+  background: rgba(255, 122, 24, 0.18);
+  border-color: rgba(255, 122, 24, 0.34);
+  color: rgba(244, 247, 251, 0.98);
+}
+
+.tabCopy {
+  display: grid;
+  gap: 3px;
+}
+
+.tabMeta {
+  font-size: 0.78rem;
+  color: rgba(244, 247, 251, 0.56);
+}
+
+.episodesCard {
+  margin-top: 18px;
+}
+
+.episodeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.episodeLink {
+  justify-content: start;
+  border-radius: 20px;
+}
+
+.episodeCopy {
+  display: grid;
+  gap: 4px;
+}
+
+.episodeMeta {
+  font-size: 0.78rem;
+  color: rgba(244, 247, 251, 0.56);
+}
+
+.playerSurface {
+  position: relative;
+  overflow: hidden;
+  margin-top: 18px;
+  aspect-ratio: 16 / 9;
+  display: grid;
+  align-content: end;
+  padding: 24px;
+  background:
+    linear-gradient(180deg, rgba(9, 11, 17, 0.06), rgba(9, 11, 17, 0.88)),
+    radial-gradient(circle at top right, rgba(76, 201, 240, 0.22), transparent 24%),
+    #0a0d13;
+}
+
+.playerBackdrop {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  opacity: 0.18;
+}
+
+.playerInner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 14px;
+}
+
+.playerBadgeRow,
+.providerTabRow,
+.resourceActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.playerHeadline {
+  margin: 0;
+  max-width: 26ch;
+  font-size: clamp(1.5rem, 2.8vw, 2.3rem);
+  line-height: 1.02;
+}
+
+.playerCopy {
+  margin: 0;
+  max-width: 64ch;
+  color: rgba(244, 247, 251, 0.74);
+  line-height: 1.7;
+}
+
+.playerUrl {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  color: rgba(244, 247, 251, 0.72);
+  word-break: break-all;
+}
+
+.synopsisCopy {
+  margin: 14px 0 0;
+  color: rgba(244, 247, 251, 0.82);
+  line-height: 1.9;
+}
+
+.synopsisLead {
+  margin: 12px 0 0;
+  color: rgba(244, 247, 251, 0.94);
+  font-size: 1.02rem;
+  line-height: 1.8;
+}
+
+.downloadsHeader {
+  display: grid;
+  gap: 10px;
+}
+
+.providerTabRow {
+  margin-top: 18px;
+}
+
+.downloadList {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  margin-top: 18px;
+}
+
+.resourceRow {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.resourceHeading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+}
+
+.resourceTitle {
+  font-size: 1rem;
+}
+
+.resourceCopy {
+  display: grid;
+  gap: 6px;
+}
+
+.resourceMeta {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  word-break: break-all;
+}
+
+.resourceAction {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(244, 247, 251, 0.92);
+  font-weight: 600;
+}
+
+.resourceActionPrimary {
+  background: linear-gradient(145deg, #ff7a18, #ffb067);
+  color: #111;
+}
+
+.downloadsEmpty {
+  padding: 20px;
+  margin-top: 18px;
+  color: rgba(244, 247, 251, 0.66);
+  line-height: 1.7;
+}
+
+@media (max-width: 980px) {
+  .heroInner,
+  .detailBody {
+    grid-template-columns: 1fr;
+  }
+
+  .posterWrap {
+    max-width: 280px;
+  }
+}
+
+@media (max-width: 720px) {
+  .heroCard,
+  .playerSection,
+  .synopsisCard,
+  .downloadsCard,
+  .episodesCard {
+    padding: 20px;
+  }
+
+  .metadataGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sectionHeader,
+  .resourceHeading {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .sourceTabs,
+  .episodeGrid,
+  .providerTabRow,
+  .actionRow,
+  .resourceActions {
+    gap: 8px;
+  }
+}

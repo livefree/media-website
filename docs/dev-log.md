@@ -49,3 +49,8 @@ Search Filter:
 - Narrowly upgraded shared shell components so the search box, filters, navbar search action, and pagination can submit or link into the real search route
 - Refined the shared catalog contracts around browse-card, search-seed, detail, playback-source, episode, and download-resource projections so downstream UI, Search, and Detail agents can consume one stable media shape
 - Expanded category config and mock catalog records to cover route targets, region facets, multi-source playback cases, episode-level downloads, and related-media/detail helper needs
+
+Detail Player:
+- Added `/media/[slug]` in `app/media/[slug]/page.tsx`, driven by `getMediaDetail()` and query-param selection for active source, episode, and download provider
+- Added owned detail and player components in `components/detail/` and `components/player/` for the metadata header, actions area, synopsis, source tabs, player shell, episode selector, and download resource section
+- Added local CSS-module styling in `components/detail/detail-page.module.css` so the detail route can ship without modifying shared browsing styles
