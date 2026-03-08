@@ -34,6 +34,7 @@ UI Shell update:
 - Reworked the homepage shell in `app/page.tsx` to match the `/web-to-colon` hierarchy more closely with a compact navbar, dedicated search area, filter controls, poster-first grid, and static pagination shell
 - Updated `components/Navbar.tsx`, `components/SearchBox.tsx`, `components/FilterBar.tsx`, `components/MediaCard.tsx`, and `components/MediaGrid.tsx` to stay presentation-only while using placeholder homepage data
 - Rewrote `styles/homepage.css` around the reference layout with denser cards, badge overlays, responsive nav and filter behavior, and 2:3 poster treatments
+- Replaced homepage-local placeholders with shared catalog helpers and expanded the same browsing shell to `/movie`, `/series`, and `/anime` through shared UI components
 
 Data Catalog:
 - Rebuilt `skills/data-catalog/` into a reusable skill for streaming-platform schema design, mock catalog generation, and browse/watch analytics modeling

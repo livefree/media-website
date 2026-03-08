@@ -11,7 +11,7 @@ type FilterBarProps = {
 
 export function FilterBar({ groups, chips, activeChip }: FilterBarProps) {
   return (
-    <section className="filter-panel" aria-label="Homepage filters">
+    <section className="filter-panel" aria-label="Catalog filters">
       <div className="filter-chip-row" role="toolbar" aria-label="Quick filters">
         {chips.map((chip) => (
           <button
@@ -33,7 +33,7 @@ export function FilterBar({ groups, chips, activeChip }: FilterBarProps) {
             <button type="button" className="filter-select" aria-label={`${group.label}: ${group.value}`}>
               <span>{group.value}</span>
               <span className="filter-caret" aria-hidden="true">
-                v
+                /
               </span>
             </button>
           </div>

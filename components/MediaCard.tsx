@@ -1,57 +1,34 @@
-import type { CSSProperties } from "react";
+import type { BrowseMediaCard } from "../types/media";
 
-type MediaCardProps = {
-  title: string;
-  subtitle: string;
-  year: number;
-  rating: string;
-  format: string;
-  badge: string;
-  availability: string;
-  streams: number;
-  downloads: number;
-  tone: string;
-};
-
-export function MediaCard({
-  title,
-  subtitle,
-  year,
-  rating,
-  format,
-  badge,
-  availability,
-  streams,
-  downloads,
-  tone,
-}: MediaCardProps) {
-  const style = {
-    "--poster-tone": tone,
-  } as CSSProperties;
-
+export function MediaCard({ item }: { item: BrowseMediaCard }) {
   return (
-    <article className="media-card" style={style}>
+    <article className="media-card" data-tone={item.badge.tone}>
       <div className="media-poster">
-        <div className="poster-badge badge-top-left">{badge}</div>
-        <div className="poster-badge badge-top-right" aria-label={`Rating ${rating}`}>
-          {rating}
+        <img className="poster-image" src={item.posterUrl} alt={`${item.title} poster`} loading="lazy" />
+        <div className="poster-badge badge-top-left">{item.badge.label}</div>
+        <div className="poster-badge badge-top-right" aria-label={`Rating ${item.ratingLabel}`}>
+          {item.ratingValue.toFixed(1)}
         </div>
-        <div className="poster-badge badge-bottom-right">{availability}</div>
+        <div className="poster-badge badge-bottom-right">{item.statusLabel}</div>
         <div className="poster-surface">
-          <span className="poster-format">{format}</span>
-          <p className="poster-title">{title}</p>
-          <p className="poster-subtitle">{subtitle}</p>
+          <span className="poster-format">{item.typeLabel}</span>
+          <p className="poster-title">{item.title}</p>
+          <p className="poster-subtitle">{item.originalTitle ?? item.genres.slice(0, 2).join(" / ")}</p>
         </div>
       </div>
 
       <div className="media-copy">
-        <h3>{title}</h3>
+        <h3>{item.title}</h3>
         <p className="media-meta">
-          {year} · {format}
+          {item.yearLabel} · {item.typeLabel}
         </p>
+        <p className="media-availability">{item.availabilityLabel}</p>
         <div className="media-stats" aria-label="Availability">
-          <span>Online: {streams}</span>
-          <span>Drive: {downloads}</span>
+          {item.stats.slice(0, 3).map((stat) => (
+            <span key={stat.label}>
+              {stat.label}: {stat.value}
+            </span>
+          ))}
         </div>
       </div>
     </article>

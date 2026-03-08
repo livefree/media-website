@@ -4,10 +4,11 @@ type PaginationProps = {
 };
 
 export function Pagination({ currentPage, totalPages }: PaginationProps) {
-  const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+  const visiblePages = Math.min(totalPages, 5);
+  const pages = Array.from({ length: visiblePages }, (_, index) => index + 1);
 
   return (
-    <nav className="pagination-shell" aria-label="Homepage pagination">
+    <nav className="pagination-shell" aria-label="Catalog pagination">
       <button type="button" className="pagination-button" disabled={currentPage === 1}>
         Previous
       </button>
