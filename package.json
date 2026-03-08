@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "ingest:scan": "node scripts/media-ingest-scan.mjs",
     "ingest:enrich": "node scripts/media-enrich-candidates.mjs",
+    "ingest:seed": "node scripts/media-generate-import-seed.mjs",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",

@@ -79,3 +79,5 @@ Media Ingest:
 - Generated the first staging artifact at `import-data/media-ingest-manifest.json` for review before later metadata enrichment or catalog import work
 - Added `scripts/media-enrich-candidates.mjs` and an `ingest:enrich` script entry to turn the ingest manifest into deterministic metadata candidate review records without performing live scraping
 - Generated `import-data/media-metadata-candidates.json` with normalized local title/year/type data, provider-specific lookup placeholders, review statuses, confidence scores, and uncertainty notes for later human or automated enrichment
+- Added `scripts/media-generate-import-seed.mjs` and an `ingest:seed` script entry to merge the local ingest manifest with the reviewed metadata overlay into a DB-import-friendly staging seed
+- Generated `import-data/media-import-seed.json` with title identity, local source directories, review status, artwork candidates, movie vs episodic breakdowns, episode file references, ffprobe metadata, and pending provider/resource mapping placeholders
