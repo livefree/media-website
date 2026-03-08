@@ -1,0 +1,142 @@
+{
+  "reviewVersion": 1,
+  "sourceCandidatesPath": "import-data/media-metadata-candidates.json",
+  "entries": [
+    {
+      "relativeDirectory": "[沙丘]Dune.2021.2160p.HMAX.WEB-DL.SDR.H265.Atmos.DDP5.1.CHS-ENG.BOBO",
+      "reviewStatus": "matched",
+      "resolved": {
+        "canonicalTitle": "沙丘",
+        "originalTitle": "Dune",
+        "year": 2021,
+        "type": "movie",
+        "confidence": 0.99,
+        "notes": [
+          "Matched from bilingual local title and year.",
+          "Both Douban and IMDb candidates align with the local file naming and movie runtime."
+        ],
+        "sources": [
+          {
+            "provider": "douban",
+            "id": "34805219",
+            "title": "沙丘 Dune (2021)",
+            "url": "https://movie.douban.com/subject/34805219/",
+            "status": "verified"
+          },
+          {
+            "provider": "imdb",
+            "id": "tt1160419",
+            "title": "Dune (2021)",
+            "url": "https://www.imdb.com/title/tt1160419/",
+            "status": "verified"
+          }
+        ]
+      }
+    },
+    {
+      "relativeDirectory": "【国产剧】异物志.全36集.国语中字.2022.4K",
+      "reviewStatus": "matched",
+      "resolved": {
+        "canonicalTitle": "异物志",
+        "originalTitle": null,
+        "year": 2022,
+        "type": "series",
+        "confidence": 0.98,
+        "notes": [
+          "Matched from exact Chinese title, year, and 36-episode local structure.",
+          "Douban entry aligns with the local folder naming."
+        ],
+        "sources": [
+          {
+            "provider": "douban",
+            "id": "35633796",
+            "title": "异物志 (2022)",
+            "url": "https://movie.douban.com/subject/35633796/",
+            "status": "verified"
+          }
+        ]
+      }
+    },
+    {
+      "relativeDirectory": "Xam'd Lost Memories",
+      "reviewStatus": "matched",
+      "resolved": {
+        "canonicalTitle": "亡念的扎姆德",
+        "originalTitle": "Xam'd: Lost Memories",
+        "year": 2008,
+        "type": "anime",
+        "confidence": 0.93,
+        "notes": [
+          "Matched from exact English fansub title and anime-specific NCOP/NCED extras.",
+          "Local filenames did not include a year, so the year was filled from the reviewed metadata source."
+        ],
+        "sources": [
+          {
+            "provider": "douban",
+            "id": "2154313",
+            "title": "亡念的扎姆德 / Xam'd: Lost Memories (2008)",
+            "url": "https://movie.douban.com/subject/2154313/",
+            "status": "verified"
+          }
+        ]
+      }
+    },
+    {
+      "relativeDirectory": "侏罗纪世界：重生[无字片源].Jurassic.World.Rebirth.2025.2160p.iT.WEB-DL.H.265.DDP5.1.Atmos-QuickIO",
+      "reviewStatus": "matched",
+      "resolved": {
+        "canonicalTitle": "侏罗纪世界：重生",
+        "originalTitle": "Jurassic World Rebirth",
+        "year": 2025,
+        "type": "movie",
+        "confidence": 0.97,
+        "notes": [
+          "Matched from exact bilingual local title and year.",
+          "IMDb title aligns with the local release naming; no stable Douban subject link was confirmed in this pass."
+        ],
+        "sources": [
+          {
+            "provider": "imdb",
+            "id": "tt31036941",
+            "title": "Jurassic World Rebirth (2025)",
+            "url": "https://www.imdb.com/title/tt31036941/",
+            "status": "verified"
+          }
+        ]
+      }
+    },
+    {
+      "relativeDirectory": "海市蜃楼 2025",
+      "reviewStatus": "manual-review",
+      "resolved": {
+        "canonicalTitle": "海市蜃楼",
+        "originalTitle": "Sky Mirage",
+        "year": 2025,
+        "type": "series",
+        "confidence": 0.45,
+        "notes": [
+          "Local naming strongly suggests a 24-episode 2025 series.",
+          "A stable official Douban or IMDb title page was not confirmed in this pass.",
+          "This entry needs a manual confirmation step before import."
+        ],
+        "sources": []
+      }
+    },
+    {
+      "relativeDirectory": "老饭骨",
+      "reviewStatus": "skipped",
+      "resolved": {
+        "canonicalTitle": "老饭骨",
+        "originalTitle": null,
+        "year": null,
+        "type": "unknown",
+        "confidence": 0.15,
+        "notes": [
+          "This folder appears to be a collection of standalone cooking videos, not one movie/series/anime catalog entry.",
+          "Keep it outside the streaming catalog import flow unless you later want a separate creator/video model."
+        ],
+        "sources": []
+      }
+    }
+  ]
+}
