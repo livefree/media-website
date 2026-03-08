@@ -1,11 +1,13 @@
 export type MediaType = "movie" | "series" | "anime";
+export type CatalogScope = MediaType | "all";
 export type MediaStatus = "draft" | "upcoming" | "ongoing" | "completed" | "archived";
 export type CatalogBadgeTone = "new" | "hot" | "updated" | "staff-pick" | "classic";
 export type ResourceMode = "stream" | "download";
 export type ResourceProvider = "m3u8" | "mp4" | "quark" | "baidu" | "aliyun" | "other";
 export type ResourceStatus = "online" | "degraded" | "offline" | "reported";
-
 export type CreditRole = "director" | "actor" | "writer" | "producer" | "creator" | "voice";
+export type CatalogSortValue = "latest" | "popular" | "rating";
+export type CatalogFacetKey = "type" | "genre" | "year" | "region";
 
 export interface RatingSnapshot {
   source: string;
@@ -109,18 +111,142 @@ export interface CatalogCategory {
 export interface CatalogFilterOption {
   value: string;
   label: string;
+  count?: number;
 }
 
 export interface CatalogFilterGroup {
-  id: string;
+  id: "sort" | CatalogFacetKey;
   label: string;
   options: CatalogFilterOption[];
 }
 
 export interface SearchSuggestion {
   slug: string;
+  href: string;
   title: string;
   type: MediaType;
   year: number;
   rating?: number;
+}
+
+export interface CatalogQueryState {
+  q: string;
+  type: CatalogScope;
+  genre?: string;
+  year?: number;
+  region?: string;
+  sort: CatalogSortValue;
+  page: number;
+  pageSize: number;
+}
+
+export interface BrowseMediaStat {
+  label: string;
+  value: string;
+}
+
+export interface BrowseMediaCard {
+  id: string;
+  slug: string;
+  href: string;
+  title: string;
+  originalTitle?: string;
+  year: number;
+  yearLabel: string;
+  type: MediaType;
+  typeLabel: string;
+  posterUrl: string;
+  ratingValue: number;
+  ratingLabel: string;
+  badge: MediaBadge;
+  status: MediaStatus;
+  statusLabel: string;
+  genres: string[];
+  availabilityLabel: string;
+  stats: BrowseMediaStat[];
+}
+
+export interface CatalogFacetSummary {
+  genres: CatalogFilterOption[];
+  years: CatalogFilterOption[];
+  regions: CatalogFilterOption[];
+}
+
+export interface CatalogFeed {
+  scope: CatalogScope;
+  title: string;
+  description: string;
+  href: string;
+  items: BrowseMediaCard[];
+}
+
+export interface PlaybackSourceOption {
+  id: string;
+  mediaSlug: string;
+  episodeSlug?: string;
+  label: string;
+  provider: ResourceProvider;
+  providerLabel: string;
+  quality?: string;
+  format: string;
+  status: ResourceStatus;
+  url: string;
+  seasonNumber?: number;
+  episodeNumber?: number;
+  episodeTitle?: string;
+}
+
+export interface DownloadResourceOption {
+  id: string;
+  mediaSlug: string;
+  episodeSlug?: string;
+  label: string;
+  provider: ResourceProvider;
+  providerLabel: string;
+  quality?: string;
+  format: string;
+  status: ResourceStatus;
+  url: string;
+  maskedUrl?: string;
+  accessCode?: string;
+  reportCount?: number;
+  seasonNumber?: number;
+  episodeNumber?: number;
+  episodeTitle?: string;
+}
+
+export interface MediaEpisodeOption {
+  id: string;
+  slug: string;
+  seasonNumber: number;
+  episodeNumber: number;
+  title: string;
+  runtimeMinutes?: number;
+  summary?: string;
+  streamCount: number;
+  downloadCount: number;
+  isDefault: boolean;
+}
+
+export interface MediaDetailMetadata {
+  title: string;
+  originalTitle?: string;
+  yearLabel: string;
+  countryLabel: string;
+  genreLabel: string;
+  ratingLabel: string;
+  credits: PersonCredit[];
+  directors: string[];
+  cast: string[];
+}
+
+export interface MediaDetailRecord {
+  media: MediaItem;
+  href: string;
+  metadata: MediaDetailMetadata;
+  playbackSources: PlaybackSourceOption[];
+  downloads: DownloadResourceOption[];
+  episodes: MediaEpisodeOption[];
+  defaultEpisodeSlug?: string;
+  relatedCards: BrowseMediaCard[];
 }

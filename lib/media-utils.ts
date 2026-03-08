@@ -1,4 +1,16 @@
-import type { CatalogBadgeTone, MediaItem, MediaResourceLink } from "../types/media";
+import type {
+  BrowseMediaCard,
+  CatalogBadgeTone,
+  DownloadResourceOption,
+  MediaDetailMetadata,
+  MediaEpisodeOption,
+  MediaItem,
+  MediaResourceLink,
+  MediaStatus,
+  MediaType,
+  PlaybackSourceOption,
+  ResourceProvider,
+} from "../types/media";
 
 const badgePriority: Record<CatalogBadgeTone, number> = {
   hot: 5,
@@ -7,6 +19,45 @@ const badgePriority: Record<CatalogBadgeTone, number> = {
   "staff-pick": 2,
   classic: 1,
 };
+
+const mediaTypeLabels: Record<MediaType, string> = {
+  movie: "Movie",
+  series: "Series",
+  anime: "Anime",
+};
+
+const mediaStatusLabels: Record<MediaStatus, string> = {
+  draft: "Draft",
+  upcoming: "Upcoming",
+  ongoing: "Ongoing",
+  completed: "Completed",
+  archived: "Archived",
+};
+
+const providerLabels: Record<ResourceProvider, string> = {
+  m3u8: "M3U8",
+  mp4: "MP4",
+  quark: "Quark",
+  baidu: "Baidu",
+  aliyun: "Aliyun",
+  other: "Other",
+};
+
+export function getMediaHref(media: Pick<MediaItem, "slug">): string {
+  return `/media/${media.slug}`;
+}
+
+export function getMediaTypeLabel(type: MediaType): string {
+  return mediaTypeLabels[type];
+}
+
+export function getMediaStatusLabel(status: MediaStatus): string {
+  return mediaStatusLabels[status];
+}
+
+export function getProviderLabel(provider: ResourceProvider): string {
+  return providerLabels[provider];
+}
 
 export function flattenMediaResources(media: MediaItem): MediaResourceLink[] {
   const episodeResources = media.seasons.flatMap((season) =>
@@ -72,4 +123,144 @@ export function compareFeaturedMedia(left: MediaItem, right: MediaItem): number 
   }
 
   return right.rating.value - left.rating.value;
+}
+
+export function buildBrowseMediaCard(media: MediaItem): BrowseMediaCard {
+  return {
+    id: media.id,
+    slug: media.slug,
+    href: getMediaHref(media),
+    title: media.title,
+    originalTitle: media.originalTitle,
+    year: media.year,
+    yearLabel: media.endYear ? `${media.year}-${media.endYear}` : String(media.year),
+    type: media.type,
+    typeLabel: getMediaTypeLabel(media.type),
+    posterUrl: media.posterUrl,
+    ratingValue: media.rating.value,
+    ratingLabel: `${media.rating.value.toFixed(1)} ${media.rating.source}`,
+    badge: media.badge,
+    status: media.status,
+    statusLabel: getMediaStatusLabel(media.status),
+    genres: media.genres,
+    availabilityLabel: media.resourceSummary.availabilityLabel,
+    stats: [
+      { label: "Streams", value: String(media.resourceSummary.streamCount) },
+      { label: "Downloads", value: String(media.resourceSummary.downloadCount) },
+      { label: "Weekly views", value: String(media.metrics.weeklyViews) },
+    ],
+  };
+}
+
+export function getPlaybackSources(media: MediaItem): PlaybackSourceOption[] {
+  const titleSources = media.resources
+    .filter((resource) => resource.mode === "stream")
+    .map((resource) => ({
+      id: resource.id,
+      mediaSlug: media.slug,
+      label: resource.label,
+      provider: resource.provider,
+      providerLabel: getProviderLabel(resource.provider),
+      quality: resource.quality,
+      format: resource.format,
+      status: resource.status,
+      url: resource.url,
+    }));
+
+  const episodeSources = media.seasons.flatMap((season) =>
+    season.episodes.flatMap((episode) =>
+      episode.streamLinks.map((resource) => ({
+        id: resource.id,
+        mediaSlug: media.slug,
+        episodeSlug: episode.slug,
+        label: resource.label,
+        provider: resource.provider,
+        providerLabel: getProviderLabel(resource.provider),
+        quality: resource.quality,
+        format: resource.format,
+        status: resource.status,
+        url: resource.url,
+        seasonNumber: season.seasonNumber,
+        episodeNumber: episode.episodeNumber,
+        episodeTitle: episode.title,
+      })),
+    ),
+  );
+
+  return [...titleSources, ...episodeSources];
+}
+
+export function getDownloadResources(media: MediaItem): DownloadResourceOption[] {
+  const titleDownloads = media.resources
+    .filter((resource) => resource.mode === "download")
+    .map((resource) => ({
+      id: resource.id,
+      mediaSlug: media.slug,
+      label: resource.label,
+      provider: resource.provider,
+      providerLabel: getProviderLabel(resource.provider),
+      quality: resource.quality,
+      format: resource.format,
+      status: resource.status,
+      url: resource.url,
+      maskedUrl: resource.maskedUrl,
+      accessCode: resource.accessCode,
+      reportCount: resource.reportCount,
+    }));
+
+  const episodeDownloads = media.seasons.flatMap((season) =>
+    season.episodes.flatMap((episode) =>
+      episode.downloadLinks.map((resource) => ({
+        id: resource.id,
+        mediaSlug: media.slug,
+        episodeSlug: episode.slug,
+        label: resource.label,
+        provider: resource.provider,
+        providerLabel: getProviderLabel(resource.provider),
+        quality: resource.quality,
+        format: resource.format,
+        status: resource.status,
+        url: resource.url,
+        maskedUrl: resource.maskedUrl,
+        accessCode: resource.accessCode,
+        reportCount: resource.reportCount,
+        seasonNumber: season.seasonNumber,
+        episodeNumber: episode.episodeNumber,
+        episodeTitle: episode.title,
+      })),
+    ),
+  );
+
+  return [...titleDownloads, ...episodeDownloads];
+}
+
+export function getEpisodeOptions(media: MediaItem): MediaEpisodeOption[] {
+  return media.seasons.flatMap((season, seasonIndex) =>
+    season.episodes.map((episode, episodeIndex) => ({
+      id: episode.id,
+      slug: episode.slug,
+      seasonNumber: season.seasonNumber,
+      episodeNumber: episode.episodeNumber,
+      title: episode.title,
+      runtimeMinutes: episode.runtimeMinutes,
+      summary: episode.summary,
+      streamCount: episode.streamLinks.length,
+      downloadCount: episode.downloadLinks.length,
+      isDefault: seasonIndex === 0 && episodeIndex === 0,
+    })),
+  );
+}
+
+export function buildDetailMetadata(media: MediaItem): MediaDetailMetadata {
+  return {
+    title: media.title,
+    originalTitle: media.originalTitle,
+    yearLabel: media.endYear ? `${media.year}-${media.endYear}` : String(media.year),
+    countryLabel: media.originCountry,
+    genreLabel: media.genres.join(" / "),
+    ratingLabel: `${media.rating.value.toFixed(1)} ${media.rating.source}`,
+    credits: media.credits,
+    directors: media.credits.filter((credit) => credit.role === "director" || credit.role === "creator").map((credit) => credit.name),
+    cast: media.credits.filter((credit) => credit.role === "actor" || credit.role === "voice").map((credit) => credit.name),
+  };
 }

@@ -1,8 +1,74 @@
 import { catalogCategories, catalogFilterGroups, hotSearchSuggestions, quickFilterChips } from "../data/categories";
 import { mediaCatalog } from "../data/media";
 import { browseEvents, platformUsers, recentSearches, resourceActivities } from "../data/platform";
-import type { MediaItem, MediaType, SearchSuggestion } from "../types/media";
-import { buildMediaSearchText, compareFeaturedMedia, getEpisodeCount, getResourceCounts } from "./media-utils";
+import type {
+  BrowseMediaCard,
+  CatalogFacetSummary,
+  CatalogFeed,
+  CatalogFilterOption,
+  CatalogQueryState,
+  CatalogScope,
+  CatalogSortValue,
+  MediaDetailRecord,
+  MediaItem,
+  MediaType,
+  SearchSuggestion,
+} from "../types/media";
+import {
+  buildBrowseMediaCard,
+  buildDetailMetadata,
+  buildMediaSearchText,
+  compareFeaturedMedia,
+  getDownloadResources,
+  getEpisodeCount,
+  getEpisodeOptions,
+  getMediaHref,
+  getPlaybackSources,
+  getResourceCounts,
+} from "./media-utils";
+
+function sortMedia(items: MediaItem[], sort: CatalogSortValue): MediaItem[] {
+  const sorted = [...items];
+
+  if (sort === "rating") {
+    return sorted.sort((left, right) => right.rating.value - left.rating.value);
+  }
+
+  if (sort === "popular") {
+    return sorted.sort(
+      (left, right) =>
+        right.metrics.weeklyViews +
+        right.metrics.weeklySearches -
+        (left.metrics.weeklyViews + left.metrics.weeklySearches),
+    );
+  }
+
+  return sorted.sort((left, right) => right.year - left.year || compareFeaturedMedia(left, right));
+}
+
+function paginate<T>(items: T[], page: number, pageSize: number): T[] {
+  const safePage = Math.max(page, 1);
+  const safePageSize = Math.max(pageSize, 1);
+  const offset = (safePage - 1) * safePageSize;
+  return items.slice(offset, offset + safePageSize);
+}
+
+function countFacetOptions(values: string[]): CatalogFilterOption[] {
+  const counts = values.reduce<Map<string, number>>((map, value) => {
+    map.set(value, (map.get(value) ?? 0) + 1);
+    return map;
+  }, new Map());
+
+  return [...counts.entries()]
+    .sort((left, right) => {
+      if (right[1] !== left[1]) {
+        return right[1] - left[1];
+      }
+
+      return left[0].localeCompare(right[0]);
+    })
+    .map(([value, count]) => ({ value, label: value, count }));
+}
 
 export function getAllMedia(): MediaItem[] {
   return mediaCatalog;
@@ -39,12 +105,125 @@ export function getHotSearches(limit = 5): SearchSuggestion[] {
   return hotSearchSuggestions.slice(0, limit);
 }
 
+export function getBrowseCards(scope: CatalogScope = "all", limit?: number): BrowseMediaCard[] {
+  const items = scope === "all" ? mediaCatalog : getMediaByType(scope);
+  const cards = sortMedia(items, "popular").map(buildBrowseMediaCard);
+  return typeof limit === "number" ? cards.slice(0, limit) : cards;
+}
+
+export function getCatalogFacets(items: MediaItem[] = mediaCatalog): CatalogFacetSummary {
+  return {
+    genres: countFacetOptions(items.flatMap((media) => media.genres)),
+    years: countFacetOptions(items.map((media) => String(media.year))),
+    regions: countFacetOptions(items.map((media) => media.originCountry)),
+  };
+}
+
+export function getCategoryFeed(scope: CatalogScope = "all", limit = 24): CatalogFeed {
+  const category = catalogCategories.find((entry) => entry.mediaType === scope);
+  const items = getBrowseCards(scope, limit);
+
+  if (!category) {
+    return {
+      scope,
+      title: "Browse all",
+      description: "Shared catalog feed spanning movie, series, and anime records.",
+      href: "/",
+      items,
+    };
+  }
+
+  return {
+    scope,
+    title: category.label,
+    description: category.description,
+    href: category.href,
+    items,
+  };
+}
+
 export function getCatalogConfig() {
+  const facets = getCatalogFacets();
+
   return {
     categories: catalogCategories,
-    filterGroups: catalogFilterGroups,
+    filterGroups: catalogFilterGroups.map((group) => {
+      if (group.id === "genre") {
+        return { ...group, options: facets.genres };
+      }
+
+      if (group.id === "year") {
+        return { ...group, options: facets.years };
+      }
+
+      if (group.id === "region") {
+        return { ...group, options: facets.regions };
+      }
+
+      return group;
+    }),
     quickFilterChips,
     hotSearches: hotSearchSuggestions,
+  };
+}
+
+export function getSearchSeed(query: CatalogQueryState) {
+  const scoped = query.type === "all" ? getAllMedia() : getMediaByType(query.type);
+  const byQuery = query.q ? searchMedia(query.q, query.type === "all" ? undefined : query.type) : scoped;
+  const byGenre = query.genre ? byQuery.filter((media) => media.genres.includes(query.genre)) : byQuery;
+  const byYear = query.year ? byGenre.filter((media) => media.year === query.year) : byGenre;
+  const byRegion = query.region ? byYear.filter((media) => media.originCountry === query.region) : byYear;
+  const sorted = sortMedia(byRegion, query.sort);
+  const pageItems = paginate(sorted, query.page, query.pageSize);
+
+  return {
+    query,
+    total: sorted.length,
+    items: pageItems,
+    cards: pageItems.map(buildBrowseMediaCard),
+    facets: getCatalogFacets(byRegion),
+  };
+}
+
+export function getRelatedMedia(slug: string, limit = 6): BrowseMediaCard[] {
+  const media = getMediaBySlug(slug);
+  if (!media) {
+    return [];
+  }
+
+  return mediaCatalog
+    .filter((candidate) => candidate.slug !== slug)
+    .sort((left, right) => {
+      const leftShared = left.type === media.type || left.genres.some((genre) => media.genres.includes(genre));
+      const rightShared = right.type === media.type || right.genres.some((genre) => media.genres.includes(genre));
+
+      if (leftShared !== rightShared) {
+        return Number(rightShared) - Number(leftShared);
+      }
+
+      return compareFeaturedMedia(left, right);
+    })
+    .slice(0, limit)
+    .map(buildBrowseMediaCard);
+}
+
+export function getMediaDetail(slug: string): MediaDetailRecord | undefined {
+  const media = getMediaBySlug(slug);
+  if (!media) {
+    return undefined;
+  }
+
+  const episodes = getEpisodeOptions(media);
+
+  return {
+    media,
+    href: getMediaHref(media),
+    metadata: buildDetailMetadata(media),
+    playbackSources: getPlaybackSources(media),
+    downloads: getDownloadResources(media),
+    episodes,
+    defaultEpisodeSlug: episodes.find((episode) => episode.isDefault)?.slug,
+    relatedCards: getRelatedMedia(slug),
   };
 }
 
@@ -96,6 +275,8 @@ export function getContinueWatching(userId: string) {
 
       return {
         media,
+        card: buildBrowseMediaCard(media),
+        detail: getMediaDetail(media.slug),
         episodeSlug: entry.episodeSlug,
         progressPercent: entry.progressPercent,
         currentTimeSeconds: entry.currentTimeSeconds,

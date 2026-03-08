@@ -41,3 +41,5 @@ Data Catalog:
 - Added shared contracts in `types/media.ts` and `types/platform.ts` for catalog, resource, user, and behavior data
 - Added shared seed-ready data in `data/categories.ts`, `data/media.ts`, and `data/platform.ts` to cover movie, series, anime, user state, and browse/resource activity
 - Added reusable catalog helpers in `lib/media-catalog.ts` and `lib/media-utils.ts` for downstream search, detail, and homepage integration
+- Refined the shared catalog contracts around browse-card, search-seed, detail, playback-source, episode, and download-resource projections so downstream UI, Search, and Detail agents can consume one stable media shape
+- Expanded category config and mock catalog records to cover route targets, region facets, multi-source playback cases, episode-level downloads, and related-media/detail helper needs
