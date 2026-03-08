@@ -39,7 +39,18 @@ Agents work in parallel using the following responsibilities:
 1. Read `task.md`
 2. Update `docs/roadmap.md`
 3. Assign tasks to agents
-4. Integrate results
+4. Let each agent work in its own git branch and commit within its ownership scope
+5. Integrate results
+
+## Agent Git Usage
+
+Agents are expected to use git during execution, not only at the end.
+
+- Each agent should work on its own `codex/*` branch
+- Each agent may run status, branch, add, and commit commands for its task
+- Each agent should commit only files inside its ownership scope
+- Every commit must use the shared format: `<type>(<agent-scope>): <summary>`
+- The Coordinator remains responsible for merge order and cross-agent integration
 
 ## Documentation
 
