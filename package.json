@@ -8,6 +8,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "ingest:scan": "node scripts/media-ingest-scan.mjs",
+    "ingest:enrich": "node scripts/media-enrich-candidates.mjs",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",

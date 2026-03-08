@@ -73,3 +73,5 @@ Media Ingest:
 - Added a new Media Ingest role and ownership boundaries in `AGENTS.md`, plus README notes and an `ingest:scan` script entry for local library scanning
 - Implemented `scripts/media-ingest-scan.mjs` as a deterministic local ingest pass that recursively scans `import-video/`, classifies asset types, infers conservative title/year/type/episode clues, and runs `ffprobe` on video files when available
 - Generated the first staging artifact at `import-data/media-ingest-manifest.json` for review before later metadata enrichment or catalog import work
+- Added `scripts/media-enrich-candidates.mjs` and an `ingest:enrich` script entry to turn the ingest manifest into deterministic metadata candidate review records without performing live scraping
+- Generated `import-data/media-metadata-candidates.json` with normalized local title/year/type data, provider-specific lookup placeholders, review statuses, confidence scores, and uncertainty notes for later human or automated enrichment
