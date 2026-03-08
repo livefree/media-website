@@ -39,16 +39,14 @@ export function SearchBox({
 }: SearchBoxProps) {
   return (
     <section className="search-panel" aria-label="Browse search shortcuts">
-      {title || summary ? (
-        <div className="search-meta-copy">
-          {title ? (
-            <p id="catalog-search-title" className="search-meta-title">
-              {title}
-            </p>
-          ) : null}
-          {summary ? <p className="search-meta-summary">{summary}</p> : null}
-        </div>
-      ) : null}
+      <div className="search-meta-copy">
+        {title ? (
+          <p id="catalog-search-title" className="search-meta-title">
+            {title}
+          </p>
+        ) : null}
+        {summary ? <p className="search-meta-summary">{summary}</p> : null}
+      </div>
 
       <div className="hot-search-strip">
         <span className="search-strip-label">Hot searches</span>

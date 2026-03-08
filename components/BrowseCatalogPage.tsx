@@ -11,30 +11,30 @@ const PAGE_SIZE = 18;
 const scopeCopy: Record<
   CatalogScope,
   {
+    introTitle: string;
+    introSummary: string;
     sectionKicker: string;
-    sectionTitle: string;
-    sectionMeta: string;
   }
 > = {
   all: {
+    introTitle: "Browse the full catalog with a tighter, poster-first shell.",
+    introSummary: "Search quickly, scan what is trending, and narrow the feed with compact filters before dropping into the grid.",
     sectionKicker: "Homepage catalog",
-    sectionTitle: "All titles",
-    sectionMeta: "Shared browse chrome, compact search controls, and dense poster cards driven by the integrated catalog.",
   },
   movie: {
+    introTitle: "Movie browsing keeps the same compact top chrome.",
+    introSummary: "Desktop search, hot picks, and the shared filter rail stay fixed while the feed narrows to films.",
     sectionKicker: "Movie catalog",
-    sectionTitle: "Movies",
-    sectionMeta: "Feature films filtered into the same browse shell with the same top chrome and facet row.",
   },
   series: {
+    introTitle: "Series browsing stays compact and scan-friendly.",
+    introSummary: "Use the same calm search-and-filter stack to move through ongoing and finished shows.",
     sectionKicker: "Series catalog",
-    sectionTitle: "Series",
-    sectionMeta: "Serialized picks keep the same compact hierarchy and poster-first layout as the homepage.",
   },
   anime: {
+    introTitle: "Anime browsing follows the same dense shared shell.",
+    introSummary: "The top layout stays minimal so the filter row and poster grid do the heavy lifting.",
     sectionKicker: "Anime catalog",
-    sectionTitle: "Anime",
-    sectionMeta: "Animated releases stay inside the same tight browse shell with shared catalog cards and controls.",
   },
 };
 
@@ -106,10 +106,16 @@ export function BrowseCatalogPage({ scope }: { scope: CatalogScope }) {
   return (
     <main className="page-shell">
       <div className="page-backdrop" aria-hidden="true" />
-      <Navbar activeScope={scope} hotSearches={hotSearches} hiddenFields={hiddenFields} />
+      <Navbar activeScope={scope} hiddenFields={hiddenFields} />
 
       <section className="discovery-section">
-        <SearchBox placeholder="Search titles, genres, or moods" hotSearches={hotSearches} hiddenFields={hiddenFields} />
+        <SearchBox
+          placeholder="Search titles, genres, or moods"
+          title={copy.introTitle}
+          summary={copy.introSummary}
+          hotSearches={hotSearches}
+          hiddenFields={hiddenFields}
+        />
         <FilterBar groups={filterGroups} chips={config.quickFilterChips} activeChip={getActiveChip(scope)} />
       </section>
 
@@ -117,20 +123,13 @@ export function BrowseCatalogPage({ scope }: { scope: CatalogScope }) {
         <div className="catalog-header">
           <div>
             <p className="section-kicker">{copy.sectionKicker}</p>
-            <h1 className="section-title">{copy.sectionTitle}</h1>
-          </div>
-          <p className="section-meta">{copy.sectionMeta}</p>
-        </div>
-
-        <div className="catalog-feed-copy">
-          <div>
-            <p className="catalog-feed-label">{feed.title}</p>
-            <p className="catalog-feed-description">{feed.description}</p>
+            <h1 className="section-title">{feed.title}</h1>
           </div>
           <p className="catalog-feed-meta">
             {totalItems} titles · page 1 of {totalPages}
           </p>
         </div>
+        <p className="catalog-feed-description">{feed.description}</p>
 
         <MediaGrid items={feed.items} title={`${feed.title} catalog`} />
         <Pagination currentPage={1} totalPages={totalPages} />
