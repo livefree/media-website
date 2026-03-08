@@ -68,3 +68,8 @@ Detail Player:
 Coordinator foundation:
 - Added the first productionization slice with `.env.example`, Prisma/NPM database scripts, server-side env helpers, and a reusable Prisma client singleton
 - Added minimal read-only API surfaces at `/api/health`, `/api/catalog`, and `/api/media/[slug]` so the app now has a real server boundary to build on beyond route-local rendering
+
+Media Ingest:
+- Added a new Media Ingest role and ownership boundaries in `AGENTS.md`, plus README notes and an `ingest:scan` script entry for local library scanning
+- Implemented `scripts/media-ingest-scan.mjs` as a deterministic local ingest pass that recursively scans `import-video/`, classifies asset types, infers conservative title/year/type/episode clues, and runs `ffprobe` on video files when available
+- Generated the first staging artifact at `import-data/media-ingest-manifest.json` for review before later metadata enrichment or catalog import work

@@ -22,6 +22,12 @@ Data Catalog
 - Defines MediaItem type
 - Generates mock dataset
 
+Media Ingest
+
+- Scans local media library drop folders
+- Builds deterministic staging manifests
+- Captures local technical metadata before enrichment
+
 Search Filter
 
 - Implements query parameter search
@@ -51,6 +57,13 @@ Data Catalog
 - types/
 - lib/media\*
 
+Media Ingest
+
+- scripts/
+- import-data/
+- docs/handovers/ when ingest handoffs are needed
+- package.json only for safe ingest script entries
+
 Search Filter
 
 - lib/search\*
@@ -71,7 +84,7 @@ Reviewer
 - Agents should not modify files owned by other agents unless required.
 - Each task should document changes in docs/dev-log.md.
 - Coordinator decides merge order.
-- All module agents are coordinated as sub-agents under the Coordinator thread by default. Users do not need to manage separate agent threads for Planner, UI Shell, Data Catalog, Search Filter, Detail Player, or Reviewer.
+- All module agents are coordinated as sub-agents under the Coordinator thread by default. Users do not need to manage separate agent threads for Planner, UI Shell, Data Catalog, Media Ingest, Search Filter, Detail Player, or Reviewer.
 - Agents may use git directly during execution for branch, status, staging, and commit workflows within their assigned scope.
 - All agent branches must be cut from the latest Coordinator integration branch, not from stale personal branches.
 - Coordinator should merge or otherwise integrate accepted agent work back into the integration branch before assigning the next dependent task.
@@ -90,6 +103,7 @@ Branch naming convention:
 codex/planner-init
 codex/ui-shell-homepage
 codex/data-catalog
+codex/media-ingest
 codex/search-filter
 codex/detail-player
 codex/review-layout
@@ -130,6 +144,7 @@ Required `agent-scope` values:
 - `planner`
 - `ui-shell`
 - `data-catalog`
+- `media-ingest`
 - `search-filter`
 - `detail-player`
 - `reviewer`
@@ -145,6 +160,7 @@ Examples:
 
 feat(ui-shell): build homepage shell
 feat(data-catalog): add media dataset
+feat(media-ingest): add local library scanner
 feat(search-filter): connect query filters
 fix(detail-player): adjust layout spacing
 docs(coordinator): standardize agent git workflow
