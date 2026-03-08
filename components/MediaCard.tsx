@@ -29,7 +29,7 @@ export function MediaCard({ item }: { item: BrowseMediaCard }) {
         </p>
         <div className="media-stats" aria-label="Availability">
           {item.stats.slice(0, 3).map((stat) => (
-            <span key={stat.label}>
+            <span key={stat.label} className="media-stat-pill">
               {stat.label}: {stat.value}
             </span>
           ))}

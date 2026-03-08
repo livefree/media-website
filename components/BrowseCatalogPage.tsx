@@ -17,23 +17,23 @@ const scopeCopy: Record<
   }
 > = {
   all: {
-    introTitle: "Browse the latest additions across the full streaming catalog.",
-    introSummary: "Use the compact search and filter controls to move through new films, series, and anime without the browsing chrome getting in the way.",
-    sectionKicker: "Homepage catalog",
+    introTitle: "Browse recent releases, weekly trends, and freshly updated titles.",
+    introSummary: "Search quickly, scan what people are watching this week, and tighten the catalog with compact filters before dropping into the grid.",
+    sectionKicker: "Streaming catalog",
   },
   movie: {
-    introTitle: "Browse the latest film additions in the shared catalog shell.",
-    introSummary: "The top chrome stays compact while filters and the poster grid carry most of the browsing work.",
+    introTitle: "Browse recent film additions, weekly trends, and updated releases.",
+    introSummary: "Keep the browsing chrome compact while the film filter set and denser poster grid do most of the work.",
     sectionKicker: "Movie catalog",
   },
   series: {
-    introTitle: "Browse serialized titles with the same tight search-and-filter layout.",
-    introSummary: "Keep the focus on episode-ready poster cards and quick filtering rather than large hero copy.",
+    introTitle: "Browse current series updates, returning favorites, and new seasons.",
+    introSummary: "The layout stays tight so hot searches, facet controls, and the show grid read first.",
     sectionKicker: "Series catalog",
   },
   anime: {
-    introTitle: "Browse anime releases inside the same compact browsing frame.",
-    introSummary: "The header stays minimal so the filter block and dense results grid read closer to the reference.",
+    introTitle: "Browse anime releases, current weekly picks, and recent catalog updates.",
+    introSummary: "Search and filter stay compact so the upper shell feels closer to the reference browsing page.",
     sectionKicker: "Anime catalog",
   },
 };
@@ -93,6 +93,22 @@ function getFilterValues(scope: CatalogScope) {
   });
 }
 
+function getResultsHeadline(scope: CatalogScope) {
+  if (scope === "movie") {
+    return "Latest movie additions ready to stream and save.";
+  }
+
+  if (scope === "series") {
+    return "Latest series additions across new, ongoing, and completed shows.";
+  }
+
+  if (scope === "anime") {
+    return "Latest anime additions across current favorites and fresh releases.";
+  }
+
+  return "Latest additions across movies, series, and anime.";
+}
+
 export function BrowseCatalogPage({ scope }: { scope: CatalogScope }) {
   const copy = scopeCopy[scope];
   const config = getCatalogConfig();
@@ -123,12 +139,12 @@ export function BrowseCatalogPage({ scope }: { scope: CatalogScope }) {
         <div className="catalog-results-header">
           <div className="catalog-results-copy">
             <p className="section-kicker">{copy.sectionKicker}</p>
-            <h1 className="section-title">{feed.title}</h1>
+            <h1 className="section-title">{getResultsHeadline(scope)}</h1>
             <p className="catalog-feed-description">{feed.description}</p>
           </div>
           <div className="catalog-results-meta">
             <p className="catalog-results-count">{totalItems} titles</p>
-            <p className="catalog-feed-meta">Page 1 of {totalPages}</p>
+            <p className="catalog-feed-meta">Showing page 1 of {totalPages}</p>
           </div>
         </div>
 

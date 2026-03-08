@@ -41,15 +41,15 @@ export function SearchBox({
     <section className="search-panel" aria-label="Browse search shortcuts">
       <div className="search-intro">
         {title ? (
-          <p id="catalog-search-title" className="search-intro-title">
+          <h2 id="catalog-search-title" className="search-intro-title">
             {title}
-          </p>
+          </h2>
         ) : null}
         {summary ? <p className="search-intro-summary">{summary}</p> : null}
       </div>
 
       <div className="hot-search-strip">
-        <span className="search-strip-label">Hot searches:</span>
+        <span className="search-strip-label">Hot searches</span>
         <div className="hot-searches-inline" aria-label="Suggested searches">
           {hotSearches.map((item) => (
             <span key={item.slug} className="hot-search-inline-item">
@@ -67,7 +67,16 @@ export function SearchBox({
         ))}
         <label className="mobile-search-row">
           <span className="mobile-search-icon" aria-hidden="true">
-            /
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </span>
           <input
             className="mobile-search-input"
@@ -77,8 +86,17 @@ export function SearchBox({
             placeholder={placeholder}
             aria-label={placeholder}
           />
-          <button type="submit" className="mobile-search-button">
-            Go
+          <button type="submit" className="mobile-search-button" aria-label="Search">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </button>
         </label>
         <div className="mobile-search-chips">
