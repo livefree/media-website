@@ -42,6 +42,7 @@ UI Shell update:
 - Replaced homepage-local placeholders with shared catalog helpers and expanded the same browsing shell to `/movie`, `/series`, and `/anime` through shared UI components
 - Refit the shared top browse layout so the desktop search lives in the navbar, hot-search treatment is compact, and the filter row sits much closer to the grid in the `web-to-colon/main.html` style
 - Tightened the top browse hierarchy again so the navbar is calmer, intro copy is shorter, hot searches are inline beneath the intro, and the filter block matches the screenshot-style quick-chip plus labeled-select layout more closely
+- Rebuilt the shared browse shell with fidelity-first priority against `web-to-colon/main.html`, flattening the navbar, simplifying the intro/results header structure, and shifting poster cards toward the reference page's lighter border-box density
 
 Data Catalog:
 - Rebuilt `skills/data-catalog/` into a reusable skill for streaming-platform schema design, mock catalog generation, and browse/watch analytics modeling

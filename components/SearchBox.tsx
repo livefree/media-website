@@ -39,22 +39,24 @@ export function SearchBox({
 }: SearchBoxProps) {
   return (
     <section className="search-panel" aria-label="Browse search shortcuts">
-      <div className="search-meta-copy">
+      <div className="search-intro">
         {title ? (
-          <p id="catalog-search-title" className="search-meta-title">
+          <p id="catalog-search-title" className="search-intro-title">
             {title}
           </p>
         ) : null}
-        {summary ? <p className="search-meta-summary">{summary}</p> : null}
+        {summary ? <p className="search-intro-summary">{summary}</p> : null}
       </div>
 
       <div className="hot-search-strip">
-        <span className="search-strip-label">Hot searches</span>
-        <div className="hot-searches" aria-label="Suggested searches">
+        <span className="search-strip-label">Hot searches:</span>
+        <div className="hot-searches-inline" aria-label="Suggested searches">
           {hotSearches.map((item) => (
-            <Link key={item.slug} href={buildSearchHref(action, item.title, hiddenFields)} className="hot-search-chip">
-              {item.title}
-            </Link>
+            <span key={item.slug} className="hot-search-inline-item">
+              <Link href={buildSearchHref(action, item.title, hiddenFields)} className="hot-search-link">
+                {item.title}
+              </Link>
+            </span>
           ))}
         </div>
       </div>

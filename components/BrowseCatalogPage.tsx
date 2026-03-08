@@ -17,23 +17,23 @@ const scopeCopy: Record<
   }
 > = {
   all: {
-    introTitle: "Browse the full catalog with a tighter, poster-first shell.",
-    introSummary: "Search quickly, scan what is trending, and narrow the feed with compact filters before dropping into the grid.",
+    introTitle: "Browse the latest additions across the full streaming catalog.",
+    introSummary: "Use the compact search and filter controls to move through new films, series, and anime without the browsing chrome getting in the way.",
     sectionKicker: "Homepage catalog",
   },
   movie: {
-    introTitle: "Movie browsing keeps the same compact top chrome.",
-    introSummary: "Desktop search, hot picks, and the shared filter rail stay fixed while the feed narrows to films.",
+    introTitle: "Browse the latest film additions in the shared catalog shell.",
+    introSummary: "The top chrome stays compact while filters and the poster grid carry most of the browsing work.",
     sectionKicker: "Movie catalog",
   },
   series: {
-    introTitle: "Series browsing stays compact and scan-friendly.",
-    introSummary: "Use the same calm search-and-filter stack to move through ongoing and finished shows.",
+    introTitle: "Browse serialized titles with the same tight search-and-filter layout.",
+    introSummary: "Keep the focus on episode-ready poster cards and quick filtering rather than large hero copy.",
     sectionKicker: "Series catalog",
   },
   anime: {
-    introTitle: "Anime browsing follows the same dense shared shell.",
-    introSummary: "The top layout stays minimal so the filter row and poster grid do the heavy lifting.",
+    introTitle: "Browse anime releases inside the same compact browsing frame.",
+    introSummary: "The header stays minimal so the filter block and dense results grid read closer to the reference.",
     sectionKicker: "Anime catalog",
   },
 };
@@ -120,16 +120,17 @@ export function BrowseCatalogPage({ scope }: { scope: CatalogScope }) {
       </section>
 
       <section className="catalog-section">
-        <div className="catalog-header">
-          <div>
+        <div className="catalog-results-header">
+          <div className="catalog-results-copy">
             <p className="section-kicker">{copy.sectionKicker}</p>
             <h1 className="section-title">{feed.title}</h1>
+            <p className="catalog-feed-description">{feed.description}</p>
           </div>
-          <p className="catalog-feed-meta">
-            {totalItems} titles · page 1 of {totalPages}
-          </p>
+          <div className="catalog-results-meta">
+            <p className="catalog-results-count">{totalItems} titles</p>
+            <p className="catalog-feed-meta">Page 1 of {totalPages}</p>
+          </div>
         </div>
-        <p className="catalog-feed-description">{feed.description}</p>
 
         <MediaGrid items={feed.items} title={`${feed.title} catalog`} />
         <Pagination currentPage={1} totalPages={totalPages} />
