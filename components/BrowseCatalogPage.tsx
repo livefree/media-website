@@ -11,44 +11,30 @@ const PAGE_SIZE = 18;
 const scopeCopy: Record<
   CatalogScope,
   {
-    searchTitle: string;
-    searchSummary: string;
     sectionKicker: string;
     sectionTitle: string;
     sectionMeta: string;
   }
 > = {
   all: {
-    searchTitle: "Browse recent additions before the search flow is wired.",
-    searchSummary:
-      "The shared browsing shell mirrors the reference with a compact navbar, desktop-first search stack, quick chips, and a dense poster grid driven by the catalog layer.",
     sectionKicker: "Homepage catalog",
-    sectionTitle: "Poster-first browsing modeled on the `web-to-colon` reference shell.",
-    sectionMeta: "Shared catalog contracts now drive the cards, while search behavior stays deferred to the Search Filter phase.",
+    sectionTitle: "All titles",
+    sectionMeta: "Shared browse chrome, compact search controls, and dense poster cards driven by the integrated catalog.",
   },
   movie: {
-    searchTitle: "Scan feature releases and mirrored movie resources fast.",
-    searchSummary:
-      "This category route reuses the homepage chrome and changes only the active type context, keeping the same search stack, facet controls, and dense card grid.",
     sectionKicker: "Movie catalog",
-    sectionTitle: "Feature films stay inside the same compact browsing system.",
-    sectionMeta: "Presentation only. Category state is reflected visually here, while URL-backed search remains out of scope.",
+    sectionTitle: "Movies",
+    sectionMeta: "Feature films filtered into the same browse shell with the same top chrome and facet row.",
   },
   series: {
-    searchTitle: "Browse serialized dramas and episodic picks with the same shell.",
-    searchSummary:
-      "Series browsing keeps the same compact navigation and filter structure while swapping to catalog slices built for season and episode-heavy records.",
     sectionKicker: "Series catalog",
-    sectionTitle: "Serialized titles reuse the homepage browsing language.",
-    sectionMeta: "The layout is wired to shared browse-card helpers, not page-local placeholder arrays.",
+    sectionTitle: "Series",
+    sectionMeta: "Serialized picks keep the same compact hierarchy and poster-first layout as the homepage.",
   },
   anime: {
-    searchTitle: "Browse animated releases through the same fast scanning surface.",
-    searchSummary:
-      "Anime browsing inherits the shared search area, quick chips, and poster grid so the route feels like a filtered view over one streaming catalog.",
     sectionKicker: "Anime catalog",
-    sectionTitle: "Animated picks sit inside the same reference-aligned catalog shell.",
-    sectionMeta: "Genre, region, and year affordances are visible now; interactive filtering lands later in the Search Filter phase.",
+    sectionTitle: "Anime",
+    sectionMeta: "Animated releases stay inside the same tight browse shell with shared catalog cards and controls.",
   },
 };
 
@@ -113,22 +99,17 @@ export function BrowseCatalogPage({ scope }: { scope: CatalogScope }) {
   const feed = getCategoryFeed(scope, PAGE_SIZE);
   const totalItems = getBrowseCards(scope).length;
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
-  const trendingItems = getBrowseCards(scope, 5);
   const filterGroups = getFilterValues(scope);
+  const hiddenFields = scope === "all" ? [] : [{ name: "type", value: scope }];
+  const hotSearches = getHotSearches(5);
 
   return (
     <main className="page-shell">
       <div className="page-backdrop" aria-hidden="true" />
-      <Navbar activeScope={scope} />
+      <Navbar activeScope={scope} hotSearches={hotSearches} hiddenFields={hiddenFields} />
 
-      <section className="discovery-section" aria-labelledby="catalog-search-title">
-        <SearchBox
-          placeholder="Search titles, genres, or moods"
-          title={copy.searchTitle}
-          summary={copy.searchSummary}
-          hotSearches={getHotSearches(5)}
-          trendingItems={trendingItems}
-        />
+      <section className="discovery-section">
+        <SearchBox placeholder="Search titles, genres, or moods" hotSearches={hotSearches} hiddenFields={hiddenFields} />
         <FilterBar groups={filterGroups} chips={config.quickFilterChips} activeChip={getActiveChip(scope)} />
       </section>
 

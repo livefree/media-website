@@ -40,6 +40,7 @@ UI Shell update:
 - Updated `components/Navbar.tsx`, `components/SearchBox.tsx`, `components/FilterBar.tsx`, `components/MediaCard.tsx`, and `components/MediaGrid.tsx` to stay presentation-only while using placeholder homepage data
 - Rewrote `styles/homepage.css` around the reference layout with denser cards, badge overlays, responsive nav and filter behavior, and 2:3 poster treatments
 - Replaced homepage-local placeholders with shared catalog helpers and expanded the same browsing shell to `/movie`, `/series`, and `/anime` through shared UI components
+- Refit the shared top browse layout so the desktop search lives in the navbar, hot-search treatment is compact, and the filter row sits much closer to the grid in the `web-to-colon/main.html` style
 
 Data Catalog:
 - Rebuilt `skills/data-catalog/` into a reusable skill for streaming-platform schema design, mock catalog generation, and browse/watch analytics modeling
