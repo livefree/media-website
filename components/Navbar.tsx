@@ -38,10 +38,10 @@ export function Navbar({ activeScope }: { activeScope: CatalogScope }) {
 
       <div className="nav-actions">
         <span className="status-pill">Browse shell</span>
-        <button type="button" className="nav-ghost nav-ghost-icon" aria-label="Search flow pending">
+        <Link href="/search" className="nav-ghost nav-ghost-icon" aria-label="Open search">
           <span aria-hidden="true">/</span>
           <span>Search</span>
-        </button>
+        </Link>
         <button type="button" className="nav-ghost">
           Sign in
         </button>

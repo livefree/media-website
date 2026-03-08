@@ -1,7 +1,12 @@
+import Link from "next/link";
+
 import type { BrowseMediaCard, SearchSuggestion } from "../types/media";
 
 type SearchBoxProps = {
+  action?: string;
   placeholder: string;
+  queryValue?: string;
+  hiddenFields?: Array<{ name: string; value: string }>;
   title: string;
   summary: string;
   hotSearches: SearchSuggestion[];
@@ -20,7 +25,27 @@ function getTypeLabel(type: SearchSuggestion["type"]) {
   return "Anime";
 }
 
-export function SearchBox({ placeholder, title, summary, hotSearches, trendingItems }: SearchBoxProps) {
+function buildSearchHref(action: string, query: string) {
+  const params = new URLSearchParams();
+
+  if (query) {
+    params.set("q", query);
+  }
+
+  const suffix = params.toString();
+  return suffix ? `${action}?${suffix}` : action;
+}
+
+export function SearchBox({
+  action = "/search",
+  placeholder,
+  queryValue = "",
+  hiddenFields = [],
+  title,
+  summary,
+  hotSearches,
+  trendingItems,
+}: SearchBoxProps) {
   return (
     <section className="search-panel" aria-labelledby="catalog-search-title">
       <div className="search-copy">
@@ -32,17 +57,18 @@ export function SearchBox({ placeholder, title, summary, hotSearches, trendingIt
 
         <div className="search-stack">
           <div className="search-desktop-shell">
-            <form className="search-box" role="search">
+            <form className="search-box" action={action} method="get" role="search">
+              {hiddenFields.map((field) => (
+                <input key={field.name} type="hidden" name={field.name} value={field.value} />
+              ))}
               <label className="search-field">
                 <span className="search-label">Catalog search</span>
-                <input type="text" placeholder={placeholder} aria-label={placeholder} />
+                <input type="text" name="q" defaultValue={queryValue} placeholder={placeholder} aria-label={placeholder} />
               </label>
-              <button type="button" className="search-submit">
+              <button type="submit" className="search-submit">
                 Search
               </button>
-              <span className="search-hint">
-                Presentation only. Query wiring belongs to the Search Filter phase.
-              </span>
+              <span className="search-hint">Submitting the form preserves the current filter state and resets pagination.</span>
             </form>
 
             <div className="search-dropdown" aria-label="Hot searches">
@@ -50,13 +76,13 @@ export function SearchBox({ placeholder, title, summary, hotSearches, trendingIt
               <ul className="search-dropdown-list">
                 {hotSearches.map((item) => (
                   <li key={item.slug}>
-                    <button type="button" className="search-dropdown-item">
+                    <Link href={buildSearchHref(action, item.title)} className="search-dropdown-item">
                       <span className="search-dropdown-title">{item.title}</span>
                       <span className="search-dropdown-meta">
                         {getTypeLabel(item.type)} · {item.year}
                         {typeof item.rating === "number" ? ` · ${item.rating.toFixed(1)}` : ""}
                       </span>
-                    </button>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -65,9 +91,9 @@ export function SearchBox({ placeholder, title, summary, hotSearches, trendingIt
 
           <div className="hot-searches" aria-label="Suggested searches">
             {hotSearches.map((item) => (
-              <button key={item.slug} type="button" className="hot-search-chip">
+              <Link key={item.slug} href={buildSearchHref(action, item.title)} className="hot-search-chip">
                 {item.title}
-              </button>
+              </Link>
             ))}
           </div>
 
@@ -76,16 +102,16 @@ export function SearchBox({ placeholder, title, summary, hotSearches, trendingIt
               <span className="mobile-search-icon" aria-hidden="true">
                 /
               </span>
-              <span className="mobile-search-placeholder">{placeholder}</span>
-              <button type="button" className="mobile-search-button">
+              <span className="mobile-search-placeholder">{queryValue || placeholder}</span>
+              <Link href={buildSearchHref(action, queryValue)} className="mobile-search-button">
                 Open
-              </button>
+              </Link>
             </div>
             <div className="mobile-search-chips">
               {hotSearches.slice(0, 3).map((item) => (
-                <button key={item.slug} type="button" className="mobile-search-chip">
+                <Link key={item.slug} href={buildSearchHref(action, item.title)} className="mobile-search-chip">
                   {item.title}
-                </button>
+                </Link>
               ))}
             </div>
           </div>
