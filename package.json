@@ -11,6 +11,7 @@
     "ingest:enrich": "node scripts/media-enrich-candidates.mjs",
     "ingest:seed": "node scripts/media-generate-import-seed.mjs",
     "ingest:prisma": "node scripts/media-build-prisma-payload.mjs",
+    "ingest:import": "node scripts/media-import-prisma.mjs",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
