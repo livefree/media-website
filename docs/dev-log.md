@@ -21,6 +21,7 @@ Coordinator:
 - Updated collaboration docs so each agent can perform its own git status, branch, add, and commit workflow inside its assigned scope
 - Standardized the commit convention to `<type>(<agent-scope>): <summary>` for all future agent commits
 - Added branch synchronization rules so downstream agents must start from the latest `codex/coordinator-baseline` and accepted work is integrated before the next dependent task begins
+- Audited all module skills against the current streaming-platform roadmap and upgraded them from placeholder notes to project-specific workflows with scope, rules, and deliverables
 
 Planner update:
 - Refreshed `docs/architecture.md` into the requested planning format with an explicit project tree, routing structure, component tree, and integration notes

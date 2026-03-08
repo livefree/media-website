@@ -9,7 +9,7 @@ Use this skill for work under `data/`, `types/`, `lib/media*`, and any database 
 
 ## Workflow
 
-1. Read `docs/architecture.md` plus the relevant `web-to-colon/*.html` page.
+1. Read `docs/architecture.md`, `docs/roadmap.md`, and the relevant `web-to-colon/*.html` page.
 2. Split the work into two layers:
    - Persistence contracts in `prisma/`
    - App-facing contracts in `types/`, `data/`, and `lib/media*`
@@ -17,7 +17,8 @@ Use this skill for work under `data/`, `types/`, `lib/media*`, and any database 
    - `MediaTitle -> Season -> Episode -> Resource`
    - `User -> SearchQuery / BrowseEvent / WatchProgress / PlaybackSession`
 4. Keep metadata normalized, but keep mock catalog records denormalized enough for UI rendering.
-5. Update `docs/dev-log.md` after meaningful changes.
+5. Expose helpers that downstream agents can use for slug lookup, category slicing, and homepage/category feed assembly.
+6. Update `docs/dev-log.md` after meaningful changes.
 
 ## Rules
 
@@ -26,6 +27,8 @@ Use this skill for work under `data/`, `types/`, `lib/media*`, and any database 
 - Treat browse/search/playback analytics as append-only events.
 - Keep resume state in a dedicated progress record instead of deriving it from raw events.
 - When the UI is ahead of the backend, provide shared mock data that already matches the long-term schema shape.
+- Keep app-facing types stable and ergonomic even if the persistence layer is more normalized.
+- Ensure mock data covers movie, series, and anime routes plus detail/player use cases.
 
 ## References
 
@@ -37,3 +40,10 @@ Use this skill for work under `data/`, `types/`, `lib/media*`, and any database 
 - Shared types first.
 - Mock data that covers movie, series, and anime branches.
 - Pure helper functions in `lib/media*` that downstream agents can reuse.
+
+## Response format
+
+- changed files
+- summary of work
+- next steps
+- potential risks
