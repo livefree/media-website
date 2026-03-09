@@ -3,43 +3,31 @@ import Link from "next/link";
 import styles from "./detail-page.module.css";
 
 export function DetailActions({
-  primaryHref,
-  secondaryHref,
+  shareHref,
+  copyHref,
   availabilityLabel,
-  weeklyViews,
-  saves,
 }: {
-  primaryHref?: string;
-  secondaryHref?: string;
+  shareHref: string;
+  copyHref: string;
   availabilityLabel: string;
-  weeklyViews: number;
-  saves: number;
 }) {
   return (
     <div className={styles.actionCluster}>
       <div className={styles.actionRow}>
-        {primaryHref ? (
-          <Link href={primaryHref} target="_blank" rel="noreferrer" className={styles.actionPrimary}>
-            Watch active source
-          </Link>
-        ) : null}
-        {secondaryHref ? (
-          <Link href={secondaryHref} target="_blank" rel="noreferrer" className={styles.actionSecondary}>
-            Open top mirror
-          </Link>
-        ) : null}
-        <button type="button" className={styles.actionSecondary}>
-          Add to watchlist
-        </button>
-        <button type="button" className={styles.actionSecondary}>
-          Share entry
+        <Link href={shareHref} className={styles.shareButton}>
+          <span aria-hidden="true">⤴</span>
+          <span>分享</span>
+        </Link>
+        <Link href={copyHref} target="_blank" rel="noreferrer" className={styles.detailGhostAction}>
+          复制链接
+        </Link>
+        <button type="button" className={styles.detailGhostAction}>
+          收藏
         </button>
       </div>
 
       <div className={styles.statsRow}>
-        <span className={styles.statPill}>{availabilityLabel}</span>
-        <span className={styles.statPill}>{weeklyViews.toLocaleString()} weekly views</span>
-        <span className={styles.statPill}>{saves.toLocaleString()} saves</span>
+        <span className={styles.subtleStat}>{availabilityLabel}</span>
       </div>
     </div>
   );

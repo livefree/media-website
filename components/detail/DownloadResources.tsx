@@ -30,21 +30,13 @@ export function DownloadResources({
   resources: DownloadResourceOption[];
 }) {
   return (
-    <section className={styles.downloadsCard} aria-labelledby="download-resources-title">
-      <div className={styles.downloadsHeader}>
-        <p className={styles.sectionEyebrow}>Download resources</p>
-        <h2 id="download-resources-title" className={styles.sectionTitle}>
-          Provider-grouped mirrors and direct resource actions.
-        </h2>
-        <p className={styles.downloadHint}>
-          {activeEpisode
-            ? `Showing title-level mirrors plus resources for ${activeEpisode.title}.`
-            : "Showing title-level mirrors across the current media entry."}
-        </p>
-      </div>
+    <section className={styles.contentCard} aria-labelledby="download-resources-title">
+      <h2 id="download-resources-title" className={styles.sectionHeading}>
+        网盘资源
+      </h2>
 
       {providerTabs.length > 0 ? (
-        <div className={styles.providerTabRow}>
+        <div className={styles.providerTabs}>
           {providerTabs.map((tab) => (
             <Link
               key={tab.id}
@@ -59,42 +51,62 @@ export function DownloadResources({
       ) : null}
 
       {resources.length > 0 ? (
-        <div className={styles.downloadList}>
+        <div className={styles.downloadPanel}>
           {resources.map((resource) => (
             <article key={resource.id} className={styles.resourceRow}>
-              <div className={styles.resourceHeading}>
-                <div className={styles.resourceCopy}>
-                  <h3 className={styles.resourceTitle}>{resource.label}</h3>
-                  <p className={styles.resourceMeta}>{formatResourceMeta(resource)}</p>
-                  <p className={styles.resourceMeta}>{resource.maskedUrl ?? resource.url}</p>
-                  {resource.accessCode ? <p className={styles.resourceMeta}>Access code: {resource.accessCode}</p> : null}
-                  {typeof resource.reportCount === "number" ? (
-                    <p className={styles.resourceMeta}>Reports: {resource.reportCount}</p>
-                  ) : null}
+              <div className={styles.resourceTopRow}>
+                <div className={styles.resourceMetaCluster}>
+                  <span className={styles.resourceMeta}>{resource.quality ?? resource.format.toUpperCase()}</span>
+                  <span className={styles.resourceMeta}>
+                    {typeof resource.reportCount === "number" ? `${resource.reportCount}次失效反馈` : "0次失效反馈"}
+                  </span>
                 </div>
-
-                <span className={styles.resourceStatus}>{resource.providerLabel}</span>
               </div>
 
-              <div className={styles.resourceActions}>
+              <div className={styles.resourceLinkRow}>
+                <span className={styles.resourceUrl}>{resource.maskedUrl ?? resource.url}</span>
+              </div>
+
+              <div className={styles.resourceButtonRow}>
                 <Link
                   href={resource.url}
                   target="_blank"
                   rel="noreferrer"
-                  className={`${styles.resourceAction} ${styles.resourceActionPrimary}`}
+                  className={`${styles.resourceButton} ${styles.resourceButtonBlue}`}
                 >
-                  Open resource
+                  查看
                 </Link>
-                <span className={styles.resourceAction}>{resource.status}</span>
+                <button type="button" className={`${styles.resourceButton} ${styles.resourceButtonPurple}`}>
+                  扫码
+                </button>
+                <button type="button" className={`${styles.resourceButton} ${styles.resourceButtonGreen}`}>
+                  一键复制
+                </button>
+                <button type="button" className={`${styles.resourceButton} ${styles.resourceButtonRed}`}>
+                  反馈失效
+                </button>
               </div>
+
+              {resource.accessCode ? <p className={styles.accessCode}>提取码：{resource.accessCode}</p> : null}
+              {activeEpisode ? <p className={styles.downloadHint}>{activeEpisode.title}</p> : null}
+              <p className={styles.downloadHint}>{formatResourceMeta(resource)}</p>
             </article>
           ))}
         </div>
       ) : (
-        <div className={styles.downloadsEmpty}>
-          No download resources are available for the current provider or episode selection yet.
-        </div>
+        <div className={styles.downloadsEmpty}>当前筛选下没有可用网盘资源。</div>
       )}
+
+      <div className={styles.downloadSearchBar}>
+        <div className={styles.downloadSearchLine} />
+        <div className={styles.downloadSearchCopy}>
+          <span>资源都失效了？</span>
+          <button type="button" className={styles.searchNetdiskButton}>
+            搜索网盘资源
+          </button>
+        </div>
+        <div className={styles.downloadSearchLine} />
+      </div>
     </section>
   );
 }

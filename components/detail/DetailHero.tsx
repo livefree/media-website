@@ -21,25 +21,15 @@ export function DetailHero({
 
       <div className={styles.heroInner}>
         <div className={styles.posterWrap}>
-          <img
-            src={media.posterUrl}
-            alt={`${media.title} poster`}
-            className={styles.posterImage}
-          />
-          <div className={styles.posterBadge}>
-            <span>{media.badge.label}</span>
-            <span>{metadata.ratingLabel}</span>
-          </div>
+          <img src={media.posterUrl} alt={`${media.title} poster`} className={styles.posterImage} />
         </div>
 
         <div className={styles.heroContent}>
           <div>
-            <p className={styles.eyebrow}>{media.type} detail</p>
             <h1 className={styles.heroTitle}>{metadata.title}</h1>
-            {metadata.originalTitle ? <p className={styles.alternateTitle}>{metadata.originalTitle}</p> : null}
+            {metadata.originalTitle ? <p className={styles.subtitleLine}>{metadata.originalTitle}</p> : null}
           </div>
 
-          <p className={styles.tagline}>{media.tagline}</p>
           <DetailMeta metadata={metadata} availabilityLabel={media.resourceSummary.availabilityLabel} />
           {children}
         </div>

@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { DetailActions } from "../../../components/detail/DetailActions";
 import { DetailHero } from "../../../components/detail/DetailHero";
 import { DetailSynopsis } from "../../../components/detail/DetailSynopsis";
 import { DownloadResources } from "../../../components/detail/DownloadResources";
+import { RelatedRecommendations } from "../../../components/detail/RelatedRecommendations";
 import styles from "../../../components/detail/detail-page.module.css";
 import { Navbar } from "../../../components/Navbar";
 import { EpisodeSelector } from "../../../components/player/EpisodeSelector";
@@ -158,6 +158,8 @@ export default function MediaDetailPage({ params, searchParams }: RouteProps) {
     isActive: provider === activeDownloadProvider,
   }));
 
+  const activeEpisode = detail.episodes.find((episode) => episode.slug === activeEpisodeSlug);
+
   return (
     <main className="page-shell">
       <div className="page-backdrop" aria-hidden="true" />
@@ -166,51 +168,28 @@ export default function MediaDetailPage({ params, searchParams }: RouteProps) {
       <div className={styles.detailShell}>
         <DetailHero media={detail.media} metadata={detail.metadata}>
           <DetailActions
-            primaryHref={activeSource?.url}
-            secondaryHref={activeDownloads[0]?.url}
+            shareHref={detail.href}
+            copyHref={activeSource?.url ?? detail.href}
             availabilityLabel={detail.media.resourceSummary.availabilityLabel}
-            weeklyViews={detail.media.metrics.weeklyViews}
-            saves={detail.media.metrics.saves}
           />
         </DetailHero>
 
-        <div className={styles.detailBody}>
-          <div className={styles.primaryColumn}>
-            <section className={styles.playerSection} aria-labelledby="player-shell-title">
-              <div className={styles.sectionHeader}>
-                <div>
-                  <p className={styles.sectionEyebrow}>Playback surface</p>
-                  <h2 id="player-shell-title" className={styles.sectionTitle}>
-                    Multi-source player shell aligned with the reference detail layout.
-                  </h2>
-                </div>
-                {activeSource ? (
-                  <Link href={activeSource.url} target="_blank" rel="noreferrer" className={styles.inlineAction}>
-                    Open source
-                  </Link>
-                ) : null}
-              </div>
+        <DetailSynopsis synopsis={detail.media.synopsis} />
 
-              <SourceTabs tabs={sourceTabs} />
-              {detail.episodes.length > 0 ? <EpisodeSelector episodes={episodeOptions} /> : null}
-              <PlayerShell
-                media={detail.media}
-                source={activeSource}
-                activeEpisode={detail.episodes.find((episode) => episode.slug === activeEpisodeSlug)}
-              />
-            </section>
-
-            <DetailSynopsis synopsis={detail.media.synopsis} tagline={detail.media.tagline} />
+        <section className={styles.playerSection} aria-labelledby="player-shell-title">
+          <div className={styles.sectionBlockHeader}>
+            <h2 id="player-shell-title" className={styles.sectionHeading}>
+              在线播放
+            </h2>
           </div>
 
-          <aside className={styles.secondaryColumn}>
-            <DownloadResources
-              activeEpisode={detail.episodes.find((episode) => episode.slug === activeEpisodeSlug)}
-              providerTabs={providerTabs}
-              resources={activeDownloads}
-            />
-          </aside>
-        </div>
+          <SourceTabs tabs={sourceTabs} />
+          {detail.episodes.length > 0 ? <EpisodeSelector episodes={episodeOptions} /> : null}
+          <PlayerShell media={detail.media} source={activeSource} activeEpisode={activeEpisode} />
+        </section>
+
+        <DownloadResources activeEpisode={activeEpisode} providerTabs={providerTabs} resources={activeDownloads} />
+        <RelatedRecommendations items={detail.relatedCards.slice(0, 4)} />
       </div>
     </main>
   );

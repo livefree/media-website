@@ -19,22 +19,26 @@ export function SourceTabs({ tabs }: { tabs: SourceTab[] }) {
   }
 
   return (
-    <div className={styles.sourceTabs} aria-label="Playback sources">
-      {tabs.map((tab) => (
-        <Link
-          key={tab.id}
-          href={tab.href}
-          className={`${styles.sourceTab} ${tab.isActive ? styles.sourceTabActive : ""}`}
-          aria-current={tab.isActive ? "page" : undefined}
-        >
-          <span className={styles.tabCopy}>
-            <span>{tab.label}</span>
-            <span className={styles.tabMeta}>
-              {tab.providerLabel} · {tab.quality ?? tab.format.toUpperCase()} · {tab.status}
-            </span>
-          </span>
-        </Link>
-      ))}
-    </div>
+    <section className={styles.selectorBlock} aria-labelledby="source-selector-title">
+      <div className={styles.selectorLabelRow}>
+        <span id="source-selector-title" className={styles.selectorLabel}>
+          播放源：
+        </span>
+      </div>
+
+      <div className={styles.selectorTabs} aria-label="Playback sources">
+        {tabs.map((tab) => (
+          <Link
+            key={tab.id}
+            href={tab.href}
+            className={`${styles.selectorButton} ${tab.isActive ? styles.selectorButtonActive : ""}`}
+            aria-current={tab.isActive ? "page" : undefined}
+          >
+            {tab.label}
+            {tab.quality ? ` (${tab.quality})` : ""}
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }

@@ -2,7 +2,11 @@ import type { MediaDetailMetadata } from "../../types/media";
 import styles from "./detail-page.module.css";
 
 function joinOrFallback(values: string[], fallback: string) {
-  return values.length > 0 ? values.join(", ") : fallback;
+  return values.length > 0 ? values.join(" / ") : fallback;
+}
+
+function toChineseRating(label: string) {
+  return label.replace("Douban", "豆瓣");
 }
 
 export function DetailMeta({
@@ -12,34 +16,21 @@ export function DetailMeta({
   metadata: MediaDetailMetadata;
   availabilityLabel: string;
 }) {
-  const metadataItems = [
-    { label: "Release", value: metadata.yearLabel },
-    { label: "Country", value: metadata.countryLabel },
-    { label: "Genres", value: metadata.genreLabel },
-    { label: "Rating", value: metadata.ratingLabel },
-    { label: "Directors", value: joinOrFallback(metadata.directors, "Not listed") },
-    { label: "Cast", value: joinOrFallback(metadata.cast, "Not listed") },
-  ];
-
   return (
-    <>
-      <div className={styles.metadataGrid}>
-        {metadataItems.map((item) => (
-          <div key={item.label} className={styles.metaCard}>
-            <p className={styles.metaLabel}>{item.label}</p>
-            <p className={styles.metaValue}>{item.value}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className={styles.creditStrip} aria-label="Metadata chips">
-        <span className={styles.creditPill}>{availabilityLabel}</span>
-        {metadata.credits.map((credit) => (
-          <span key={`${credit.role}-${credit.name}`} className={styles.creditPill}>
-            {credit.role}: {credit.name}
-          </span>
-        ))}
-      </div>
-    </>
+    <div className={styles.heroMetaBlock}>
+      <p className={styles.metaLine}>
+        {metadata.yearLabel} · {metadata.countryLabel} · {metadata.genreLabel}
+      </p>
+      <p className={styles.metaLine}>{toChineseRating(metadata.ratingLabel)}</p>
+      <p className={styles.metaLine}>
+        <span className={styles.metaKey}>导演：</span>
+        <span>{joinOrFallback(metadata.directors, "未提供")}</span>
+      </p>
+      <p className={styles.metaLine}>
+        <span className={styles.metaKey}>主演：</span>
+        <span>{joinOrFallback(metadata.cast, "未提供")}</span>
+      </p>
+      <p className={styles.metaLineMuted}>{availabilityLabel}</p>
+    </div>
   );
 }

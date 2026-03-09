@@ -1,13 +1,12 @@
 import styles from "./detail-page.module.css";
 
-export function DetailSynopsis({ synopsis, tagline }: { synopsis: string; tagline: string }) {
+export function DetailSynopsis({ synopsis }: { synopsis: string }) {
   return (
-    <section className={styles.synopsisCard} aria-labelledby="detail-synopsis-title">
-      <p className={styles.sectionEyebrow}>Synopsis</p>
-      <h2 id="detail-synopsis-title" className={styles.sectionTitle}>
-        Long-form copy and premise overview.
+    <section className={styles.contentCard} aria-labelledby="detail-synopsis-title">
+      <h2 id="detail-synopsis-title" className={styles.sectionHeading}>
+        剧情介绍
       </h2>
-      <p className={styles.synopsisLead}>{tagline}</p>
+      <div className={styles.sectionDivider} />
       <p className={styles.synopsisCopy}>{synopsis}</p>
     </section>
   );
