@@ -16,6 +16,22 @@ export type SearchRouteParams = {
 const validTypes: CatalogScope[] = ["all", "movie", "series", "anime"];
 const validSorts: CatalogSortValue[] = ["latest", "popular", "rating"];
 
+export function getBrowsePathForType(type: CatalogScope): string {
+  if (type === "movie") {
+    return "/movie";
+  }
+
+  if (type === "series") {
+    return "/series";
+  }
+
+  if (type === "anime") {
+    return "/anime";
+  }
+
+  return "/";
+}
+
 function getSingleValue(value: SearchParamValue): string {
   if (Array.isArray(value)) {
     return value[0] ?? "";
@@ -63,6 +79,39 @@ export function buildSearchHref(
 
   if (next.type !== "all") {
     params.set("type", next.type);
+  }
+
+  if (next.sort !== "latest") {
+    params.set("sort", next.sort);
+  }
+
+  if (next.genre) {
+    params.set("genre", next.genre);
+  }
+
+  if (next.region) {
+    params.set("region", next.region);
+  }
+
+  if (next.year) {
+    params.set("year", next.year);
+  }
+
+  if (next.page > 1) {
+    params.set("page", String(next.page));
+  }
+
+  const query = params.toString();
+  return query ? `${pathname}?${query}` : pathname;
+}
+
+export function buildBrowseHref(current: SearchRouteParams, overrides: Partial<SearchRouteParams> = {}): string {
+  const next = { ...current, ...overrides };
+  const pathname = getBrowsePathForType(next.type);
+  const params = new URLSearchParams();
+
+  if (next.q) {
+    params.set("q", next.q);
   }
 
   if (next.sort !== "latest") {

@@ -31,7 +31,6 @@ export default function SearchPage({
         />
         <FilterBar
           action="/search"
-          chips={pageData.quickChips}
           groups={pageData.filters}
           hiddenFields={getHiddenSearchFields(pageData.params, ["sort", "type", "genre", "region", "year", "page"])}
         />
