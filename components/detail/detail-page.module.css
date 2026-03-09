@@ -206,12 +206,34 @@
   color: #f4f7fd;
 }
 
+.playerViewportWrap {
+  position: relative;
+  margin-top: 8px;
+}
+
+.playerViewportWrapTheater {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  align-items: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.92);
+}
+
 .playerViewport {
   position: relative;
-  margin-top: 6px;
   aspect-ratio: 16 / 9;
   background: #020305;
   overflow: hidden;
+  border: 1px solid rgba(64, 78, 100, 0.58);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
+}
+
+.playerViewportWrapTheater .playerViewport {
+  width: min(100vw - 40px, 1720px);
+  max-height: calc(100vh - 40px);
+  aspect-ratio: 16 / 9;
 }
 
 .playerBackdrop {
@@ -219,7 +241,16 @@
   inset: 0;
   background-position: center;
   background-size: cover;
-  opacity: 0.08;
+  opacity: 0.1;
+}
+
+.playerVideo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
 }
 
 .playerBrand {
@@ -238,29 +269,313 @@
   inset: 0;
   display: grid;
   align-content: end;
-  padding: 18px 18px 14px;
+  padding: 0 18px 16px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 44%, rgba(0, 0, 0, 0.72) 100%);
+}
+
+.playerProgressRail {
+  position: relative;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.playerProgressTrack {
+  position: absolute;
+  inset: 50% 0 auto;
+  height: 6px;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+}
+
+.playerProgressBuffered,
+.playerProgressPlayed {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+}
+
+.playerProgressBuffered {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.playerProgressPlayed {
+  background: #ff2347;
+}
+
+.playerProgressInput {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 18px;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.playerProgressInput::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ff2347;
+  border: 0;
+  box-shadow: 0 0 0 4px rgba(255, 35, 71, 0.14);
+}
+
+.playerProgressInput::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 50%;
+  background: #ff2347;
+  box-shadow: 0 0 0 4px rgba(255, 35, 71, 0.14);
+}
+
+.playerProgressInput::-webkit-slider-runnable-track,
+.playerProgressInput::-moz-range-track {
+  height: 18px;
+  background: transparent;
 }
 
 .playerControlRail {
   display: flex;
   align-items: center;
-  gap: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.22);
-  padding-top: 10px;
-  color: rgba(255, 255, 255, 0.9);
+  justify-content: space-between;
+  gap: 16px;
+  color: rgba(255, 255, 255, 0.96);
   font-size: 0.86rem;
 }
 
-.playerControlDot {
-  opacity: 0.92;
+.playerPrimaryCluster,
+.playerSecondaryCluster {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.playerControlButton,
+.playerVolumeToggle,
+.playerRateStep {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 48px;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+}
+
+.playerControlButton:hover,
+.playerVolumeToggle:hover,
+.playerRateStep:hover,
+.playerPresetButton:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.playerIcon {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+}
+
+.playerShortcut {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  min-height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.66rem;
+  line-height: 1;
 }
 
 .playerTime {
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 0.98rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
 }
 
-.playerControlSpacer {
-  flex: 1;
+.playerVolumeDock,
+.playerSpeedDock {
+  position: relative;
+}
+
+.playerVolumePanel,
+.playerSpeedPanel {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.playerVolumePanel {
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 236px;
+  padding: 14px 14px 14px 10px;
+  border-radius: 28px;
+  background: rgba(29, 31, 36, 0.92);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.34);
+}
+
+.playerPanelVisible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.playerVolumeSlider,
+.playerSpeedSlider {
+  width: 100%;
+  appearance: none;
+  background: transparent;
+}
+
+.playerVolumeSlider::-webkit-slider-runnable-track,
+.playerSpeedSlider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #fff 0%, #fff var(--fill), rgba(255, 255, 255, 0.18) var(--fill), rgba(255, 255, 255, 0.18) 100%);
+}
+
+.playerVolumeSlider::-moz-range-track,
+.playerSpeedSlider::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.playerVolumeSlider {
+  --fill: 100%;
+}
+
+.playerSpeedSlider {
+  --fill: 42.85%;
+}
+
+.playerVolumeSlider::-webkit-slider-thumb,
+.playerSpeedSlider::-webkit-slider-thumb {
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  margin-top: -11px;
+  border: 1px solid rgba(0, 0, 0, 0.36);
+  border-radius: 50%;
+  background: #f3f5f8;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.32);
+}
+
+.playerVolumeSlider::-moz-range-thumb,
+.playerSpeedSlider::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(0, 0, 0, 0.36);
+  border-radius: 50%;
+  background: #f3f5f8;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.32);
+}
+
+.playerSpeedPanel {
+  right: -12px;
+  width: min(92vw, 620px);
+  padding: 28px 30px 22px;
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.95);
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.42);
+}
+
+.playerSpeedValue {
+  margin: 0 0 24px;
+  color: #fff;
+  font-size: 2.6rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.playerSpeedSliderRow {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr) 74px;
+  gap: 18px;
+  align-items: center;
+}
+
+.playerRateStep {
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.playerSpeedPresets {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 26px;
+}
+
+.playerPresetButton {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  min-height: 96px;
+  padding: 16px 12px 12px;
+  border: 0;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 1.05rem;
+}
+
+.playerPresetButtonActive {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.playerSpeedLegend {
+  margin: 14px 0 0;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.playerErrorBanner {
+  position: absolute;
+  left: 18px;
+  top: 18px;
+  z-index: 3;
+  max-width: min(420px, calc(100% - 36px));
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(171, 28, 43, 0.9);
+  color: #fff;
+  font-size: 0.84rem;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .playerStatusRow {
@@ -504,5 +819,50 @@
   .playerStatusRow {
     display: grid;
     gap: 10px;
+  }
+
+  .playerViewportWrapTheater {
+    padding: 0;
+  }
+
+  .playerViewportWrapTheater .playerViewport {
+    width: 100vw;
+    max-height: 100vh;
+  }
+
+  .playerChrome {
+    padding: 0 12px 12px;
+  }
+
+  .playerControlRail,
+  .playerPrimaryCluster,
+  .playerSecondaryCluster {
+    flex-wrap: wrap;
+  }
+
+  .playerTime {
+    width: 100%;
+  }
+
+  .playerSpeedPanel {
+    right: 0;
+    left: auto;
+    width: min(96vw, 520px);
+    padding: 20px 18px 18px;
+  }
+
+  .playerSpeedSliderRow {
+    grid-template-columns: 58px minmax(0, 1fr) 58px;
+    gap: 10px;
+  }
+
+  .playerRateStep {
+    width: 58px;
+    height: 58px;
+    font-size: 1.8rem;
+  }
+
+  .playerSpeedPresets {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

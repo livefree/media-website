@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.7.0",
+    "hls.js": "^1.6.15",
     "next": "^14.2.3",
     "prisma": "^6.7.0",
     "react": "^18.2.0",
@@ -29,6 +30,7 @@
     "@types/node": "^20.12.7",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
+    "playwright": "^1.58.2",
     "typescript": "^5.4.5"
   }
 }

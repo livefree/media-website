@@ -159,6 +159,26 @@ export default function MediaDetailPage({ params, searchParams }: RouteProps) {
   }));
 
   const activeEpisode = detail.episodes.find((episode) => episode.slug === activeEpisodeSlug);
+  const nextEpisodeIndex = activeEpisode ? detail.episodes.findIndex((episode) => episode.slug === activeEpisode.slug) + 1 : -1;
+  const nextEpisode = nextEpisodeIndex > 0 ? detail.episodes[nextEpisodeIndex] : undefined;
+  const nextEpisodePlaybackOptions = nextEpisode
+    ? getPlaybackOptionsForEpisode(detail.playbackSources, nextEpisode.slug)
+    : [];
+  const nextEpisodeSource = nextEpisode
+    ? nextEpisodePlaybackOptions.find(
+        (option) =>
+          option.provider === activeSource?.provider &&
+          option.format === activeSource?.format &&
+          option.label === activeSource?.label,
+      ) ?? nextEpisodePlaybackOptions[0]
+    : undefined;
+  const nextEpisodeHref = nextEpisode
+    ? buildDetailHref(params.slug, searchParams, {
+        episode: nextEpisode.slug,
+        source: nextEpisodeSource?.id ?? null,
+        download: activeDownloadProvider ?? null,
+      })
+    : undefined;
 
   return (
     <main className="page-shell">
@@ -185,7 +205,14 @@ export default function MediaDetailPage({ params, searchParams }: RouteProps) {
 
           <SourceTabs tabs={sourceTabs} />
           {detail.episodes.length > 0 ? <EpisodeSelector episodes={episodeOptions} /> : null}
-          <PlayerShell media={detail.media} source={activeSource} activeEpisode={activeEpisode} />
+          <PlayerShell
+            media={detail.media}
+            source={activeSource}
+            availableSources={activePlaybackOptions}
+            activeEpisode={activeEpisode}
+            nextEpisodeHref={nextEpisodeHref}
+            nextEpisodeLabel={nextEpisode?.title}
+          />
         </section>
 
         <DownloadResources activeEpisode={activeEpisode} providerTabs={providerTabs} resources={activeDownloads} />

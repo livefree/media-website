@@ -65,6 +65,7 @@ Detail Player:
 - Added owned detail and player components in `components/detail/` and `components/player/` for the metadata header, actions area, synopsis, source tabs, player shell, episode selector, and download resource section
 - Added local CSS-module styling in `components/detail/detail-page.module.css` so the detail route can ship without modifying shared browsing styles
 - Rebuilt the detail page again for higher fidelity to `web-to-colon/page.html` and the three reference screenshots, including denser metadata, flatter dark panels, a black player viewport, colorful netdisk actions, and a related-poster strip
+- Replaced the shell player with a real client-side video player using `hls.js`, custom keyboard-first controls, next-episode routing, volume and speed panels, theater/fullscreen modes, and stable public demo HLS/MP4 sources for `/media/the-dinosaurs`
 
 Coordinator foundation:
 - Added the first productionization slice with `.env.example`, Prisma/NPM database scripts, server-side env helpers, and a reusable Prisma client singleton
