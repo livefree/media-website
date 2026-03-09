@@ -5,8 +5,11 @@ Screenshot 2026-03-06 at 23.41.26.png
 .env.local
 .env.*.local
 import-video/
-node_modules
-.next
-out
-coverage
+node_modules/
+.next/
+out/
+coverage/
 *.tsbuildinfo
+docs/handovers/reviewer-player-refinement-round-2.md
+reference-assets/*.png
+reference-assets/player-elements/

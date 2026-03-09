@@ -107,7 +107,7 @@ export function buildSearchPageData(searchParams: Record<string, string | string
   const resultSummary =
     selectedFilterCount > 0
       ? `The shared browsing shell now reflects query text, type, sort, optional genre, region, year facets, and page state directly in the URL.`
-      : `This route keeps the compact \`web-to-colon\` browsing language while letting search state live in the address bar instead of page-local placeholders.`;
+      : `This route keeps the compact \`reference-assets\` browsing language while letting search state live in the address bar instead of page-local placeholders.`;
 
   const trendingItems: BrowseMediaCard[] =
     seed.cards.length > 0 ? seed.cards.slice(0, 5) : getBrowseCards(params.type === "all" ? "all" : params.type, 5);

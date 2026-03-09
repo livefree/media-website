@@ -9,7 +9,7 @@ Use this skill for `app/media/`, `components/detail/`, and `components/player/`.
 
 ## Workflow
 
-1. Read `docs/architecture.md`, `docs/roadmap.md`, `types/media.ts`, `data/media.ts`, and the relevant `web-to-colon/page.html` reference when layout fidelity matters.
+1. Read `docs/architecture.md`, `docs/roadmap.md`, `types/media.ts`, `data/media.ts`, and the relevant `reference-assets/page.html` reference when layout fidelity matters.
 2. Resolve the route around a catalog item identified by `slug`.
 3. Split the page into focused pieces:
    - detail hero

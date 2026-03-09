@@ -26,14 +26,14 @@ Coordinator:
 - Added the missing Next.js runtime scaffold (`package.json`, TypeScript config, Next config, and ignore rules), installed dependencies, and fixed the remaining typecheck/build blockers so the project can be run locally
 
 Reviewer:
-- Performed a final integrated review across browse, search, and detail surfaces against the planner docs and `web-to-colon` references
+- Performed a final integrated review across browse, search, and detail surfaces against the planner docs and `reference-assets` references
 - Fixed a mobile layout regression in `styles/homepage.css` so the poster grid keeps the intended 2-column browse layout on very small screens instead of collapsing to a single column
 
 Planner update:
 - Refreshed `docs/architecture.md` into the requested planning format with an explicit project tree, routing structure, component tree, and integration notes
 - Expanded the target file map to include detail/player subcomponents and shared library utility boundaries
 - Updated `docs/roadmap.md` and `docs/handovers/planner-init.md` to reflect the current repository state and the next handoff sequence
-- Refined the planner docs again around the canonical delivery order `planner -> data-catalog -> ui-shell -> search-filter -> detail-player -> reviewer` and added `web-to-colon`-informed layout expectations for homepage, category, search, and detail routes
+- Refined the planner docs again around the canonical delivery order `planner -> data-catalog -> ui-shell -> search-filter -> detail-player -> reviewer` and added `reference-assets`-informed layout expectations for homepage, category, search, and detail routes
 - Reframed the planner docs from a UI-demo sequence into a productionization roadmap, clearly separating the current implemented state from the launch target and documenting the missing backend, auth, admin, playback, and ops capabilities
 - Added the planning handoff for `Player Refinement Round 2`, including task summary, owned-file boundaries, execution order, implementation checklist, and reviewer verification matrix
 - Added the planning handoff for `Player Refinement Round 3`, tightening the runtime-focused implementation checklist and requiring interactive reviewer QA for slider drag, overlay geometry, control-bar hide/show, and speed-panel placement
@@ -41,13 +41,13 @@ Planner update:
 - Added the planning handoff for `Player Refinement Round 5`, focusing the next pass on lower-right speed panel placement, compact control-bar geometry, richer speed/volume affordances, keyboard-and-mouse-compatible volume behavior, and cursor auto-hide validation
 
 UI Shell update:
-- Reworked the homepage shell in `app/page.tsx` to match the `/web-to-colon` hierarchy more closely with a compact navbar, dedicated search area, filter controls, poster-first grid, and static pagination shell
+- Reworked the homepage shell in `app/page.tsx` to match the `/reference-assets` hierarchy more closely with a compact navbar, dedicated search area, filter controls, poster-first grid, and static pagination shell
 - Updated `components/Navbar.tsx`, `components/SearchBox.tsx`, `components/FilterBar.tsx`, `components/MediaCard.tsx`, and `components/MediaGrid.tsx` to stay presentation-only while using placeholder homepage data
 - Rewrote `styles/homepage.css` around the reference layout with denser cards, badge overlays, responsive nav and filter behavior, and 2:3 poster treatments
 - Replaced homepage-local placeholders with shared catalog helpers and expanded the same browsing shell to `/movie`, `/series`, and `/anime` through shared UI components
-- Refit the shared top browse layout so the desktop search lives in the navbar, hot-search treatment is compact, and the filter row sits much closer to the grid in the `web-to-colon/main.html` style
+- Refit the shared top browse layout so the desktop search lives in the navbar, hot-search treatment is compact, and the filter row sits much closer to the grid in the `reference-assets/main.html` style
 - Tightened the top browse hierarchy again so the navbar is calmer, intro copy is shorter, hot searches are inline beneath the intro, and the filter block matches the screenshot-style quick-chip plus labeled-select layout more closely
-- Rebuilt the shared browse shell with fidelity-first priority against `web-to-colon/main.html`, flattening the navbar, simplifying the intro/results header structure, and shifting poster cards toward the reference page's lighter border-box density
+- Rebuilt the shared browse shell with fidelity-first priority against `reference-assets/main.html`, flattening the navbar, simplifying the intro/results header structure, and shifting poster cards toward the reference page's lighter border-box density
 - Tightened the fidelity pass further by restoring the MA badge and two-line brand block, sharpening the search/filter/header geometry, and pushing browse cards closer to the target screenshot's spacing and badge rhythm
 
 Data Catalog:
@@ -68,7 +68,7 @@ Detail Player:
 - Added `/media/[slug]` in `app/media/[slug]/page.tsx`, driven by `getMediaDetail()` and query-param selection for active source, episode, and download provider
 - Added owned detail and player components in `components/detail/` and `components/player/` for the metadata header, actions area, synopsis, source tabs, player shell, episode selector, and download resource section
 - Added local CSS-module styling in `components/detail/detail-page.module.css` so the detail route can ship without modifying shared browsing styles
-- Rebuilt the detail page again for higher fidelity to `web-to-colon/page.html` and the three reference screenshots, including denser metadata, flatter dark panels, a black player viewport, colorful netdisk actions, and a related-poster strip
+- Rebuilt the detail page again for higher fidelity to `reference-assets/page.html` and the three reference screenshots, including denser metadata, flatter dark panels, a black player viewport, colorful netdisk actions, and a related-poster strip
 - Replaced the shell player with a real client-side video player using `hls.js`, custom keyboard-first controls, next-episode routing, volume and speed panels, theater/fullscreen modes, and stable public demo HLS/MP4 sources for `/media/the-dinosaurs`
 - Refined the player again for Round 5 by tightening the control bar density, showing playback rate directly on the speed button, adding four-state volume icon feedback, temporarily revealing the volume rail on keyboard changes, lifting the speed panel above the compact control row, and auto-hiding the cursor during idle playback
 - Patched the Round 5 follow-up by making mute/unmute update the live video element immediately, strengthening the volume button's visible state markers, and raising the speed panel farther above the compact control bar

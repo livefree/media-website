@@ -10,7 +10,7 @@ Use this skill for work under `app/` except `app/search/` and `app/media/`, plus
 ## Workflow
 
 1. Read `docs/architecture.md`, `docs/roadmap.md`, and `docs/ui-reference.md`.
-2. If layout fidelity matters, inspect the relevant `web-to-colon/*.html` reference page.
+2. If layout fidelity matters, inspect the relevant `reference-assets/*.html` reference page.
 3. Build presentational shells first:
    - navbar
    - search shell

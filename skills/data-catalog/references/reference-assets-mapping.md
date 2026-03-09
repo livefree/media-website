@@ -1,8 +1,8 @@
-# `web-to-colon` Mapping
+# `reference-assets` Mapping
 
 Use this file when translating the HTML reference into reusable data contracts.
 
-## Homepage signals from `web-to-colon/main.html`
+## Homepage signals from `reference-assets/main.html`
 
 - Top nav and route split imply first-class media types: movie, series, anime.
 - Search dropdown implies a reusable hot-search dataset with title, type, year, rating, and route target.
@@ -16,7 +16,7 @@ Use this file when translating the HTML reference into reusable data contracts.
   - rating
   - short availability summary
 
-## Detail-page signals from `web-to-colon/page.html`
+## Detail-page signals from `reference-assets/page.html`
 
 - Hero block implies:
   - canonical title

@@ -1,6 +1,6 @@
 # UI Reference
 
-Reference source: `/web-to-colon/main.html`
+Reference source: `/reference-assets/main.html`
 
 Homepage shell:
 - Compact top navbar with left brand, centered category links, and right-side utility actions

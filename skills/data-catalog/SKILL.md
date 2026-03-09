@@ -1,6 +1,6 @@
 ---
 name: data-catalog
-description: Use when building or maintaining the data layer for a streaming-style media platform, including database schema design, media catalog types, mock seed data, playback/download resource modeling, user data, and browse/watch analytics derived from the `web-to-colon` reference.
+description: Use when building or maintaining the data layer for a streaming-style media platform, including database schema design, media catalog types, mock seed data, playback/download resource modeling, user data, and browse/watch analytics derived from the `reference-assets` reference.
 ---
 
 # Data Catalog
@@ -9,7 +9,7 @@ Use this skill for work under `data/`, `types/`, `lib/media*`, and any database 
 
 ## Workflow
 
-1. Read `docs/architecture.md`, `docs/roadmap.md`, and the relevant `web-to-colon/*.html` page.
+1. Read `docs/architecture.md`, `docs/roadmap.md`, and the relevant `reference-assets/*.html` page.
 2. Split the work into two layers:
    - Persistence contracts in `prisma/`
    - App-facing contracts in `types/`, `data/`, and `lib/media*`
@@ -33,7 +33,7 @@ Use this skill for work under `data/`, `types/`, `lib/media*`, and any database 
 ## References
 
 - Read `references/streaming-schema.md` for the entity map and schema invariants.
-- Read `references/web-to-colon-mapping.md` to map the reference pages into catalog, resource, and behavior tables.
+- Read `references/reference-assets-mapping.md` to map the reference pages into catalog, resource, and behavior tables.
 
 ## Deliverables
 
