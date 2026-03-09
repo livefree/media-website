@@ -418,7 +418,8 @@
 }
 
 .playerControlShell:hover .playerTooltip,
-.playerControlShell:focus-within .playerTooltip {
+.playerVolumeDock:hover .playerTooltip,
+.playerSpeedDock:hover .playerTooltip {
   opacity: 1;
   visibility: visible;
   transform: translate(-50%, 0);
@@ -434,7 +435,10 @@
 .playerVolumeDock,
 .playerSpeedDock {
   position: relative;
+  display: inline-flex;
+  align-items: center;
   pointer-events: auto;
+  overflow: visible;
 }
 
 .playerSpeedPanel {
@@ -448,23 +452,35 @@
 }
 
 .playerVolumePanel {
-  left: 56px;
+  position: absolute;
+  left: calc(100% + 8px);
   top: 50%;
-  transform: translateY(-50%);
+  transform: translate(-12px, -50%);
   display: flex;
   align-items: center;
-  width: 168px;
-  padding: 0 16px;
-  height: 56px;
+  width: 154px;
+  height: 48px;
+  padding: 0 14px;
   border-radius: 28px;
   background: rgba(29, 31, 36, 0.92);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.34);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 3;
+  transform-origin: left center;
+  transition:
+    opacity 160ms ease,
+    visibility 160ms ease,
+    transform 160ms ease;
 }
 
 .playerVolumeDock:hover .playerVolumePanel,
 .playerVolumeDock:focus-within .playerVolumePanel {
   opacity: 1;
+  visibility: visible;
   pointer-events: auto;
+  transform: translate(0, -50%);
 }
 
 .playerPanelVisible {
@@ -525,45 +541,46 @@
 }
 
 .playerSpeedPanel {
-  right: 0;
-  bottom: calc(100% + 12px);
-  width: min(92vw, 320px);
-  padding: 18px 18px 16px;
-  border-radius: 16px;
-  background: rgba(7, 9, 13, 0.78);
+  right: -4px;
+  bottom: calc(100% + 8px);
+  z-index: 4;
+  width: min(88vw, 248px);
+  padding: 14px 14px 12px;
+  border-radius: 14px;
+  background: rgba(7, 9, 13, 0.74);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
   backdrop-filter: blur(14px);
 }
 
 .playerSpeedValue {
-  margin: 0 0 14px;
+  margin: 0 0 10px;
   color: #fff;
-  font-size: 1.9rem;
+  font-size: 1.35rem;
   font-weight: 700;
   text-align: center;
 }
 
 .playerSpeedSliderRow {
   display: grid;
-  grid-template-columns: 52px minmax(0, 1fr) 52px;
-  gap: 12px;
+  grid-template-columns: 40px minmax(0, 1fr) 40px;
+  gap: 10px;
   align-items: center;
 }
 
 .playerRateStep {
-  width: 52px;
-  height: 52px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
-  font-size: 1.8rem;
+  font-size: 1.45rem;
   line-height: 1;
 }
 
 .playerSpeedPresets {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 16px;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .playerPresetButton {
@@ -571,13 +588,13 @@
   justify-items: center;
   align-items: center;
   justify-content: center;
-  min-height: 52px;
-  padding: 0 10px;
+  min-height: 42px;
+  padding: 0 8px;
   border: 0;
-  border-radius: 18px;
+  border-radius: 14px;
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
-  font-size: 0.96rem;
+  font-size: 0.88rem;
 }
 
 .playerPresetButtonActive {
@@ -878,29 +895,35 @@
   }
 
   .playerVolumePanel {
-    left: auto;
-    right: 0;
+    left: calc(100% + 6px);
+    right: auto;
     top: calc(100% + 8px);
     width: 148px;
-    height: 48px;
-    transform: translateY(0);
+    height: 44px;
+    transform: translate(-12px, 0);
+    transform-origin: left center;
+  }
+
+  .playerVolumeDock:hover .playerVolumePanel,
+  .playerVolumeDock:focus-within .playerVolumePanel {
+    transform: translate(0, 0);
   }
 
   .playerSpeedPanel {
     right: 0;
     left: auto;
-    width: min(92vw, 300px);
-    padding: 16px 14px 14px;
+    width: min(92vw, 232px);
+    padding: 12px 12px 10px;
   }
 
   .playerSpeedSliderRow {
-    grid-template-columns: 44px minmax(0, 1fr) 44px;
-    gap: 10px;
+    grid-template-columns: 38px minmax(0, 1fr) 38px;
+    gap: 8px;
   }
 
   .playerRateStep {
-    width: 44px;
-    height: 44px;
-    font-size: 1.55rem;
+    width: 38px;
+    height: 38px;
+    font-size: 1.35rem;
   }
 }

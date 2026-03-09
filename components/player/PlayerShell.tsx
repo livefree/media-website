@@ -50,8 +50,8 @@ function isHlsSource(source: PlaybackSourceOption | null) {
   return source.provider === "m3u8" || source.format.toLowerCase().includes("m3u8") || source.url.includes(".m3u8");
 }
 
-function buildProgressKey(mediaSlug: string, episodeSlug?: string, sourceId?: string) {
-  return `media-progress:${mediaSlug}:${episodeSlug ?? "feature"}:${sourceId ?? "default"}`;
+function buildProgressKey(mediaSlug: string, episodeSlug?: string) {
+  return `media-progress:${mediaSlug}:${episodeSlug ?? "feature"}`;
 }
 
 function readStoredProgress(progressKey: string): StoredPlaybackProgress | null {
@@ -241,8 +241,8 @@ export function PlayerShell({
   const [playbackError, setPlaybackError] = useState<string | null>(null);
 
   const progressKey = useMemo(
-    () => buildProgressKey(media.slug, activeEpisode?.slug, source?.id),
-    [activeEpisode?.slug, media.slug, source?.id],
+    () => buildProgressKey(media.slug, activeEpisode?.slug),
+    [activeEpisode?.slug, media.slug],
   );
   const currentTimeLabel = formatTime(currentTime);
   const durationLabel = formatTime(duration);
@@ -267,7 +267,6 @@ export function PlayerShell({
         detail: {
           mediaSlug: media.slug,
           episodeSlug: activeEpisode?.slug,
-          sourceId: source?.id,
           progress,
         },
       }),
@@ -649,7 +648,7 @@ export function PlayerShell({
   const speedSliderStyle = {
     "--fill": `${((playbackRate - 0.25) / 1.75) * 100}%`,
   } as CSSProperties;
-  const volumeTooltip = isMuted ? "Unmute (M)" : "Volume (M / ↑ / ↓)";
+  const volumeTooltip = isMuted ? "Unmute (M / ↑ / ↓)" : "Mute (M) / Volume (↑ / ↓)";
   const playTooltip = isPlaying ? "Pause (K / Space)" : "Play (K / Space)";
 
   return (
@@ -771,7 +770,12 @@ export function PlayerShell({
                     </button>
                   </ControlShell>
 
-                  <div className={styles.playerVolumePanel} role="group" aria-label="音量">
+                  <div
+                    className={styles.playerVolumePanel}
+                    role="group"
+                    aria-label="音量"
+                    onPointerDown={(event) => event.stopPropagation()}
+                  >
                     <label htmlFor={volumeSliderId} className={styles.srOnly}>
                       音量
                     </label>
@@ -784,6 +788,7 @@ export function PlayerShell({
                       value={isMuted ? 0 : volume}
                       className={styles.playerVolumeSlider}
                       style={volumeSliderStyle}
+                      onPointerDown={(event) => event.stopPropagation()}
                       onChange={(event) => updateVolume(Number(event.currentTarget.value))}
                     />
                   </div>
@@ -813,6 +818,7 @@ export function PlayerShell({
                     className={`${styles.playerSpeedPanel} ${showSpeedPanel ? styles.playerPanelVisible : ""}`}
                     role="group"
                     aria-label="倍速控制"
+                    onPointerDown={(event) => event.stopPropagation()}
                   >
                     <p className={styles.playerSpeedValue}>{playbackRate.toFixed(2)}x</p>
                     <div className={styles.playerSpeedSliderRow}>
@@ -837,6 +843,7 @@ export function PlayerShell({
                         value={playbackRate}
                         className={styles.playerSpeedSlider}
                         style={speedSliderStyle}
+                        onPointerDown={(event) => event.stopPropagation()}
                         onChange={(event) => updatePlaybackRate(Number(event.currentTarget.value))}
                       />
 
