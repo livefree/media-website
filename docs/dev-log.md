@@ -127,6 +127,7 @@ Coordinator:
 - Opened `Player Refinement Round 7` as a single-issue follow-up focused only on the structural alignment defect between the custom progress track and the native range thumb so planner, detail-player, and reviewer can isolate and verify one geometry fix at a time
 - Opened `Player Refinement Round 8` as a containment-only follow-up after Round 7, isolating the regression where the custom played/buffered fill layers escaped the rail and rendered as a large red block across the left side of the control bar
 - Opened `Catalog Filter Round 1` to convert the homepage/search filter section from placeholder chrome into a real live-filtering surface, remove the redundant quick-filter chip row, and expand catalog coverage data for more realistic facet testing
+- Opened `Public URL Identity Round 1` to introduce an opaque public-ID and watch-URL scheme so the site can stop exposing media slugs, episode slugs, and provider details in clear text while still supporting future playlist/list contexts
 
 2026-03-09
 
