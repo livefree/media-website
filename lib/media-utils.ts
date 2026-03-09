@@ -2,6 +2,7 @@ import type {
   BrowseMediaCard,
   CatalogBadgeTone,
   DownloadResourceOption,
+  EpisodeItem,
   MediaDetailMetadata,
   MediaEpisodeOption,
   MediaItem,
@@ -9,6 +10,7 @@ import type {
   MediaStatus,
   MediaType,
   PlaybackSourceOption,
+  PublicWatchQuery,
   ResourceProvider,
 } from "../types/media";
 
@@ -43,8 +45,67 @@ const providerLabels: Record<ResourceProvider, string> = {
   other: "Other",
 };
 
-export function getMediaHref(media: Pick<MediaItem, "slug">): string {
+export function buildWatchHref({
+  mediaPublicId,
+  episodePublicId,
+  resourcePublicId,
+  listPublicId,
+  listItemPublicRef,
+  timeSeconds,
+}: PublicWatchQuery): string {
+  const params = new URLSearchParams();
+  params.set("v", mediaPublicId);
+
+  if (episodePublicId) {
+    params.set("e", episodePublicId);
+  }
+
+  if (resourcePublicId) {
+    params.set("r", resourcePublicId);
+  }
+
+  if (listPublicId) {
+    params.set("list", listPublicId);
+  }
+
+  if (listItemPublicRef) {
+    params.set("li", listItemPublicRef);
+  }
+
+  if (typeof timeSeconds === "number" && Number.isFinite(timeSeconds) && timeSeconds > 0) {
+    params.set("t", String(Math.floor(timeSeconds)));
+  }
+
+  return `/watch?${params.toString()}`;
+}
+
+export function getCompatibilityMediaHref(media: Pick<MediaItem, "slug">): string {
   return `/media/${media.slug}`;
+}
+
+// Legacy helper retained so current slug routes can remain compatibility entry points.
+export function getMediaHref(media: Pick<MediaItem, "slug">): string {
+  return getCompatibilityMediaHref(media);
+}
+
+export function getCanonicalWatchHref(
+  media: Pick<MediaItem, "publicId">,
+  options?: {
+    episode?: Pick<EpisodeItem, "publicId">;
+    resource?: Pick<MediaResourceLink, "publicId">;
+    listPublicId?: string;
+    listItemPublicRef?: string;
+    timeSeconds?: number;
+  },
+): string {
+  return buildWatchHref({
+    mediaPublicId: media.publicId,
+    episodePublicId: options?.episode?.publicId,
+    resourcePublicId: options?.resource?.publicId,
+    listPublicId: options?.listPublicId,
+    listItemPublicRef: options?.listItemPublicRef,
+    timeSeconds: options?.timeSeconds,
+  });
 }
 
 export function getMediaTypeLabel(type: MediaType): string {
@@ -128,8 +189,11 @@ export function compareFeaturedMedia(left: MediaItem, right: MediaItem): number 
 export function buildBrowseMediaCard(media: MediaItem): BrowseMediaCard {
   return {
     id: media.id,
+    publicId: media.publicId,
     slug: media.slug,
-    href: getMediaHref(media),
+    href: media.compatibilityHref,
+    canonicalWatchHref: media.canonicalWatchHref,
+    compatibilityHref: media.compatibilityHref,
     title: media.title,
     originalTitle: media.originalTitle,
     year: media.year,
@@ -157,7 +221,9 @@ export function getPlaybackSources(media: MediaItem): PlaybackSourceOption[] {
     .filter((resource) => resource.mode === "stream")
     .map((resource) => ({
       id: resource.id,
+      publicId: resource.publicId,
       mediaSlug: media.slug,
+      mediaPublicId: media.publicId,
       label: resource.label,
       provider: resource.provider,
       providerLabel: getProviderLabel(resource.provider),
@@ -165,14 +231,18 @@ export function getPlaybackSources(media: MediaItem): PlaybackSourceOption[] {
       format: resource.format,
       status: resource.status,
       url: resource.url,
+      canonicalWatchHref: resource.canonicalWatchHref,
     }));
 
   const episodeSources = media.seasons.flatMap((season) =>
     season.episodes.flatMap((episode) =>
       episode.streamLinks.map((resource) => ({
         id: resource.id,
+        publicId: resource.publicId,
         mediaSlug: media.slug,
+        mediaPublicId: media.publicId,
         episodeSlug: episode.slug,
+        episodePublicId: episode.publicId,
         label: resource.label,
         provider: resource.provider,
         providerLabel: getProviderLabel(resource.provider),
@@ -183,6 +253,7 @@ export function getPlaybackSources(media: MediaItem): PlaybackSourceOption[] {
         seasonNumber: season.seasonNumber,
         episodeNumber: episode.episodeNumber,
         episodeTitle: episode.title,
+        canonicalWatchHref: resource.canonicalWatchHref,
       })),
     ),
   );
@@ -195,7 +266,9 @@ export function getDownloadResources(media: MediaItem): DownloadResourceOption[]
     .filter((resource) => resource.mode === "download")
     .map((resource) => ({
       id: resource.id,
+      publicId: resource.publicId,
       mediaSlug: media.slug,
+      mediaPublicId: media.publicId,
       label: resource.label,
       provider: resource.provider,
       providerLabel: getProviderLabel(resource.provider),
@@ -206,14 +279,18 @@ export function getDownloadResources(media: MediaItem): DownloadResourceOption[]
       maskedUrl: resource.maskedUrl,
       accessCode: resource.accessCode,
       reportCount: resource.reportCount,
+      canonicalWatchHref: resource.canonicalWatchHref,
     }));
 
   const episodeDownloads = media.seasons.flatMap((season) =>
     season.episodes.flatMap((episode) =>
       episode.downloadLinks.map((resource) => ({
         id: resource.id,
+        publicId: resource.publicId,
         mediaSlug: media.slug,
+        mediaPublicId: media.publicId,
         episodeSlug: episode.slug,
+        episodePublicId: episode.publicId,
         label: resource.label,
         provider: resource.provider,
         providerLabel: getProviderLabel(resource.provider),
@@ -227,6 +304,7 @@ export function getDownloadResources(media: MediaItem): DownloadResourceOption[]
         seasonNumber: season.seasonNumber,
         episodeNumber: episode.episodeNumber,
         episodeTitle: episode.title,
+        canonicalWatchHref: resource.canonicalWatchHref,
       })),
     ),
   );
@@ -238,7 +316,9 @@ export function getEpisodeOptions(media: MediaItem): MediaEpisodeOption[] {
   return media.seasons.flatMap((season, seasonIndex) =>
     season.episodes.map((episode, episodeIndex) => ({
       id: episode.id,
+      publicId: episode.publicId,
       slug: episode.slug,
+      mediaPublicId: media.publicId,
       seasonNumber: season.seasonNumber,
       episodeNumber: episode.episodeNumber,
       title: episode.title,
@@ -247,6 +327,7 @@ export function getEpisodeOptions(media: MediaItem): MediaEpisodeOption[] {
       streamCount: episode.streamLinks.length,
       downloadCount: episode.downloadLinks.length,
       isDefault: seasonIndex === 0 && episodeIndex === 0,
+      canonicalWatchHref: episode.canonicalWatchHref,
     })),
   );
 }

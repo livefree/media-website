@@ -1,4 +1,4 @@
-import { catalogCategories, catalogFilterGroups, hotSearchSuggestions, quickFilterChips } from "../data/categories";
+import { catalogCategories, catalogFilterGroups, hotSearchSuggestionSlugs, quickFilterChips } from "../data/categories";
 import { mediaCatalog } from "../data/media";
 import { browseEvents, platformUsers, recentSearches, resourceActivities } from "../data/platform";
 import type {
@@ -11,8 +11,11 @@ import type {
   CatalogScope,
   CatalogSortValue,
   MediaDetailRecord,
+  MediaResourceLink,
   MediaItem,
   MediaType,
+  PublicWatchQuery,
+  ResolvedPublicPlayback,
   SearchSuggestion,
 } from "../types/media";
 import {
@@ -20,6 +23,7 @@ import {
   buildDetailMetadata,
   buildMediaSearchText,
   compareFeaturedMedia,
+  getCompatibilityMediaHref,
   getDownloadResources,
   getEpisodeCount,
   getEpisodeOptions,
@@ -71,6 +75,33 @@ function countFacetOptions(values: string[]): CatalogFilterOption[] {
     .map(([value, count]) => ({ value, label: value, count }));
 }
 
+function buildSearchSuggestion(media: MediaItem): SearchSuggestion {
+  return {
+    slug: media.slug,
+    href: media.compatibilityHref,
+    publicId: media.publicId,
+    canonicalWatchHref: media.canonicalWatchHref,
+    compatibilityHref: media.compatibilityHref,
+    title: media.title,
+    type: media.type,
+    year: media.year,
+    rating: media.rating.value,
+  };
+}
+
+function getEpisodeFromMedia(media: MediaItem, publicId: string) {
+  return media.seasons.flatMap((season) => season.episodes).find((episode) => episode.publicId === publicId);
+}
+
+function getResourceFromMedia(media: MediaItem, publicId: string) {
+  return (
+    media.resources.find((resource) => resource.publicId === publicId) ??
+    media.seasons
+      .flatMap((season) => season.episodes.flatMap((episode) => [...episode.streamLinks, ...episode.downloadLinks]))
+      .find((resource) => resource.publicId === publicId)
+  );
+}
+
 export function getAllMedia(): MediaItem[] {
   return mediaCatalog;
 }
@@ -79,8 +110,54 @@ export function getMediaBySlug(slug: string): MediaItem | undefined {
   return mediaCatalog.find((media) => media.slug === slug);
 }
 
+export function getMediaByPublicId(publicId: string): MediaItem | undefined {
+  return mediaCatalog.find((media) => media.publicId === publicId);
+}
+
 export function getMediaByType(type: MediaType): MediaItem[] {
   return mediaCatalog.filter((media) => media.type === type);
+}
+
+export function getEpisodeByPublicId(publicId: string) {
+  for (const media of mediaCatalog) {
+    const episode = getEpisodeFromMedia(media, publicId);
+    if (episode) {
+      return episode;
+    }
+  }
+
+  return undefined;
+}
+
+export function getResourceByPublicId(publicId: string): MediaResourceLink | undefined {
+  for (const media of mediaCatalog) {
+    const resource = getResourceFromMedia(media, publicId);
+    if (resource) {
+      return resource;
+    }
+  }
+
+  return undefined;
+}
+
+export function resolvePublicPlayback({
+  mediaPublicId,
+  episodePublicId,
+  resourcePublicId,
+}: Pick<PublicWatchQuery, "mediaPublicId" | "episodePublicId" | "resourcePublicId">): ResolvedPublicPlayback | undefined {
+  const media = getMediaByPublicId(mediaPublicId);
+  if (!media) {
+    return undefined;
+  }
+
+  const episode = episodePublicId ? getEpisodeFromMedia(media, episodePublicId) : undefined;
+  const resource = resourcePublicId ? getResourceFromMedia(media, resourcePublicId) : undefined;
+
+  return {
+    media,
+    episode,
+    resource,
+  };
 }
 
 export function searchMedia(query: string, type?: MediaType): MediaItem[] {
@@ -103,7 +180,11 @@ export function getFeaturedMedia(limit = 12): MediaItem[] {
 }
 
 export function getHotSearches(limit = 5): SearchSuggestion[] {
-  return hotSearchSuggestions.slice(0, limit);
+  return hotSearchSuggestionSlugs
+    .map((slug) => getMediaBySlug(slug))
+    .filter((media): media is MediaItem => Boolean(media))
+    .slice(0, limit)
+    .map(buildSearchSuggestion);
 }
 
 export function getBrowseCards(scope: CatalogScope = "all", limit?: number): BrowseMediaCard[] {
@@ -206,7 +287,7 @@ export function getCatalogConfig() {
       return group;
     }),
     quickFilterChips,
-    hotSearches: hotSearchSuggestions,
+    hotSearches: getHotSearches(),
   };
 }
 
@@ -260,17 +341,26 @@ export function getMediaDetail(slug: string): MediaDetailRecord | undefined {
   }
 
   const episodes = getEpisodeOptions(media);
+  const compatibilityHref = getCompatibilityMediaHref(media);
 
   return {
     media,
     href: getMediaHref(media),
+    canonicalWatchHref: media.canonicalWatchHref,
+    compatibilityHref,
     metadata: buildDetailMetadata(media),
     playbackSources: getPlaybackSources(media),
     downloads: getDownloadResources(media),
     episodes,
     defaultEpisodeSlug: episodes.find((episode) => episode.isDefault)?.slug,
+    defaultEpisodePublicId: episodes.find((episode) => episode.isDefault)?.publicId,
     relatedCards: getRelatedMedia(slug),
   };
+}
+
+export function getMediaDetailByPublicId(publicId: string): MediaDetailRecord | undefined {
+  const media = getMediaByPublicId(publicId);
+  return media ? getMediaDetail(media.slug) : undefined;
 }
 
 export function getCatalogSnapshot() {
