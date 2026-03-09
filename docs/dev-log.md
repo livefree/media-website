@@ -63,6 +63,7 @@ Search Filter:
 - Added URL-backed search state helpers in `lib/search-params.ts`, `lib/search-filter.ts`, and `lib/pagination.ts`
 - Built `app/search/page.tsx` to reuse the shared browse shell with query, type, sort, genre, region, year, and page state reflected in the URL
 - Narrowly upgraded shared shell components so the search box, filters, navbar search action, and pagination can submit or link into the real search route
+- Wired the browse routes and `/search` to the same URL-backed facet state model so `Sort`, `Type`, `Genre`, `Region`, and `Year` now update results live, keep pagination/counts in sync, and preserve state across refresh and navigation
 - Refined the shared catalog contracts around browse-card, search-seed, detail, playback-source, episode, and download-resource projections so downstream UI, Search, and Detail agents can consume one stable media shape
 - Expanded category config and mock catalog records to cover route targets, region facets, multi-source playback cases, episode-level downloads, and related-media/detail helper needs
 

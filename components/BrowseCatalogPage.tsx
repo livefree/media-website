@@ -1,12 +1,12 @@
-import { getBrowseCards, getCatalogConfig, getCategoryFeed, getHotSearches } from "../lib/media-catalog";
+import { getCategoryFeed } from "../lib/media-catalog";
+import { buildBrowsePageData } from "../lib/search-filter";
+import { getHiddenSearchFields } from "../lib/search-params";
 import type { CatalogScope } from "../types/media";
 import { FilterBar } from "./FilterBar";
 import { MediaGrid } from "./MediaGrid";
 import { Navbar } from "./Navbar";
 import { Pagination } from "./Pagination";
 import { SearchBox } from "./SearchBox";
-
-const PAGE_SIZE = 18;
 
 const scopeCopy: Record<
   CatalogScope,
@@ -38,45 +38,6 @@ const scopeCopy: Record<
   },
 };
 
-function getFilterValues(scope: CatalogScope) {
-  const config = getCatalogConfig();
-  const feed = getCategoryFeed(scope, PAGE_SIZE);
-  const leadGenres = feed.items.flatMap((item) => item.genres).filter(Boolean);
-  const genreLabel = leadGenres.length > 0 ? leadGenres.slice(0, 2).join(" / ") : "All genres";
-
-  return config.filterGroups.map((group) => {
-    if (group.id === "sort") {
-      return { label: group.label, value: group.options[0]?.label ?? "Latest updates" };
-    }
-
-    if (group.id === "type") {
-      return {
-        label: group.label,
-        value: scope === "all" ? group.options[0]?.label ?? "All categories" : feed.title,
-      };
-    }
-
-    if (group.id === "genre") {
-      return {
-        label: group.label,
-        value: genreLabel,
-      };
-    }
-
-    if (group.id === "region") {
-      return {
-        label: group.label,
-        value: scope === "anime" ? "Japan and beyond" : "Global picks",
-      };
-    }
-
-    return {
-      label: group.label,
-      value: group.options[0]?.label ?? "All years",
-    };
-  });
-}
-
 function getResultsHeadline(scope: CatalogScope) {
   if (scope === "movie") {
     return "Latest movie additions ready to stream and save.";
@@ -93,29 +54,45 @@ function getResultsHeadline(scope: CatalogScope) {
   return "Latest additions across movies, series, and anime.";
 }
 
-export function BrowseCatalogPage({ scope }: { scope: CatalogScope }) {
+export function BrowseCatalogPage({
+  scope,
+  searchParams,
+}: {
+  scope: CatalogScope;
+  searchParams?: Record<string, string | string[] | undefined>;
+}) {
   const copy = scopeCopy[scope];
-  const feed = getCategoryFeed(scope, PAGE_SIZE);
-  const totalItems = getBrowseCards(scope).length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
-  const filterGroups = getFilterValues(scope);
-  const hiddenFields = scope === "all" ? [] : [{ name: "type", value: scope }];
-  const hotSearches = getHotSearches(5);
+  const pageData = buildBrowsePageData(scope, searchParams);
+  const feed = getCategoryFeed(scope);
+  const searchHiddenFields = getHiddenSearchFields(pageData.currentParams, ["q", "page", "type"]);
+  const filterHiddenFields = getHiddenSearchFields(pageData.currentParams, ["sort", "type", "genre", "region", "year", "page"]);
 
   return (
     <main className="page-shell">
       <div className="page-backdrop" aria-hidden="true" />
-      <Navbar activeScope={scope} hiddenFields={hiddenFields} />
+      <Navbar activeScope={scope} hiddenFields={searchHiddenFields} />
 
       <section className="discovery-section">
         <SearchBox
+          action={pageData.actionPath}
           placeholder="Search titles, genres, or moods"
+          queryValue={pageData.currentParams.q}
           title={copy.introTitle}
           summary={copy.introSummary}
-          hotSearches={hotSearches}
-          hiddenFields={hiddenFields}
+          hotSearches={pageData.hotSearches}
+          hiddenFields={searchHiddenFields}
         />
-        <FilterBar groups={filterGroups} />
+        <FilterBar
+          action={pageData.currentPath}
+          groups={pageData.filters}
+          hiddenFields={filterHiddenFields}
+          typeRoutes={{
+            all: "/",
+            movie: "/movie",
+            series: "/series",
+            anime: "/anime",
+          }}
+        />
       </section>
 
       <section className="catalog-section">
@@ -126,13 +103,27 @@ export function BrowseCatalogPage({ scope }: { scope: CatalogScope }) {
             <p className="catalog-feed-description">{feed.description}</p>
           </div>
           <div className="catalog-results-meta">
-            <p className="catalog-results-count">{totalItems} titles</p>
-            <p className="catalog-feed-meta">Showing page 1 of {totalPages}</p>
+            <p className="catalog-results-count">{pageData.totalResults} titles</p>
+            <p className="catalog-feed-meta">
+              Showing page {pageData.currentPage} of {pageData.totalPages}
+            </p>
           </div>
         </div>
 
-        <MediaGrid items={feed.items} title={`${feed.title} catalog`} />
-        <Pagination currentPage={1} totalPages={totalPages} />
+        {pageData.results.length > 0 ? (
+          <>
+            <MediaGrid items={pageData.results} title={`${feed.title} catalog`} />
+            <Pagination currentPage={pageData.currentPage} totalPages={pageData.totalPages} hrefBuilder={pageData.buildHref} />
+          </>
+        ) : (
+          <div className="empty-state">
+            <p className="empty-state-kicker">No matches</p>
+            <h2 className="empty-state-title">No titles matched the active browse query and facets.</h2>
+            <p className="empty-state-copy">
+              Clear one of the facet selections or widen the search text to bring more catalog entries back into view.
+            </p>
+          </div>
+        )}
       </section>
     </main>
   );

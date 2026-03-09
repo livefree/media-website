@@ -1,7 +1,7 @@
 import { getBrowseCards, getCatalogConfig, getSearchSeed } from "./media-catalog";
-import { buildSearchHref, parseSearchParams, type SearchRouteParams } from "./search-params";
+import { buildBrowseHref, getBrowsePathForType, parseSearchParams, type SearchRouteParams } from "./search-params";
 
-import type { BrowseMediaCard, CatalogQueryState, CatalogScope, CatalogSortValue } from "../types/media";
+import type { BrowseMediaCard, CatalogQueryState, CatalogScope } from "../types/media";
 
 const SEARCH_PAGE_SIZE = 18;
 
@@ -17,51 +17,12 @@ type SearchFilterGroup = {
   options: SearchOption[];
 };
 
-type SearchQuickChip = {
-  label: string;
-  href: string;
-  active: boolean;
-};
-
 function findOptionLabel(options: SearchOption[], value: string): string | undefined {
   return options.find((option) => option.value === value)?.label;
 }
 
 function buildActiveScope(type: CatalogScope): CatalogScope {
   return type === "all" ? "all" : type;
-}
-
-function buildQuickChips(params: SearchRouteParams): SearchQuickChip[] {
-  const definitions = [
-    { label: "Latest", overrides: { sort: "latest" as CatalogSortValue, type: "all" as CatalogScope } },
-    { label: "Popular", overrides: { sort: "popular" as CatalogSortValue } },
-    { label: "Movies", overrides: { type: "movie" as CatalogScope } },
-    { label: "Series", overrides: { type: "series" as CatalogScope } },
-    { label: "Anime", overrides: { type: "anime" as CatalogScope } },
-    { label: "Top rated", overrides: { sort: "rating" as CatalogSortValue } },
-  ];
-
-  return definitions.map((definition) => {
-    const nextParams = {
-      ...params,
-      ...definition.overrides,
-      page: 1,
-    };
-
-    const isActive =
-      (definition.label === "Latest" && params.sort === "latest" && params.type === "all") ||
-      (definition.label === "Popular" && params.sort === "popular") ||
-      (definition.label === "Movies" && params.type === "movie") ||
-      (definition.label === "Series" && params.type === "series") ||
-      (definition.label === "Anime" && params.type === "anime") ||
-      (definition.label === "Top rated" && params.sort === "rating");
-
-    return {
-      label: definition.label,
-      href: buildSearchHref(nextParams, {}, "/search"),
-      active: isActive,
-    };
-  });
 }
 
 export function buildSearchPageData(searchParams: Record<string, string | string[] | undefined> | undefined) {
@@ -155,7 +116,6 @@ export function buildSearchPageData(searchParams: Record<string, string | string
     totalResults: seed.total,
     totalPages,
     currentPage,
-    quickChips: buildQuickChips({ ...params, page: currentPage }),
     filters,
     hotSearches: config.hotSearches,
     trendingItems,
@@ -170,5 +130,98 @@ export function buildSearchPageData(searchParams: Record<string, string | string
       seed.total > 0
         ? `${seed.total} titles · page ${currentPage} of ${totalPages}`
         : "Try a looser query or clear one of the optional facets.",
+  };
+}
+
+export function buildBrowsePageData(
+  scope: CatalogScope,
+  searchParams: Record<string, string | string[] | undefined> | undefined,
+) {
+  const parsedParams = parseSearchParams(searchParams, SEARCH_PAGE_SIZE);
+  const config = getCatalogConfig();
+  const params: SearchRouteParams = {
+    ...parsedParams,
+    type: scope,
+  };
+
+  const genreOptions = config.filterGroups.find((group) => group.id === "genre")?.options ?? [];
+  const regionOptions = config.filterGroups.find((group) => group.id === "region")?.options ?? [];
+  const yearOptions = config.filterGroups.find((group) => group.id === "year")?.options ?? [];
+  const normalizedGenre = params.genre && genreOptions.some((option) => option.value === params.genre) ? params.genre : "";
+  const normalizedRegion = params.region && regionOptions.some((option) => option.value === params.region) ? params.region : "";
+  const normalizedYear = params.year && yearOptions.some((option) => option.value === params.year) ? params.year : "";
+  const normalizedParams: SearchRouteParams = {
+    ...params,
+    genre: normalizedGenre,
+    region: normalizedRegion,
+    year: normalizedYear,
+  };
+
+  const query: CatalogQueryState = {
+    q: normalizedParams.q,
+    type: scope,
+    genre: normalizedGenre ? findOptionLabel(genreOptions, normalizedGenre) : undefined,
+    region: normalizedRegion ? findOptionLabel(regionOptions, normalizedRegion) : undefined,
+    year: normalizedYear ? Number.parseInt(normalizedYear, 10) : undefined,
+    sort: normalizedParams.sort,
+    page: normalizedParams.page,
+    pageSize: normalizedParams.pageSize,
+  };
+
+  const initialSeed = getSearchSeed(query);
+  const totalPages = Math.max(1, Math.ceil(initialSeed.total / normalizedParams.pageSize));
+  const currentPage = Math.min(normalizedParams.page, totalPages);
+  const currentParams = currentPage === normalizedParams.page ? normalizedParams : { ...normalizedParams, page: currentPage };
+  const seed = currentPage === normalizedParams.page ? initialSeed : getSearchSeed({ ...query, page: currentPage });
+
+  const sortOptions = config.filterGroups.find((group) => group.id === "sort")?.options ?? [];
+  const typeOptions = config.filterGroups.find((group) => group.id === "type")?.options ?? [];
+
+  const filters: SearchFilterGroup[] = [
+    {
+      label: "Sort",
+      name: "sort",
+      value: currentParams.sort,
+      options: sortOptions,
+    },
+    {
+      label: "Type",
+      name: "type",
+      value: currentParams.type,
+      options: typeOptions,
+    },
+    {
+      label: "Genre",
+      name: "genre",
+      value: currentParams.genre,
+      options: [{ value: "", label: "All genres" }, ...genreOptions],
+    },
+    {
+      label: "Region",
+      name: "region",
+      value: currentParams.region,
+      options: [{ value: "", label: "All regions" }, ...regionOptions],
+    },
+    {
+      label: "Year",
+      name: "year",
+      value: currentParams.year,
+      options: [{ value: "", label: "All years" }, ...yearOptions],
+    },
+  ];
+
+  return {
+    actionPath: getBrowsePathForType(scope),
+    currentPath: getBrowsePathForType(scope),
+    currentParams,
+    filters,
+    results: seed.cards,
+    totalResults: seed.total,
+    totalPages,
+    currentPage,
+    hotSearches: config.hotSearches,
+    buildHref(page: number) {
+      return buildBrowseHref(currentParams, { page });
+    },
   };
 }
