@@ -204,7 +204,7 @@ export default function MediaDetailPage({ params, searchParams }: RouteProps) {
           </div>
 
           <SourceTabs tabs={sourceTabs} />
-          {detail.episodes.length > 0 ? <EpisodeSelector episodes={episodeOptions} /> : null}
+          {detail.episodes.length > 0 ? <EpisodeSelector mediaSlug={detail.media.slug} episodes={episodeOptions} /> : null}
           <PlayerShell
             media={detail.media}
             source={activeSource}

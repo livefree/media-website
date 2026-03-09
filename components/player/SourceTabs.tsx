@@ -31,6 +31,7 @@ export function SourceTabs({ tabs }: { tabs: SourceTab[] }) {
           <Link
             key={tab.id}
             href={tab.href}
+            scroll={false}
             className={`${styles.selectorButton} ${tab.isActive ? styles.selectorButtonActive : ""}`}
             aria-current={tab.isActive ? "page" : undefined}
           >

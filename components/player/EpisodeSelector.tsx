@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 import type { MediaEpisodeOption } from "../../types/media";
 import styles from "../detail/detail-page.module.css";
@@ -8,7 +11,80 @@ type EpisodeSelection = MediaEpisodeOption & {
   isActive: boolean;
 };
 
-export function EpisodeSelector({ episodes }: { episodes: EpisodeSelection[] }) {
+const MEDIA_PROGRESS_EVENT = "media-progress-updated";
+
+function readWatchedEpisodeSlugs(mediaSlug: string) {
+  if (typeof window === "undefined") {
+    return new Set<string>();
+  }
+
+  const watched = new Set<string>();
+
+  for (let index = 0; index < window.localStorage.length; index += 1) {
+    const key = window.localStorage.key(index);
+    if (!key || !key.startsWith(`media-progress:${mediaSlug}:`)) {
+      continue;
+    }
+
+    const parts = key.split(":");
+    const episodeSlug = parts[2];
+    if (!episodeSlug || episodeSlug === "feature") {
+      continue;
+    }
+
+    try {
+      const payload = JSON.parse(window.localStorage.getItem(key) ?? "{}") as {
+        currentTime?: number;
+        duration?: number;
+        completed?: boolean;
+      };
+
+      const watchedEnough =
+        Boolean(payload.completed) ||
+        (typeof payload.currentTime === "number" &&
+          (payload.currentTime >= 30 ||
+            (typeof payload.duration === "number" && payload.duration > 0 && payload.currentTime / payload.duration >= 0.85)));
+
+      if (watchedEnough) {
+        watched.add(episodeSlug);
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  return watched;
+}
+
+export function EpisodeSelector({
+  mediaSlug,
+  episodes,
+}: {
+  mediaSlug: string;
+  episodes: EpisodeSelection[];
+}) {
+  const [watchedEpisodes, setWatchedEpisodes] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const refresh = () => setWatchedEpisodes(readWatchedEpisodeSlugs(mediaSlug));
+    refresh();
+
+    const handleProgressUpdate = (event: Event) => {
+      const customEvent = event as CustomEvent<{ mediaSlug?: string }>;
+      if (!customEvent.detail?.mediaSlug || customEvent.detail.mediaSlug === mediaSlug) {
+        refresh();
+      }
+    };
+
+    window.addEventListener(MEDIA_PROGRESS_EVENT, handleProgressUpdate as EventListener);
+    window.addEventListener("storage", refresh);
+
+    return () => {
+      window.removeEventListener(MEDIA_PROGRESS_EVENT, handleProgressUpdate as EventListener);
+      window.removeEventListener("storage", refresh);
+    };
+  }, [mediaSlug]);
+
   if (episodes.length === 0) {
     return null;
   }
@@ -26,7 +102,10 @@ export function EpisodeSelector({ episodes }: { episodes: EpisodeSelection[] }) 
           <Link
             key={episode.id}
             href={episode.href}
-            className={`${styles.selectorButton} ${episode.isActive ? styles.selectorButtonActive : ""}`}
+            scroll={false}
+            className={`${styles.selectorButton} ${episode.isActive ? styles.selectorButtonActive : ""} ${
+              watchedEpisodes.has(episode.slug) && !episode.isActive ? styles.selectorButtonWatched : ""
+            }`}
             aria-current={episode.isActive ? "page" : undefined}
           >
             {episode.title}

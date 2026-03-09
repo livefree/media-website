@@ -41,6 +41,7 @@ export function DownloadResources({
             <Link
               key={tab.id}
               href={tab.href}
+              scroll={false}
               className={`${styles.providerTab} ${tab.isActive ? styles.providerTabActive : ""}`}
               aria-current={tab.isActive ? "page" : undefined}
             >

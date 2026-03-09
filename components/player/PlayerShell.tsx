@@ -2,7 +2,7 @@
 
 import Hls from "hls.js";
 import { useRouter } from "next/navigation";
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 import type { MediaEpisodeOption, MediaItem, PlaybackSourceOption } from "../../types/media";
@@ -12,6 +12,14 @@ const SEEK_STEP_SECONDS = 5;
 const VOLUME_STEP = 0.05;
 const SPEED_STEP = 0.05;
 const SPEED_PRESETS = [1, 1.25, 1.5, 2];
+const MEDIA_PROGRESS_EVENT = "media-progress-updated";
+
+type StoredPlaybackProgress = {
+  currentTime: number;
+  duration: number;
+  updatedAt: number;
+  completed: boolean;
+};
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -42,8 +50,50 @@ function isHlsSource(source: PlaybackSourceOption | null) {
   return source.provider === "m3u8" || source.format.toLowerCase().includes("m3u8") || source.url.includes(".m3u8");
 }
 
-function Shortcut({ label }: { label: string }) {
-  return <span className={styles.playerShortcut}>{label}</span>;
+function buildProgressKey(mediaSlug: string, episodeSlug?: string, sourceId?: string) {
+  return `media-progress:${mediaSlug}:${episodeSlug ?? "feature"}:${sourceId ?? "default"}`;
+}
+
+function readStoredProgress(progressKey: string): StoredPlaybackProgress | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const raw = window.localStorage.getItem(progressKey);
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(raw) as StoredPlaybackProgress;
+  } catch {
+    return null;
+  }
+}
+
+function persistStoredProgress(progressKey: string, progress: StoredPlaybackProgress) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.setItem(progressKey, JSON.stringify(progress));
+}
+
+function ControlShell({
+  tooltip,
+  children,
+}: {
+  tooltip: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className={styles.playerControlShell}>
+      {children}
+      <span role="tooltip" className={styles.playerTooltip}>
+        {tooltip}
+      </span>
+    </div>
+  );
 }
 
 function PlayIcon({ paused }: { paused: boolean }) {
@@ -62,8 +112,8 @@ function PlayIcon({ paused }: { paused: boolean }) {
 function NextEpisodeIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.playerIcon}>
-      <path d="M6 6.5v11l7.6-5.5L6 6.5Z" fill="currentColor" />
-      <path d="M13 6.5v11l7-5.5-7-5.5Z" fill="currentColor" />
+      <path d="M6 6.5v11l7.3-5.5L6 6.5Z" fill="currentColor" />
+      <path d="M13 6.5v11l5.7-4.2V17h2V7h-2v3.7L13 6.5Z" fill="currentColor" />
     </svg>
   );
 }
@@ -73,7 +123,7 @@ function VolumeIcon({ muted, volume }: { muted: boolean; volume: number }) {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.playerIcon}>
         <path d="M9 8.2 12.6 5v14L9 15.8H6V8.2h3Z" fill="currentColor" />
-        <path d="m16.1 9.1 4.2 4.2M20.3 9.1l-4.2 4.2" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
+        <path d="m16 9.3 4 4m0-4-4 4" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
       </svg>
     );
   }
@@ -82,7 +132,7 @@ function VolumeIcon({ muted, volume }: { muted: boolean; volume: number }) {
     <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.playerIcon}>
       <path d="M9 8.2 12.6 5v14L9 15.8H6V8.2h3Z" fill="currentColor" />
       <path
-        d="M15.6 9.2a4.8 4.8 0 0 1 0 5.6M18.1 7a8 8 0 0 1 0 10"
+        d="M15.5 9.2a4.7 4.7 0 0 1 0 5.6M18 7.2a8 8 0 0 1 0 9.6"
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinecap="round"
@@ -102,29 +152,51 @@ function SpeedIcon() {
         strokeLinecap="round"
         fill="none"
       />
-      <path d="m12.2 12.2 4.4-2.7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="m12 12.2 4.2-2.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
       <circle cx="12" cy="12.2" r="1.4" fill="currentColor" />
     </svg>
   );
 }
 
-function TheaterIcon() {
+function TheaterIcon({ active }: { active: boolean }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.playerIcon}>
-      <rect x="4.5" y="6" width="15" height="12" rx="1.8" stroke="currentColor" strokeWidth="1.8" fill="none" />
-      <path d="M9 10.2h6M9 13.8h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <rect x="4.5" y="6.3" width="15" height="11.4" rx="1.8" stroke="currentColor" strokeWidth="1.8" fill="none" />
+      <path
+        d={active ? "M9.2 9.4 7 11.6m0 0 2.2 2.2M15 9.4l2.2 2.2m0 0-2.2 2.2" : "M8.4 9.1 6.7 7.4m1.7 1.7H6.9V7.6m8.7 1.5 1.7-1.7m-1.7 1.7h1.5V7.6"}
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
     </svg>
   );
 }
 
 function FullscreenIcon({ active }: { active: boolean }) {
-  return active ? (
+  return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.playerIcon}>
-      <path d="M8.2 4.8H4.8v3.4M19.2 8.2V4.8h-3.4M15.8 19.2h3.4v-3.4M4.8 15.8v3.4h3.4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" fill="none" />
-    </svg>
-  ) : (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.playerIcon}>
-      <path d="M8.2 4.8H4.8v3.4M15.8 4.8h3.4v3.4M19.2 15.8v3.4h-3.4M8.2 19.2H4.8v-3.4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+      <path
+        d={
+          active
+            ? "M9.1 5.7H5.7v3.4M18.3 9.1V5.7h-3.4M14.9 18.3h3.4v-3.4M5.7 14.9v3.4h3.4"
+            : "M8.9 5.7H5.7v3.2M15.1 5.7h3.2v3.2M18.3 15.1v3.2h-3.2M8.9 18.3H5.7v-3.2"
+        }
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+      {!active ? (
+        <path
+          d="M9.3 9.3 5.9 5.9M14.7 9.3l3.4-3.4M14.7 14.7l3.4 3.4M9.3 14.7l-3.4 3.4"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+      ) : null}
     </svg>
   );
 }
@@ -148,8 +220,12 @@ export function PlayerShell({
   const rateSliderId = useId();
   const volumeSliderId = useId();
   const playerRef = useRef<HTMLDivElement | null>(null);
+  const speedPanelRef = useRef<HTMLDivElement | null>(null);
+  const speedButtonRef = useRef<HTMLButtonElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const hlsRef = useRef<Hls | null>(null);
+  const lastPersistedTimeRef = useRef(0);
+  const pendingResumeRef = useRef<StoredPlaybackProgress | null>(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -162,9 +238,12 @@ export function PlayerShell({
   const [isTheaterMode, setIsTheaterMode] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showSpeedPanel, setShowSpeedPanel] = useState(false);
-  const [showVolumePanel, setShowVolumePanel] = useState(false);
   const [playbackError, setPlaybackError] = useState<string | null>(null);
 
+  const progressKey = useMemo(
+    () => buildProgressKey(media.slug, activeEpisode?.slug, source?.id),
+    [activeEpisode?.slug, media.slug, source?.id],
+  );
   const currentTimeLabel = formatTime(currentTime);
   const durationLabel = formatTime(duration);
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
@@ -173,6 +252,44 @@ export function PlayerShell({
     const labels = [activeEpisode?.title, source?.providerLabel, source?.quality, media.status];
     return labels.filter(Boolean).join(" · ");
   }, [activeEpisode?.title, media.status, source?.providerLabel, source?.quality]);
+
+  function closeSpeedPanel() {
+    setShowSpeedPanel(false);
+  }
+
+  function emitProgress(progress: StoredPlaybackProgress) {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.dispatchEvent(
+      new CustomEvent(MEDIA_PROGRESS_EVENT, {
+        detail: {
+          mediaSlug: media.slug,
+          episodeSlug: activeEpisode?.slug,
+          sourceId: source?.id,
+          progress,
+        },
+      }),
+    );
+  }
+
+  function saveProgress(time: number, nextDuration: number, completed: boolean) {
+    if (!progressKey || typeof window === "undefined") {
+      return;
+    }
+
+    const normalizedTime = completed ? nextDuration : Math.max(0, time);
+    const progress: StoredPlaybackProgress = {
+      currentTime: normalizedTime,
+      duration: nextDuration,
+      updatedAt: Date.now(),
+      completed,
+    };
+
+    persistStoredProgress(progressKey, progress);
+    emitProgress(progress);
+  }
 
   useEffect(() => {
     if (!isTheaterMode) {
@@ -197,11 +314,34 @@ export function PlayerShell({
   }, []);
 
   useEffect(() => {
+    if (!showSpeedPanel) {
+      return undefined;
+    }
+
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (
+        speedPanelRef.current?.contains(target) ||
+        speedButtonRef.current?.contains(target)
+      ) {
+        return;
+      }
+
+      closeSpeedPanel();
+    };
+
+    window.addEventListener("mousedown", handlePointerDown);
+    return () => window.removeEventListener("mousedown", handlePointerDown);
+  }, [showSpeedPanel]);
+
+  useEffect(() => {
     const video = videoRef.current;
     if (!video || !source?.url) {
       return undefined;
     }
 
+    pendingResumeRef.current = readStoredProgress(progressKey);
+    lastPersistedTimeRef.current = 0;
     setPlaybackError(null);
     setCurrentTime(0);
     setDuration(0);
@@ -235,6 +375,10 @@ export function PlayerShell({
       video.src = source.url;
     }
 
+    video.muted = isMuted;
+    video.volume = volume;
+    video.playbackRate = playbackRate;
+
     const playAttempt = video.play();
     if (playAttempt) {
       void playAttempt.catch(() => {
@@ -249,7 +393,28 @@ export function PlayerShell({
         hlsRef.current = null;
       }
     };
-  }, [source?.id, source?.url]);
+  }, [isMuted, playbackRate, progressKey, source?.id, source?.url, volume]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) {
+      return undefined;
+    }
+
+    const persistCurrentState = () => {
+      if (!Number.isFinite(video.duration) || video.duration <= 0) {
+        return;
+      }
+
+      saveProgress(video.currentTime, video.duration, false);
+    };
+
+    window.addEventListener("beforeunload", persistCurrentState);
+    return () => {
+      persistCurrentState();
+      window.removeEventListener("beforeunload", persistCurrentState);
+    };
+  }, [progressKey]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -346,7 +511,7 @@ export function PlayerShell({
         case "t":
         case "T":
           event.preventDefault();
-          setIsTheaterMode((value) => !value);
+          toggleTheaterMode();
           break;
         case "f":
         case "F":
@@ -357,7 +522,8 @@ export function PlayerShell({
         case "N":
           if (nextEpisodeHref) {
             event.preventDefault();
-            router.push(nextEpisodeHref);
+            closeSpeedPanel();
+            router.push(nextEpisodeHref, { scroll: false });
           }
           break;
         default:
@@ -370,6 +536,7 @@ export function PlayerShell({
   }, [nextEpisodeHref, playbackRate, router, volume]);
 
   async function togglePlayback() {
+    closeSpeedPanel();
     const video = videoRef.current;
     if (!video) {
       return;
@@ -390,12 +557,17 @@ export function PlayerShell({
   }
 
   function seekBy(delta: number) {
+    closeSpeedPanel();
     const video = videoRef.current;
     if (!video) {
       return;
     }
 
-    const nextTime = clamp(video.currentTime + delta, 0, Number.isFinite(video.duration) ? video.duration : video.currentTime + delta);
+    const nextTime = clamp(
+      video.currentTime + delta,
+      0,
+      Number.isFinite(video.duration) ? video.duration : video.currentTime + delta,
+    );
     video.currentTime = nextTime;
     setCurrentTime(nextTime);
   }
@@ -406,11 +578,13 @@ export function PlayerShell({
       return;
     }
 
+    closeSpeedPanel();
     video.currentTime = nextTime;
     setCurrentTime(nextTime);
   }
 
   function updateVolume(nextVolume: number) {
+    closeSpeedPanel();
     const safeVolume = clamp(nextVolume, 0, 1);
     setVolume(safeVolume);
     setIsMuted(safeVolume <= 0.001);
@@ -420,6 +594,7 @@ export function PlayerShell({
   }
 
   function toggleMute() {
+    closeSpeedPanel();
     if (isMuted || volume <= 0.001) {
       const restored = previousVolume > 0 ? previousVolume : 0.65;
       setIsMuted(false);
@@ -435,7 +610,13 @@ export function PlayerShell({
     setPlaybackRate(Number(clamp(nextRate, 0.25, 2).toFixed(2)));
   }
 
+  function toggleTheaterMode() {
+    closeSpeedPanel();
+    setIsTheaterMode((value) => !value);
+  }
+
   async function toggleFullscreen() {
+    closeSpeedPanel();
     const element = playerRef.current;
     if (!element) {
       return;
@@ -449,35 +630,70 @@ export function PlayerShell({
     await element.requestFullscreen();
   }
 
-  const playerClassName = [
+  const wrapperClassName = [
     styles.playerViewportWrap,
     isTheaterMode ? styles.playerViewportWrapTheater : "",
+    isFullscreen ? styles.playerViewportWrapFullscreen : "",
   ]
     .filter(Boolean)
     .join(" ");
+
+  const viewportClassName = [
+    styles.playerViewport,
+    isTheaterMode || isFullscreen ? styles.playerViewportImmersive : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   const volumeSliderStyle = { "--fill": `${(isMuted ? 0 : volume) * 100}%` } as CSSProperties;
   const speedSliderStyle = {
-    "--fill": `${((playbackRate - 0.25) / (2 - 0.25)) * 100}%`,
+    "--fill": `${((playbackRate - 0.25) / 1.75) * 100}%`,
   } as CSSProperties;
+  const volumeTooltip = isMuted ? "Unmute (M)" : "Volume (M / ↑ / ↓)";
+  const playTooltip = isPlaying ? "Pause (K / Space)" : "Play (K / Space)";
 
   return (
     <>
-      <div ref={playerRef} className={playerClassName}>
-        <div className={styles.playerViewport}>
+      <div ref={playerRef} className={wrapperClassName}>
+        <div className={viewportClassName}>
           {media.backdropUrl ? (
             <div className={styles.playerBackdrop} style={{ backgroundImage: `url(${media.backdropUrl})` }} aria-hidden="true" />
           ) : null}
+
           <video
             ref={videoRef}
             className={styles.playerVideo}
             playsInline
             preload="metadata"
             poster={media.posterUrl}
+            onClick={() => void togglePlayback()}
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
-            onLoadedMetadata={(event) => setDuration(event.currentTarget.duration || 0)}
+            onLoadedMetadata={(event) => {
+              const video = event.currentTarget;
+              const nextDuration = video.duration || 0;
+              setDuration(nextDuration);
+              const saved = pendingResumeRef.current;
+              if (
+                saved &&
+                !saved.completed &&
+                saved.currentTime > 5 &&
+                nextDuration > 15 &&
+                saved.currentTime < nextDuration - 10
+              ) {
+                video.currentTime = saved.currentTime;
+                setCurrentTime(saved.currentTime);
+              }
+            }}
             onDurationChange={(event) => setDuration(event.currentTarget.duration || 0)}
-            onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
+            onTimeUpdate={(event) => {
+              const video = event.currentTarget;
+              setCurrentTime(video.currentTime);
+              if (Math.abs(video.currentTime - lastPersistedTimeRef.current) >= 5 && Number.isFinite(video.duration) && video.duration > 0) {
+                lastPersistedTimeRef.current = video.currentTime;
+                saveProgress(video.currentTime, video.duration, false);
+              }
+            }}
             onProgress={(event) => {
               const buffered = event.currentTarget.buffered;
               if (buffered.length > 0) {
@@ -486,14 +702,16 @@ export function PlayerShell({
             }}
             onError={() => setPlaybackError("视频加载失败，请尝试切换播放源。")}
             onEnded={() => {
+              const video = videoRef.current;
+              if (video && Number.isFinite(video.duration)) {
+                saveProgress(video.duration, video.duration, true);
+              }
               setIsPlaying(false);
               if (nextEpisodeHref) {
-                router.push(nextEpisodeHref);
+                router.push(nextEpisodeHref, { scroll: false });
               }
             }}
           />
-
-          <div className={styles.playerBrand}>ddys.io</div>
 
           <div className={styles.playerChrome}>
             <label className={styles.playerProgressRail} aria-label="播放进度">
@@ -514,55 +732,46 @@ export function PlayerShell({
 
             <div className={styles.playerControlRail}>
               <div className={styles.playerPrimaryCluster}>
-                <button
-                  type="button"
-                  className={styles.playerControlButton}
-                  onClick={() => void togglePlayback()}
-                  aria-label={isPlaying ? "暂停 (K / Space)" : "播放 (K / Space)"}
-                >
-                  <PlayIcon paused={!isPlaying} />
-                  <Shortcut label="K" />
-                </button>
-
-                {nextEpisodeHref ? (
+                <ControlShell tooltip={playTooltip}>
                   <button
                     type="button"
                     className={styles.playerControlButton}
-                    onClick={() => router.push(nextEpisodeHref)}
-                    aria-label={`下一集 ${nextEpisodeLabel ?? ""} (N)`}
+                    onClick={() => void togglePlayback()}
+                    aria-label={playTooltip}
                   >
-                    <NextEpisodeIcon />
-                    <Shortcut label="N" />
+                    <PlayIcon paused={!isPlaying} />
                   </button>
+                </ControlShell>
+
+                {nextEpisodeHref ? (
+                  <ControlShell tooltip={`Next Episode (N)`}>
+                    <button
+                      type="button"
+                      className={styles.playerControlButton}
+                      onClick={() => {
+                        closeSpeedPanel();
+                        router.push(nextEpisodeHref, { scroll: false });
+                      }}
+                      aria-label={`下一集 ${nextEpisodeLabel ?? ""} (N)`}
+                    >
+                      <NextEpisodeIcon />
+                    </button>
+                  </ControlShell>
                 ) : null}
 
                 <div className={styles.playerVolumeDock}>
-                  <button
-                    type="button"
-                    className={styles.playerControlButton}
-                    onClick={() => {
-                      setShowVolumePanel((value) => !value);
-                      setShowSpeedPanel(false);
-                    }}
-                    aria-label="静音或取消静音 (M)"
-                  >
-                    <VolumeIcon muted={isMuted} volume={volume} />
-                    <Shortcut label="M" />
-                  </button>
-
-                  <div
-                    className={`${styles.playerVolumePanel} ${showVolumePanel ? styles.playerPanelVisible : ""}`}
-                    role="group"
-                    aria-label="音量"
-                  >
+                  <ControlShell tooltip={volumeTooltip}>
                     <button
                       type="button"
-                      className={styles.playerVolumeToggle}
+                      className={styles.playerControlButton}
                       onClick={toggleMute}
-                      aria-label={isMuted ? "取消静音 (M)" : "静音 (M)"}
+                      aria-label={isMuted ? "取消静音 (M)" : "静音或取消静音 (M)"}
                     >
                       <VolumeIcon muted={isMuted} volume={volume} />
                     </button>
+                  </ControlShell>
+
+                  <div className={styles.playerVolumePanel} role="group" aria-label="音量">
                     <label htmlFor={volumeSliderId} className={styles.srOnly}>
                       音量
                     </label>
@@ -587,20 +796,20 @@ export function PlayerShell({
 
               <div className={styles.playerSecondaryCluster}>
                 <div className={styles.playerSpeedDock}>
-                  <button
-                    type="button"
-                    className={styles.playerControlButton}
-                    onClick={() => {
-                      setShowSpeedPanel((value) => !value);
-                      setShowVolumePanel(false);
-                    }}
-                    aria-label="倍速设置 (S)"
-                  >
-                    <SpeedIcon />
-                    <Shortcut label="S" />
-                  </button>
+                  <ControlShell tooltip="Speed (S)">
+                    <button
+                      ref={speedButtonRef}
+                      type="button"
+                      className={styles.playerControlButton}
+                      onClick={() => setShowSpeedPanel((value) => !value)}
+                      aria-label="倍速设置 (S)"
+                    >
+                      <SpeedIcon />
+                    </button>
+                  </ControlShell>
 
                   <div
+                    ref={speedPanelRef}
                     className={`${styles.playerSpeedPanel} ${showSpeedPanel ? styles.playerPanelVisible : ""}`}
                     role="group"
                     aria-label="倍速控制"
@@ -652,35 +861,34 @@ export function PlayerShell({
                           onClick={() => updatePlaybackRate(value)}
                           aria-label={`切换到 ${value}x (${index + 1})`}
                         >
-                          <span>{value.toFixed(value === 1 ? 1 : 2).replace(".00", "")}</span>
-                          <Shortcut label={String(index + 1)} />
+                          {value.toFixed(value === 1 ? 1 : 2).replace(".00", "")}
                         </button>
                       ))}
                     </div>
-
-                    <p className={styles.playerSpeedLegend}>滑杆支持 0.25x 至 2.00x，自定义快捷键为 [ / ]</p>
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  className={styles.playerControlButton}
-                  onClick={() => setIsTheaterMode((value) => !value)}
-                  aria-label="影院模式 (T)"
-                >
-                  <TheaterIcon />
-                  <Shortcut label="T" />
-                </button>
+                <ControlShell tooltip="Theater Mode (T)">
+                  <button
+                    type="button"
+                    className={styles.playerControlButton}
+                    onClick={toggleTheaterMode}
+                    aria-label="影院模式 (T)"
+                  >
+                    <TheaterIcon active={isTheaterMode} />
+                  </button>
+                </ControlShell>
 
-                <button
-                  type="button"
-                  className={styles.playerControlButton}
-                  onClick={() => void toggleFullscreen()}
-                  aria-label="全屏切换 (F)"
-                >
-                  <FullscreenIcon active={isFullscreen} />
-                  <Shortcut label="F" />
-                </button>
+                <ControlShell tooltip="Fullscreen (F)">
+                  <button
+                    type="button"
+                    className={styles.playerControlButton}
+                    onClick={() => void toggleFullscreen()}
+                    aria-label="全屏切换 (F)"
+                  >
+                    <FullscreenIcon active={isFullscreen} />
+                  </button>
+                </ControlShell>
               </div>
             </div>
           </div>
@@ -691,7 +899,7 @@ export function PlayerShell({
 
       <div className={styles.playerStatusRow}>
         <div className={styles.playerStatusLeft}>
-          <span>空格/K 播放暂停</span>
+          <span>点击视频区域或 K/空格 播放暂停</span>
           <span>←/→ 快退快进 5s</span>
           <span>↑/↓ 音量 ±5%</span>
         </div>
