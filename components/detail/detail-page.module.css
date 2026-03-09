@@ -642,7 +642,7 @@
 
 .playerSpeedPanel {
   right: 0;
-  bottom: calc(100% + 18px);
+  bottom: calc(100% + 40px);
   z-index: 4;
   width: min(88vw, 220px);
   padding: 12px 12px 10px;
@@ -1012,7 +1012,7 @@
   .playerSpeedPanel {
     right: 0;
     left: auto;
-    bottom: calc(100% + 16px);
+    bottom: calc(100% + 32px);
     width: min(92vw, 208px);
     padding: 10px 10px 8px;
   }

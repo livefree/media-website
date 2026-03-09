@@ -564,13 +564,31 @@ export function PlayerShell({
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
       const activeElement = document.activeElement;
-      if (
-        activeElement instanceof HTMLElement &&
-        (activeElement.tagName === "INPUT" ||
-          activeElement.tagName === "TEXTAREA" ||
-          activeElement.isContentEditable)
-      ) {
-        return;
+      if (activeElement instanceof HTMLElement) {
+        if (activeElement.isContentEditable || activeElement.tagName === "TEXTAREA") {
+          return;
+        }
+
+        if (activeElement instanceof HTMLInputElement) {
+          const inputType = activeElement.type.toLowerCase();
+          const isTextEntryInput =
+            inputType === "" ||
+            inputType === "text" ||
+            inputType === "search" ||
+            inputType === "email" ||
+            inputType === "password" ||
+            inputType === "tel" ||
+            inputType === "url" ||
+            inputType === "number";
+
+          if (isTextEntryInput) {
+            return;
+          }
+
+          if (inputType === "range" && event.key !== "m" && event.key !== "M") {
+            return;
+          }
+        }
       }
 
       if (event.metaKey || event.ctrlKey || event.altKey) {
