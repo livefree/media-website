@@ -374,7 +374,7 @@ body {
 }
 
 .filter-panel {
-  padding: 16px;
+  padding: 14px 16px;
 }
 
 .filter-chip-row {
@@ -403,24 +403,24 @@ body {
 
 .filter-bar {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px;
-  margin-top: 12px;
-  align-items: end;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin-top: 0;
+  align-items: stretch;
 }
 
 .filter-bar-form {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px;
-  margin-top: 12px;
-  align-items: end;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin-top: 0;
+  align-items: stretch;
 }
 
 .filter-control-row {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
+  gap: 10px;
 }
 
 .filter-control {
@@ -464,18 +464,6 @@ body {
   color: var(--text-muted);
   font-weight: 500;
   pointer-events: none;
-}
-
-.filter-apply-button {
-  min-height: 38px;
-  padding: 0 16px;
-  border: 1px solid rgba(255, 138, 61, 0.26);
-  border-radius: 5px;
-  background: rgba(255, 138, 61, 0.12);
-  color: var(--text-primary);
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
 }
 
 .catalog-section {

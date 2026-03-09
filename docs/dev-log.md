@@ -129,3 +129,6 @@ Coordinator:
 Data Catalog:
 - Expanded the shared catalog dataset from 7 to 21 titles across movie, series, and anime, adding older years, more regions, and denser genre overlaps so Catalog Filter Round 1 has meaningful type/genre/region/year/sort/pagination combinations to exercise
 - Added a reusable coverage summary helper in `lib/media-catalog.ts` so downstream search/review work can verify total pages and type/genre/region/year pair counts without relying on UI-only inspection
+
+UI Shell:
+- Removed the redundant browse/search quick-filter chip row and the visible Apply button from the shared filter presentation, keeping the facet controls balanced and ready for Search Filter to wire live updates next

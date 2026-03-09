@@ -38,22 +38,6 @@ const scopeCopy: Record<
   },
 };
 
-function getActiveChip(scope: CatalogScope) {
-  if (scope === "movie") {
-    return "Movies";
-  }
-
-  if (scope === "series") {
-    return "Series";
-  }
-
-  if (scope === "anime") {
-    return "Anime";
-  }
-
-  return "Latest";
-}
-
 function getFilterValues(scope: CatalogScope) {
   const config = getCatalogConfig();
   const feed = getCategoryFeed(scope, PAGE_SIZE);
@@ -111,7 +95,6 @@ function getResultsHeadline(scope: CatalogScope) {
 
 export function BrowseCatalogPage({ scope }: { scope: CatalogScope }) {
   const copy = scopeCopy[scope];
-  const config = getCatalogConfig();
   const feed = getCategoryFeed(scope, PAGE_SIZE);
   const totalItems = getBrowseCards(scope).length;
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
@@ -132,7 +115,7 @@ export function BrowseCatalogPage({ scope }: { scope: CatalogScope }) {
           hotSearches={hotSearches}
           hiddenFields={hiddenFields}
         />
-        <FilterBar groups={filterGroups} chips={config.quickFilterChips} activeChip={getActiveChip(scope)} />
+        <FilterBar groups={filterGroups} />
       </section>
 
       <section className="catalog-section">
