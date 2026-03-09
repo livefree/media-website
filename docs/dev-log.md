@@ -81,6 +81,7 @@ Detail Player:
 - Refined the player interactions with hover-only tooltips, inline hover volume control, smaller auto-closing speed panel, click-to-toggle video surface, resume-from-breakpoint persistence, watched-episode dimming, and non-jumping episode/source query transitions
 - Refined the player for Round 6 by removing the redundant volume meter, matching the volume thumb to the progress thumb, correcting progress-thumb alignment, centering fullscreen playback, moving the speed popup to the player edge, and preventing play-tooltip clipping
 - Refined the player for Round 7 by restructuring the progress rail so the custom track and native range input share one grid-aligned center line instead of relying on separate offset math
+- Refined the player for Round 8 by restoring a rail-local positioning context for the played and buffered fill layers so progress fill stays clipped inside the track without disturbing the Round 7 center-line alignment
 
 Coordinator foundation:
 - Added the first productionization slice with `.env.example`, Prisma/NPM database scripts, server-side env helpers, and a reusable Prisma client singleton

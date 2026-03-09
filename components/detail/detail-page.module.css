@@ -323,6 +323,7 @@
 }
 
 .playerProgressTrack {
+  position: relative;
   grid-area: 1 / 1;
   height: 4px;
   align-self: center;
