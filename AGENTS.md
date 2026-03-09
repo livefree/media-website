@@ -102,12 +102,15 @@ Reviewer
 - Reviewer may audit current regressions and validate fixes, but may not become the implementing agent for detail-player scope.
 - Detail Player may implement only `app/media/`, `components/player/`, `components/detail/`, plus brief `docs/dev-log.md` entries for its own work.
 - Coordinator may inspect status, branches, and handoffs, but must not patch specialist-owned runtime defects directly.
+- If reviewer runtime validation cannot be completed, the candidate must remain unmerged and cannot be represented as accepted.
+- User visual/interaction review is authoritative for UI acceptance; a user-rejected candidate must be treated as failed and moved into a new refinement round instead of being argued from code inspection.
 
 Skill boundaries for interactive player work:
 - Planner defines scope, acceptance criteria, and validation sequence only.
 - Reviewer owns runtime QA and interactive browser validation for playback controls, overlays, and mode transitions.
 - Detail Player implements playback/detail fixes only within owned files and does not self-sign off runtime acceptance.
 - Coordinator sequences the above roles and merges only after reviewer acceptance.
+- Detail Player should provide concrete claimed behavior changes tied to the active acceptance checklist; “build passed” alone is not evidence of UI acceptance.
 
 Mandatory execution pattern for player/detail refinements:
 1. Coordinator updates `task.md`
@@ -115,6 +118,7 @@ Mandatory execution pattern for player/detail refinements:
 3. Reviewer confirms the issue list, QA inventory, and acceptance checklist
 4. Detail Player implements within owned scope
 5. Reviewer validates in-browser before Coordinator merges
+6. User review can still reject the candidate if the requested changes are not actually visible or working
 
 ## Git Workflow
 
