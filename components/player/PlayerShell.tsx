@@ -226,6 +226,7 @@ export function PlayerShell({
   const hlsRef = useRef<Hls | null>(null);
   const lastPersistedTimeRef = useRef(0);
   const pendingResumeRef = useRef<StoredPlaybackProgress | null>(null);
+  const hideControlsTimeoutRef = useRef<number | null>(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -239,6 +240,10 @@ export function PlayerShell({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showSpeedPanel, setShowSpeedPanel] = useState(false);
   const [playbackError, setPlaybackError] = useState<string | null>(null);
+  const [isControlsVisible, setIsControlsVisible] = useState(true);
+  const [interactionTick, setInteractionTick] = useState(0);
+  const [isFocusWithinPlayer, setIsFocusWithinPlayer] = useState(false);
+  const [isVolumeExpanded, setIsVolumeExpanded] = useState(false);
 
   const progressKey = useMemo(
     () => buildProgressKey(media.slug, activeEpisode?.slug),
@@ -255,6 +260,18 @@ export function PlayerShell({
 
   function closeSpeedPanel() {
     setShowSpeedPanel(false);
+  }
+
+  function clearHideControlsTimeout() {
+    if (hideControlsTimeoutRef.current !== null) {
+      window.clearTimeout(hideControlsTimeoutRef.current);
+      hideControlsTimeoutRef.current = null;
+    }
+  }
+
+  function revealControls() {
+    setIsControlsVisible(true);
+    setInteractionTick((value) => value + 1);
   }
 
   function emitProgress(progress: StoredPlaybackProgress) {
@@ -289,6 +306,23 @@ export function PlayerShell({
     persistStoredProgress(progressKey, progress);
     emitProgress(progress);
   }
+
+  useEffect(() => {
+    clearHideControlsTimeout();
+
+    if (!isPlaying || showSpeedPanel || isVolumeExpanded || isFocusWithinPlayer || playbackError) {
+      setIsControlsVisible(true);
+      return;
+    }
+
+    hideControlsTimeoutRef.current = window.setTimeout(() => {
+      setIsControlsVisible(false);
+    }, 1800);
+
+    return () => {
+      clearHideControlsTimeout();
+    };
+  }, [interactionTick, isFocusWithinPlayer, isPlaying, isVolumeExpanded, playbackError, showSpeedPanel]);
 
   useEffect(() => {
     if (!isTheaterMode) {
@@ -392,7 +426,7 @@ export function PlayerShell({
         hlsRef.current = null;
       }
     };
-  }, [isMuted, playbackRate, progressKey, source?.id, source?.url, volume]);
+  }, [progressKey, source?.id, source?.url]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -536,6 +570,7 @@ export function PlayerShell({
 
   async function togglePlayback() {
     closeSpeedPanel();
+    revealControls();
     const video = videoRef.current;
     if (!video) {
       return;
@@ -557,6 +592,7 @@ export function PlayerShell({
 
   function seekBy(delta: number) {
     closeSpeedPanel();
+    revealControls();
     const video = videoRef.current;
     if (!video) {
       return;
@@ -578,12 +614,14 @@ export function PlayerShell({
     }
 
     closeSpeedPanel();
+    revealControls();
     video.currentTime = nextTime;
     setCurrentTime(nextTime);
   }
 
   function updateVolume(nextVolume: number) {
     closeSpeedPanel();
+    revealControls();
     const safeVolume = clamp(nextVolume, 0, 1);
     setVolume(safeVolume);
     setIsMuted(safeVolume <= 0.001);
@@ -594,6 +632,7 @@ export function PlayerShell({
 
   function toggleMute() {
     closeSpeedPanel();
+    revealControls();
     if (isMuted || volume <= 0.001) {
       const restored = previousVolume > 0 ? previousVolume : 0.65;
       setIsMuted(false);
@@ -606,16 +645,19 @@ export function PlayerShell({
   }
 
   function updatePlaybackRate(nextRate: number) {
+    revealControls();
     setPlaybackRate(Number(clamp(nextRate, 0.25, 2).toFixed(2)));
   }
 
   function toggleTheaterMode() {
     closeSpeedPanel();
+    revealControls();
     setIsTheaterMode((value) => !value);
   }
 
   async function toggleFullscreen() {
     closeSpeedPanel();
+    revealControls();
     const element = playerRef.current;
     if (!element) {
       return;
@@ -643,6 +685,18 @@ export function PlayerShell({
   ]
     .filter(Boolean)
     .join(" ");
+  const chromeClassName = [
+    styles.playerChrome,
+    isControlsVisible ? styles.playerChromeVisible : styles.playerChromeHidden,
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const volumeDockClassName = [
+    styles.playerVolumeDock,
+    isVolumeExpanded ? styles.playerVolumeDockExpanded : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   const volumeSliderStyle = { "--fill": `${(isMuted ? 0 : volume) * 100}%` } as CSSProperties;
   const speedSliderStyle = {
@@ -653,7 +707,28 @@ export function PlayerShell({
 
   return (
     <>
-      <div ref={playerRef} className={wrapperClassName}>
+      <div
+        ref={playerRef}
+        className={wrapperClassName}
+        onMouseMove={revealControls}
+        onMouseEnter={revealControls}
+        onMouseLeave={() => {
+          clearHideControlsTimeout();
+          if (isPlaying && !showSpeedPanel && !isVolumeExpanded && !isFocusWithinPlayer) {
+            setIsControlsVisible(false);
+          }
+        }}
+        onTouchStart={revealControls}
+        onFocusCapture={() => {
+          setIsFocusWithinPlayer(true);
+          revealControls();
+        }}
+        onBlurCapture={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+            setIsFocusWithinPlayer(false);
+          }
+        }}
+      >
         <div className={viewportClassName}>
           {media.backdropUrl ? (
             <div className={styles.playerBackdrop} style={{ backgroundImage: `url(${media.backdropUrl})` }} aria-hidden="true" />
@@ -712,25 +787,26 @@ export function PlayerShell({
             }}
           />
 
-          <div className={styles.playerChrome}>
-            <label className={styles.playerProgressRail} aria-label="播放进度">
-              <span className={styles.playerProgressTrack} aria-hidden="true">
-                <span className={styles.playerProgressBuffered} style={{ width: `${bufferedPercent}%` }} />
-                <span className={styles.playerProgressPlayed} style={{ width: `${progressPercent}%` }} />
-              </span>
-              <input
-                type="range"
-                min={0}
-                max={duration || 0}
-                step={0.1}
-                value={Math.min(currentTime, duration || 0)}
-                onChange={(event) => handleSeek(Number(event.currentTarget.value))}
-                className={styles.playerProgressInput}
-              />
-            </label>
+          <div className={chromeClassName}>
+            <div className={styles.playerChromeSurface}>
+              <label className={styles.playerProgressRail} aria-label="播放进度">
+                <span className={styles.playerProgressTrack} aria-hidden="true">
+                  <span className={styles.playerProgressBuffered} style={{ width: `${bufferedPercent}%` }} />
+                  <span className={styles.playerProgressPlayed} style={{ width: `${progressPercent}%` }} />
+                </span>
+                <input
+                  type="range"
+                  min={0}
+                  max={duration || 0}
+                  step={0.1}
+                  value={Math.min(currentTime, duration || 0)}
+                  onChange={(event) => handleSeek(Number(event.currentTarget.value))}
+                  className={styles.playerProgressInput}
+                />
+              </label>
 
-            <div className={styles.playerControlRail}>
-              <div className={styles.playerPrimaryCluster}>
+              <div className={styles.playerControlRail}>
+                <div className={styles.playerPrimaryCluster}>
                 <ControlShell tooltip={playTooltip}>
                   <button
                     type="button"
@@ -758,7 +834,23 @@ export function PlayerShell({
                   </ControlShell>
                 ) : null}
 
-                <div className={styles.playerVolumeDock}>
+                <div
+                  className={volumeDockClassName}
+                  onMouseEnter={() => {
+                    setIsVolumeExpanded(true);
+                    revealControls();
+                  }}
+                  onMouseLeave={() => setIsVolumeExpanded(false)}
+                  onFocusCapture={() => {
+                    setIsVolumeExpanded(true);
+                    revealControls();
+                  }}
+                  onBlurCapture={(event) => {
+                    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                      setIsVolumeExpanded(false);
+                    }
+                  }}
+                >
                   <ControlShell tooltip={volumeTooltip}>
                     <button
                       type="button"
@@ -797,16 +889,19 @@ export function PlayerShell({
                 <span className={styles.playerTime}>
                   {currentTimeLabel} / {durationLabel}
                 </span>
-              </div>
+                </div>
 
-              <div className={styles.playerSecondaryCluster}>
-                <div className={styles.playerSpeedDock}>
+                <div className={styles.playerSecondaryCluster}>
+                  <div className={styles.playerSpeedDock}>
                   <ControlShell tooltip="Speed (S)">
                     <button
                       ref={speedButtonRef}
                       type="button"
                       className={styles.playerControlButton}
-                      onClick={() => setShowSpeedPanel((value) => !value)}
+                      onClick={() => {
+                        revealControls();
+                        setShowSpeedPanel((value) => !value);
+                      }}
                       aria-label="倍速设置 (S)"
                     >
                       <SpeedIcon />
@@ -873,29 +968,30 @@ export function PlayerShell({
                       ))}
                     </div>
                   </div>
+                  </div>
+
+                  <ControlShell tooltip="Theater Mode (T)">
+                    <button
+                      type="button"
+                      className={styles.playerControlButton}
+                      onClick={toggleTheaterMode}
+                      aria-label="影院模式 (T)"
+                    >
+                      <TheaterIcon active={isTheaterMode} />
+                    </button>
+                  </ControlShell>
+
+                  <ControlShell tooltip="Fullscreen (F)">
+                    <button
+                      type="button"
+                      className={styles.playerControlButton}
+                      onClick={() => void toggleFullscreen()}
+                      aria-label="全屏切换 (F)"
+                    >
+                      <FullscreenIcon active={isFullscreen} />
+                    </button>
+                  </ControlShell>
                 </div>
-
-                <ControlShell tooltip="Theater Mode (T)">
-                  <button
-                    type="button"
-                    className={styles.playerControlButton}
-                    onClick={toggleTheaterMode}
-                    aria-label="影院模式 (T)"
-                  >
-                    <TheaterIcon active={isTheaterMode} />
-                  </button>
-                </ControlShell>
-
-                <ControlShell tooltip="Fullscreen (F)">
-                  <button
-                    type="button"
-                    className={styles.playerControlButton}
-                    onClick={() => void toggleFullscreen()}
-                    aria-label="全屏切换 (F)"
-                  >
-                    <FullscreenIcon active={isFullscreen} />
-                  </button>
-                </ControlShell>
               </div>
             </div>
           </div>

@@ -69,6 +69,7 @@ Detail Player:
 - Added local CSS-module styling in `components/detail/detail-page.module.css` so the detail route can ship without modifying shared browsing styles
 - Rebuilt the detail page again for higher fidelity to `web-to-colon/page.html` and the three reference screenshots, including denser metadata, flatter dark panels, a black player viewport, colorful netdisk actions, and a related-poster strip
 - Replaced the shell player with a real client-side video player using `hls.js`, custom keyboard-first controls, next-episode routing, volume and speed panels, theater/fullscreen modes, and stable public demo HLS/MP4 sources for `/media/the-dinosaurs`
+- Refined the player again for Round 4 by isolating source loading from volume/rate changes, converting volume into an inline expanding rail that visibly shifts the time label, restoring a black auto-hiding control bar, and moving the speed panel into the lower-right control area
 - Refined the real player again for Round 2 by restoring media+episode resume keys, fixing hover-only volume rail geometry, tightening the compact speed panel behavior, and preserving watched/scroll continuity on the detail route
 - Refined the player interactions with hover-only tooltips, inline hover volume control, smaller auto-closing speed panel, click-to-toggle video surface, resume-from-breakpoint persistence, watched-episode dimming, and non-jumping episode/source query transitions
 
