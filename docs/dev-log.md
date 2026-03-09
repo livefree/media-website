@@ -123,3 +123,9 @@ Coordinator:
 - Opened `Player Refinement Round 7` as a single-issue follow-up focused only on the structural alignment defect between the custom progress track and the native range thumb so planner, detail-player, and reviewer can isolate and verify one geometry fix at a time
 - Opened `Player Refinement Round 8` as a containment-only follow-up after Round 7, isolating the regression where the custom played/buffered fill layers escaped the rail and rendered as a large red block across the left side of the control bar
 - Opened `Catalog Filter Round 1` to convert the homepage/search filter section from placeholder chrome into a real live-filtering surface, remove the redundant quick-filter chip row, and expand catalog coverage data for more realistic facet testing
+
+2026-03-09
+
+Data Catalog:
+- Expanded the shared catalog dataset from 7 to 21 titles across movie, series, and anime, adding older years, more regions, and denser genre overlaps so Catalog Filter Round 1 has meaningful type/genre/region/year/sort/pagination combinations to exercise
+- Added a reusable coverage summary helper in `lib/media-catalog.ts` so downstream search/review work can verify total pages and type/genre/region/year pair counts without relying on UI-only inspection

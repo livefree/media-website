@@ -172,6 +172,19 @@ export interface CatalogFacetSummary {
   regions: CatalogFilterOption[];
 }
 
+export interface CatalogCoverageSummary {
+  totalTitles: number;
+  pageSize: number;
+  totalPages: number;
+  byType: Record<MediaType, number>;
+  uniqueGenreCount: number;
+  uniqueRegionCount: number;
+  uniqueYearCount: number;
+  typeGenrePairCount: number;
+  typeRegionPairCount: number;
+  typeYearPairCount: number;
+}
+
 export interface CatalogFeed {
   scope: CatalogScope;
   title: string;
