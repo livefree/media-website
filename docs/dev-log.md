@@ -37,6 +37,7 @@ Planner update:
 - Reframed the planner docs from a UI-demo sequence into a productionization roadmap, clearly separating the current implemented state from the launch target and documenting the missing backend, auth, admin, playback, and ops capabilities
 - Added the planning handoff for `Player Refinement Round 2`, including task summary, owned-file boundaries, execution order, implementation checklist, and reviewer verification matrix
 - Added the planning handoff for `Player Refinement Round 3`, tightening the runtime-focused implementation checklist and requiring interactive reviewer QA for slider drag, overlay geometry, control-bar hide/show, and speed-panel placement
+- Added the planning handoff for `Player Refinement Round 4`, explicitly treating the Round 3 candidate as user-rejected and reframing acceptance around observable UI outcomes and user-visible reviewer validation
 
 UI Shell update:
 - Reworked the homepage shell in `app/page.tsx` to match the `/web-to-colon` hierarchy more closely with a compact navbar, dedicated search area, filter controls, poster-first grid, and static pagination shell
