@@ -272,19 +272,44 @@
 
 .playerChrome {
   position: absolute;
-  inset: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: grid;
   align-content: end;
-  padding: 0 18px 16px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 44%, rgba(0, 0, 0, 0.72) 100%);
+  padding: 0 0 16px;
   pointer-events: none;
+  transition:
+    opacity 180ms ease,
+    visibility 180ms ease;
+}
+
+.playerChromeVisible {
+  opacity: 1;
+  visibility: visible;
+  background: rgba(0, 0, 0, 0.94);
+}
+
+.playerChromeHidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.playerChromeSurface {
+  padding: 10px 18px 12px;
+  pointer-events: auto;
+  transform: translateY(0);
+  transition: transform 180ms ease;
+}
+
+.playerChromeHidden .playerChromeSurface {
+  transform: translateY(18px);
 }
 
 .playerProgressRail {
   position: relative;
   display: block;
-  margin-bottom: 12px;
-  pointer-events: auto;
+  margin-bottom: 10px;
 }
 
 .playerProgressTrack {
@@ -364,6 +389,11 @@
   gap: 10px;
 }
 
+.playerPrimaryCluster {
+  flex: 1;
+  min-width: 0;
+}
+
 .playerControlShell {
   position: relative;
   display: inline-flex;
@@ -426,10 +456,14 @@
 }
 
 .playerTime {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin-left: 2px;
   color: rgba(255, 255, 255, 0.95);
   font-size: 0.98rem;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.01em;
+  transition: margin-left 180ms ease;
 }
 
 .playerVolumeDock,
@@ -441,46 +475,51 @@
   overflow: visible;
 }
 
+.playerVolumeDock {
+  flex: 0 0 auto;
+}
+
 .playerSpeedPanel {
   position: absolute;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(10px);
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
   transition:
     opacity 160ms ease,
     transform 160ms ease;
 }
 
 .playerVolumePanel {
-  position: absolute;
-  left: calc(100% + 8px);
-  top: 50%;
-  transform: translate(-12px, -50%);
   display: flex;
   align-items: center;
-  width: 154px;
-  height: 48px;
-  padding: 0 14px;
-  border-radius: 28px;
-  background: rgba(29, 31, 36, 0.92);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.34);
+  width: 0;
+  height: 32px;
+  margin-left: 0;
+  padding: 0;
+  overflow: hidden;
   opacity: 0;
-  visibility: hidden;
   pointer-events: none;
-  z-index: 3;
-  transform-origin: left center;
   transition:
+    width 200ms ease,
+    margin-left 200ms ease,
     opacity 160ms ease,
-    visibility 160ms ease,
-    transform 160ms ease;
+    padding 200ms ease;
 }
 
 .playerVolumeDock:hover .playerVolumePanel,
-.playerVolumeDock:focus-within .playerVolumePanel {
+.playerVolumeDock:focus-within .playerVolumePanel,
+.playerVolumeDockExpanded .playerVolumePanel {
+  width: 148px;
+  margin-left: 12px;
+  padding-right: 2px;
   opacity: 1;
-  visibility: visible;
   pointer-events: auto;
-  transform: translate(0, -50%);
+}
+
+.playerVolumeDock:hover + .playerTime,
+.playerVolumeDock:focus-within + .playerTime,
+.playerVolumeDockExpanded + .playerTime {
+  margin-left: 12px;
 }
 
 .playerPanelVisible {
@@ -541,13 +580,13 @@
 }
 
 .playerSpeedPanel {
-  right: -4px;
-  bottom: calc(100% + 8px);
+  right: 12px;
+  bottom: 54px;
   z-index: 4;
-  width: min(88vw, 248px);
+  width: min(88vw, 236px);
   padding: 14px 14px 12px;
   border-radius: 14px;
-  background: rgba(7, 9, 13, 0.74);
+  background: rgba(7, 9, 13, 0.66);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
   backdrop-filter: blur(14px);
 }
@@ -881,7 +920,11 @@
   }
 
   .playerChrome {
-    padding: 0 12px 12px;
+    padding: 0 0 12px;
+  }
+
+  .playerChromeSurface {
+    padding: 10px 12px 12px;
   }
 
   .playerControlRail,
@@ -895,23 +938,20 @@
   }
 
   .playerVolumePanel {
-    left: calc(100% + 6px);
-    right: auto;
-    top: calc(100% + 8px);
-    width: 148px;
-    height: 44px;
-    transform: translate(-12px, 0);
-    transform-origin: left center;
+    height: 28px;
   }
 
   .playerVolumeDock:hover .playerVolumePanel,
-  .playerVolumeDock:focus-within .playerVolumePanel {
-    transform: translate(0, 0);
+  .playerVolumeDock:focus-within .playerVolumePanel,
+  .playerVolumeDockExpanded .playerVolumePanel {
+    width: 108px;
+    margin-left: 8px;
   }
 
   .playerSpeedPanel {
-    right: 0;
+    right: 10px;
     left: auto;
+    bottom: 48px;
     width: min(92vw, 232px);
     padding: 12px 12px 10px;
   }
