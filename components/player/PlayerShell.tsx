@@ -42,6 +42,11 @@ function formatTime(totalSeconds: number) {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
+function formatRateLabel(rate: number) {
+  const trimmed = rate.toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
+  return `${trimmed}x`;
+}
+
 function isHlsSource(source: PlaybackSourceOption | null) {
   if (!source) {
     return false;
@@ -128,11 +133,35 @@ function VolumeIcon({ muted, volume }: { muted: boolean; volume: number }) {
     );
   }
 
+  if (volume <= 0.33) {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.playerIcon}>
+        <path d="M9 8.2 12.6 5v14L9 15.8H6V8.2h3Z" fill="currentColor" />
+        <path d="M15.2 10.1a3.4 3.4 0 0 1 0 3.8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+      </svg>
+    );
+  }
+
+  if (volume <= 0.66) {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.playerIcon}>
+        <path d="M9 8.2 12.6 5v14L9 15.8H6V8.2h3Z" fill="currentColor" />
+        <path
+          d="M15.2 10.1a3.4 3.4 0 0 1 0 3.8M17.6 8.5a5.8 5.8 0 0 1 0 7"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          fill="none"
+        />
+      </svg>
+    );
+  }
+
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.playerIcon}>
       <path d="M9 8.2 12.6 5v14L9 15.8H6V8.2h3Z" fill="currentColor" />
       <path
-        d="M15.5 9.2a4.7 4.7 0 0 1 0 5.6M18 7.2a8 8 0 0 1 0 9.6"
+        d="M15.2 10.1a3.4 3.4 0 0 1 0 3.8M17.6 8.5a5.8 5.8 0 0 1 0 7M20 6.7a8.4 8.4 0 0 1 0 10.6"
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinecap="round"
@@ -227,6 +256,8 @@ export function PlayerShell({
   const lastPersistedTimeRef = useRef(0);
   const pendingResumeRef = useRef<StoredPlaybackProgress | null>(null);
   const hideControlsTimeoutRef = useRef<number | null>(null);
+  const volumeRevealTimeoutRef = useRef<number | null>(null);
+  const cursorHideTimeoutRef = useRef<number | null>(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -244,6 +275,8 @@ export function PlayerShell({
   const [interactionTick, setInteractionTick] = useState(0);
   const [isFocusWithinPlayer, setIsFocusWithinPlayer] = useState(false);
   const [isVolumeExpanded, setIsVolumeExpanded] = useState(false);
+  const [isVolumeTemporarilyVisible, setIsVolumeTemporarilyVisible] = useState(false);
+  const [isCursorHidden, setIsCursorHidden] = useState(false);
 
   const progressKey = useMemo(
     () => buildProgressKey(media.slug, activeEpisode?.slug),
@@ -269,8 +302,31 @@ export function PlayerShell({
     }
   }
 
+  function clearVolumeRevealTimeout() {
+    if (volumeRevealTimeoutRef.current !== null) {
+      window.clearTimeout(volumeRevealTimeoutRef.current);
+      volumeRevealTimeoutRef.current = null;
+    }
+  }
+
+  function clearCursorHideTimeout() {
+    if (cursorHideTimeoutRef.current !== null) {
+      window.clearTimeout(cursorHideTimeoutRef.current);
+      cursorHideTimeoutRef.current = null;
+    }
+  }
+
+  function temporarilyRevealVolume() {
+    setIsVolumeTemporarilyVisible(true);
+    clearVolumeRevealTimeout();
+    volumeRevealTimeoutRef.current = window.setTimeout(() => {
+      setIsVolumeTemporarilyVisible(false);
+    }, 1200);
+  }
+
   function revealControls() {
     setIsControlsVisible(true);
+    setIsCursorHidden(false);
     setInteractionTick((value) => value + 1);
   }
 
@@ -309,20 +365,41 @@ export function PlayerShell({
 
   useEffect(() => {
     clearHideControlsTimeout();
+    clearCursorHideTimeout();
 
-    if (!isPlaying || showSpeedPanel || isVolumeExpanded || isFocusWithinPlayer || playbackError) {
+    if (
+      !isPlaying ||
+      showSpeedPanel ||
+      isVolumeExpanded ||
+      isVolumeTemporarilyVisible ||
+      isFocusWithinPlayer ||
+      playbackError
+    ) {
       setIsControlsVisible(true);
+      setIsCursorHidden(false);
       return;
     }
 
     hideControlsTimeoutRef.current = window.setTimeout(() => {
       setIsControlsVisible(false);
     }, 1800);
+    cursorHideTimeoutRef.current = window.setTimeout(() => {
+      setIsCursorHidden(true);
+    }, 1800);
 
     return () => {
       clearHideControlsTimeout();
+      clearCursorHideTimeout();
     };
-  }, [interactionTick, isFocusWithinPlayer, isPlaying, isVolumeExpanded, playbackError, showSpeedPanel]);
+  }, [interactionTick, isFocusWithinPlayer, isPlaying, isVolumeExpanded, isVolumeTemporarilyVisible, playbackError, showSpeedPanel]);
+
+  useEffect(() => {
+    return () => {
+      clearHideControlsTimeout();
+      clearVolumeRevealTimeout();
+      clearCursorHideTimeout();
+    };
+  }, []);
 
   useEffect(() => {
     if (!isTheaterMode) {
@@ -515,6 +592,7 @@ export function PlayerShell({
         case "s":
         case "S":
           event.preventDefault();
+          revealControls();
           setShowSpeedPanel((value) => !value);
           break;
         case "[":
@@ -622,6 +700,7 @@ export function PlayerShell({
   function updateVolume(nextVolume: number) {
     closeSpeedPanel();
     revealControls();
+    temporarilyRevealVolume();
     const safeVolume = clamp(nextVolume, 0, 1);
     setVolume(safeVolume);
     setIsMuted(safeVolume <= 0.001);
@@ -637,11 +716,13 @@ export function PlayerShell({
       const restored = previousVolume > 0 ? previousVolume : 0.65;
       setIsMuted(false);
       setVolume(restored);
+      temporarilyRevealVolume();
       return;
     }
 
     setPreviousVolume(volume);
     setIsMuted(true);
+    temporarilyRevealVolume();
   }
 
   function updatePlaybackRate(nextRate: number) {
@@ -675,6 +756,7 @@ export function PlayerShell({
     styles.playerViewportWrap,
     isTheaterMode ? styles.playerViewportWrapTheater : "",
     isFullscreen ? styles.playerViewportWrapFullscreen : "",
+    isCursorHidden ? styles.playerCursorHidden : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -693,7 +775,7 @@ export function PlayerShell({
     .join(" ");
   const volumeDockClassName = [
     styles.playerVolumeDock,
-    isVolumeExpanded ? styles.playerVolumeDockExpanded : "",
+    isVolumeExpanded || isVolumeTemporarilyVisible ? styles.playerVolumeDockExpanded : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -704,6 +786,7 @@ export function PlayerShell({
   } as CSSProperties;
   const volumeTooltip = isMuted ? "Unmute (M / ↑ / ↓)" : "Mute (M) / Volume (↑ / ↓)";
   const playTooltip = isPlaying ? "Pause (K / Space)" : "Play (K / Space)";
+  const speedButtonLabel = formatRateLabel(playbackRate);
 
   return (
     <>
@@ -714,8 +797,10 @@ export function PlayerShell({
         onMouseEnter={revealControls}
         onMouseLeave={() => {
           clearHideControlsTimeout();
+          clearCursorHideTimeout();
           if (isPlaying && !showSpeedPanel && !isVolumeExpanded && !isFocusWithinPlayer) {
             setIsControlsVisible(false);
+            setIsCursorHidden(true);
           }
         }}
         onTouchStart={revealControls}
@@ -897,7 +982,7 @@ export function PlayerShell({
                     <button
                       ref={speedButtonRef}
                       type="button"
-                      className={styles.playerControlButton}
+                      className={`${styles.playerControlButton} ${styles.playerRateButton}`}
                       onClick={() => {
                         revealControls();
                         setShowSpeedPanel((value) => !value);
@@ -905,6 +990,7 @@ export function PlayerShell({
                       aria-label="倍速设置 (S)"
                     >
                       <SpeedIcon />
+                      <span className={styles.playerRateLabel}>{speedButtonLabel}</span>
                     </button>
                   </ControlShell>
 
