@@ -23,7 +23,7 @@ PlayerShell
 
 ## Current Active Task
 
-### Player Refinement Round 4
+### Player Refinement Round 5
 
 Coordinator-only rule:
 - Coordinator may define scope, update task docs, dispatch agents, review ownership, and merge accepted work.
@@ -56,12 +56,14 @@ Acceptance criteria:
 - Runtime sign-off must include interactive browser verification for sliders, overlays, control visibility, and layout against the supplied reference assets
 - A refinement candidate is not acceptable if the user cannot observe the requested behavior changes in the actual UI
 
-Current user-reported regressions to fix:
-1. Moving the volume and speed sliders still affects playback progress and can reset playback to the beginning
-2. The volume slider geometry is still wrong: it should slide smoothly out from the right of the volume button, push the time label to the right while expanding, and show only the slider without a panel background
-3. The control bar background must return to black and auto-hide when inactive so it no longer blocks the video
-4. The speed panel is still not anchored to the lower-right corner and is not using the requested semi-transparent treatment
+Current user-requested improvements to implement:
+1. After clicking the speed button, the speed panel must open in the lower-right area of the player without covering the bottom control bar.
+2. Pressing `M` to unmute must restore the volume level that existed before mute. Any volume change, including keyboard shortcut changes, must temporarily reveal the volume slider and show the updated level without breaking mouse-driven volume behavior.
+3. The speed button must be redesigned to display the current playback rate directly in the control icon/button treatment.
+4. The volume button must be redesigned so the icon visibly communicates four states: muted plus three non-muted volume levels.
+5. The control bar must be redesigned to be significantly more compact, approximately half the current height. The progress rail must sit at the top edge of the control bar, and the draggable thumb alignment must be centered vertically on the rail rather than biased upward.
+6. The mouse cursor must auto-hide while video playback is active and the pointer is idle, across all player modes.
 
-Round 3 outcome:
-- The Round 3 detail-player candidate was rejected by user review because the requested UI/runtime changes were not observable in the product.
-- Round 4 must treat those four regressions as still open.
+Round 4 outcome:
+- The major blocking runtime regressions from Round 4 were resolved in the accepted baseline.
+- Round 5 is a focused refinement pass on control layout density, control affordance design, volume-memory behavior, and mouse/cursor presentation.
