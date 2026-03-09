@@ -4,6 +4,12 @@ Defines how Codex agents collaborate in this repository.
 
 ## Agent Roles
 
+Coordinator
+
+- Owns task definition, agent sequencing, merge order, and acceptance flow
+- May update coordination docs such as `AGENTS.md`, `task.md`, and handoff notes
+- Must NOT directly implement files owned by specialist agents unless the user explicitly authorizes an exception
+
 Planner
 
 - Defines architecture
@@ -42,6 +48,7 @@ Reviewer
 
 - Reviews layout consistency
 - Does not change architecture
+- Validates against the active task acceptance checklist and calls out regressions before merge
 
 ## File Ownership
 
@@ -84,11 +91,22 @@ Reviewer
 - Agents should not modify files owned by other agents unless required.
 - Each task should document changes in docs/dev-log.md.
 - Coordinator decides merge order.
+- Coordinator defines the active task in `task.md` before downstream implementation begins when the work introduces a new refinement round or acceptance checklist.
 - All module agents are coordinated as sub-agents under the Coordinator thread by default. Users do not need to manage separate agent threads for Planner, UI Shell, Data Catalog, Media Ingest, Search Filter, Detail Player, or Reviewer.
 - Agents may use git directly during execution for branch, status, staging, and commit workflows within their assigned scope.
 - All agent branches must be cut from the latest Coordinator integration branch, not from stale personal branches.
 - Coordinator should merge or otherwise integrate accepted agent work back into the integration branch before assigning the next dependent task.
 - If multiple agents may touch shared files or adjacent surfaces, Coordinator must define execution order before work begins.
+- Planner may specify implementation order and acceptance criteria, but may not implement owned UI/player/detail files.
+- Reviewer may audit current regressions and validate fixes, but may not become the implementing agent for detail-player scope.
+- Detail Player may implement only `app/media/`, `components/player/`, `components/detail/`, plus brief `docs/dev-log.md` entries for its own work.
+
+Mandatory execution pattern for player/detail refinements:
+1. Coordinator updates `task.md`
+2. Planner defines implementation breakdown
+3. Reviewer confirms the issue list and acceptance checklist
+4. Detail Player implements within owned scope
+5. Reviewer validates before Coordinator merges
 
 ## Git Workflow
 

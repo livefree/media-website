@@ -35,6 +35,7 @@ Planner update:
 - Updated `docs/roadmap.md` and `docs/handovers/planner-init.md` to reflect the current repository state and the next handoff sequence
 - Refined the planner docs again around the canonical delivery order `planner -> data-catalog -> ui-shell -> search-filter -> detail-player -> reviewer` and added `web-to-colon`-informed layout expectations for homepage, category, search, and detail routes
 - Reframed the planner docs from a UI-demo sequence into a productionization roadmap, clearly separating the current implemented state from the launch target and documenting the missing backend, auth, admin, playback, and ops capabilities
+- Added the planning handoff for `Player Refinement Round 2`, including task summary, owned-file boundaries, execution order, implementation checklist, and reviewer verification matrix
 
 UI Shell update:
 - Reworked the homepage shell in `app/page.tsx` to match the `/web-to-colon` hierarchy more closely with a compact navbar, dedicated search area, filter controls, poster-first grid, and static pagination shell
@@ -86,3 +87,6 @@ Media Ingest:
 - Generated `import-data/media-metadata-candidates.json` with normalized local title/year/type data, provider-specific lookup placeholders, review statuses, confidence scores, and uncertainty notes for later human or automated enrichment
 - Added `scripts/media-generate-import-seed.mjs` and an `ingest:seed` script entry to merge the local ingest manifest with the reviewed metadata overlay into a DB-import-friendly staging seed
 - Generated `import-data/media-import-seed.json` with title identity, local source directories, review status, artwork candidates, movie vs episodic breakdowns, episode file references, ffprobe metadata, and pending provider/resource mapping placeholders
+
+Reviewer:
+- Audited `/media/[slug]` against the active `Player Refinement Round 2` checklist and wrote `docs/handovers/reviewer-player-refinement-round-2.md` with blocking findings, pass/fail acceptance criteria, and follow-up validation steps for Detail Player
