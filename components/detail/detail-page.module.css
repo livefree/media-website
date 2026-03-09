@@ -228,6 +228,10 @@
 }
 
 .playerViewportWrapFullscreen {
+  display: grid;
+  place-items: center;
+  width: 100vw;
+  height: 100vh;
   background: #000;
 }
 
@@ -301,6 +305,7 @@
 }
 
 .playerChromeSurface {
+  position: relative;
   padding: 4px 12px 5px;
   pointer-events: auto;
   transform: translateY(0);
@@ -356,7 +361,7 @@
   appearance: none;
   width: 14px;
   height: 14px;
-  margin-top: -5px;
+  margin-top: 0;
   border-radius: 50%;
   background: #ff2347;
   border: 0;
@@ -427,9 +432,8 @@
 }
 
 .playerVolumeButton {
-  gap: 6px;
-  min-width: 56px;
-  padding: 0 7px;
+  min-width: 40px;
+  padding: 0;
 }
 
 .playerControlButton:hover,
@@ -450,41 +454,6 @@
   font-weight: 600;
   letter-spacing: 0.01em;
   font-variant-numeric: tabular-nums;
-}
-
-.playerVolumeMeter {
-  display: inline-flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 12px;
-}
-
-.playerVolumeMeterBar {
-  width: 2px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.26);
-}
-
-.playerVolumeMeterBar:nth-child(1) {
-  height: 4px;
-}
-
-.playerVolumeMeterBar:nth-child(2) {
-  height: 8px;
-}
-
-.playerVolumeMeterBar:nth-child(3) {
-  height: 12px;
-}
-
-.playerVolumeButton[data-volume-level="muted"] .playerVolumeMeterBar {
-  background: rgba(255, 255, 255, 0.16);
-}
-
-.playerVolumeButton[data-volume-level="low"] .playerVolumeMeterBar:nth-child(1),
-.playerVolumeButton[data-volume-level="medium"] .playerVolumeMeterBar:nth-child(-n + 2),
-.playerVolumeButton[data-volume-level="high"] .playerVolumeMeterBar {
-  background: rgba(255, 255, 255, 0.95);
 }
 
 .playerTooltip {
@@ -508,12 +477,23 @@
     transform 140ms ease;
 }
 
+.playerTooltipStart {
+  left: 0;
+  transform: translate(0, 8px);
+}
+
 .playerControlShell:hover .playerTooltip,
 .playerVolumeDock:hover .playerTooltip,
 .playerSpeedDock:hover .playerTooltip {
   opacity: 1;
   visibility: visible;
   transform: translate(-50%, 0);
+}
+
+.playerControlShell:hover .playerTooltipStart,
+.playerVolumeDock:hover .playerTooltipStart,
+.playerSpeedDock:hover .playerTooltipStart {
+  transform: translate(0, 0);
 }
 
 .playerTime {
@@ -618,7 +598,17 @@
   --fill: 42.85%;
 }
 
-.playerVolumeSlider::-webkit-slider-thumb,
+.playerVolumeSlider::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -4px;
+  border: 0;
+  border-radius: 50%;
+  background: #f3f5f8;
+  box-shadow: 0 0 0 3px rgba(243, 245, 248, 0.12);
+}
+
 .playerSpeedSlider::-webkit-slider-thumb {
   appearance: none;
   width: 28px;
@@ -630,7 +620,15 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.32);
 }
 
-.playerVolumeSlider::-moz-range-thumb,
+.playerVolumeSlider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 0;
+  border-radius: 50%;
+  background: #f3f5f8;
+  box-shadow: 0 0 0 3px rgba(243, 245, 248, 0.12);
+}
+
 .playerSpeedSlider::-moz-range-thumb {
   width: 28px;
   height: 28px;
@@ -641,9 +639,9 @@
 }
 
 .playerSpeedPanel {
-  right: 0;
-  bottom: calc(100% + 40px);
-  z-index: 4;
+  right: 12px;
+  bottom: 76px;
+  z-index: 5;
   width: min(88vw, 220px);
   padding: 12px 12px 10px;
   border-radius: 12px;
@@ -1010,9 +1008,9 @@
   }
 
   .playerSpeedPanel {
-    right: 0;
+    right: 8px;
     left: auto;
-    bottom: calc(100% + 32px);
+    bottom: 108px;
     width: min(92vw, 208px);
     padding: 10px 10px 8px;
   }
