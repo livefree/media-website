@@ -138,3 +138,6 @@ Data Catalog:
 
 UI Shell:
 - Removed the redundant browse/search quick-filter chip row and the visible Apply button from the shared filter presentation, keeping the facet controls balanced and ready for Search Filter to wire live updates next
+
+Reviewer:
+- Baseline-reviewed `Public URL Identity Round 1` from the latest `main` task state and wrote `docs/handovers/reviewer-public-url-round-1.md` with acceptance checks for opaque `/watch` URLs, public-ID coverage, slug-route compatibility, and first-slice runtime validation
