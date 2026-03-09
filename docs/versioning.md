@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.6.0`
+Current version: `0.7.0`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.6.0` an appropriate current milestone: a substantial pre-1.0 product baseline, but not a release candidate.
+That makes `0.7.0` an appropriate current milestone: the prototype now has real URL-backed catalog facets and broader dataset coverage, but it is still not a launch candidate.
 
 ## Rules
 
@@ -29,12 +29,10 @@ That makes `0.6.0` an appropriate current milestone: a substantial pre-1.0 produ
 
 ## Practical Mapping
 
-- `0.6.x`
-  Current baseline and follow-up refinement work on the existing demo/prototype platform.
-- `0.7.0`
-  A major next milestone such as real catalog data integration or a materially broader runtime/API layer.
+- `0.7.x`
+  Current baseline with real URL-backed catalog filtering and broader catalog coverage on the existing prototype platform.
 - `0.8.0`
-  A later pre-launch milestone such as authenticated user state or admin/content operations becoming real product surfaces.
+  A later pre-launch milestone such as stronger database-backed catalog integration, authenticated user state, or admin/content operations becoming real product surfaces.
 - `0.9.0`
   Launch-hardening and release-candidate stage.
 - `1.0.0`
