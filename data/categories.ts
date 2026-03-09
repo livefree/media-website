@@ -1,4 +1,4 @@
-import type { CatalogCategory, CatalogFilterGroup, SearchSuggestion } from "../types/media";
+import type { CatalogCategory, CatalogFilterGroup } from "../types/media";
 
 export const catalogCategories: CatalogCategory[] = [
   {
@@ -81,10 +81,10 @@ export const catalogFilterGroups: CatalogFilterGroup[] = [
   },
 ];
 
-export const hotSearchSuggestions: SearchSuggestion[] = [
-  { slug: "the-dinosaurs", href: "/media/the-dinosaurs", title: "恐龙时代：你不知道的故事", type: "series", year: 2026, rating: 8.3 },
-  { slug: "1923-season-two", href: "/media/1923-season-two", title: "1923 第二季", type: "series", year: 2025, rating: 8.4 },
-  { slug: "boyfriend-on-demand", href: "/media/boyfriend-on-demand", title: "订阅男友", type: "movie", year: 2026, rating: 7.5 },
-  { slug: "war-machine", href: "/media/war-machine", title: "侵略机器", type: "movie", year: 2026, rating: 7.9 },
-  { slug: "prism-hearts", href: "/media/prism-hearts", title: "Prism Hearts", type: "anime", year: 2026, rating: 8.8 },
+export const hotSearchSuggestionSlugs = [
+  "the-dinosaurs",
+  "1923-season-two",
+  "boyfriend-on-demand",
+  "war-machine",
+  "prism-hearts",
 ];

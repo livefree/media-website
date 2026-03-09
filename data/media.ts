@@ -1,6 +1,19 @@
-import type { MediaItem } from "../types/media";
+import type { EpisodeItem, MediaItem, MediaResourceLink, SeasonItem } from "../types/media";
 
-export const mediaCatalog: MediaItem[] = [
+type MediaResourceSeed = Omit<MediaResourceLink, "publicId" | "canonicalWatchHref">;
+type EpisodeSeed = Omit<EpisodeItem, "publicId" | "canonicalWatchHref" | "streamLinks" | "downloadLinks"> & {
+  streamLinks: MediaResourceSeed[];
+  downloadLinks: MediaResourceSeed[];
+};
+type SeasonSeed = Omit<SeasonItem, "episodes"> & {
+  episodes: EpisodeSeed[];
+};
+type MediaSeed = Omit<MediaItem, "publicId" | "canonicalWatchHref" | "compatibilityHref" | "seasons" | "resources"> & {
+  seasons: SeasonSeed[];
+  resources: MediaResourceSeed[];
+};
+
+const mediaCatalogSeed: MediaSeed[] = [
   {
     id: "media-the-dinosaurs",
     slug: "the-dinosaurs",
@@ -2042,3 +2055,98 @@ export const mediaCatalog: MediaItem[] = [
     isHotSearch: false,
   },
 ];
+
+function buildOpaqueToken(namespace: string): string {
+  let hashA = 2166136261;
+  let hashB = 1315423911;
+  const seed = `media-website-v2:public-url-round-1:${namespace}`;
+
+  for (let index = 0; index < seed.length; index += 1) {
+    const code = seed.charCodeAt(index);
+    hashA ^= code;
+    hashA = Math.imul(hashA, 16777619) >>> 0;
+    hashB ^= (hashB << 5) + code + (hashB >>> 2);
+    hashB >>>= 0;
+  }
+
+  return `${hashA.toString(36)}${hashB.toString(36)}`.slice(0, 12);
+}
+
+function buildPublicId(prefix: string, namespace: string): string {
+  return `${prefix}_${buildOpaqueToken(`${prefix}:${namespace}`)}`;
+}
+
+function buildCompatibilityHref(slug: string): string {
+  return `/media/${slug}`;
+}
+
+function buildWatchHref(mediaPublicId: string, episodePublicId?: string, resourcePublicId?: string): string {
+  const params = new URLSearchParams();
+  params.set("v", mediaPublicId);
+
+  if (episodePublicId) {
+    params.set("e", episodePublicId);
+  }
+
+  if (resourcePublicId) {
+    params.set("r", resourcePublicId);
+  }
+
+  return `/watch?${params.toString()}`;
+}
+
+function enrichMediaIdentity(media: MediaSeed): MediaItem {
+  const mediaPublicId = buildPublicId("med", media.id);
+  const compatibilityHref = buildCompatibilityHref(media.slug);
+  const canonicalWatchHref = buildWatchHref(mediaPublicId);
+  const titleResources = media.resources.map((resource) => {
+    const publicId = buildPublicId("res", `${media.id}:${resource.id}`);
+
+    return {
+      ...resource,
+      publicId,
+      canonicalWatchHref: buildWatchHref(mediaPublicId, undefined, publicId),
+    };
+  });
+  const seasons = media.seasons.map((season) => ({
+    ...season,
+    episodes: season.episodes.map((episode) => {
+      const publicId = buildPublicId("ep", `${media.id}:${episode.id}`);
+
+      return {
+        ...episode,
+        publicId,
+        canonicalWatchHref: buildWatchHref(mediaPublicId, publicId),
+        streamLinks: episode.streamLinks.map((resource) => {
+          const resourcePublicId = buildPublicId("res", `${media.id}:${episode.id}:${resource.id}`);
+
+          return {
+            ...resource,
+            publicId: resourcePublicId,
+            canonicalWatchHref: buildWatchHref(mediaPublicId, publicId, resourcePublicId),
+          };
+        }),
+        downloadLinks: episode.downloadLinks.map((resource) => {
+          const resourcePublicId = buildPublicId("res", `${media.id}:${episode.id}:${resource.id}`);
+
+          return {
+            ...resource,
+            publicId: resourcePublicId,
+            canonicalWatchHref: buildWatchHref(mediaPublicId, publicId, resourcePublicId),
+          };
+        }),
+      };
+    }),
+  }));
+
+  return {
+    ...media,
+    publicId: mediaPublicId,
+    canonicalWatchHref,
+    compatibilityHref,
+    resources: titleResources,
+    seasons,
+  };
+}
+
+export const mediaCatalog: MediaItem[] = mediaCatalogSeed.map(enrichMediaIdentity);

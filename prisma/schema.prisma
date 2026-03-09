@@ -163,6 +163,7 @@ model UserPreference {
 
 model MediaTitle {
   id                    String            @id @default(cuid())
+  publicId              String            @unique
   slug                  String            @unique
   title                 String
   originalTitle         String?
@@ -301,6 +302,7 @@ model Season {
 
 model Episode {
   id             String             @id @default(cuid())
+  publicId       String             @unique
   mediaId        String
   seasonId       String?
   episodeNumber  Int?
@@ -335,6 +337,7 @@ model Artwork {
 
 model Resource {
   id               String            @id @default(cuid())
+  publicId         String            @unique
   mediaId          String
   episodeId        String?
   kind             ResourceKind
@@ -362,6 +365,7 @@ model Resource {
 
 model UserList {
   id        String         @id @default(cuid())
+  publicId  String?        @unique
   userId    String
   name      String
   type      ListType       @default(WATCHLIST)
@@ -375,11 +379,12 @@ model UserList {
 }
 
 model UserListItem {
-  listId   String
-  mediaId  String
-  addedAt  DateTime   @default(now())
-  list     UserList   @relation(fields: [listId], references: [id], onDelete: Cascade)
-  media    MediaTitle @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  listId     String
+  mediaId    String
+  publicRef  String?    @unique
+  addedAt    DateTime   @default(now())
+  list       UserList   @relation(fields: [listId], references: [id], onDelete: Cascade)
+  media      MediaTitle @relation(fields: [mediaId], references: [id], onDelete: Cascade)
 
   @@id([listId, mediaId])
 }

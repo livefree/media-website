@@ -9,6 +9,21 @@ export type CreditRole = "director" | "actor" | "writer" | "producer" | "creator
 export type CatalogSortValue = "latest" | "popular" | "rating";
 export type CatalogFacetKey = "type" | "genre" | "year" | "region";
 
+export interface PublicWatchQuery {
+  mediaPublicId: string;
+  episodePublicId?: string;
+  resourcePublicId?: string;
+  listPublicId?: string;
+  listItemPublicRef?: string;
+  timeSeconds?: number;
+}
+
+export interface ResolvedPublicPlayback {
+  media: MediaItem;
+  episode?: EpisodeItem;
+  resource?: MediaResourceLink;
+}
+
 export interface RatingSnapshot {
   source: string;
   value: number;
@@ -28,6 +43,7 @@ export interface PersonCredit {
 
 export interface MediaResourceLink {
   id: string;
+  publicId: string;
   label: string;
   mode: ResourceMode;
   provider: ResourceProvider;
@@ -38,16 +54,19 @@ export interface MediaResourceLink {
   accessCode?: string;
   status: ResourceStatus;
   reportCount?: number;
+  canonicalWatchHref: string;
 }
 
 export interface EpisodeItem {
   id: string;
+  publicId: string;
   slug: string;
   seasonNumber: number;
   episodeNumber: number;
   title: string;
   summary?: string;
   runtimeMinutes?: number;
+  canonicalWatchHref: string;
   streamLinks: MediaResourceLink[];
   downloadLinks: MediaResourceLink[];
 }
@@ -75,6 +94,7 @@ export interface MediaMetrics {
 
 export interface MediaItem {
   id: string;
+  publicId: string;
   slug: string;
   title: string;
   originalTitle?: string;
@@ -98,6 +118,8 @@ export interface MediaItem {
   metrics: MediaMetrics;
   isFeatured: boolean;
   isHotSearch: boolean;
+  canonicalWatchHref: string;
+  compatibilityHref: string;
 }
 
 export interface CatalogCategory {
@@ -123,6 +145,9 @@ export interface CatalogFilterGroup {
 export interface SearchSuggestion {
   slug: string;
   href: string;
+  publicId: string;
+  canonicalWatchHref: string;
+  compatibilityHref: string;
   title: string;
   type: MediaType;
   year: number;
@@ -147,8 +172,11 @@ export interface BrowseMediaStat {
 
 export interface BrowseMediaCard {
   id: string;
+  publicId: string;
   slug: string;
   href: string;
+  canonicalWatchHref: string;
+  compatibilityHref: string;
   title: string;
   originalTitle?: string;
   year: number;
@@ -195,8 +223,11 @@ export interface CatalogFeed {
 
 export interface PlaybackSourceOption {
   id: string;
+  publicId: string;
   mediaSlug: string;
+  mediaPublicId: string;
   episodeSlug?: string;
+  episodePublicId?: string;
   label: string;
   provider: ResourceProvider;
   providerLabel: string;
@@ -207,12 +238,16 @@ export interface PlaybackSourceOption {
   seasonNumber?: number;
   episodeNumber?: number;
   episodeTitle?: string;
+  canonicalWatchHref: string;
 }
 
 export interface DownloadResourceOption {
   id: string;
+  publicId: string;
   mediaSlug: string;
+  mediaPublicId: string;
   episodeSlug?: string;
+  episodePublicId?: string;
   label: string;
   provider: ResourceProvider;
   providerLabel: string;
@@ -226,11 +261,14 @@ export interface DownloadResourceOption {
   seasonNumber?: number;
   episodeNumber?: number;
   episodeTitle?: string;
+  canonicalWatchHref: string;
 }
 
 export interface MediaEpisodeOption {
   id: string;
+  publicId: string;
   slug: string;
+  mediaPublicId: string;
   seasonNumber: number;
   episodeNumber: number;
   title: string;
@@ -239,6 +277,7 @@ export interface MediaEpisodeOption {
   streamCount: number;
   downloadCount: number;
   isDefault: boolean;
+  canonicalWatchHref: string;
 }
 
 export interface MediaDetailMetadata {
@@ -256,10 +295,13 @@ export interface MediaDetailMetadata {
 export interface MediaDetailRecord {
   media: MediaItem;
   href: string;
+  canonicalWatchHref: string;
+  compatibilityHref: string;
   metadata: MediaDetailMetadata;
   playbackSources: PlaybackSourceOption[];
   downloads: DownloadResourceOption[];
   episodes: MediaEpisodeOption[];
   defaultEpisodeSlug?: string;
+  defaultEpisodePublicId?: string;
   relatedCards: BrowseMediaCard[];
 }
