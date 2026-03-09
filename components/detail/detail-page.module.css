@@ -426,6 +426,12 @@
   min-width: 62px;
 }
 
+.playerVolumeButton {
+  gap: 6px;
+  min-width: 56px;
+  padding: 0 7px;
+}
+
 .playerControlButton:hover,
 .playerRateStep:hover,
 .playerPresetButton:hover {
@@ -444,6 +450,41 @@
   font-weight: 600;
   letter-spacing: 0.01em;
   font-variant-numeric: tabular-nums;
+}
+
+.playerVolumeMeter {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.playerVolumeMeterBar {
+  width: 2px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.26);
+}
+
+.playerVolumeMeterBar:nth-child(1) {
+  height: 4px;
+}
+
+.playerVolumeMeterBar:nth-child(2) {
+  height: 8px;
+}
+
+.playerVolumeMeterBar:nth-child(3) {
+  height: 12px;
+}
+
+.playerVolumeButton[data-volume-level="muted"] .playerVolumeMeterBar {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.playerVolumeButton[data-volume-level="low"] .playerVolumeMeterBar:nth-child(1),
+.playerVolumeButton[data-volume-level="medium"] .playerVolumeMeterBar:nth-child(-n + 2),
+.playerVolumeButton[data-volume-level="high"] .playerVolumeMeterBar {
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .playerTooltip {
@@ -601,7 +642,7 @@
 
 .playerSpeedPanel {
   right: 0;
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + 18px);
   z-index: 4;
   width: min(88vw, 220px);
   padding: 12px 12px 10px;
@@ -971,7 +1012,7 @@
   .playerSpeedPanel {
     right: 0;
     left: auto;
-    bottom: calc(100% + 8px);
+    bottom: calc(100% + 16px);
     width: min(92vw, 208px);
     padding: 10px 10px 8px;
   }

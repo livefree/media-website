@@ -171,6 +171,22 @@ function VolumeIcon({ muted, volume }: { muted: boolean; volume: number }) {
   );
 }
 
+function getVolumeLevel(muted: boolean, volume: number) {
+  if (muted || volume <= 0.01) {
+    return "muted";
+  }
+
+  if (volume <= 0.33) {
+    return "low";
+  }
+
+  if (volume <= 0.66) {
+    return "medium";
+  }
+
+  return "high";
+}
+
 function SpeedIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.playerIcon}>
@@ -644,7 +660,7 @@ export function PlayerShell({
 
     window.addEventListener("keydown", handleKeydown);
     return () => window.removeEventListener("keydown", handleKeydown);
-  }, [nextEpisodeHref, playbackRate, router, volume]);
+  }, [isMuted, nextEpisodeHref, playbackRate, previousVolume, router, volume]);
 
   async function togglePlayback() {
     closeSpeedPanel();
@@ -702,26 +718,41 @@ export function PlayerShell({
     revealControls();
     temporarilyRevealVolume();
     const safeVolume = clamp(nextVolume, 0, 1);
+    const video = videoRef.current;
+
     setVolume(safeVolume);
     setIsMuted(safeVolume <= 0.001);
     if (safeVolume > 0) {
       setPreviousVolume(safeVolume);
+    }
+    if (video) {
+      video.volume = safeVolume;
+      video.muted = safeVolume <= 0.001;
     }
   }
 
   function toggleMute() {
     closeSpeedPanel();
     revealControls();
+    const video = videoRef.current;
+
     if (isMuted || volume <= 0.001) {
       const restored = previousVolume > 0 ? previousVolume : 0.65;
       setIsMuted(false);
       setVolume(restored);
+      if (video) {
+        video.muted = false;
+        video.volume = restored;
+      }
       temporarilyRevealVolume();
       return;
     }
 
     setPreviousVolume(volume);
     setIsMuted(true);
+    if (video) {
+      video.muted = true;
+    }
     temporarilyRevealVolume();
   }
 
@@ -787,6 +818,7 @@ export function PlayerShell({
   const volumeTooltip = isMuted ? "Unmute (M / ↑ / ↓)" : "Mute (M) / Volume (↑ / ↓)";
   const playTooltip = isPlaying ? "Pause (K / Space)" : "Play (K / Space)";
   const speedButtonLabel = formatRateLabel(playbackRate);
+  const volumeLevel = getVolumeLevel(isMuted, volume);
 
   return (
     <>
@@ -939,11 +971,17 @@ export function PlayerShell({
                   <ControlShell tooltip={volumeTooltip}>
                     <button
                       type="button"
-                      className={styles.playerControlButton}
+                      className={`${styles.playerControlButton} ${styles.playerVolumeButton}`}
+                      data-volume-level={volumeLevel}
                       onClick={toggleMute}
                       aria-label={isMuted ? "取消静音 (M)" : "静音或取消静音 (M)"}
                     >
                       <VolumeIcon muted={isMuted} volume={volume} />
+                      <span className={styles.playerVolumeMeter} aria-hidden="true">
+                        <span className={styles.playerVolumeMeterBar} />
+                        <span className={styles.playerVolumeMeterBar} />
+                        <span className={styles.playerVolumeMeterBar} />
+                      </span>
                     </button>
                   </ControlShell>
 
