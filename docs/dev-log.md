@@ -40,6 +40,7 @@ Planner update:
 - Added the planning handoff for `Player Refinement Round 4`, explicitly treating the Round 3 candidate as user-rejected and reframing acceptance around observable UI outcomes and user-visible reviewer validation
 - Added the planning handoff for `Player Refinement Round 5`, focusing the next pass on lower-right speed panel placement, compact control-bar geometry, richer speed/volume affordances, keyboard-and-mouse-compatible volume behavior, and cursor auto-hide validation
 - Added the planning handoff for `Player Refinement Round 6`, translating the six remaining player-polish requests into Detail Player outcomes and Reviewer runtime/browser checks
+- Added the planning handoff for `Player Refinement Round 8`, isolating the post-Round-7 fill-containment regression and requiring the rail-local fill fix to preserve the accepted thumb/track center-line alignment
 
 UI Shell update:
 - Reworked the homepage shell in `app/page.tsx` to match the `/reference-assets` hierarchy more closely with a compact navbar, dedicated search area, filter controls, poster-first grid, and static pagination shell
@@ -106,6 +107,7 @@ Reviewer:
 - Baseline-reviewed `Player Refinement Round 4` from the updated task and AGENTS rules, treating the user rejection as authoritative evidence that the player regressions remain open, and wrote `docs/handovers/reviewer-player-refinement-round-4.md` with observable QA checks and reimplementation risks
 - Baseline-reviewed `Player Refinement Round 5` from the updated task and current player baseline, and wrote `docs/handovers/reviewer-player-refinement-round-5.md` with visible acceptance checks, keyboard and mode QA inventory, and pre-implementation UI/runtime risks
 - Baseline-reviewed `Player Refinement Round 6` from the latest `main` task state and wrote `docs/handovers/reviewer-player-refinement-round-6.md` with runtime-visible acceptance checks, mode-aware QA coverage, and remaining geometry/alignment risks
+- Baseline-reviewed `Player Refinement Round 8` from the latest `main` task state and wrote `docs/handovers/reviewer-player-refinement-round-8.md` with a narrow runtime checklist focused on rail-local fill containment while preserving the accepted Round 7 center-line alignment
 - Accepted candidate `1c27f60` for `Player Refinement Round 7` after runtime close-up QA evidence confirmed the progress track and native thumb now share one structural vertical center line in the rendered UI
 - Reviewed candidate `0e9ca92` for `Player Refinement Round 6`, wrote `docs/handovers/reviewer-player-refinement-round-6-acceptance.md`, and withheld merge acceptance pending the required runtime QA pass
 - Reassessed candidate `0e9ca92` using completed runtime QA evidence and updated `docs/handovers/reviewer-player-refinement-round-6-acceptance.md` to accept the Round 6 candidate as mergeable
