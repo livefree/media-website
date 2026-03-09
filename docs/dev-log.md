@@ -78,6 +78,7 @@ Detail Player:
 - Patched the Round 4 follow-up by making the speed panel conditional on the speed toggle and moving the black/hidden control-bar state onto `.playerChrome` itself so the remaining runtime QA failures can be observed directly
 - Refined the real player again for Round 2 by restoring media+episode resume keys, fixing hover-only volume rail geometry, tightening the compact speed panel behavior, and preserving watched/scroll continuity on the detail route
 - Refined the player interactions with hover-only tooltips, inline hover volume control, smaller auto-closing speed panel, click-to-toggle video surface, resume-from-breakpoint persistence, watched-episode dimming, and non-jumping episode/source query transitions
+- Refined the player for Round 6 by removing the redundant volume meter, matching the volume thumb to the progress thumb, correcting progress-thumb alignment, centering fullscreen playback, moving the speed popup to the player edge, and preventing play-tooltip clipping
 
 Coordinator foundation:
 - Added the first productionization slice with `.env.example`, Prisma/NPM database scripts, server-side env helpers, and a reusable Prisma client singleton

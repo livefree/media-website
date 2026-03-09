@@ -86,15 +86,20 @@ function persistStoredProgress(progressKey: string, progress: StoredPlaybackProg
 
 function ControlShell({
   tooltip,
+  align = "center",
   children,
 }: {
   tooltip: string;
+  align?: "center" | "start";
   children: ReactNode;
 }) {
   return (
     <div className={styles.playerControlShell}>
       {children}
-      <span role="tooltip" className={styles.playerTooltip}>
+      <span
+        role="tooltip"
+        className={`${styles.playerTooltip} ${align === "start" ? styles.playerTooltipStart : ""}`.trim()}
+      >
         {tooltip}
       </span>
     </div>
@@ -169,22 +174,6 @@ function VolumeIcon({ muted, volume }: { muted: boolean; volume: number }) {
       />
     </svg>
   );
-}
-
-function getVolumeLevel(muted: boolean, volume: number) {
-  if (muted || volume <= 0.01) {
-    return "muted";
-  }
-
-  if (volume <= 0.33) {
-    return "low";
-  }
-
-  if (volume <= 0.66) {
-    return "medium";
-  }
-
-  return "high";
 }
 
 function SpeedIcon() {
@@ -836,7 +825,6 @@ export function PlayerShell({
   const volumeTooltip = isMuted ? "Unmute (M / ↑ / ↓)" : "Mute (M) / Volume (↑ / ↓)";
   const playTooltip = isPlaying ? "Pause (K / Space)" : "Play (K / Space)";
   const speedButtonLabel = formatRateLabel(playbackRate);
-  const volumeLevel = getVolumeLevel(isMuted, volume);
 
   return (
     <>
@@ -942,7 +930,7 @@ export function PlayerShell({
 
               <div className={styles.playerControlRail}>
                 <div className={styles.playerPrimaryCluster}>
-                <ControlShell tooltip={playTooltip}>
+                <ControlShell tooltip={playTooltip} align="start">
                   <button
                     type="button"
                     className={styles.playerControlButton}
@@ -990,16 +978,10 @@ export function PlayerShell({
                     <button
                       type="button"
                       className={`${styles.playerControlButton} ${styles.playerVolumeButton}`}
-                      data-volume-level={volumeLevel}
                       onClick={toggleMute}
                       aria-label={isMuted ? "取消静音 (M)" : "静音或取消静音 (M)"}
                     >
                       <VolumeIcon muted={isMuted} volume={volume} />
-                      <span className={styles.playerVolumeMeter} aria-hidden="true">
-                        <span className={styles.playerVolumeMeterBar} />
-                        <span className={styles.playerVolumeMeterBar} />
-                        <span className={styles.playerVolumeMeterBar} />
-                      </span>
                     </button>
                   </ControlShell>
 
@@ -1049,69 +1031,6 @@ export function PlayerShell({
                       <span className={styles.playerRateLabel}>{speedButtonLabel}</span>
                     </button>
                   </ControlShell>
-
-                  {showSpeedPanel ? (
-                    <div
-                      ref={speedPanelRef}
-                      className={`${styles.playerSpeedPanel} ${styles.playerPanelVisible}`}
-                      role="group"
-                      aria-label="倍速控制"
-                      onPointerDown={(event) => event.stopPropagation()}
-                    >
-                      <p className={styles.playerSpeedValue}>{playbackRate.toFixed(2)}x</p>
-                      <div className={styles.playerSpeedSliderRow}>
-                        <button
-                          type="button"
-                          className={styles.playerRateStep}
-                          onClick={() => updatePlaybackRate(playbackRate - SPEED_STEP)}
-                          aria-label="降低倍速 ([)"
-                        >
-                          -
-                        </button>
-
-                        <label htmlFor={rateSliderId} className={styles.srOnly}>
-                          自定义倍速
-                        </label>
-                        <input
-                          id={rateSliderId}
-                          type="range"
-                          min={0.25}
-                          max={2}
-                          step={0.05}
-                          value={playbackRate}
-                          className={styles.playerSpeedSlider}
-                          style={speedSliderStyle}
-                          onPointerDown={(event) => event.stopPropagation()}
-                          onChange={(event) => updatePlaybackRate(Number(event.currentTarget.value))}
-                        />
-
-                        <button
-                          type="button"
-                          className={styles.playerRateStep}
-                          onClick={() => updatePlaybackRate(playbackRate + SPEED_STEP)}
-                          aria-label="提高倍速 (])"
-                        >
-                          +
-                        </button>
-                      </div>
-
-                      <div className={styles.playerSpeedPresets}>
-                        {SPEED_PRESETS.map((value, index) => (
-                          <button
-                            key={value}
-                            type="button"
-                            className={`${styles.playerPresetButton} ${
-                              Math.abs(playbackRate - value) < 0.001 ? styles.playerPresetButtonActive : ""
-                            }`}
-                            onClick={() => updatePlaybackRate(value)}
-                            aria-label={`切换到 ${value}x (${index + 1})`}
-                          >
-                            {value.toFixed(value === 1 ? 1 : 2).replace(".00", "")}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
                   </div>
 
                   <ControlShell tooltip="Theater Mode (T)">
@@ -1136,9 +1055,72 @@ export function PlayerShell({
                     </button>
                   </ControlShell>
                 </div>
+                </div>
               </div>
             </div>
-          </div>
+
+            {showSpeedPanel ? (
+              <div
+                ref={speedPanelRef}
+                className={`${styles.playerSpeedPanel} ${styles.playerPanelVisible}`}
+                role="group"
+                aria-label="倍速控制"
+                onPointerDown={(event) => event.stopPropagation()}
+              >
+                <p className={styles.playerSpeedValue}>{playbackRate.toFixed(2)}x</p>
+                <div className={styles.playerSpeedSliderRow}>
+                  <button
+                    type="button"
+                    className={styles.playerRateStep}
+                    onClick={() => updatePlaybackRate(playbackRate - SPEED_STEP)}
+                    aria-label="降低倍速 ([)"
+                  >
+                    -
+                  </button>
+
+                  <label htmlFor={rateSliderId} className={styles.srOnly}>
+                    自定义倍速
+                  </label>
+                  <input
+                    id={rateSliderId}
+                    type="range"
+                    min={0.25}
+                    max={2}
+                    step={0.05}
+                    value={playbackRate}
+                    className={styles.playerSpeedSlider}
+                    style={speedSliderStyle}
+                    onPointerDown={(event) => event.stopPropagation()}
+                    onChange={(event) => updatePlaybackRate(Number(event.currentTarget.value))}
+                  />
+
+                  <button
+                    type="button"
+                    className={styles.playerRateStep}
+                    onClick={() => updatePlaybackRate(playbackRate + SPEED_STEP)}
+                    aria-label="提高倍速 (])"
+                  >
+                    +
+                  </button>
+                </div>
+
+                <div className={styles.playerSpeedPresets}>
+                  {SPEED_PRESETS.map((value, index) => (
+                    <button
+                      key={value}
+                      type="button"
+                      className={`${styles.playerPresetButton} ${
+                        Math.abs(playbackRate - value) < 0.001 ? styles.playerPresetButtonActive : ""
+                      }`}
+                      onClick={() => updatePlaybackRate(value)}
+                      aria-label={`切换到 ${value}x (${index + 1})`}
+                    >
+                      {value.toFixed(value === 1 ? 1 : 2).replace(".00", "")}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
 
           {playbackError ? <div className={styles.playerErrorBanner}>{playbackError}</div> : null}
         </div>
