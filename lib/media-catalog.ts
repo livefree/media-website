@@ -3,6 +3,7 @@ import { mediaCatalog } from "../data/media";
 import { browseEvents, platformUsers, recentSearches, resourceActivities } from "../data/platform";
 import type {
   BrowseMediaCard,
+  CatalogCoverageSummary,
   CatalogFacetSummary,
   CatalogFeed,
   CatalogFilterOption,
@@ -116,6 +117,48 @@ export function getCatalogFacets(items: MediaItem[] = mediaCatalog): CatalogFace
     genres: countFacetOptions(items.flatMap((media) => media.genres)),
     years: countFacetOptions(items.map((media) => String(media.year))),
     regions: countFacetOptions(items.map((media) => media.originCountry)),
+  };
+}
+
+export function getCatalogCoverageSummary(pageSize = 18): CatalogCoverageSummary {
+  const safePageSize = Math.max(1, pageSize);
+  const typeGenrePairs = new Set<string>();
+  const typeRegionPairs = new Set<string>();
+  const typeYearPairs = new Set<string>();
+  const genres = new Set<string>();
+  const regions = new Set<string>();
+  const years = new Set<number>();
+
+  const byType = mediaCatalog.reduce(
+    (summary, media) => {
+      summary[media.type] += 1;
+      years.add(media.year);
+      regions.add(media.originCountry);
+
+      for (const genre of media.genres) {
+        genres.add(genre);
+        typeGenrePairs.add(`${media.type}::${genre}`);
+      }
+
+      typeRegionPairs.add(`${media.type}::${media.originCountry}`);
+      typeYearPairs.add(`${media.type}::${media.year}`);
+
+      return summary;
+    },
+    { movie: 0, series: 0, anime: 0 } as Record<MediaType, number>,
+  );
+
+  return {
+    totalTitles: mediaCatalog.length,
+    pageSize: safePageSize,
+    totalPages: Math.ceil(mediaCatalog.length / safePageSize),
+    byType,
+    uniqueGenreCount: genres.size,
+    uniqueRegionCount: regions.size,
+    uniqueYearCount: years.size,
+    typeGenrePairCount: typeGenrePairs.size,
+    typeRegionPairCount: typeRegionPairs.size,
+    typeYearPairCount: typeYearPairs.size,
   };
 }
 
