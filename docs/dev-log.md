@@ -96,3 +96,4 @@ Reviewer:
 
 Coordinator:
 - Escalated the player work into `Player Refinement Round 3`, adding explicit runtime QA requirements in `task.md` and clarifying in `AGENTS.md` that Reviewer owns interactive browser validation while Coordinator stays out of Detail Player implementation scope
+- Rejected the Round 3 player candidate after user review reported no observable improvement, and escalated the work into `Player Refinement Round 4` with explicit rules that unvalidated or user-rejected UI candidates must remain unmerged
