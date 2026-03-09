@@ -23,7 +23,7 @@ PlayerShell
 
 ## Current Active Task
 
-### Player Refinement Round 5
+### Player Refinement Round 6
 
 Coordinator-only rule:
 - Coordinator may define scope, update task docs, dispatch agents, review ownership, and merge accepted work.
@@ -57,13 +57,13 @@ Acceptance criteria:
 - A refinement candidate is not acceptable if the user cannot observe the requested behavior changes in the actual UI
 
 Current user-requested improvements to implement:
-1. After clicking the speed button, the speed panel must open in the lower-right area of the player without covering the bottom control bar.
-2. Pressing `M` to unmute must restore the volume level that existed before mute. Any volume change, including keyboard shortcut changes, must temporarily reveal the volume slider and show the updated level without breaking mouse-driven volume behavior.
-3. The speed button must be redesigned to display the current playback rate directly in the control icon/button treatment.
-4. The volume button must be redesigned so the icon visibly communicates four states: muted plus three non-muted volume levels.
-5. The control bar must be redesigned to be significantly more compact, approximately half the current height. The progress rail must sit at the top edge of the control bar, and the draggable thumb alignment must be centered vertically on the rail rather than biased upward.
-6. The mouse cursor must auto-hide while video playback is active and the pointer is idle, across all player modes.
+1. Remove the volume meter from the volume button because it duplicates the slider’s purpose.
+2. Reduce the volume slider thumb size so it matches the progress rail thumb diameter.
+3. Fix the remaining alignment issue between the progress track and its draggable thumb.
+4. In fullscreen mode, vertically center the video correctly within the viewport.
+5. Move the speed popup so it aligns with the player’s right edge rather than the speed button’s right edge.
+6. Fix the play/pause tooltip so it is not clipped on the left side of the player and remains fully readable.
 
-Round 4 outcome:
-- The major blocking runtime regressions from Round 4 were resolved in the accepted baseline.
-- Round 5 is a focused refinement pass on control layout density, control affordance design, volume-memory behavior, and mouse/cursor presentation.
+Round 5 outcome:
+- The major Round 5 interaction and control-bar refinement goals were resolved in the accepted baseline.
+- Round 6 is a focused polish pass on control geometry, popup alignment, fullscreen centering, and tooltip placement.
