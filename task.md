@@ -23,7 +23,7 @@ PlayerShell
 
 ## Current Active Task
 
-### Player Refinement Round 8
+### Catalog Filter Round 1
 
 Coordinator-only rule:
 - Coordinator may define scope, update task docs, dispatch agents, review ownership, and merge accepted work.
@@ -31,26 +31,36 @@ Coordinator-only rule:
 
 Required execution order for this task:
 1. Planner writes the implementation breakdown and acceptance criteria
-2. Reviewer audits the current regressions, prepares the runtime QA inventory, and confirms the acceptance checklist
-3. Detail Player implements only within owned files
-4. Reviewer validates the result in-browser before merge
-5. User review remains authoritative for visual and interaction acceptance; a user-rejected candidate is not accepted even if code review passes
+2. Data Catalog expands browse/search coverage data and any matching import payloads needed for testing
+3. UI Shell removes redundant top-row filter chips from the homepage filter section and keeps the section visually coherent without an Apply button
+4. Search Filter implements selectable facets with URL-backed live updates on browse and search routes
+5. Reviewer validates the result in-browser and against the expanded dataset before merge
+6. User review remains authoritative for visual and interaction acceptance; a user-rejected candidate is not accepted even if code review passes
 
 Scope for this refinement:
-- Route: `/media/[slug]`
-- Owned surfaces: `app/media/`, `components/player/`, `components/detail/`
-- No changes to unrelated UI shell, search, or data architecture unless explicitly approved
+- Routes: `/`, `/movie`, `/series`, `/anime`, `/search`
+- Owned surfaces:
+  - Data Catalog: `data/`, `types/`, `lib/media*`, import payloads/scripts only if required for broader catalog coverage
+  - UI Shell: `components/FilterBar.tsx`, `components/BrowseCatalogPage.tsx`, related browse/search presentation files, and supporting styles
+  - Search Filter: `lib/search*`, `app/search`, browse-route query plumbing needed for live facet updates
+- No changes to player/detail route behavior unless explicitly approved
 
 Acceptance criteria:
-- The red played segment and buffered segment must remain visually clipped to the progress rail and must not spill into the left control cluster or time display area
-- The progress rail must keep the Round 7 thumb/track center-line alignment while restoring a correct positioning context for the custom fill layers
-- The fix must address the positioning-context bug introduced by the Round 7 structural change, not by hiding overflow on a larger unrelated container
-- Runtime sign-off must include close-up browser verification that the left control area no longer shows a large red fill block
-- This focused round must not introduce unrelated changes to volume, speed, fullscreen, tooltip, or other accepted Round 6 and Round 7 behavior
+- The quick-filter row that currently repeats `Latest / Popular / Movies / Series / Anime / Top rated` above the facet controls must be removed from the homepage/browse filter section
+- The `Sort`, `Type`, `Genre`, `Region`, and `Year` controls must be genuinely selectable on browse and search routes rather than static placeholders
+- Filtering must update results immediately from control changes without an `Apply` button
+- Active filter state must remain URL-backed so refresh/share/navigation preserve the chosen facets
+- The catalog dataset used for browse/search testing must be expanded enough to exercise combinations across type, genre, region, year, sort, and pagination
+- Matching import payload / DB-oriented staging data should be expanded where practical so broader catalog coverage is not trapped only in the UI mock layer
+- Runtime sign-off must include browser verification that filters react live, counts/grid update correctly, and no duplicate quick-filter row remains
 
 Current user-requested improvement to implement:
-1. Fix the progress played/buffered layer containment bug so the custom fill stays inside the rail instead of expanding over the left control area and time display.
+1. Remove the `Latest`/`Popular`/`Movies`/`Series`/`Anime`/`Top rated` button row from the filter section because it duplicates the top navigation scope controls.
+2. Make the `Sort`, `Type`, `Genre`, `Region`, and `Year` controls actually filter the page.
+3. Remove the `Apply` button and make filtering live-update.
+4. Fill the catalog and database-oriented staging data with more media so the filter behavior can be tested comprehensively.
 
-Round 7 outcome:
-- Round 7 corrected the thumb/track center-line alignment by moving the custom rail and native input into shared geometry.
-- That structural change introduced a new regression: the absolutely positioned played/buffered fill layers lost the correct rail-local positioning context and now expand into the left control region.
+Current baseline:
+- Browse/search routes already have partial URL-backed query logic in `lib/search-filter.ts`, but the homepage browse filter section is still mostly presentational.
+- The quick-filter chip row duplicates higher-level navigation/scope controls and wastes space.
+- The current catalog seed set is too small for confident end-to-end filter coverage.
