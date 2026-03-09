@@ -38,6 +38,7 @@ Planner update:
 - Added the planning handoff for `Player Refinement Round 2`, including task summary, owned-file boundaries, execution order, implementation checklist, and reviewer verification matrix
 - Added the planning handoff for `Player Refinement Round 3`, tightening the runtime-focused implementation checklist and requiring interactive reviewer QA for slider drag, overlay geometry, control-bar hide/show, and speed-panel placement
 - Added the planning handoff for `Player Refinement Round 4`, explicitly treating the Round 3 candidate as user-rejected and reframing acceptance around observable UI outcomes and user-visible reviewer validation
+- Added the planning handoff for `Player Refinement Round 5`, focusing the next pass on lower-right speed panel placement, compact control-bar geometry, richer speed/volume affordances, keyboard-and-mouse-compatible volume behavior, and cursor auto-hide validation
 
 UI Shell update:
 - Reworked the homepage shell in `app/page.tsx` to match the `/web-to-colon` hierarchy more closely with a compact navbar, dedicated search area, filter controls, poster-first grid, and static pagination shell
