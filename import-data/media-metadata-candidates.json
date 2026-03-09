@@ -1,0 +1,526 @@
+{
+  "manifestVersion": 1,
+  "sourceManifestPath": "import-data/media-ingest-manifest.json",
+  "sourceManifestSha256": "30557aa5733a4f8335d1c188a01f064e7ef1cb58a31ee735405201e4e8476d8b",
+  "entryCount": 6,
+  "entries": [
+    {
+      "relativeDirectory": "[沙丘]Dune.2021.2160p.HMAX.WEB-DL.SDR.H265.Atmos.DDP5.1.CHS-ENG.BOBO",
+      "local": {
+        "inferredTitle": "沙丘 Dune",
+        "inferredYear": 2021,
+        "inferredType": "movie",
+        "parserNotes": [],
+        "counts": {
+          "totalFiles": 1,
+          "videoFiles": 1,
+          "subtitleFiles": 0,
+          "imageFiles": 0,
+          "sidecarFiles": 0,
+          "episodeVideos": 0,
+          "specialVideos": 0
+        }
+      },
+      "normalized": {
+        "canonicalTitle": "沙丘",
+        "originalTitle": "Dune",
+        "alternateTitles": [
+          "Dune",
+          "沙丘",
+          "沙丘 Dune",
+          "沙丘 Dune 2160p HMAX WEB DL SDR H265 Atmos DDP5 1 CHS ENG BOBO"
+        ],
+        "lookupTitle": "Dune",
+        "episodeCount": 0,
+        "specialCount": 0
+      },
+      "candidateSources": [
+        {
+          "provider": "douban",
+          "lookupStatus": "pending",
+          "query": "Dune",
+          "queryVariants": [
+            "Dune",
+            "Dune 2021",
+            "沙丘",
+            "沙丘 2021",
+            "沙丘 Dune"
+          ],
+          "candidateId": null,
+          "notes": [
+            "Chinese title should usually be tried first.",
+            "Multiple local title variants were detected and may need manual consolidation."
+          ]
+        },
+        {
+          "provider": "imdb",
+          "lookupStatus": "pending",
+          "query": "Dune",
+          "queryVariants": [
+            "Dune",
+            "Dune 2021",
+            "沙丘",
+            "沙丘 2021",
+            "沙丘 Dune"
+          ],
+          "candidateId": null,
+          "notes": [
+            "Original/Latin title is likely the strongest IMDb lookup key.",
+            "Multiple local title variants were detected and may need manual consolidation."
+          ]
+        },
+        {
+          "provider": "tmdb",
+          "lookupStatus": "pending",
+          "query": "Dune",
+          "queryVariants": [
+            "Dune",
+            "Dune 2021",
+            "沙丘",
+            "沙丘 2021",
+            "沙丘 Dune"
+          ],
+          "candidateId": null,
+          "notes": [
+            "Multiple local title variants were detected and may need manual consolidation."
+          ]
+        }
+      ],
+      "selectedCandidate": {
+        "canonicalTitle": "沙丘",
+        "originalTitle": "Dune",
+        "year": 2021,
+        "type": "movie",
+        "confidence": 0.6,
+        "status": "manual-review",
+        "notes": [
+          "Multiple local title variants were detected and may need manual consolidation."
+        ]
+      }
+    },
+    {
+      "relativeDirectory": "【国产剧】异物志.全36集.国语中字.2022.4K",
+      "local": {
+        "inferredTitle": "异物志",
+        "inferredYear": 2022,
+        "inferredType": "series",
+        "parserNotes": [],
+        "counts": {
+          "totalFiles": 37,
+          "videoFiles": 36,
+          "subtitleFiles": 0,
+          "imageFiles": 1,
+          "sidecarFiles": 0,
+          "episodeVideos": 36,
+          "specialVideos": 0
+        }
+      },
+      "normalized": {
+        "canonicalTitle": "异物志",
+        "originalTitle": null,
+        "alternateTitles": [
+          "国产剧 异物志 全36集 国语中字 4K",
+          "异物志"
+        ],
+        "lookupTitle": "异物志",
+        "episodeCount": 36,
+        "specialCount": 0
+      },
+      "candidateSources": [
+        {
+          "provider": "douban",
+          "lookupStatus": "pending",
+          "query": "异物志",
+          "queryVariants": [
+            "异物志",
+            "异物志 2022"
+          ],
+          "candidateId": null,
+          "notes": [
+            "Chinese title should usually be tried first."
+          ]
+        },
+        {
+          "provider": "imdb",
+          "lookupStatus": "pending",
+          "query": "异物志",
+          "queryVariants": [
+            "异物志",
+            "异物志 2022"
+          ],
+          "candidateId": null,
+          "notes": []
+        },
+        {
+          "provider": "tmdb",
+          "lookupStatus": "pending",
+          "query": "异物志",
+          "queryVariants": [
+            "异物志",
+            "异物志 2022"
+          ],
+          "candidateId": null,
+          "notes": []
+        }
+      ],
+      "selectedCandidate": {
+        "canonicalTitle": "异物志",
+        "originalTitle": null,
+        "year": 2022,
+        "type": "series",
+        "confidence": 0.6,
+        "status": "manual-review",
+        "notes": []
+      }
+    },
+    {
+      "relativeDirectory": "Xam'd Lost Memories",
+      "local": {
+        "inferredTitle": "Xam'd Lost Memories",
+        "inferredYear": null,
+        "inferredType": "anime",
+        "parserNotes": [
+          "year-not-found"
+        ],
+        "counts": {
+          "totalFiles": 57,
+          "videoFiles": 31,
+          "subtitleFiles": 26,
+          "imageFiles": 0,
+          "sidecarFiles": 0,
+          "episodeVideos": 26,
+          "specialVideos": 5
+        }
+      },
+      "normalized": {
+        "canonicalTitle": "Xam'd Lost Memories",
+        "originalTitle": null,
+        "alternateTitles": [
+          "Xam'd Lost Memories",
+          "Xam'd Lost Memories Sudden Outbreak Romance Flowers Bloom"
+        ],
+        "lookupTitle": "Xam'd Lost Memories",
+        "episodeCount": 26,
+        "specialCount": 5
+      },
+      "candidateSources": [
+        {
+          "provider": "douban",
+          "lookupStatus": "pending",
+          "query": "Xam'd Lost Memories",
+          "queryVariants": [
+            "Xam'd Lost Memories"
+          ],
+          "candidateId": null,
+          "notes": [
+            "Anime titles may require alternate romanization during review.",
+            "Release year could not be inferred from local filenames."
+          ]
+        },
+        {
+          "provider": "imdb",
+          "lookupStatus": "pending",
+          "query": "Xam'd Lost Memories",
+          "queryVariants": [
+            "Xam'd Lost Memories"
+          ],
+          "candidateId": null,
+          "notes": [
+            "Anime titles may require alternate romanization during review.",
+            "Release year could not be inferred from local filenames."
+          ]
+        },
+        {
+          "provider": "tmdb",
+          "lookupStatus": "pending",
+          "query": "Xam'd Lost Memories",
+          "queryVariants": [
+            "Xam'd Lost Memories"
+          ],
+          "candidateId": null,
+          "notes": [
+            "Anime titles may require alternate romanization during review.",
+            "Release year could not be inferred from local filenames."
+          ]
+        }
+      ],
+      "selectedCandidate": {
+        "canonicalTitle": "Xam'd Lost Memories",
+        "originalTitle": null,
+        "year": null,
+        "type": "anime",
+        "confidence": 0.45,
+        "status": "ambiguous",
+        "notes": [
+          "Release year could not be inferred from local filenames.",
+          "year-not-found"
+        ]
+      }
+    },
+    {
+      "relativeDirectory": "侏罗纪世界：重生[无字片源].Jurassic.World.Rebirth.2025.2160p.iT.WEB-DL.H.265.DDP5.1.Atmos-QuickIO",
+      "local": {
+        "inferredTitle": "侏罗纪世界：重生 Jurassic World Rebirth",
+        "inferredYear": 2025,
+        "inferredType": "movie",
+        "parserNotes": [],
+        "counts": {
+          "totalFiles": 1,
+          "videoFiles": 1,
+          "subtitleFiles": 0,
+          "imageFiles": 0,
+          "sidecarFiles": 0,
+          "episodeVideos": 0,
+          "specialVideos": 0
+        }
+      },
+      "normalized": {
+        "canonicalTitle": "侏罗纪世界：重生",
+        "originalTitle": "Jurassic World Rebirth",
+        "alternateTitles": [
+          "Jurassic World Rebirth",
+          "侏罗纪世界：重生",
+          "侏罗纪世界：重生 Jurassic World Rebirth",
+          "侏罗纪世界：重生 无字片源 Jurassic World Rebirth 2160p iT WEB DL H 265 DDP5 1 Atmos QuickIO"
+        ],
+        "lookupTitle": "Jurassic World Rebirth",
+        "episodeCount": 0,
+        "specialCount": 0
+      },
+      "candidateSources": [
+        {
+          "provider": "douban",
+          "lookupStatus": "pending",
+          "query": "Jurassic World Rebirth",
+          "queryVariants": [
+            "Jurassic World Rebirth",
+            "Jurassic World Rebirth 2025",
+            "侏罗纪世界：重生",
+            "侏罗纪世界：重生 2025",
+            "侏罗纪世界：重生 Jurassic World Rebirth"
+          ],
+          "candidateId": null,
+          "notes": [
+            "Chinese title should usually be tried first.",
+            "Multiple local title variants were detected and may need manual consolidation."
+          ]
+        },
+        {
+          "provider": "imdb",
+          "lookupStatus": "pending",
+          "query": "Jurassic World Rebirth",
+          "queryVariants": [
+            "Jurassic World Rebirth",
+            "Jurassic World Rebirth 2025",
+            "侏罗纪世界：重生",
+            "侏罗纪世界：重生 2025",
+            "侏罗纪世界：重生 Jurassic World Rebirth"
+          ],
+          "candidateId": null,
+          "notes": [
+            "Original/Latin title is likely the strongest IMDb lookup key.",
+            "Multiple local title variants were detected and may need manual consolidation."
+          ]
+        },
+        {
+          "provider": "tmdb",
+          "lookupStatus": "pending",
+          "query": "Jurassic World Rebirth",
+          "queryVariants": [
+            "Jurassic World Rebirth",
+            "Jurassic World Rebirth 2025",
+            "侏罗纪世界：重生",
+            "侏罗纪世界：重生 2025",
+            "侏罗纪世界：重生 Jurassic World Rebirth"
+          ],
+          "candidateId": null,
+          "notes": [
+            "Multiple local title variants were detected and may need manual consolidation."
+          ]
+        }
+      ],
+      "selectedCandidate": {
+        "canonicalTitle": "侏罗纪世界：重生",
+        "originalTitle": "Jurassic World Rebirth",
+        "year": 2025,
+        "type": "movie",
+        "confidence": 0.6,
+        "status": "manual-review",
+        "notes": [
+          "Multiple local title variants were detected and may need manual consolidation."
+        ]
+      }
+    },
+    {
+      "relativeDirectory": "海市蜃楼 2025",
+      "local": {
+        "inferredTitle": "海市蜃楼",
+        "inferredYear": 2025,
+        "inferredType": "series",
+        "parserNotes": [],
+        "counts": {
+          "totalFiles": 25,
+          "videoFiles": 24,
+          "subtitleFiles": 0,
+          "imageFiles": 1,
+          "sidecarFiles": 0,
+          "episodeVideos": 24,
+          "specialVideos": 0
+        }
+      },
+      "normalized": {
+        "canonicalTitle": "海市蜃楼",
+        "originalTitle": "Sky Mirage",
+        "alternateTitles": [
+          "Sky Mirage",
+          "海市蜃楼"
+        ],
+        "lookupTitle": "Sky Mirage",
+        "episodeCount": 24,
+        "specialCount": 0
+      },
+      "candidateSources": [
+        {
+          "provider": "douban",
+          "lookupStatus": "pending",
+          "query": "Sky Mirage",
+          "queryVariants": [
+            "Sky Mirage",
+            "Sky Mirage 2025",
+            "海市蜃楼",
+            "海市蜃楼 2025",
+            "海市蜃楼 Sky Mirage"
+          ],
+          "candidateId": null,
+          "notes": [
+            "Chinese title should usually be tried first."
+          ]
+        },
+        {
+          "provider": "imdb",
+          "lookupStatus": "pending",
+          "query": "Sky Mirage",
+          "queryVariants": [
+            "Sky Mirage",
+            "Sky Mirage 2025",
+            "海市蜃楼",
+            "海市蜃楼 2025",
+            "海市蜃楼 Sky Mirage"
+          ],
+          "candidateId": null,
+          "notes": [
+            "Original/Latin title is likely the strongest IMDb lookup key."
+          ]
+        },
+        {
+          "provider": "tmdb",
+          "lookupStatus": "pending",
+          "query": "Sky Mirage",
+          "queryVariants": [
+            "Sky Mirage",
+            "Sky Mirage 2025",
+            "海市蜃楼",
+            "海市蜃楼 2025",
+            "海市蜃楼 Sky Mirage"
+          ],
+          "candidateId": null,
+          "notes": []
+        }
+      ],
+      "selectedCandidate": {
+        "canonicalTitle": "海市蜃楼",
+        "originalTitle": "Sky Mirage",
+        "year": 2025,
+        "type": "series",
+        "confidence": 0.6,
+        "status": "manual-review",
+        "notes": []
+      }
+    },
+    {
+      "relativeDirectory": "老饭骨",
+      "local": {
+        "inferredTitle": "老饭骨",
+        "inferredYear": null,
+        "inferredType": "unknown",
+        "parserNotes": [
+          "year-not-found",
+          "type-uncertain",
+          "multi-video-no-episode-pattern"
+        ],
+        "counts": {
+          "totalFiles": 3,
+          "videoFiles": 3,
+          "subtitleFiles": 0,
+          "imageFiles": 0,
+          "sidecarFiles": 0,
+          "episodeVideos": 0,
+          "specialVideos": 0
+        }
+      },
+      "normalized": {
+        "canonicalTitle": "老饭骨",
+        "originalTitle": null,
+        "alternateTitles": [
+          "老饭骨"
+        ],
+        "lookupTitle": "老饭骨",
+        "episodeCount": 0,
+        "specialCount": 0
+      },
+      "candidateSources": [
+        {
+          "provider": "douban",
+          "lookupStatus": "pending",
+          "query": "老饭骨",
+          "queryVariants": [
+            "老饭骨"
+          ],
+          "candidateId": null,
+          "notes": [
+            "Chinese title should usually be tried first.",
+            "Local ingest could not confidently classify this folder as movie, series, or anime."
+          ]
+        },
+        {
+          "provider": "imdb",
+          "lookupStatus": "pending",
+          "query": "老饭骨",
+          "queryVariants": [
+            "老饭骨"
+          ],
+          "candidateId": null,
+          "notes": [
+            "Local ingest could not confidently classify this folder as movie, series, or anime."
+          ]
+        },
+        {
+          "provider": "tmdb",
+          "lookupStatus": "pending",
+          "query": "老饭骨",
+          "queryVariants": [
+            "老饭骨"
+          ],
+          "candidateId": null,
+          "notes": [
+            "Local ingest could not confidently classify this folder as movie, series, or anime."
+          ]
+        }
+      ],
+      "selectedCandidate": {
+        "canonicalTitle": "老饭骨",
+        "originalTitle": null,
+        "year": null,
+        "type": "unknown",
+        "confidence": 0.2,
+        "status": "skipped",
+        "notes": [
+          "Local ingest could not confidently classify this folder as movie, series, or anime.",
+          "multi-video-no-episode-pattern",
+          "type-uncertain",
+          "year-not-found"
+        ]
+      }
+    }
+  ]
+}

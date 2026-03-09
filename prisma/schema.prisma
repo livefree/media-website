@@ -1,0 +1,489 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  EDITOR
+  ADMIN
+}
+
+enum UserPlan {
+  GUEST
+  FREE
+  PLUS
+  VIP
+}
+
+enum MediaType {
+  MOVIE
+  SERIES
+  ANIME
+  VARIETY
+  DOCUMENTARY
+  SPECIAL
+}
+
+enum MediaStatus {
+  DRAFT
+  UPCOMING
+  ONGOING
+  COMPLETED
+  HIATUS
+  ARCHIVED
+}
+
+enum CreditRole {
+  DIRECTOR
+  ACTOR
+  WRITER
+  PRODUCER
+  CREATOR
+  VOICE
+}
+
+enum ArtworkKind {
+  POSTER
+  BACKDROP
+  THUMBNAIL
+  LOGO
+  BANNER
+}
+
+enum ResourceKind {
+  STREAM
+  DOWNLOAD
+  SUBTITLE
+  TRAILER
+}
+
+enum ResourceProvider {
+  INTERNAL
+  M3U8
+  MP4
+  QUARK
+  BAIDU
+  ALIYUN
+  MAGNET
+  OTHER
+}
+
+enum ResourceFormat {
+  HLS
+  MP4
+  MKV
+  HTML
+  NETDISK
+  TEXT
+}
+
+enum ResourceStatus {
+  ONLINE
+  DEGRADED
+  OFFLINE
+  REPORTED
+  PENDING
+}
+
+enum BrowseEventType {
+  HOME_VIEW
+  CATEGORY_VIEW
+  SEARCH_VIEW
+  DETAIL_VIEW
+  PLAYER_VIEW
+  RESOURCE_ACTION
+}
+
+enum ResourceAction {
+  OPEN
+  COPY
+  QR_SCAN
+  REPORT_INVALID
+}
+
+enum ListType {
+  WATCHLIST
+  FAVORITES
+  HISTORY
+  CURATED
+}
+
+enum SearchScope {
+  ALL
+  MOVIE
+  SERIES
+  ANIME
+}
+
+enum DeviceType {
+  WEB
+  IOS
+  ANDROID
+  TV
+  DESKTOP
+}
+
+model User {
+  id               String            @id @default(cuid())
+  email            String            @unique
+  displayName      String
+  avatarUrl        String?
+  role             UserRole          @default(USER)
+  plan             UserPlan          @default(FREE)
+  locale           String            @default("zh-CN")
+  timezone         String            @default("Asia/Shanghai")
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  preferences      UserPreference?
+  searches         SearchQuery[]
+  browseEvents     BrowseEvent[]
+  watchProgress    WatchProgress[]
+  playbackSessions PlaybackSession[]
+  lists            UserList[]
+  resourceEvents   ResourceEvent[]
+}
+
+model UserPreference {
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  autoplay             Boolean            @default(true)
+  preferHighQuality    Boolean            @default(true)
+  preferDubbed         Boolean            @default(false)
+  matureContentEnabled Boolean            @default(true)
+  favoriteGenres       String[]           @default([])
+  blockedTags          String[]           @default([])
+  preferredProviders   ResourceProvider[] @default([])
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model MediaTitle {
+  id                    String            @id @default(cuid())
+  slug                  String            @unique
+  title                 String
+  originalTitle         String?
+  summary               String
+  description           String?
+  tagline               String?
+  type                  MediaType
+  status                MediaStatus       @default(DRAFT)
+  releaseYear           Int
+  endYear               Int?
+  originCountry         String?
+  language              String?
+  runtimeMinutes        Int?
+  episodeRuntimeMinutes Int?
+  seasonCount           Int?
+  episodeCount          Int?
+  ratingValue           Decimal?          @db.Decimal(3, 1)
+  ratingCount           Int               @default(0)
+  popularityScore       Float             @default(0)
+  isFeatured            Boolean           @default(false)
+  publishedAt           DateTime?
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  alternateTitles       MediaAlternateTitle[]
+  genres                MediaGenre[]
+  tags                  MediaTag[]
+  countries             MediaCountry[]
+  credits               MediaCredit[]
+  artwork               Artwork[]
+  seasons               Season[]
+  episodes              Episode[]
+  resources             Resource[]
+  searches              SearchQuery[]
+  browseEvents          BrowseEvent[]
+  watchProgress         WatchProgress[]
+  playbackSessions      PlaybackSession[]
+  listItems             UserListItem[]
+  ratingSnapshots       RatingSnapshot[]
+}
+
+model MediaAlternateTitle {
+  id           String     @id @default(cuid())
+  mediaId      String
+  languageCode String     @default("zh-CN")
+  value        String
+  media        MediaTitle @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@index([mediaId])
+}
+
+model Genre {
+  id    String      @id @default(cuid())
+  slug  String      @unique
+  label String
+  media MediaGenre[]
+}
+
+model MediaGenre {
+  mediaId String
+  genreId String
+  media   MediaTitle @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  genre   Genre      @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@id([mediaId, genreId])
+  @@index([genreId])
+}
+
+model Tag {
+  id    String     @id @default(cuid())
+  slug  String     @unique
+  label String
+  media MediaTag[]
+}
+
+model MediaTag {
+  mediaId String
+  tagId   String
+  media   MediaTitle @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  tag     Tag        @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([mediaId, tagId])
+  @@index([tagId])
+}
+
+model Country {
+  code  String         @id
+  label String
+  media MediaCountry[]
+}
+
+model MediaCountry {
+  mediaId      String
+  countryCode  String
+  media        MediaTitle @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  country      Country    @relation(fields: [countryCode], references: [code], onDelete: Cascade)
+
+  @@id([mediaId, countryCode])
+  @@index([countryCode])
+}
+
+model Person {
+  id         String       @id @default(cuid())
+  slug       String       @unique
+  name       String
+  nativeName String?
+  avatarUrl  String?
+  credits    MediaCredit[]
+}
+
+model MediaCredit {
+  id            String     @id @default(cuid())
+  mediaId       String
+  personId      String
+  role          CreditRole
+  billingOrder  Int?
+  characterName String?
+  media         MediaTitle @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  person        Person     @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@unique([mediaId, personId, role, characterName])
+  @@index([personId, role])
+}
+
+model Season {
+  id           String     @id @default(cuid())
+  mediaId      String
+  seasonNumber Int
+  title        String?
+  releaseYear  Int?
+  episodeCount Int?
+  media        MediaTitle @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  episodes     Episode[]
+
+  @@unique([mediaId, seasonNumber])
+}
+
+model Episode {
+  id             String             @id @default(cuid())
+  mediaId        String
+  seasonId       String?
+  episodeNumber  Int?
+  slug           String
+  title          String
+  summary        String?
+  runtimeMinutes Int?
+  airDate        DateTime?
+  media          MediaTitle         @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  season         Season?            @relation(fields: [seasonId], references: [id], onDelete: SetNull)
+  resources      Resource[]
+  watchProgress  WatchProgress[]
+  playbackSessions PlaybackSession[]
+
+  @@unique([mediaId, slug])
+  @@index([seasonId, episodeNumber])
+}
+
+model Artwork {
+  id        String      @id @default(cuid())
+  mediaId   String
+  kind      ArtworkKind
+  url       String
+  width     Int?
+  height    Int?
+  altText   String?
+  isPrimary Boolean     @default(false)
+  media     MediaTitle  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@index([mediaId, kind])
+}
+
+model Resource {
+  id               String            @id @default(cuid())
+  mediaId          String
+  episodeId        String?
+  kind             ResourceKind
+  provider         ResourceProvider
+  format           ResourceFormat
+  label            String
+  quality          String?
+  url              String
+  maskedUrl        String?
+  accessCode       String?
+  status           ResourceStatus    @default(ONLINE)
+  mirrorOrder      Int               @default(0)
+  reportCount      Int               @default(0)
+  lastCheckedAt    DateTime?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  media            MediaTitle        @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  episode          Episode?          @relation(fields: [episodeId], references: [id], onDelete: SetNull)
+  playbackSessions PlaybackSession[]
+  resourceEvents   ResourceEvent[]
+
+  @@index([mediaId, kind, status])
+  @@index([episodeId, kind])
+}
+
+model UserList {
+  id        String         @id @default(cuid())
+  userId    String
+  name      String
+  type      ListType       @default(WATCHLIST)
+  isSystem  Boolean        @default(false)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     UserListItem[]
+
+  @@unique([userId, name])
+}
+
+model UserListItem {
+  listId   String
+  mediaId  String
+  addedAt  DateTime   @default(now())
+  list     UserList   @relation(fields: [listId], references: [id], onDelete: Cascade)
+  media    MediaTitle @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@id([listId, mediaId])
+}
+
+model SearchQuery {
+  id              String      @id @default(cuid())
+  userId          String?
+  mediaId         String?
+  query           String
+  normalizedQuery String
+  scope           SearchScope @default(ALL)
+  resultCount     Int         @default(0)
+  clickedRank     Int?
+  sourcePage      String?
+  createdAt       DateTime    @default(now())
+  user            User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  media           MediaTitle? @relation(fields: [mediaId], references: [id], onDelete: SetNull)
+  browseEvents    BrowseEvent[]
+
+  @@index([userId, createdAt])
+  @@index([normalizedQuery])
+}
+
+model BrowseEvent {
+  id            String          @id @default(cuid())
+  userId        String?
+  mediaId       String?
+  searchQueryId String?
+  eventType     BrowseEventType
+  sessionId     String?
+  route         String
+  referrer      String?
+  deviceType    DeviceType      @default(WEB)
+  position      Int?
+  durationMs    Int?
+  createdAt     DateTime        @default(now())
+  user          User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  media         MediaTitle?     @relation(fields: [mediaId], references: [id], onDelete: SetNull)
+  searchQuery   SearchQuery?    @relation(fields: [searchQueryId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([mediaId, eventType, createdAt])
+}
+
+model WatchProgress {
+  id               String      @id @default(cuid())
+  userId           String
+  mediaId          String
+  episodeId        String?
+  progressSeconds  Int         @default(0)
+  durationSeconds  Int?
+  progressPercent  Float       @default(0)
+  lastPositionAt   DateTime    @default(now())
+  completedAt      DateTime?
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  media            MediaTitle  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  episode          Episode?    @relation(fields: [episodeId], references: [id], onDelete: SetNull)
+
+  @@index([userId, mediaId, lastPositionAt])
+  @@index([episodeId])
+}
+
+model PlaybackSession {
+  id                 String       @id @default(cuid())
+  userId             String?
+  mediaId            String
+  episodeId          String?
+  resourceId         String?
+  deviceType         DeviceType   @default(WEB)
+  ipCountry          String?
+  startedAt          DateTime     @default(now())
+  endedAt            DateTime?
+  maxProgressSeconds Int          @default(0)
+  completed          Boolean      @default(false)
+  user               User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  media              MediaTitle   @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  episode            Episode?     @relation(fields: [episodeId], references: [id], onDelete: SetNull)
+  resource           Resource?    @relation(fields: [resourceId], references: [id], onDelete: SetNull)
+
+  @@index([userId, startedAt])
+  @@index([mediaId, startedAt])
+}
+
+model ResourceEvent {
+  id           String         @id @default(cuid())
+  userId       String?
+  resourceId   String
+  action       ResourceAction
+  contextRoute String?
+  createdAt    DateTime       @default(now())
+  user         User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  resource     Resource       @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@index([resourceId, action, createdAt])
+}
+
+model RatingSnapshot {
+  id          String      @id @default(cuid())
+  mediaId     String
+  source      String
+  rating      Decimal     @db.Decimal(3, 1)
+  ratingCount Int?
+  capturedAt  DateTime    @default(now())
+  media       MediaTitle  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@index([mediaId, capturedAt])
+}

@@ -1,0 +1,36 @@
+{
+  "name": "media-website-v2",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "ingest:scan": "node scripts/media-ingest-scan.mjs",
+    "ingest:enrich": "node scripts/media-enrich-candidates.mjs",
+    "ingest:seed": "node scripts/media-generate-import-seed.mjs",
+    "ingest:prisma": "node scripts/media-build-prisma-payload.mjs",
+    "ingest:import": "node scripts/media-import-prisma.mjs",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.7.0",
+    "hls.js": "^1.6.15",
+    "next": "^14.2.3",
+    "prisma": "^6.7.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "playwright": "^1.58.2",
+    "typescript": "^5.4.5"
+  }
+}

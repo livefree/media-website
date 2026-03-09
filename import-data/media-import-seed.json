@@ -1,0 +1,3954 @@
+{
+  "manifestVersion": 1,
+  "sourceIngestPath": "import-data/media-ingest-manifest.json",
+  "sourceIngestSha256": "30557aa5733a4f8335d1c188a01f064e7ef1cb58a31ee735405201e4e8476d8b",
+  "sourceReviewPath": "import-data/media-metadata-reviewed.json",
+  "sourceReviewSha256": "2f4f66577d253df0b122d1f4d45a4ccdff4beb0c68b24406b63c7b2f70d3db01",
+  "generatedEntryCount": 5,
+  "skippedEntryCount": 1,
+  "entries": [
+    {
+      "relativeDirectory": "[沙丘]Dune.2021.2160p.HMAX.WEB-DL.SDR.H265.Atmos.DDP5.1.CHS-ENG.BOBO",
+      "localSourceDirectory": "import-video/[沙丘]Dune.2021.2160p.HMAX.WEB-DL.SDR.H265.Atmos.DDP5.1.CHS-ENG.BOBO",
+      "reviewStatus": "matched",
+      "importStatus": "ready",
+      "inScope": true,
+      "identity": {
+        "canonicalTitle": "沙丘",
+        "originalTitle": "Dune",
+        "year": 2021,
+        "type": "movie"
+      },
+      "review": {
+        "confidence": 0.99,
+        "notes": [
+          "Matched from bilingual local title and year.",
+          "Both Douban and IMDb candidates align with the local file naming and movie runtime."
+        ],
+        "matchedSources": [
+          {
+            "provider": "douban",
+            "id": "34805219",
+            "title": "沙丘 Dune (2021)",
+            "url": "https://movie.douban.com/subject/34805219/",
+            "status": "verified"
+          },
+          {
+            "provider": "imdb",
+            "id": "tt1160419",
+            "title": "Dune (2021)",
+            "url": "https://www.imdb.com/title/tt1160419/",
+            "status": "verified"
+          }
+        ]
+      },
+      "artworkCandidates": [],
+      "localAssets": {
+        "subtitleFiles": [],
+        "sidecarFiles": []
+      },
+      "content": {
+        "kind": "movie",
+        "featureCount": 1,
+        "featureFiles": [
+          {
+            "relativePath": "[沙丘]Dune.2021.2160p.HMAX.WEB-DL.SDR.H265.Atmos.DDP5.1.CHS-ENG.BOBO/[沙丘]Dune.2021.2160p.HMAX.WEB-DL.SDR.H265.Atmos.DDP5.1.CHS-ENG.BOBO.mkv",
+            "fileName": "[沙丘]Dune.2021.2160p.HMAX.WEB-DL.SDR.H265.Atmos.DDP5.1.CHS-ENG.BOBO.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 9324.992,
+              "bitRate": 17642097,
+              "sizeBytes": 20564052338,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "eac3",
+                  "channels": 6,
+                  "language": "eng"
+                }
+              ],
+              "subtitleStreamCount": 1
+            }
+          }
+        ]
+      },
+      "resourcePlaceholders": {
+        "streaming": {
+          "provider": null,
+          "mode": "pending",
+          "mappingNotes": []
+        },
+        "downloads": {
+          "provider": null,
+          "mode": "pending",
+          "mappingNotes": []
+        },
+        "subtitles": {
+          "provider": null,
+          "mode": "pending",
+          "mappingNotes": []
+        }
+      }
+    },
+    {
+      "relativeDirectory": "【国产剧】异物志.全36集.国语中字.2022.4K",
+      "localSourceDirectory": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K",
+      "reviewStatus": "matched",
+      "importStatus": "ready",
+      "inScope": true,
+      "identity": {
+        "canonicalTitle": "异物志",
+        "originalTitle": null,
+        "year": 2022,
+        "type": "series"
+      },
+      "review": {
+        "confidence": 0.98,
+        "notes": [
+          "Matched from exact Chinese title, year, and 36-episode local structure.",
+          "Douban entry aligns with the local folder naming."
+        ],
+        "matchedSources": [
+          {
+            "provider": "douban",
+            "id": "35633796",
+            "title": "异物志 (2022)",
+            "url": "https://movie.douban.com/subject/35633796/",
+            "status": "verified"
+          }
+        ]
+      },
+      "artworkCandidates": [
+        {
+          "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/345.cool.webp",
+          "kind": "poster-candidate",
+          "fileName": "345.cool.webp"
+        }
+      ],
+      "localAssets": {
+        "subtitleFiles": [],
+        "sidecarFiles": []
+      },
+      "content": {
+        "kind": "episodic",
+        "episodeCount": 36,
+        "seasonNumbers": [
+          1
+        ],
+        "episodes": [
+          {
+            "sequence": 1,
+            "seasonNumber": 1,
+            "episodeNumber": 1,
+            "localTitle": "01",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/01.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/01.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2466.24,
+              "bitRate": 3082980,
+              "sizeBytes": 950421242,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 2,
+            "seasonNumber": 1,
+            "episodeNumber": 2,
+            "localTitle": "02",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/02.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/02.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2152.679989,
+              "bitRate": 2802504,
+              "sizeBytes": 754111816,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 3,
+            "seasonNumber": 1,
+            "episodeNumber": 3,
+            "localTitle": "03",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/03.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/03.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 1894.4,
+              "bitRate": 2780064,
+              "sizeBytes": 658319346,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 4,
+            "seasonNumber": 1,
+            "episodeNumber": 4,
+            "localTitle": "04",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/04.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/04.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2463.919989,
+              "bitRate": 2662516,
+              "sizeBytes": 820028356,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 5,
+            "seasonNumber": 1,
+            "episodeNumber": 5,
+            "localTitle": "05",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/05.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/05.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 1931.8,
+              "bitRate": 2547951,
+              "sizeBytes": 615266671,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 6,
+            "seasonNumber": 1,
+            "episodeNumber": 6,
+            "localTitle": "06",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/06.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/06.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2455.16,
+              "bitRate": 2511681,
+              "sizeBytes": 770822479,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 7,
+            "seasonNumber": 1,
+            "episodeNumber": 7,
+            "localTitle": "07",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/07.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/07.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 1781.92,
+              "bitRate": 2831543,
+              "sizeBytes": 630698054,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 8,
+            "seasonNumber": 1,
+            "episodeNumber": 8,
+            "localTitle": "08",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/08.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/08.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2101.719989,
+              "bitRate": 3207457,
+              "sizeBytes": 842647292,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 9,
+            "seasonNumber": 1,
+            "episodeNumber": 9,
+            "localTitle": "09",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/09.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/09.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 1992.6,
+              "bitRate": 2643894,
+              "sizeBytes": 658527967,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 10,
+            "seasonNumber": 1,
+            "episodeNumber": 10,
+            "localTitle": "10",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/10.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/10.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2218.6,
+              "bitRate": 2435195,
+              "sizeBytes": 675340610,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 11,
+            "seasonNumber": 1,
+            "episodeNumber": 11,
+            "localTitle": "11",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/11.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/11.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 1818.56,
+              "bitRate": 3346026,
+              "sizeBytes": 760618695,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 12,
+            "seasonNumber": 1,
+            "episodeNumber": 12,
+            "localTitle": "12",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/12.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/12.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 1854.8,
+              "bitRate": 2857874,
+              "sizeBytes": 662598232,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 13,
+            "seasonNumber": 1,
+            "episodeNumber": 13,
+            "localTitle": "13",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/13.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/13.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2391.88,
+              "bitRate": 2887823,
+              "sizeBytes": 863415783,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 14,
+            "seasonNumber": 1,
+            "episodeNumber": 14,
+            "localTitle": "14",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/14.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/14.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2168.36,
+              "bitRate": 3407098,
+              "sizeBytes": 923477007,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 15,
+            "seasonNumber": 1,
+            "episodeNumber": 15,
+            "localTitle": "15",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/15.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/15.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 1772.76,
+              "bitRate": 3534838,
+              "sizeBytes": 783302497,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 16,
+            "seasonNumber": 1,
+            "episodeNumber": 16,
+            "localTitle": "16",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/16.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/16.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 1934.32,
+              "bitRate": 2725328,
+              "sizeBytes": 658957139,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 17,
+            "seasonNumber": 1,
+            "episodeNumber": 17,
+            "localTitle": "17",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/17.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/17.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 1705.04,
+              "bitRate": 2755410,
+              "sizeBytes": 587260695,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 18,
+            "seasonNumber": 1,
+            "episodeNumber": 18,
+            "localTitle": "18",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/18.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/18.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 1853.72,
+              "bitRate": 3472565,
+              "sizeBytes": 804645466,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 19,
+            "seasonNumber": 1,
+            "episodeNumber": 19,
+            "localTitle": "19",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/19.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/19.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 1637.4,
+              "bitRate": 2853883,
+              "sizeBytes": 584118575,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 20,
+            "seasonNumber": 1,
+            "episodeNumber": 20,
+            "localTitle": "20",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/20.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/20.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 1987.56,
+              "bitRate": 2643059,
+              "sizeBytes": 656655025,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 21,
+            "seasonNumber": 1,
+            "episodeNumber": 21,
+            "localTitle": "21",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/21.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/21.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2377.56,
+              "bitRate": 2459283,
+              "sizeBytes": 730886827,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 22,
+            "seasonNumber": 1,
+            "episodeNumber": 22,
+            "localTitle": "22",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/22.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/22.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 1825.72,
+              "bitRate": 2878206,
+              "sizeBytes": 656849985,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 23,
+            "seasonNumber": 1,
+            "episodeNumber": 23,
+            "localTitle": "23",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/23.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/23.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 1991.36,
+              "bitRate": 3246763,
+              "sizeBytes": 808184385,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 24,
+            "seasonNumber": 1,
+            "episodeNumber": 24,
+            "localTitle": "24",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/24.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/24.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 1557,
+              "bitRate": 2611587,
+              "sizeBytes": 508280277,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 25,
+            "seasonNumber": 1,
+            "episodeNumber": 25,
+            "localTitle": "25",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/25.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/25.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 1783.44,
+              "bitRate": 2327639,
+              "sizeBytes": 518900698,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 26,
+            "seasonNumber": 1,
+            "episodeNumber": 26,
+            "localTitle": "26",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/26.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/26.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 1913.4,
+              "bitRate": 2495812,
+              "sizeBytes": 596935856,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 27,
+            "seasonNumber": 1,
+            "episodeNumber": 27,
+            "localTitle": "27",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/27.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/27.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2058.12,
+              "bitRate": 2581651,
+              "sizeBytes": 664168582,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 28,
+            "seasonNumber": 1,
+            "episodeNumber": 28,
+            "localTitle": "28",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/28.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/28.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 1976.92,
+              "bitRate": 3075131,
+              "sizeBytes": 759911160,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 29,
+            "seasonNumber": 1,
+            "episodeNumber": 29,
+            "localTitle": "29",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/29.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/29.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2449.88,
+              "bitRate": 2055885,
+              "sizeBytes": 629583975,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 30,
+            "seasonNumber": 1,
+            "episodeNumber": 30,
+            "localTitle": "30",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/30.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/30.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 1632.92,
+              "bitRate": 2575598,
+              "sizeBytes": 525718280,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 31,
+            "seasonNumber": 1,
+            "episodeNumber": 31,
+            "localTitle": "31",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/31.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/31.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2015.92,
+              "bitRate": 2666110,
+              "sizeBytes": 671833086,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 32,
+            "seasonNumber": 1,
+            "episodeNumber": 32,
+            "localTitle": "32",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/32.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/32.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2059.88,
+              "bitRate": 2081464,
+              "sizeBytes": 535945770,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 33,
+            "seasonNumber": 1,
+            "episodeNumber": 33,
+            "localTitle": "33",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/33.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/33.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 1768.96,
+              "bitRate": 2837310,
+              "sizeBytes": 627386192,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 34,
+            "seasonNumber": 1,
+            "episodeNumber": 34,
+            "localTitle": "34",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/34.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/34.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2168.12,
+              "bitRate": 2414761,
+              "sizeBytes": 654436660,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 35,
+            "seasonNumber": 1,
+            "episodeNumber": 35,
+            "localTitle": "35",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/35.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/35.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2062.36,
+              "bitRate": 2188896,
+              "sizeBytes": 564286585,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 36,
+            "seasonNumber": 1,
+            "episodeNumber": 36,
+            "localTitle": "36",
+            "relativePath": "【国产剧】异物志.全36集.国语中字.2022.4K/36.mp4",
+            "absoluteSourceHint": "import-video/【国产剧】异物志.全36集.国语中字.2022.4K/36.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2492.28,
+              "bitRate": 2357840,
+              "sizeBytes": 734549755,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main",
+                "width": 3840,
+                "height": 2160,
+                "pixelFormat": "yuv420p"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          }
+        ],
+        "specials": []
+      },
+      "resourcePlaceholders": {
+        "streaming": {
+          "provider": null,
+          "mode": "pending",
+          "mappingNotes": []
+        },
+        "downloads": {
+          "provider": null,
+          "mode": "pending",
+          "mappingNotes": []
+        },
+        "subtitles": {
+          "provider": null,
+          "mode": "pending",
+          "mappingNotes": []
+        }
+      }
+    },
+    {
+      "relativeDirectory": "Xam'd Lost Memories",
+      "localSourceDirectory": "import-video/Xam'd Lost Memories",
+      "reviewStatus": "matched",
+      "importStatus": "ready",
+      "inScope": true,
+      "identity": {
+        "canonicalTitle": "亡念的扎姆德",
+        "originalTitle": "Xam'd: Lost Memories",
+        "year": 2008,
+        "type": "anime"
+      },
+      "review": {
+        "confidence": 0.93,
+        "notes": [
+          "Matched from exact English fansub title and anime-specific NCOP/NCED extras.",
+          "Local filenames did not include a year, so the year was filled from the reviewed metadata source."
+        ],
+        "matchedSources": [
+          {
+            "provider": "douban",
+            "id": "2154313",
+            "title": "亡念的扎姆德 / Xam'd: Lost Memories (2008)",
+            "url": "https://movie.douban.com/subject/2154313/",
+            "status": "verified"
+          }
+        ]
+      },
+      "artworkCandidates": [],
+      "localAssets": {
+        "subtitleFiles": [
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 01 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 01 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 02 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 02 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 03 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 03 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 04 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 04 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 05 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 05 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 06 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 06 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 07 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 07 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 08 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 08 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 09 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 09 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 10 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 10 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 11 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 11 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 12 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 12 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 13 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 13 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 14 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 14 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 15 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 15 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 16 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 16 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 17 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 17 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 18 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 18 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 19 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 19 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 20 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 20 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 21 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 21 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 22 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 22 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 23 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 23 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 24 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 24 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 25 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 25 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/[Kagura] Xam'd： Lost Memories - 26 [BDRip 1920x1080 x264 Hi10P DTS].ass",
+            "fileName": "[Kagura] Xam'd： Lost Memories - 26 [BDRip 1920x1080 x264 Hi10P DTS].ass"
+          }
+        ],
+        "sidecarFiles": []
+      },
+      "content": {
+        "kind": "episodic",
+        "episodeCount": 26,
+        "seasonNumbers": [
+          1
+        ],
+        "episodes": [
+          {
+            "sequence": 1,
+            "seasonNumber": 1,
+            "episodeNumber": 1,
+            "localTitle": "Xam'd Lost Memories Xam'd at the Dawn of War",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 01 Xam'd at the Dawn of War.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 01 Xam'd at the Dawn of War.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1458.457,
+              "bitRate": 1704303,
+              "sizeBytes": 310706754,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 2,
+            "seasonNumber": 1,
+            "episodeNumber": 2,
+            "localTitle": "Xam'd Lost Memories Blackout on Sentan Island",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 02 Blackout on Sentan Island.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 02 Blackout on Sentan Island.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1555.596,
+              "bitRate": 1862957,
+              "sizeBytes": 362251062,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 3,
+            "seasonNumber": 1,
+            "episodeNumber": 3,
+            "localTitle": "Xam'd Lost Memories The Way to Freedom",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 03 The Way to Freedom.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 03 The Way to Freedom.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1458.457,
+              "bitRate": 1256405,
+              "sizeBytes": 229051586,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 4,
+            "seasonNumber": 1,
+            "episodeNumber": 4,
+            "localTitle": "Xam'd Lost Memories Enlightenment",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 04 Enlightenment.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 04 Enlightenment.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1458.457,
+              "bitRate": 1242955,
+              "sizeBytes": 226599628,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 5,
+            "seasonNumber": 1,
+            "episodeNumber": 5,
+            "localTitle": "Xam'd Lost Memories Shattered Bonds",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 05 Shattered Bonds.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 05 Shattered Bonds.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1465.464,
+              "bitRate": 1201224,
+              "sizeBytes": 220043895,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 6,
+            "seasonNumber": 1,
+            "episodeNumber": 6,
+            "localTitle": "Xam'd Lost Memories Live Fire",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 06 Live Fire.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 06 Live Fire.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1458.46,
+              "bitRate": 1397990,
+              "sizeBytes": 254864227,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 7,
+            "seasonNumber": 1,
+            "episodeNumber": 7,
+            "localTitle": "Xam'd Lost Memories Guardians of Stone",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 07 Guardians of Stone.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 07 Guardians of Stone.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1458.457,
+              "bitRate": 1422703,
+              "sizeBytes": 259368938,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 8,
+            "seasonNumber": 1,
+            "episodeNumber": 8,
+            "localTitle": "Xam'd Lost Memories Showdown at Tsumebara Pass",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 08 Showdown at Tsumebara Pass.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 08 Showdown at Tsumebara Pass.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1465.464,
+              "bitRate": 1314068,
+              "sizeBytes": 240715076,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 9,
+            "seasonNumber": 1,
+            "episodeNumber": 9,
+            "localTitle": "Xam'd Lost Memories The Astonishing Raigyo",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 09 The Astonishing Raigyo.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 09 The Astonishing Raigyo.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1458.457,
+              "bitRate": 1041531,
+              "sizeBytes": 189878595,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 10,
+            "seasonNumber": 1,
+            "episodeNumber": 10,
+            "localTitle": "Xam'd Lost Memories Moving On",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 10 Moving On.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 10 Moving On.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1458.457,
+              "bitRate": 1099212,
+              "sizeBytes": 200394278,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 11,
+            "seasonNumber": 1,
+            "episodeNumber": 11,
+            "localTitle": "Xam'd Lost Memories Assault The Zanbani",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 11 Assault The Zanbani.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 11 Assault The Zanbani.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1465.464,
+              "bitRate": 1261374,
+              "sizeBytes": 231062445,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 12,
+            "seasonNumber": 1,
+            "episodeNumber": 12,
+            "localTitle": "Xam'd Lost Memories Flowers Blooming Into the Dark",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 12 Flowers Blooming Into the Dark.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 12 Flowers Blooming Into the Dark.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1458.457,
+              "bitRate": 881149,
+              "sizeBytes": 160639904,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 13,
+            "seasonNumber": 1,
+            "episodeNumber": 13,
+            "localTitle": "Xam'd Lost Memories Running Barefoot",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 13 Running Barefoot.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 13 Running Barefoot.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1458.457,
+              "bitRate": 1067479,
+              "sizeBytes": 194609103,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 14,
+            "seasonNumber": 1,
+            "episodeNumber": 14,
+            "localTitle": "Xam'd Lost Memories Cerulean Skies",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 14 Cerulean Skies.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 14 Cerulean Skies.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1465.464,
+              "bitRate": 1301177,
+              "sizeBytes": 238353523,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 15,
+            "seasonNumber": 1,
+            "episodeNumber": 15,
+            "localTitle": "Xam'd Lost Memories Souls at Peace",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 15 Souls at Peace.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 15 Souls at Peace.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1458.47,
+              "bitRate": 1120488,
+              "sizeBytes": 204274856,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 16,
+            "seasonNumber": 1,
+            "episodeNumber": 16,
+            "localTitle": "Xam'd Lost Memories Burning in Our Wake",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 16 Burning in Our Wake.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 16 Burning in Our Wake.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1458.47,
+              "bitRate": 1037790,
+              "sizeBytes": 189198265,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 17,
+            "seasonNumber": 1,
+            "episodeNumber": 17,
+            "localTitle": "Xam'd Lost Memories Lambs to the Altar",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 17 Lambs to the Altar.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 17 Lambs to the Altar.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1465.423,
+              "bitRate": 1092431,
+              "sizeBytes": 200109324,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 18,
+            "seasonNumber": 1,
+            "episodeNumber": 18,
+            "localTitle": "Xam'd Lost Memories What Can You See from There",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 18 What Can You See from There.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 18 What Can You See from There.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1458.416,
+              "bitRate": 993189,
+              "sizeBytes": 181060444,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 19,
+            "seasonNumber": 1,
+            "episodeNumber": 19,
+            "localTitle": "Xam'd Lost Memories Sudden Outbreak Romance Flowers Bloom",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 19 Sudden Outbreak Romance Flowers Bloom.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 19 Sudden Outbreak Romance Flowers Bloom.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1458.457,
+              "bitRate": 1253526,
+              "sizeBytes": 228526745,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 20,
+            "seasonNumber": 1,
+            "episodeNumber": 20,
+            "localTitle": "Xam'd Lost Memories Watered with Tears",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 20 Watered with Tears.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 20 Watered with Tears.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1465.464,
+              "bitRate": 1202825,
+              "sizeBytes": 220337204,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 21,
+            "seasonNumber": 1,
+            "episodeNumber": 21,
+            "localTitle": "Xam'd Lost Memories Sanctuary Breached",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 21 Sanctuary Breached.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 21 Sanctuary Breached.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1458.457,
+              "bitRate": 1056725,
+              "sizeBytes": 192648518,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 22,
+            "seasonNumber": 1,
+            "episodeNumber": 22,
+            "localTitle": "Xam'd Lost Memories Tojiro and Ryuzo",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 22 Tojiro and Ryuzo.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 22 Tojiro and Ryuzo.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1458.457,
+              "bitRate": 1031810,
+              "sizeBytes": 188106463,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 23,
+            "seasonNumber": 1,
+            "episodeNumber": 23,
+            "localTitle": "Xam'd Lost Memories Hiruken Emperor Born",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 23 Hiruken Emperor Born.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 23 Hiruken Emperor Born.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1465.464,
+              "bitRate": 1191093,
+              "sizeBytes": 218188062,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 24,
+            "seasonNumber": 1,
+            "episodeNumber": 24,
+            "localTitle": "Xam'd Lost Memories Voices from Beyond",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 24 Voices from Beyond.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 24 Voices from Beyond.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1458.457,
+              "bitRate": 1265449,
+              "sizeBytes": 230700517,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 25,
+            "seasonNumber": 1,
+            "episodeNumber": 25,
+            "localTitle": "Xam'd Lost Memories Nakiami and Sannova",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 25 Nakiami and Sannova.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 25 Nakiami and Sannova.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1458.457,
+              "bitRate": 1383394,
+              "sizeBytes": 252202704,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 26,
+            "seasonNumber": 1,
+            "episodeNumber": 26,
+            "localTitle": "Xam'd Lost Memories The Great Rock and the Girl",
+            "relativePath": "Xam'd Lost Memories/Xam'd Lost Memories 26 The Great Rock and the Girl.mkv",
+            "absoluteSourceHint": "import-video/Xam'd Lost Memories/Xam'd Lost Memories 26 The Great Rock and the Girl.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 1630.629,
+              "bitRate": 1185769,
+              "sizeBytes": 241693807,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "eng"
+                },
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 2
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          }
+        ],
+        "specials": [
+          {
+            "relativePath": "Xam'd Lost Memories/NCED01.mkv",
+            "tag": "NCED",
+            "localTitle": "NCED01",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 92.24,
+              "bitRate": 1636794,
+              "sizeBytes": 18872244,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 1
+            }
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/NCED02.mkv",
+            "tag": "NCED",
+            "localTitle": "NCED02",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 90.131,
+              "bitRate": 1360684,
+              "sizeBytes": 15329977,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 1
+            }
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/NCED03.mkv",
+            "tag": "NCED",
+            "localTitle": "NCED03",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 90.09,
+              "bitRate": 1616726,
+              "sizeBytes": 18206359,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 1
+            }
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/NCOP01.mkv",
+            "tag": "NCOP",
+            "localTitle": "NCOP01",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 91.627,
+              "bitRate": 2525865,
+              "sizeBytes": 28929681,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 1
+            }
+          },
+          {
+            "relativePath": "Xam'd Lost Memories/NCOP02.mkv",
+            "tag": "NCOP",
+            "localTitle": "NCOP02",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 90.129,
+              "bitRate": 2769680,
+              "sizeBytes": 31203563,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 1920,
+                "height": 1080,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 6,
+                  "language": "jpn"
+                }
+              ],
+              "subtitleStreamCount": 1
+            }
+          }
+        ]
+      },
+      "resourcePlaceholders": {
+        "streaming": {
+          "provider": null,
+          "mode": "pending",
+          "mappingNotes": []
+        },
+        "downloads": {
+          "provider": null,
+          "mode": "pending",
+          "mappingNotes": []
+        },
+        "subtitles": {
+          "provider": null,
+          "mode": "pending",
+          "mappingNotes": []
+        }
+      }
+    },
+    {
+      "relativeDirectory": "侏罗纪世界：重生[无字片源].Jurassic.World.Rebirth.2025.2160p.iT.WEB-DL.H.265.DDP5.1.Atmos-QuickIO",
+      "localSourceDirectory": "import-video/侏罗纪世界：重生[无字片源].Jurassic.World.Rebirth.2025.2160p.iT.WEB-DL.H.265.DDP5.1.Atmos-QuickIO",
+      "reviewStatus": "matched",
+      "importStatus": "ready",
+      "inScope": true,
+      "identity": {
+        "canonicalTitle": "侏罗纪世界：重生",
+        "originalTitle": "Jurassic World Rebirth",
+        "year": 2025,
+        "type": "movie"
+      },
+      "review": {
+        "confidence": 0.97,
+        "notes": [
+          "Matched from exact bilingual local title and year.",
+          "IMDb title aligns with the local release naming; no stable Douban subject link was confirmed in this pass."
+        ],
+        "matchedSources": [
+          {
+            "provider": "imdb",
+            "id": "tt31036941",
+            "title": "Jurassic World Rebirth (2025)",
+            "url": "https://www.imdb.com/title/tt31036941/",
+            "status": "verified"
+          }
+        ]
+      },
+      "artworkCandidates": [],
+      "localAssets": {
+        "subtitleFiles": [],
+        "sidecarFiles": []
+      },
+      "content": {
+        "kind": "movie",
+        "featureCount": 1,
+        "featureFiles": [
+          {
+            "relativePath": "侏罗纪世界：重生[无字片源].Jurassic.World.Rebirth.2025.2160p.iT.WEB-DL.H.265.DDP5.1.Atmos-QuickIO/Jurassic.World.Rebirth.2025.2160p.iT.WEB-DL.H.265.DDP5.1.Atmos-QuickIO.mkv",
+            "fileName": "Jurassic.World.Rebirth.2025.2160p.iT.WEB-DL.H.265.DDP5.1.Atmos-QuickIO.mkv",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "matroska,webm",
+              "durationSeconds": 8042.492,
+              "bitRate": 12682189,
+              "sizeBytes": 12749550971,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 1604,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "eac3",
+                  "channels": 6,
+                  "language": "eng"
+                }
+              ],
+              "subtitleStreamCount": 2
+            }
+          }
+        ]
+      },
+      "resourcePlaceholders": {
+        "streaming": {
+          "provider": null,
+          "mode": "pending",
+          "mappingNotes": []
+        },
+        "downloads": {
+          "provider": null,
+          "mode": "pending",
+          "mappingNotes": []
+        },
+        "subtitles": {
+          "provider": null,
+          "mode": "pending",
+          "mappingNotes": []
+        }
+      }
+    },
+    {
+      "relativeDirectory": "海市蜃楼 2025",
+      "localSourceDirectory": "import-video/海市蜃楼 2025",
+      "reviewStatus": "manual-review",
+      "importStatus": "needs-review",
+      "inScope": true,
+      "identity": {
+        "canonicalTitle": "海市蜃楼",
+        "originalTitle": "Sky Mirage",
+        "year": 2025,
+        "type": "series"
+      },
+      "review": {
+        "confidence": 0.45,
+        "notes": [
+          "Local naming strongly suggests a 24-episode 2025 series.",
+          "A stable official Douban or IMDb title page was not confirmed in this pass.",
+          "This entry needs a manual confirmation step before import."
+        ],
+        "matchedSources": []
+      },
+      "artworkCandidates": [
+        {
+          "relativePath": "海市蜃楼 2025/p2928174489.jpg",
+          "kind": "poster-candidate",
+          "fileName": "p2928174489.jpg"
+        }
+      ],
+      "localAssets": {
+        "subtitleFiles": [],
+        "sidecarFiles": []
+      },
+      "content": {
+        "kind": "episodic",
+        "episodeCount": 24,
+        "seasonNumbers": [
+          1
+        ],
+        "episodes": [
+          {
+            "sequence": 1,
+            "seasonNumber": 1,
+            "episodeNumber": 1,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E01.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E01.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2736.843175,
+              "bitRate": 4311397,
+              "sizeBytes": 1474952235,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                },
+                {
+                  "codec": "eac3",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 2,
+            "seasonNumber": 1,
+            "episodeNumber": 2,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E02.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E02.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 3343.650249,
+              "bitRate": 4138596,
+              "sizeBytes": 1729752268,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                },
+                {
+                  "codec": "eac3",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 3,
+            "seasonNumber": 1,
+            "episodeNumber": 3,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E03.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E03.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 3161.768345,
+              "bitRate": 4292128,
+              "sizeBytes": 1696339573,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                },
+                {
+                  "codec": "eac3",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 4,
+            "seasonNumber": 1,
+            "episodeNumber": 4,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E04.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E04.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 3857.066667,
+              "bitRate": 3753396,
+              "sizeBytes": 1809637407,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                },
+                {
+                  "codec": "eac3",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 5,
+            "seasonNumber": 1,
+            "episodeNumber": 5,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E05.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E05.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2647.376689,
+              "bitRate": 4044984,
+              "sizeBytes": 1338574572,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                },
+                {
+                  "codec": "eac3",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 6,
+            "seasonNumber": 1,
+            "episodeNumber": 6,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E06.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E06.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2609.760363,
+              "bitRate": 4092011,
+              "sizeBytes": 1334896039,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                },
+                {
+                  "codec": "eac3",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 7,
+            "seasonNumber": 1,
+            "episodeNumber": 7,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E07.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E07.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2516.369705,
+              "bitRate": 3841388,
+              "sizeBytes": 1208294152,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                },
+                {
+                  "codec": "eac3",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 8,
+            "seasonNumber": 1,
+            "episodeNumber": 8,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E08.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E08.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 3248.146576,
+              "bitRate": 4195480,
+              "sizeBytes": 1703442116,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                },
+                {
+                  "codec": "eac3",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 9,
+            "seasonNumber": 1,
+            "episodeNumber": 9,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E09.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E09.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2849.483175,
+              "bitRate": 3864401,
+              "sizeBytes": 1376443425,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                },
+                {
+                  "codec": "eac3",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 10,
+            "seasonNumber": 1,
+            "episodeNumber": 10,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E10.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E10.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2691.262404,
+              "bitRate": 3668241,
+              "sizeBytes": 1234025169,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 11,
+            "seasonNumber": 1,
+            "episodeNumber": 11,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E11.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E11.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2857.749478,
+              "bitRate": 3695682,
+              "sizeBytes": 1320166880,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 12,
+            "seasonNumber": 1,
+            "episodeNumber": 12,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E12.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E12.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 4012.593923,
+              "bitRate": 4469521,
+              "sizeBytes": 2241796631,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                },
+                {
+                  "codec": "eac3",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 13,
+            "seasonNumber": 1,
+            "episodeNumber": 13,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E13.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E13.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 3373.464671,
+              "bitRate": 4274236,
+              "sizeBytes": 1802373120,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                },
+                {
+                  "codec": "eac3",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 14,
+            "seasonNumber": 1,
+            "episodeNumber": 14,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E14.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E14.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 3939.311746,
+              "bitRate": 4052395,
+              "sizeBytes": 1995456392,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                },
+                {
+                  "codec": "eac3",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 15,
+            "seasonNumber": 1,
+            "episodeNumber": 15,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E15.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E15.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 4499.632472,
+              "bitRate": 3592250,
+              "sizeBytes": 2020475970,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 16,
+            "seasonNumber": 1,
+            "episodeNumber": 16,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E16.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E16.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2830.257052,
+              "bitRate": 4302918,
+              "sizeBytes": 1522295511,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                },
+                {
+                  "codec": "eac3",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 17,
+            "seasonNumber": 1,
+            "episodeNumber": 17,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E17.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E17.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 3186.451156,
+              "bitRate": 3955218,
+              "sizeBytes": 1575388803,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                },
+                {
+                  "codec": "eac3",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 18,
+            "seasonNumber": 1,
+            "episodeNumber": 18,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E18.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E18.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2783.933243,
+              "bitRate": 3550736,
+              "sizeBytes": 1235626536,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                },
+                {
+                  "codec": "eac3",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 19,
+            "seasonNumber": 1,
+            "episodeNumber": 19,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E19.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E19.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2431.059592,
+              "bitRate": 3584121,
+              "sizeBytes": 1089151724,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                },
+                {
+                  "codec": "eac3",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 20,
+            "seasonNumber": 1,
+            "episodeNumber": 20,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E20.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E20.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2985.482449,
+              "bitRate": 3645505,
+              "sizeBytes": 1360449225,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                },
+                {
+                  "codec": "eac3",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 21,
+            "seasonNumber": 1,
+            "episodeNumber": 21,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E21.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E21.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 3989.582948,
+              "bitRate": 3937251,
+              "sizeBytes": 1963498907,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                },
+                {
+                  "codec": "eac3",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 22,
+            "seasonNumber": 1,
+            "episodeNumber": 22,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E22.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E22.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2509.589478,
+              "bitRate": 4557069,
+              "sizeBytes": 1429546625,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                },
+                {
+                  "codec": "eac3",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 23,
+            "seasonNumber": 1,
+            "episodeNumber": 23,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E23.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E23.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 3250.213152,
+              "bitRate": 4203185,
+              "sizeBytes": 1707656214,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                },
+                {
+                  "codec": "eac3",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          },
+          {
+            "sequence": 24,
+            "seasonNumber": 1,
+            "episodeNumber": 24,
+            "localTitle": "海市蜃楼 : Sky Mirage",
+            "relativePath": "海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E24.mp4",
+            "absoluteSourceHint": "import-video/海市蜃楼 2025/海市蜃楼[全24集][国语配音:中文字幕].Sky.Mirage.S01.2025.2160p.S01E24.mp4",
+            "ffprobe": {
+              "ok": true,
+              "formatName": "mov,mp4,m4a,3gp,3g2,mj2",
+              "durationSeconds": 2826.03102,
+              "bitRate": 4351808,
+              "sizeBytes": 1537293324,
+              "video": {
+                "codec": "hevc",
+                "profile": "Main 10",
+                "width": 3840,
+                "height": 2072,
+                "pixelFormat": "yuv420p10le"
+              },
+              "audio": [
+                {
+                  "codec": "aac",
+                  "channels": 2,
+                  "language": "und"
+                },
+                {
+                  "codec": "eac3",
+                  "channels": 2,
+                  "language": "und"
+                }
+              ],
+              "subtitleStreamCount": 0
+            },
+            "resourceMapping": {
+              "playbackProvider": null,
+              "downloadProvider": null,
+              "subtitleProvider": null,
+              "mappingStatus": "pending"
+            }
+          }
+        ],
+        "specials": []
+      },
+      "resourcePlaceholders": {
+        "streaming": {
+          "provider": null,
+          "mode": "pending",
+          "mappingNotes": []
+        },
+        "downloads": {
+          "provider": null,
+          "mode": "pending",
+          "mappingNotes": []
+        },
+        "subtitles": {
+          "provider": null,
+          "mode": "pending",
+          "mappingNotes": []
+        }
+      }
+    }
+  ],
+  "skippedEntries": [
+    {
+      "relativeDirectory": "老饭骨",
+      "reason": [
+        "This folder appears to be a collection of standalone cooking videos, not one movie/series/anime catalog entry.",
+        "Keep it outside the streaming catalog import flow unless you later want a separate creator/video model."
+      ],
+      "reviewStatus": "skipped"
+    }
+  ]
+}
