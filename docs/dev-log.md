@@ -41,6 +41,7 @@ Planner update:
 - Added the planning handoff for `Player Refinement Round 5`, focusing the next pass on lower-right speed panel placement, compact control-bar geometry, richer speed/volume affordances, keyboard-and-mouse-compatible volume behavior, and cursor auto-hide validation
 - Added the planning handoff for `Player Refinement Round 6`, translating the six remaining player-polish requests into Detail Player outcomes and Reviewer runtime/browser checks
 - Added the planning handoff for `Player Refinement Round 8`, isolating the post-Round-7 fill-containment regression and requiring the rail-local fill fix to preserve the accepted thumb/track center-line alignment
+- Added the planning handoff for `Public URL Identity Round 1`, defining the opaque public-ID strategy, canonical `/watch` URL shape, Prisma identity changes, migration path away from slug-based playback links, and phased acceptance boundaries
 
 UI Shell update:
 - Reworked the homepage shell in `app/page.tsx` to match the `/reference-assets` hierarchy more closely with a compact navbar, dedicated search area, filter controls, poster-first grid, and static pagination shell
