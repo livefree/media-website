@@ -49,6 +49,7 @@ Reviewer
 - Reviews layout consistency
 - Does not change architecture
 - Validates against the active task acceptance checklist and calls out regressions before merge
+- Owns runtime validation for interaction-heavy surfaces and may use browser QA tooling to verify real behavior before merge
 
 ## File Ownership
 
@@ -100,13 +101,20 @@ Reviewer
 - Planner may specify implementation order and acceptance criteria, but may not implement owned UI/player/detail files.
 - Reviewer may audit current regressions and validate fixes, but may not become the implementing agent for detail-player scope.
 - Detail Player may implement only `app/media/`, `components/player/`, `components/detail/`, plus brief `docs/dev-log.md` entries for its own work.
+- Coordinator may inspect status, branches, and handoffs, but must not patch specialist-owned runtime defects directly.
+
+Skill boundaries for interactive player work:
+- Planner defines scope, acceptance criteria, and validation sequence only.
+- Reviewer owns runtime QA and interactive browser validation for playback controls, overlays, and mode transitions.
+- Detail Player implements playback/detail fixes only within owned files and does not self-sign off runtime acceptance.
+- Coordinator sequences the above roles and merges only after reviewer acceptance.
 
 Mandatory execution pattern for player/detail refinements:
 1. Coordinator updates `task.md`
 2. Planner defines implementation breakdown
-3. Reviewer confirms the issue list and acceptance checklist
+3. Reviewer confirms the issue list, QA inventory, and acceptance checklist
 4. Detail Player implements within owned scope
-5. Reviewer validates before Coordinator merges
+5. Reviewer validates in-browser before Coordinator merges
 
 ## Git Workflow
 
