@@ -1,9 +1,13 @@
 # Media Catalog Demo (Codex Multi-Agent Project)
 
+Current project version: `0.6.0`
+
 This project demonstrates how to recreate the **front‑end information architecture of a media catalog website**
 using Codex with a multi‑agent workflow.
 
 The goal is **UI + information architecture replication only**, not content aggregation or scraping.
+
+Versioning follows the project rules in [docs/versioning.md](/Users/livefree/projects/media-website-v2/docs/versioning.md).
 
 ## Goals
 

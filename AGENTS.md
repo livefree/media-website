@@ -213,3 +213,24 @@ Coordinator integration loop:
 2. integrate accepted work into `codex/coordinator-baseline`
 3. verify the integration branch is the new source for downstream work
 4. only then assign the next dependent agent task
+
+## Versioning Rules
+
+Current project version:
+
+`0.6.0`
+
+Versioning model:
+
+- Use Semantic Versioning while the project is pre-launch.
+- Until launch, treat the project as `0.x.y`.
+- `0.x.0` marks a meaningful product or platform milestone and also absorbs breaking changes before `1.0.0`.
+- `0.x.y` patch releases are for bug fixes, UI polish, docs/process updates, tooling updates, and other changes that do not redefine the project's milestone level.
+- `1.0.0` is reserved for the first launch-ready release with real database-backed catalog flows, API boundary, auth/session model, production-capable playback/runtime, admin/content operations, and deployment/observability basics in place.
+
+Coordinator requirements:
+
+- The Coordinator owns the official version bump decision.
+- When accepted work changes the project milestone level, the Coordinator must update the version before or during integration.
+- The version source of truth is `package.json`, with matching updates in `package-lock.json`, `README.md`, `docs/versioning.md`, and `docs/dev-log.md` when a bump occurs.
+- Agents must not silently change version numbers outside an explicitly assigned versioning task.
