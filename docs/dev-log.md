@@ -98,6 +98,7 @@ Reviewer:
 - Audited `/media/[slug]` against the active `Player Refinement Round 2` checklist and wrote `docs/handovers/reviewer-player-refinement-round-2.md` with blocking findings, pass/fail acceptance criteria, and follow-up validation steps for Detail Player
 - Baseline-reviewed `Player Refinement Round 3` from the updated task and planner handoff, and wrote `docs/handovers/reviewer-player-refinement-round-3.md` with runtime QA inventory, explicit pass/fail checks, and pre-implementation code risks for Detail Player
 - Baseline-reviewed `Player Refinement Round 4` from the updated task and AGENTS rules, treating the user rejection as authoritative evidence that the player regressions remain open, and wrote `docs/handovers/reviewer-player-refinement-round-4.md` with observable QA checks and reimplementation risks
+- Baseline-reviewed `Player Refinement Round 5` from the updated task and current player baseline, and wrote `docs/handovers/reviewer-player-refinement-round-5.md` with visible acceptance checks, keyboard and mode QA inventory, and pre-implementation UI/runtime risks
 
 Coordinator:
 - Escalated the player work into `Player Refinement Round 3`, adding explicit runtime QA requirements in `task.md` and clarifying in `AGENTS.md` that Reviewer owns interactive browser validation while Coordinator stays out of Detail Player implementation scope
