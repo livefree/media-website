@@ -91,3 +91,6 @@ Media Ingest:
 
 Reviewer:
 - Audited `/media/[slug]` against the active `Player Refinement Round 2` checklist and wrote `docs/handovers/reviewer-player-refinement-round-2.md` with blocking findings, pass/fail acceptance criteria, and follow-up validation steps for Detail Player
+
+Coordinator:
+- Escalated the player work into `Player Refinement Round 3`, adding explicit runtime QA requirements in `task.md` and clarifying in `AGENTS.md` that Reviewer owns interactive browser validation while Coordinator stays out of Detail Player implementation scope
