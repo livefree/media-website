@@ -23,7 +23,7 @@ PlayerShell
 
 ## Current Active Task
 
-### Player Refinement Round 7
+### Player Refinement Round 8
 
 Coordinator-only rule:
 - Coordinator may define scope, update task docs, dispatch agents, review ownership, and merge accepted work.
@@ -42,15 +42,15 @@ Scope for this refinement:
 - No changes to unrelated UI shell, search, or data architecture unless explicitly approved
 
 Acceptance criteria:
-- The progress track and the draggable thumb must share the same vertical center line in the rendered UI
-- The thumb must visually sit on the track center rather than appearing above it
-- The fix must address the structural mismatch between the custom-rendered track and the native range thumb, not just nudge one side with another offset that remains browser-fragile
-- Runtime sign-off must include interactive browser verification and close-up visual inspection of the progress control
-- This focused round must not introduce unrelated changes to volume, speed, fullscreen, tooltip, or other accepted Round 6 behavior
+- The red played segment and buffered segment must remain visually clipped to the progress rail and must not spill into the left control cluster or time display area
+- The progress rail must keep the Round 7 thumb/track center-line alignment while restoring a correct positioning context for the custom fill layers
+- The fix must address the positioning-context bug introduced by the Round 7 structural change, not by hiding overflow on a larger unrelated container
+- Runtime sign-off must include close-up browser verification that the left control area no longer shows a large red fill block
+- This focused round must not introduce unrelated changes to volume, speed, fullscreen, tooltip, or other accepted Round 6 and Round 7 behavior
 
 Current user-requested improvement to implement:
-1. Resolve the remaining structural alignment problem between the custom progress track and the native range thumb so both render on the same vertical center line.
+1. Fix the progress played/buffered layer containment bug so the custom fill stays inside the rail instead of expanding over the left control area and time display.
 
-Round 6 outcome:
-- The broader Round 6 player-polish changes were accepted and merged.
-- Round 7 isolates the one remaining progress-rail geometry defect so it can be fixed and reviewed independently.
+Round 7 outcome:
+- Round 7 corrected the thumb/track center-line alignment by moving the custom rail and native input into shared geometry.
+- That structural change introduced a new regression: the absolutely positioned played/buffered fill layers lost the correct rail-local positioning context and now expand into the left control region.

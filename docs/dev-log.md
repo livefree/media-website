@@ -117,3 +117,4 @@ Coordinator:
 - Established project versioning rules, set the current baseline to `0.6.0`, and documented how future Coordinator integrations must bump versions consistently
 - Opened `Player Refinement Round 6` to focus the next pass on residual player polish: removing redundant volume meter UI, tightening slider/thumb geometry, fixing fullscreen vertical centering, aligning the speed popup to the player edge, and preventing tooltip clipping
 - Opened `Player Refinement Round 7` as a single-issue follow-up focused only on the structural alignment defect between the custom progress track and the native range thumb so planner, detail-player, and reviewer can isolate and verify one geometry fix at a time
+- Opened `Player Refinement Round 8` as a containment-only follow-up after Round 7, isolating the regression where the custom played/buffered fill layers escaped the rail and rendered as a large red block across the left side of the control bar
