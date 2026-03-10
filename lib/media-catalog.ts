@@ -11,9 +11,9 @@ import type {
   CatalogScope,
   CatalogSortValue,
   MediaDetailRecord,
-  MediaEpisodeOption,
   PublicMediaList,
   PublicMediaListItem,
+  PublicMediaListPageRecord,
   MediaResourceLink,
   MediaItem,
   MediaType,
@@ -25,6 +25,8 @@ import {
   buildCompatibilityWatchHref,
   buildBrowseMediaCard,
   buildDetailMetadata,
+  buildListItemSubtitle,
+  buildPublicListHref,
   buildWatchHref,
   buildMediaWatchContext,
   buildMediaSearchText,
@@ -134,9 +136,13 @@ function buildPublicMediaListItem(
   return {
     publicRef: item.publicRef,
     position,
+    positionLabel: `${position}.`,
     mediaSlug: media.slug,
     mediaPublicId: media.publicId,
+    posterUrl: media.posterUrl,
     mediaTitle: media.title,
+    title: media.title,
+    subtitle: buildListItemSubtitle(media, episode),
     episodeSlug: episode?.slug,
     episodePublicId: episode?.publicId,
     canonicalWatchHref: buildWatchHref(watchContext),
@@ -145,10 +151,32 @@ function buildPublicMediaListItem(
   };
 }
 
-function buildPublicMediaList(list: (typeof publicLists)[number]): PublicMediaList {
-  const items = list.items
+function buildPublicMediaListPageRecord(list: (typeof publicLists)[number]): PublicMediaListPageRecord {
+  const baseItems = list.items
     .map((item, index) => buildPublicMediaListItem(list.publicId, index + 1, item))
     .filter((item): item is PublicMediaListItem => item !== null);
+  const items = baseItems.map((item, index) => ({
+    ...item,
+    previousItem:
+      index > 0
+        ? {
+            publicRef: baseItems[index - 1].publicRef,
+            position: baseItems[index - 1].position,
+            title: baseItems[index - 1].title,
+            canonicalWatchHref: baseItems[index - 1].canonicalWatchHref,
+          }
+        : undefined,
+    nextItem:
+      index < baseItems.length - 1
+        ? {
+            publicRef: baseItems[index + 1].publicRef,
+            position: baseItems[index + 1].position,
+            title: baseItems[index + 1].title,
+            canonicalWatchHref: baseItems[index + 1].canonicalWatchHref,
+          }
+        : undefined,
+  }));
+  const firstItem = items[0];
 
   return {
     id: list.id,
@@ -157,6 +185,11 @@ function buildPublicMediaList(list: (typeof publicLists)[number]): PublicMediaLi
     title: list.title,
     description: list.description,
     visibility: list.visibility,
+    canonicalListHref: buildPublicListHref(list.publicId),
+    itemCount: items.length,
+    coverPosterUrl: firstItem?.posterUrl,
+    firstItemPublicRef: firstItem?.publicRef,
+    firstItemWatchHref: firstItem?.canonicalWatchHref,
     items,
   };
 }
@@ -200,12 +233,20 @@ export function getResourceByPublicId(publicId: string): MediaResourceLink | und
 }
 
 export function getPublicLists(): PublicMediaList[] {
-  return publicLists.map(buildPublicMediaList);
+  return publicLists.map((list) => {
+    const page = buildPublicMediaListPageRecord(list);
+    const { items: _items, ...summary } = page;
+    return summary;
+  });
 }
 
-export function getPublicListByPublicId(publicId: string): PublicMediaList | undefined {
+export function getPublicListPageRecord(publicId: string): PublicMediaListPageRecord | undefined {
   const list = publicLists.find((entry) => entry.publicId === publicId);
-  return list ? buildPublicMediaList(list) : undefined;
+  return list ? buildPublicMediaListPageRecord(list) : undefined;
+}
+
+export function getPublicListByPublicId(publicId: string): PublicMediaListPageRecord | undefined {
+  return getPublicListPageRecord(publicId);
 }
 
 export function resolvePublicPlayback({
@@ -222,7 +263,7 @@ export function resolvePublicPlayback({
 
   const episode = episodePublicId ? getEpisodeFromMedia(media, episodePublicId) : undefined;
   const resource = resourcePublicId ? getResourceFromMedia(media, resourcePublicId) : undefined;
-  const list = listPublicId ? getPublicListByPublicId(listPublicId) : undefined;
+  const list = listPublicId ? getPublicListPageRecord(listPublicId) : undefined;
   const listItem = list && listItemPublicRef ? list.items.find((item) => item.publicRef === listItemPublicRef) : undefined;
 
   return {

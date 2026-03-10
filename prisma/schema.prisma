@@ -381,12 +381,17 @@ model UserList {
 model UserListItem {
   listId     String
   mediaId    String
+  episodeId  String?
   publicRef  String?    @unique
+  position   Int?
   addedAt    DateTime   @default(now())
   list       UserList   @relation(fields: [listId], references: [id], onDelete: Cascade)
   media      MediaTitle @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  episode    Episode?   @relation(fields: [episodeId], references: [id], onDelete: SetNull)
 
   @@id([listId, mediaId])
+  @@index([listId, position])
+  @@index([episodeId])
 }
 
 model SearchQuery {

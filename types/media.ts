@@ -27,7 +27,7 @@ export interface ResolvedPublicPlayback {
   media: MediaItem;
   episode?: EpisodeItem;
   resource?: MediaResourceLink;
-  list?: PublicMediaList;
+  list?: PublicMediaListPageRecord;
   listItem?: PublicMediaListItem;
 }
 
@@ -322,14 +322,30 @@ export interface MediaDetailRecord {
 export interface PublicMediaListItem {
   publicRef: string;
   position: number;
+  positionLabel: string;
   mediaSlug: string;
   mediaPublicId: string;
+  posterUrl: string;
   mediaTitle: string;
+  title: string;
+  subtitle: string;
   episodeSlug?: string;
   episodePublicId?: string;
   canonicalWatchHref: string;
   compatibilityHref: string;
   watchContext: PublicWatchQuery;
+  previousItem?: {
+    publicRef: string;
+    position: number;
+    title: string;
+    canonicalWatchHref: string;
+  };
+  nextItem?: {
+    publicRef: string;
+    position: number;
+    title: string;
+    canonicalWatchHref: string;
+  };
 }
 
 export interface PublicMediaList {
@@ -339,5 +355,13 @@ export interface PublicMediaList {
   title: string;
   description: string;
   visibility: "public" | "unlisted";
+  canonicalListHref: string;
+  itemCount: number;
+  coverPosterUrl?: string;
+  firstItemPublicRef?: string;
+  firstItemWatchHref?: string;
+}
+
+export interface PublicMediaListPageRecord extends PublicMediaList {
   items: PublicMediaListItem[];
 }
