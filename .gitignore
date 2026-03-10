@@ -13,3 +13,4 @@ coverage/
 docs/handovers/reviewer-player-refinement-round-2.md
 reference-assets/*.png
 reference-assets/player-elements/
+public/demo/
