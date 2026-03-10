@@ -33,16 +33,9 @@ export function MediaCard({ item }: { item: BrowseMediaCard }) {
             {item.title}
           </Link>
         </h3>
-        <p className="media-meta">
-          {item.yearLabel} · {item.typeLabel}
-        </p>
-        <div className="media-stats" aria-label="Availability">
-          {item.stats.slice(0, 3).map((stat) => (
-            <span key={stat.label} className="media-stat-pill">
-              {stat.label}: {stat.value}
-            </span>
-          ))}
-        </div>
+        {item.type !== "movie" && item.episodeCountLabel ? (
+          <p className="media-supporting-line">{item.episodeCountLabel}</p>
+        ) : null}
       </div>
     </article>
   );

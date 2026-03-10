@@ -979,8 +979,8 @@ body {
 
 .media-copy {
   display: grid;
-  gap: 7px;
-  padding: 13px 13px 14px;
+  gap: 4px;
+  padding: 12px 12px 13px;
 }
 
 .media-title {
@@ -998,28 +998,12 @@ body {
   overflow: hidden;
 }
 
-.media-meta {
+.media-supporting-line {
+  margin: 0;
+  color: var(--text-secondary);
   font-size: 0.72rem;
   font-weight: 300;
-}
-
-.media-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  font-size: 0.7rem;
-  color: var(--text-secondary);
-  font-weight: 300;
-}
-
-.media-stat-pill {
-  display: inline-flex;
-  align-items: center;
-  min-height: 22px;
-  padding: 0 7px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.025);
+  line-height: 1.35;
 }
 
 .pagination-shell {

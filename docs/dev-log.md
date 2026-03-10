@@ -170,6 +170,7 @@ UI Shell:
 - Added a real public list page at `/list/[publicId]` plus a homepage featured-lists entry surface, both rendered from shared public list records and canonical list/list-item watch links rather than page-local URL assembly
 - Expanded public list discovery with a real `/lists` directory route, added clear homepage/navbar entry paths into that directory, and upgraded `/list/[publicId]` to use shared share-ready list metadata and canonical list URLs in the presentation layer
 - Added a deterministic fallback poster-card treatment for missing, fake-hosted, or runtime-failing artwork across shared browse cards and public list surfaces, with distinct movie/series/anime variants that do not depend on remote image availability
+- Simplified shared browse cards so movies render title-only while series and anime render title plus a compact `episodeCountLabel`, removing the old metadata row and stat-pill copy from the card body
 
 UI Shell:
 - Switched the shared browse/search media card entry links to canonical `/watch?...` hrefs so public-facing catalog entry surfaces stop defaulting to compatibility slug routes
