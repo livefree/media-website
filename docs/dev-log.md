@@ -221,6 +221,7 @@ Coordinator:
 - Opened `Immersive Input Layering Round 1` to correct video-surface cursor semantics and refactor immersive idle behavior toward a YouTube-style separation between passive video area, real controls, and a single shared idle manager
 - Recorded the current engineering review in `docs/engineering-review-2026-03-10.md`, opened `Free Video Source Integration Planning Round 1`, and queued the removal of local demo-video runtime dependencies ahead of a lawful free-video ingestion and playback architecture plan
 - Promoted the accepted free-video source planning and demo-runtime cleanup work to version `0.8.4` under the project semver rules as a patch-level platform-planning and runtime-cleanup refinement
+- Opened `Compact Playback Source Selector Round 1` to expose source selection next to episode controls and preserve the selected source across episode switches without restoring the old large source section
 
 Data Catalog:
 - Added an explicit optional `episodeCountLabel` to the shared browse-card contract and builder so UI Shell can render compact series/anime episode counts directly without deriving them from the legacy stats pill structure

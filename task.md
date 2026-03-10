@@ -23,47 +23,38 @@ PlayerShell
 
 ## Current Active Task
 
-### Free Video Source Integration Planning Round 1
+### Compact Playback Source Selector Round 1
 
 Coordinator-only rule:
 - Coordinator may define scope, update task docs, dispatch agents, review ownership, and merge accepted work.
 - Coordinator must not directly implement files owned by Planner, UI Shell, Data Catalog, Media Ingest, Search Filter, Detail Player, or Reviewer unless the user explicitly authorizes an exception.
 
 Required execution order for this task:
-1. Coordinator records the current engineering review and improvement backlog
-2. Data Catalog removes the current local demo-video dependency from runtime catalog data
-3. Planner designs the lawful free-video ingestion, packaging, moderation, and playback architecture
-4. Reviewer validates that demo-video runtime references are cleared and that the plan covers the required platform workflow
+1. Planner writes the implementation breakdown and acceptance criteria
+2. Detail Player implements a compact playback-source selector near episode controls and preserves source preference across episode switches
+3. Reviewer validates source selection visibility and source-sticky episode navigation before merge
 6. User review remains authoritative for visual and interaction acceptance; a user-rejected candidate is not accepted even if code review passes
 
 Scope for this refinement:
-- Remove local demo-video runtime dependency and produce a production-oriented plan for lawful free-video source integration
+- Expose playback-source choice in the watch player UI and preserve the selected source across episode navigation
 - Owned surfaces:
-  - Coordinator: docs and task framing
-  - Data Catalog: `data/`, `lib/media*`, `types/` only as needed to remove demo-backed runtime mapping
+  - Detail Player: `app/media/`, `app/watch/`, `components/player/`, `components/detail/`
   - Planner/Reviewer: docs and acceptance only
-  - Planner/Reviewer: docs and acceptance only
-- No illicit scraping workflow, no bypass of access controls, and no broad playback redesign in this round
-- This round assumes only authorized free-to-publish sources such as public-domain, Creative Commons, direct creator uploads, or licensed free catalogs
+- No broader player redesign, no new public URL model, and no data-ingest architecture changes in this round
 
 Acceptance criteria:
-- The current site must no longer depend on local `/demo/...` media paths for runtime playback
-- The engineering findings and improvement backlog must be recorded on disk
-- A detailed design doc must exist for a mature, lawful free-video onboarding workflow covering:
-  - source intake and rights verification
-  - metadata normalization and editorial review
-  - ingest/transcode/package/storage/CDN flow
-  - playback URL strategy and resource health checks
-  - moderation, takedown/reporting, and operations
-- The plan must be explicit that only authorized free-video sources are in scope
-- Existing site structure and public URL model must remain intact in this planning round
+- The watch page must visibly expose playback-source selection in a compact form adjacent to the episode controls
+- Selecting a playback source must update the active source without expanding into the old large source section
+- After a source is selected, switching episodes must preserve that source preference where a matching source exists for the destination episode
+- Next-episode navigation must continue preserving the current source preference
+- Existing canonical watch/list URL behavior must remain intact
+- Existing player controls, episode selector behavior, and routing must not regress
 
 Current user-requested improvement to implement:
-1. Record the current code/engineering issues and recommended improvements.
-2. Clear the current website demo videos before the next real integration phase.
-3. Design a mature, real-world workflow for onboarding and publishing free video resources over the network.
-4. Prepare the platform for future implementation without relying on local demo assets.
+1. Explain how source selection is currently handled in the background.
+2. Show playback sources in a compact form near the episode selector.
+3. Keep the chosen source sticky when switching episodes.
 
 Current baseline:
-- The current runtime catalog still maps media playback by type to local `/demo/...` files.
-- The platform already has public watch URLs, a functional player, Prisma scaffolding, and ingest scripts, but it does not yet have a production-grade lawful video onboarding pipeline.
+- The watch page already resolves an active playback source internally from the active episode’s available sources and the optional `r` query param.
+- The player UI currently does not expose that source choice next to the episode controls, and ordinary episode switching clears the explicit source selection.
