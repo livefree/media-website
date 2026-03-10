@@ -1,7 +1,8 @@
-import { getCategoryFeed } from "../lib/media-catalog";
+import { getCategoryFeed, getPublicLists } from "../lib/media-catalog";
 import { buildBrowsePageData } from "../lib/search-filter";
 import { getHiddenSearchFields } from "../lib/search-params";
 import type { CatalogScope } from "../types/media";
+import { FeaturedListsSection } from "./FeaturedListsSection";
 import { FilterBar } from "./FilterBar";
 import { MediaGrid } from "./MediaGrid";
 import { Navbar } from "./Navbar";
@@ -64,6 +65,7 @@ export function BrowseCatalogPage({
   const copy = scopeCopy[scope];
   const pageData = buildBrowsePageData(scope, searchParams);
   const feed = getCategoryFeed(scope);
+  const featuredLists = scope === "all" ? getPublicLists().slice(0, 3) : [];
   const searchHiddenFields = getHiddenSearchFields(pageData.currentParams, ["q", "page", "type"]);
   const filterHiddenFields = getHiddenSearchFields(pageData.currentParams, ["sort", "type", "genre", "region", "year", "page"]);
 
@@ -125,6 +127,8 @@ export function BrowseCatalogPage({
           </div>
         )}
       </section>
+
+      {featuredLists.length > 0 ? <FeaturedListsSection lists={featuredLists} /> : null}
     </main>
   );
 }
