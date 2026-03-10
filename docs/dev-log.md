@@ -50,6 +50,7 @@ Planner update:
 - Added the planning handoff for `Episode Navigation And Selector Round 1`, defining larger episodic test coverage, numeric-first episode labels with hover titles, preserved `下一集` behavior, and a right-side `选集 (E)` popup selector with current-item centering and keyboard support
 - Added the planning handoff for `Episode Navigation And Selector Round 2`, narrowing the follow-up to hover-only selector entry reveal, icon-plus-number labeling, page-stable popup behavior, and denser numeric popup layout
 - Added the planning handoff for `Episode Navigation And Selector Round 3`, narrowing the next pass to stronger active-item red emphasis and deeper hover/focus border contrast inside the episode popup
+- Added the planning handoff for `Player Control Position And Episodic Autoplay Round 1`, defining bottom-edge control-bar anchoring in theater/fullscreen and one-shot internal autoplay intent for episode transitions without changing canonical watch/list URLs
 
 UI Shell update:
 - Reworked the homepage shell in `app/page.tsx` to match the `/reference-assets` hierarchy more closely with a compact navbar, dedicated search area, filter controls, poster-first grid, and static pagination shell
