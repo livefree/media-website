@@ -769,6 +769,11 @@
   min-width: 0;
 }
 
+.playerEpisodeEntryGroup {
+  display: inline-flex;
+  align-items: center;
+}
+
 .playerControlShell {
   position: relative;
   display: inline-flex;
@@ -798,7 +803,7 @@
 .playerEpisodeButton {
   gap: 5px;
   padding: 0 8px;
-  min-width: 82px;
+  min-width: 54px;
 }
 
 .playerEpisodeLabel {
@@ -807,6 +812,7 @@
   font-weight: 600;
   letter-spacing: 0.01em;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .playerVolumeButton {
@@ -899,6 +905,30 @@
 
 .playerVolumeDock {
   flex: 0 0 auto;
+}
+
+.playerEpisodeEntryGroup .playerEpisodeDock {
+  width: 0;
+  margin-left: 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-8px);
+  overflow: hidden;
+  transition:
+    width 180ms ease,
+    margin-left 180ms ease,
+    opacity 140ms ease,
+    transform 180ms ease;
+}
+
+.playerEpisodeEntryGroup:hover .playerEpisodeDock,
+.playerEpisodeEntryGroup:focus-within .playerEpisodeDock,
+.playerEpisodeDockVisible {
+  width: 54px;
+  margin-left: 6px;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
 }
 
 .playerSpeedPanel {
@@ -1066,24 +1096,25 @@
 
 .playerEpisodeList {
   display: grid;
-  gap: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
+  gap: 8px;
   max-height: min(44vh, 260px);
   overflow-y: auto;
   padding-right: 2px;
 }
 
 .playerEpisodeOption {
-  display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
-  gap: 10px;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   width: 100%;
-  padding: 8px 10px;
+  min-height: 38px;
+  padding: 0 6px;
   border: 1px solid rgba(92, 107, 132, 0.34);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.06);
   color: #fff;
-  text-align: left;
+  text-align: center;
 }
 
 .playerEpisodeOption:hover,
@@ -1099,17 +1130,10 @@
 }
 
 .playerEpisodeOptionNumber {
-  color: #8fb0ff;
-  font-size: 0.82rem;
+  color: inherit;
+  font-size: 0.84rem;
   font-weight: 700;
-  text-align: center;
-}
-
-.playerEpisodeOptionTitle {
-  min-width: 0;
-  color: #eaf0fb;
-  font-size: 0.82rem;
-  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
 }
 
 .playerSpeedValue {
