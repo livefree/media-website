@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import type { MediaEpisodeOption } from "../../types/media";
+import { setAutoplayIntentForHref } from "./autoplay-intent";
 import styles from "../detail/detail-page.module.css";
 
 type EpisodeSelection = MediaEpisodeOption & {
@@ -103,6 +104,7 @@ export function EpisodeSelector({
             <Link
               href={episode.href}
               scroll={false}
+              onClick={() => setAutoplayIntentForHref(episode.href)}
               className={`${styles.selectorButton} ${styles.selectorButtonNumeric} ${
                 episode.isActive ? styles.selectorButtonActive : ""
               } ${watchedEpisodes.has(episode.slug) && !episode.isActive ? styles.selectorButtonWatched : ""}`}

@@ -195,6 +195,7 @@ Detail Player:
 - Converted the main episode chips to numeric labels with hover titles, preserved the `N` next-episode control, and added a right-side `选集 (E)` player popup with current-episode centering plus arrow-key and Enter selection
 - Refined the episode-entry control so it now slides out from the `下一集` area with icon-plus-number only, and compacted the popup into a page-stable numeric grid that keeps keyboard navigation local to the popup
 - Strengthened episode-popup visual feedback by rendering the active episode number in red and deepening hover/focus border contrast for non-active candidates without changing selector behavior
+- Anchored theater/fullscreen controls to the bottom screen edge and added one-shot internal autoplay intent so direct watch entry stays paused while ended-next, `下一集`, and episode-selector transitions autoplay without changing canonical `/watch` URLs
 
 Coordinator:
 - Opened `Player Control Position And Episodic Autoplay Round 1` to move theater/fullscreen controls to the bottom edge of the page or screen while preserving paused direct-entry startup and allowing autoplay only for episode-to-episode transitions triggered by playback completion, the `下一集` control, or the episode selector

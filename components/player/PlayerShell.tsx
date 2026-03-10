@@ -6,6 +6,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 import type { MediaEpisodeOption, MediaItem, PlaybackSourceOption } from "../../types/media";
+import { consumeAutoplayIntentForHref, setAutoplayIntentForHref } from "./autoplay-intent";
 import styles from "../detail/detail-page.module.css";
 
 const SEEK_STEP_SECONDS = 5;
@@ -333,6 +334,7 @@ export function PlayerShell({
   const hideControlsTimeoutRef = useRef<number | null>(null);
   const volumeRevealTimeoutRef = useRef<number | null>(null);
   const cursorHideTimeoutRef = useRef<number | null>(null);
+  const shouldAutoplayOnLoadRef = useRef(false);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -630,6 +632,7 @@ export function PlayerShell({
     const sanitizedProgress = sanitizeStoredProgress(storedProgress);
     pendingResumeRef.current = sanitizedProgress;
     lastPersistedTimeRef.current = 0;
+    shouldAutoplayOnLoadRef.current = consumeAutoplayIntentForHref();
     setPlaybackError(null);
     setCurrentTime(0);
     setDuration(0);
@@ -778,7 +781,7 @@ export function PlayerShell({
           case "Enter":
             event.preventDefault();
             if (focusedEpisodeIndex >= 0) {
-              navigateToEpisode(episodes[focusedEpisodeIndex].href);
+              navigateToEpisode(episodes[focusedEpisodeIndex].href, true);
             }
             return;
           case "Escape":
@@ -870,7 +873,7 @@ export function PlayerShell({
         case "N":
           if (nextEpisodeHref) {
             event.preventDefault();
-            navigateToEpisode(nextEpisodeHref);
+            navigateToEpisode(nextEpisodeHref, true);
           }
           break;
         default:
@@ -1018,8 +1021,11 @@ export function PlayerShell({
     });
   }
 
-  function navigateToEpisode(href: string) {
+  function navigateToEpisode(href: string, autoplay = false) {
     closeTransientPanels();
+    if (autoplay) {
+      setAutoplayIntentForHref(href);
+    }
     router.push(href, { scroll: false });
   }
 
@@ -1120,6 +1126,18 @@ export function PlayerShell({
                 setCurrentTime(saved.currentTime);
                 video.pause();
               }
+
+              if (shouldAutoplayOnLoadRef.current) {
+                shouldAutoplayOnLoadRef.current = false;
+                const autoplayAttempt = video.play();
+                if (autoplayAttempt) {
+                  void autoplayAttempt.then(() => {
+                    setIsPlaying(true);
+                  }).catch(() => {
+                    setIsPlaying(false);
+                  });
+                }
+              }
             }}
             onDurationChange={(event) => setDuration(event.currentTarget.duration || 0)}
             onTimeUpdate={(event) => {
@@ -1148,7 +1166,7 @@ export function PlayerShell({
               }
               setIsPlaying(false);
               if (nextEpisodeHref) {
-                router.push(nextEpisodeHref, { scroll: false });
+                navigateToEpisode(nextEpisodeHref, true);
               }
             }}
           />
@@ -1190,7 +1208,7 @@ export function PlayerShell({
                       <button
                         type="button"
                         className={styles.playerControlButton}
-                        onClick={() => navigateToEpisode(nextEpisodeHref)}
+                        onClick={() => navigateToEpisode(nextEpisodeHref, true)}
                         aria-label={`下一集 ${nextEpisodeLabel ?? ""} (N)`}
                       >
                         <NextEpisodeIcon />
@@ -1439,7 +1457,7 @@ export function PlayerShell({
                         aria-selected={episode.isActive}
                         onMouseEnter={() => setFocusedEpisodeIndex(index)}
                         onFocus={() => setFocusedEpisodeIndex(index)}
-                        onClick={() => navigateToEpisode(episode.href)}
+                        onClick={() => navigateToEpisode(episode.href, true)}
                       >
                         <span className={styles.playerEpisodeOptionNumber}>{episode.episodeNumber}</span>
                       </button>

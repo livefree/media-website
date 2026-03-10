@@ -678,6 +678,21 @@
   transform: translateY(18px);
 }
 
+.playerViewportWrapTheater .playerChrome,
+.playerViewportWrapFullscreen .playerChrome {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 6;
+  padding: 0 0 max(8px, env(safe-area-inset-bottom));
+}
+
+.playerViewportWrapTheater .playerChromeSurface,
+.playerViewportWrapFullscreen .playerChromeSurface {
+  padding: 4px 18px 8px;
+}
+
 .playerProgressRail {
   display: grid;
   align-items: center;
