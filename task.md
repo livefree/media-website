@@ -23,7 +23,7 @@ PlayerShell
 
 ## Current Active Task
 
-### Episode Navigation And Selector Round 3
+### Player Control Position And Episodic Autoplay Round 1
 
 Coordinator-only rule:
 - Coordinator may define scope, update task docs, dispatch agents, review ownership, and merge accepted work.
@@ -31,26 +31,31 @@ Coordinator-only rule:
 
 Required execution order for this task:
 1. Planner writes the implementation breakdown and acceptance criteria
-2. Detail Player implements the popup-visual feedback refinements inside the watch/player surface
-3. Reviewer validates current-episode emphasis and non-active option contrast before merge
+2. Detail Player implements the control-position and episodic-autoplay behavior changes inside the watch/player surface
+3. Reviewer validates bottom-anchored control positioning and the autoplay exception flows before merge
 6. User review remains authoritative for visual and interaction acceptance; a user-rejected candidate is not accepted even if code review passes
 
 Scope for this refinement:
-- Episode-popup visual emphasis refinements only
+- Player control positioning in theater/fullscreen modes and narrowly scoped autoplay exceptions for episodic navigation
 - Owned surfaces:
   - Detail Player: `app/media/`, `app/watch/`, `components/player/`, `components/detail/`
   - Planner/Reviewer: docs and acceptance only
 - No unrelated browse redesign, auth flow, admin tooling, or broader player redesign beyond these episode-navigation rules
 
 Acceptance criteria:
-- The current episode in the popup must stand out more clearly by rendering its numeric label in red
-- Non-active popup options must have a noticeably stronger border-color change for hover/focus/selection movement
-- Existing `N` / `E` shortcuts, popup layout, canonical routing, and next-episode behavior must not regress
+- In theater mode and fullscreen mode, the player control bar must anchor to the bottom of the page or screen rather than staying in the same relative spot over the video frame
+- Default watch-page entry must still remain non-autoplay
+- Automatic transition to the next episode after the current episode ends must auto-play the newly entered episode
+- Using the `下一集` button or choosing a new episode from the selector popup/menu must enter the next episode with autoplay enabled
+- Existing canonical watch/list behavior, shortcuts, and selector routing must not regress
 
 Current user-requested improvement to implement:
-1. Make the current episode much more obvious by rendering its number in red inside the popup.
-2. Increase the visual distinction of the focused/hovered candidate episodes by deepening the border-color change.
+1. In theater mode and fullscreen mode, move the player control bar to the bottom of the page or screen.
+2. Keep default watch-page entry paused, but auto-play when:
+   - the current episode ends and advances to the next one
+   - the user clicks the `下一集` button
+   - the user selects a new episode from the selector UI
 
 Current baseline:
-- The popup entry, popup stability, dense numeric layout, and episode counts are already in place from the previous rounds.
-- The remaining issues are limited to insufficient current-item emphasis and weak visual contrast for the hovered/focused candidate episode buttons.
+- The player already preserves non-autoplay startup on direct entry, and episodic navigation plus next-episode routing already exist.
+- The remaining issues are mode-specific control positioning and distinguishing autoplay-exception episode transitions from ordinary watch-page entry.
