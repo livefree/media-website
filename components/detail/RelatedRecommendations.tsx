@@ -17,13 +17,13 @@ export function RelatedRecommendations({ items }: { items: BrowseMediaCard[] }) 
       <div className={styles.relatedGrid}>
         {items.map((item) => (
           <article key={item.id} className={styles.relatedCard}>
-            <Link href={item.href} className={styles.relatedPosterLink}>
+            <Link href={item.canonicalWatchHref} className={styles.relatedPosterLink}>
               <img src={item.posterUrl} alt={`${item.title} poster`} className={styles.relatedPoster} />
               <span className={styles.relatedRating}>{item.ratingValue.toFixed(1)}</span>
             </Link>
             <div className={styles.relatedCopy}>
               <h3 className={styles.relatedTitle}>
-                <Link href={item.href}>{item.title}</Link>
+                <Link href={item.canonicalWatchHref}>{item.title}</Link>
               </h3>
             </div>
           </article>
