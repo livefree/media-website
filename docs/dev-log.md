@@ -229,3 +229,4 @@ Data Catalog:
 
 Planner:
 - Produced `docs/handovers/planner-free-video-source-integration-round-1.md` to define the lawful free-video source onboarding plan, including source-class restrictions, rights/provenance workflow, ingest/transcode/storage/CDN architecture, playback-resource evolution, schema additions, ops/compliance controls, and the Round 2-4 implementation roadmap
+- Produced `docs/handovers/planner-compact-playback-source-selector-round-1.md` to define a compact player-local source selector near the episode controls, preserve sticky source preference across episode switches via destination-source matching, and keep the canonical `/watch?...&r=...` model unchanged without reviving the old large source section
