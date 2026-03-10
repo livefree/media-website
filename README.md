@@ -1,6 +1,6 @@
 # Media Catalog Demo (Codex Multi-Agent Project)
 
-Current project version: `0.8.4`
+Current project version: `0.8.5`
 
 This project demonstrates how to recreate the **front‑end information architecture of a media catalog website**
 using Codex with a multi‑agent workflow.
