@@ -47,6 +47,7 @@ Planner update:
 - Added the planning handoff for `Public URL Identity Round 5`, scoping the next slice to broader public list discovery, share-ready list surfaces, and a stronger read-only playlist-style queue experience inside `/watch`
 - Added the planning handoff for `Demo Media Backfill Round 1`, defining deterministic local demo-video mapping by media type, removal of the visible watch-page source selector, and consistent fallback poster-card behavior for missing or broken artwork
 - Added the planning handoff for `Player Resume And Startup Round 1`, defining exact first-30s/last-30s resume rules, 5-second persisted precision, paused startup behavior, and resume-aware preload expectations
+- Added the planning handoff for `Episode Navigation And Selector Round 1`, defining larger episodic test coverage, numeric-first episode labels with hover titles, preserved `下一集` behavior, and a right-side `选集 (E)` popup selector with current-item centering and keyboard support
 
 UI Shell update:
 - Reworked the homepage shell in `app/page.tsx` to match the `/reference-assets` hierarchy more closely with a compact navbar, dedicated search area, filter controls, poster-first grid, and static pagination shell
