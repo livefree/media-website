@@ -143,3 +143,4 @@ UI Shell:
 
 Reviewer:
 - Baseline-reviewed `Public URL Identity Round 1` from the latest `main` task state and wrote `docs/handovers/reviewer-public-url-round-1.md` with acceptance checks for opaque `/watch` URLs, public-ID coverage, slug-route compatibility, and first-slice runtime validation
+- Accepted candidate `004da1e` for `Public URL Identity Round 1` after runtime QA confirmed legacy `/media/[slug]` playback URLs canonicalize to opaque `/watch?v=...&e=...&r=...` URLs without leaking media slugs, episode slugs, or provider details
