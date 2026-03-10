@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.7.0`
+Current version: `0.8.0`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.7.0` an appropriate current milestone: the prototype now has real URL-backed catalog facets and broader dataset coverage, but it is still not a launch candidate.
+That makes `0.8.0` an appropriate current milestone: the prototype now has real public list pages, canonical list-backed watch entry flows, and visible list-aware playback context, while still remaining short of a launch-ready platform.
 
 ## Rules
 
@@ -29,12 +29,10 @@ That makes `0.7.0` an appropriate current milestone: the prototype now has real 
 
 ## Practical Mapping
 
-- `0.7.x`
-  Current baseline with real URL-backed catalog filtering and broader catalog coverage on the existing prototype platform.
-- `0.8.0`
-  A later pre-launch milestone such as stronger database-backed catalog integration, authenticated user state, or admin/content operations becoming real product surfaces.
+- `0.8.x`
+  Current baseline with real public list pages, canonical list-backed watch flows, and list-aware playback context on top of the existing prototype platform.
 - `0.9.0`
-  Launch-hardening and release-candidate stage.
+  A later pre-launch milestone such as stronger database-backed catalog integration, authenticated user state, or admin/content operations becoming real product surfaces.
 - `1.0.0`
   First production-ready launch baseline.
 
