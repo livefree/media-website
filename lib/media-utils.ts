@@ -79,6 +79,10 @@ export function buildWatchHref({
   return `/watch?${params.toString()}`;
 }
 
+export function buildPublicListHref(publicId: string): string {
+  return `/list/${publicId}`;
+}
+
 export function buildMediaWatchContext(
   media: Pick<MediaItem, "publicId">,
   options?: Omit<PublicWatchQuery, "mediaPublicId">,
@@ -107,6 +111,15 @@ export function buildCompatibilityWatchHref(
 
   const query = params.toString();
   return query ? `/media/${media.slug}?${query}` : `/media/${media.slug}`;
+}
+
+export function buildListItemSubtitle(media: Pick<MediaItem, "type" | "year" | "originalTitle">, episode?: Pick<EpisodeItem, "episodeNumber" | "title">): string {
+  if (episode) {
+    const episodeLabel = episode.episodeNumber ? `E${String(episode.episodeNumber).padStart(2, "0")}` : "Episode";
+    return [String(media.year), episodeLabel, episode.title].filter(Boolean).join(" · ");
+  }
+
+  return [media.originalTitle, String(media.year), getMediaTypeLabel(media.type)].filter(Boolean).join(" · ");
 }
 
 export function getCompatibilityMediaHref(media: Pick<MediaItem, "slug">): string {
