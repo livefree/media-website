@@ -1,8 +1,10 @@
 import Link from "next/link";
 
+import { getMediaByPublicId } from "../lib/media-catalog";
 import { buildPublicListDirectoryHref } from "../lib/media-utils";
 import type { PublicMediaListPageRecord } from "../types/media";
 import { Navbar } from "./Navbar";
+import { PosterArtwork } from "./PosterArtwork";
 
 export function PublicListPageShell({ list }: { list: PublicMediaListPageRecord }) {
   const directoryHref = buildPublicListDirectoryHref();
@@ -75,7 +77,13 @@ export function PublicListPageShell({ list }: { list: PublicMediaListPageRecord 
             <li key={item.publicRef} className="public-list-item">
               <span className="public-list-item-position">{item.positionLabel}</span>
               <Link href={item.canonicalWatchHref} className="public-list-item-poster-link">
-                <img src={item.posterUrl} alt={`${item.title} poster`} className="public-list-item-poster" loading="lazy" />
+                <PosterArtwork
+                  className="public-list-item-poster"
+                  src={item.posterUrl}
+                  alt={`${item.title} poster`}
+                  title={item.title}
+                  variant={getMediaByPublicId(item.mediaPublicId)?.type ?? "list"}
+                />
               </Link>
               <div className="public-list-item-copy">
                 <p className="public-list-item-title">

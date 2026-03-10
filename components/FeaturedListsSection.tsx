@@ -1,7 +1,19 @@
 import Link from "next/link";
 
+import { getMediaByPublicId, getPublicListPageRecord } from "../lib/media-catalog";
 import { buildPublicListDirectoryHref } from "../lib/media-utils";
 import type { PublicMediaList } from "../types/media";
+import { PosterArtwork } from "./PosterArtwork";
+
+function getListCoverVariant(publicId: string) {
+  const firstItem = getPublicListPageRecord(publicId)?.items[0];
+
+  if (!firstItem) {
+    return "list" as const;
+  }
+
+  return getMediaByPublicId(firstItem.mediaPublicId)?.type ?? ("list" as const);
+}
 
 export function FeaturedListsSection({ lists }: { lists: PublicMediaList[] }) {
   if (lists.length === 0) {
@@ -33,13 +45,13 @@ export function FeaturedListsSection({ lists }: { lists: PublicMediaList[] }) {
         {lists.map((list) => (
           <article key={list.publicId} className="featured-list-card">
             <Link href={list.canonicalListHref} className="featured-list-cover-link">
-              {list.coverPosterUrl ? (
-                <img src={list.coverPosterUrl} alt={`${list.title} cover`} className="featured-list-cover" loading="lazy" />
-              ) : (
-                <div className="featured-list-cover featured-list-cover-fallback" aria-hidden="true">
-                  LIST
-                </div>
-              )}
+              <PosterArtwork
+                className="featured-list-cover"
+                src={list.coverPosterUrl}
+                alt={`${list.title} cover`}
+                title={list.shareTitle}
+                variant={getListCoverVariant(list.publicId)}
+              />
             </Link>
 
             <div className="featured-list-copy">

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import type { BrowseMediaCard } from "../types/media";
+import { PosterArtwork } from "./PosterArtwork";
 
 export function MediaCard({ item }: { item: BrowseMediaCard }) {
   const publicEntryHref = item.canonicalWatchHref || item.href;
@@ -9,7 +10,13 @@ export function MediaCard({ item }: { item: BrowseMediaCard }) {
     <article className="media-card" data-tone={item.badge.tone}>
       <Link href={publicEntryHref} className="media-poster-link">
         <div className="media-poster">
-          <img className="poster-image" src={item.posterUrl} alt={`${item.title} poster`} loading="lazy" />
+          <PosterArtwork
+            className="poster-image"
+            src={item.posterUrl}
+            alt={`${item.title} poster`}
+            title={item.title}
+            variant={item.type}
+          />
           <div className="poster-badge badge-top-left">{item.badge.label}</div>
           {item.ratingValue > 0 ? (
             <div className="poster-badge badge-top-right" aria-label={`Rating ${item.ratingLabel}`}>
