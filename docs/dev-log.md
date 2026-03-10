@@ -87,6 +87,7 @@ Detail Player:
 - Refined the player for Round 7 by restructuring the progress rail so the custom track and native range input share one grid-aligned center line instead of relying on separate offset math
 - Refined the player for Round 8 by restoring a rail-local positioning context for the played and buffered fill layers so progress fill stays clipped inside the track without disturbing the Round 7 center-line alignment
 - Added the first opaque public watch runtime by introducing `/watch?v=...` resolution via shared public IDs, converting detail-page owned watch entry points to canonical watch URLs, and turning `/media/[slug]` into a compatibility redirect that maps legacy slug/source/download params into opaque media, episode, and resource IDs
+- Made `/watch` list-aware for Public URL Round 4 by resolving shared public list context, preserving `list` / `li` across in-scope watch transitions, and surfacing the active list item, position, and shared previous/next item navigation inside the detail experience
 
 Coordinator foundation:
 - Added the first productionization slice with `.env.example`, Prisma/NPM database scripts, server-side env helpers, and a reusable Prisma client singleton
