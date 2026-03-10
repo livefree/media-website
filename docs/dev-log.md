@@ -45,6 +45,7 @@ Planner update:
 - Added the planning handoff for `Public URL Identity Round 2`, defining which public entry surfaces must switch from compatibility slug links to canonical `/watch?...` hrefs and extending shared contracts for future `list` and `li` watch context
 - Added the planning handoff for `Public URL Identity Rounds 3 and 4`, splitting the next work into a real public list-page/entry-flow round and a list-aware `/watch` playback round while recording Round 5 as future-only scope
 - Added the planning handoff for `Public URL Identity Round 5`, scoping the next slice to broader public list discovery, share-ready list surfaces, and a stronger read-only playlist-style queue experience inside `/watch`
+- Added the planning handoff for `Demo Media Backfill Round 1`, defining deterministic local demo-video mapping by media type, removal of the visible watch-page source selector, and consistent fallback poster-card behavior for missing or broken artwork
 
 UI Shell update:
 - Reworked the homepage shell in `app/page.tsx` to match the `/reference-assets` hierarchy more closely with a compact navbar, dedicated search area, filter controls, poster-first grid, and static pagination shell
