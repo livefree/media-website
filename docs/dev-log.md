@@ -52,6 +52,7 @@ Planner update:
 - Added the planning handoff for `Episode Navigation And Selector Round 3`, narrowing the next pass to stronger active-item red emphasis and deeper hover/focus border contrast inside the episode popup
 - Added the planning handoff for `Player Control Position And Episodic Autoplay Round 1`, defining bottom-edge control-bar anchoring in theater/fullscreen and one-shot internal autoplay intent for episode transitions without changing canonical watch/list URLs
 - Added the planning handoff for `Browse Card Simplification Round 1`, narrowing the card cleanup to title-only movie cards, title-plus-episode-count series/anime cards, stat-pill removal, and a recommended light browse-card data tweak for explicit episode-count copy
+- Added the planning handoff for `Player Title Overlay Round 1`, replacing the generic watch heading with title-aware playback copy and defining a top-edge theater/fullscreen title overlay that hides and reappears with the immersive player chrome
 
 UI Shell update:
 - Reworked the homepage shell in `app/page.tsx` to match the `/reference-assets` hierarchy more closely with a compact navbar, dedicated search area, filter controls, poster-first grid, and static pagination shell
