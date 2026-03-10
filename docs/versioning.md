@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.8.2`
+Current version: `0.8.3`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.8.2` an appropriate current milestone: the prototype keeps the accepted public-list and queue baseline, and now adds local demo-media backfill plus deterministic fallback poster cards for more reliable feature testing, while still remaining short of a launch-ready platform.
+That makes `0.8.3` an appropriate current milestone: the prototype keeps the accepted public-list and queue baseline, preserves the local demo-media testing setup, and now simplifies browse-card copy so catalog browsing is denser and easier to scan without changing routing or playback behavior.
 
 ## Rules
 
