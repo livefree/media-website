@@ -222,3 +222,6 @@ Coordinator:
 Data Catalog:
 - Added an explicit optional `episodeCountLabel` to the shared browse-card contract and builder so UI Shell can render compact series/anime episode counts directly without deriving them from the legacy stats pill structure
 - Removed the shared catalog’s `/demo/...` runtime playback mapping and replaced demo-backed filler sources with explicit offline `Source pending` placeholder resources so the site no longer depends on local demo videos during the free-video integration planning round
+
+Planner:
+- Produced `docs/handovers/planner-free-video-source-integration-round-1.md` to define the lawful free-video source onboarding plan, including source-class restrictions, rights/provenance workflow, ingest/transcode/storage/CDN architecture, playback-resource evolution, schema additions, ops/compliance controls, and the Round 2-4 implementation roadmap
