@@ -132,6 +132,7 @@ Coordinator:
 - Opened `Catalog Filter Round 1` to convert the homepage/search filter section from placeholder chrome into a real live-filtering surface, remove the redundant quick-filter chip row, and expand catalog coverage data for more realistic facet testing
 - Opened `Public URL Identity Round 1` to introduce an opaque public-ID and watch-URL scheme so the site can stop exposing media slugs, episode slugs, and provider details in clear text while still supporting future playlist/list contexts
 - Opened `Public URL Identity Round 2` to move remaining public entry points from compatibility slug hrefs to canonical `/watch?...` URLs and to extend the shared public-ID/data contracts for future `list` / `li` playback context
+- Opened `Public URL Identity Rounds 3 and 4` to turn the existing list/list-item URL groundwork into real public list entry surfaces and list-aware watch playback, while explicitly recording `Round 5` as the future scope for fuller playlist/list management and sharing
 
 2026-03-09
 
