@@ -11,7 +11,6 @@ import styles from "../../components/detail/detail-page.module.css";
 import { Navbar } from "../../components/Navbar";
 import { EpisodeSelector } from "../../components/player/EpisodeSelector";
 import { PlayerShell } from "../../components/player/PlayerShell";
-import { SourceTabs } from "../../components/player/SourceTabs";
 import { getMediaDetailByPublicId, resolvePublicPlayback } from "../../lib/media-catalog";
 import { buildWatchHref } from "../../lib/media-utils";
 import type { DownloadResourceOption, MediaEpisodeOption, PlaybackSourceOption, PublicMediaListItem } from "../../types/media";
@@ -66,6 +65,22 @@ function getPlaybackOptionsForEpisode(sources: PlaybackSourceOption[], episodePu
 
   const matching = sources.filter((source) => source.episodePublicId === episodePublicId || !source.episodePublicId);
   return matching.length > 0 ? matching : sources;
+}
+
+function isPlayableSource(source: PlaybackSourceOption) {
+  return source.url.trim().length > 0 && source.status !== "offline" && source.status !== "reported";
+}
+
+function resolveActiveSource(sources: PlaybackSourceOption[], requestedResourcePublicId?: string) {
+  const playableSources = sources.filter(isPlayableSource);
+
+  return (
+    playableSources.find((source) => source.publicId === requestedResourcePublicId) ??
+    playableSources[0] ??
+    sources.find((source) => source.publicId === requestedResourcePublicId) ??
+    sources[0] ??
+    null
+  );
 }
 
 function getDownloadOptionsForEpisode(downloads: DownloadResourceOption[], episodePublicId?: string) {
@@ -170,8 +185,7 @@ export default function WatchPage({ searchParams }: RouteProps) {
   };
   const activePlaybackOptions = getPlaybackOptionsForEpisode(detail.playbackSources, activeEpisodePublicId);
   const requestedResourcePublicId = getStringParam(searchParams?.r);
-  const activeSource =
-    activePlaybackOptions.find((source) => source.publicId === requestedResourcePublicId) ?? activePlaybackOptions[0] ?? null;
+  const activeSource = resolveActiveSource(activePlaybackOptions, requestedResourcePublicId);
 
   const visibleDownloads = getDownloadOptionsForEpisode(detail.downloads, activeEpisodePublicId);
   const requestedDownloadResource = visibleDownloads.find((resource) => resource.publicId === requestedResourcePublicId);
@@ -184,20 +198,6 @@ export default function WatchPage({ searchParams }: RouteProps) {
   const activeDownloads = activeDownloadProvider
     ? visibleDownloads.filter((resource) => resource.provider === activeDownloadProvider)
     : visibleDownloads;
-
-  const sourceTabs = activePlaybackOptions.map((source) => ({
-    id: source.publicId,
-    label: source.label,
-    providerLabel: source.providerLabel,
-    quality: source.quality,
-    format: source.format,
-    status: source.status,
-    href: buildCanonicalWatchStateHref(baseWatchState, {
-      episodePublicId: activeEpisodePublicId ?? null,
-      resourcePublicId: source.publicId,
-    }),
-    isActive: source.publicId === activeSource?.publicId,
-  }));
 
   const episodeOptions = detail.episodes.map((episode) => ({
     ...episode,
@@ -232,10 +232,11 @@ export default function WatchPage({ searchParams }: RouteProps) {
   const nextEpisodeSource = nextEpisode
     ? nextEpisodePlaybackOptions.find(
         (option) =>
+          isPlayableSource(option) &&
           option.provider === activeSource?.provider &&
           option.format === activeSource?.format &&
           option.label === activeSource?.label,
-      ) ?? nextEpisodePlaybackOptions[0]
+      ) ?? resolveActiveSource(nextEpisodePlaybackOptions)
     : undefined;
   const nextEpisodeHref = nextEpisode
     ? buildCanonicalWatchStateHref(baseWatchState, {
@@ -280,7 +281,6 @@ export default function WatchPage({ searchParams }: RouteProps) {
             </h2>
           </div>
 
-          <SourceTabs tabs={sourceTabs} />
           {detail.episodes.length > 0 ? <EpisodeSelector mediaSlug={detail.media.slug} episodes={episodeOptions} /> : null}
           <PlayerShell
             media={detail.media}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { PosterArtwork } from "../../components/PosterArtwork";
 import type { BrowseMediaCard } from "../../types/media";
 import styles from "./detail-page.module.css";
 
@@ -18,7 +19,13 @@ export function RelatedRecommendations({ items }: { items: BrowseMediaCard[] }) 
         {items.map((item) => (
           <article key={item.id} className={styles.relatedCard}>
             <Link href={item.canonicalWatchHref} className={styles.relatedPosterLink}>
-              <img src={item.posterUrl} alt={`${item.title} poster`} className={styles.relatedPoster} />
+              <PosterArtwork
+                src={item.posterUrl}
+                alt={`${item.title} poster`}
+                title={item.title}
+                variant={item.type}
+                className={styles.relatedPoster}
+              />
               <span className={styles.relatedRating}>{item.ratingValue.toFixed(1)}</span>
             </Link>
             <div className={styles.relatedCopy}>

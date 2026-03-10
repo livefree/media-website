@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { PosterArtwork } from "../../components/PosterArtwork";
 import type { MediaDetailMetadata, MediaItem } from "../../types/media";
 import { DetailMeta } from "./DetailMeta";
 import styles from "./detail-page.module.css";
@@ -21,7 +22,14 @@ export function DetailHero({
 
       <div className={styles.heroInner}>
         <div className={styles.posterWrap}>
-          <img src={media.posterUrl} alt={`${media.title} poster`} className={styles.posterImage} />
+          <PosterArtwork
+            src={media.posterUrl}
+            alt={`${media.title} poster`}
+            title={media.title}
+            variant={media.type}
+            className={styles.posterImage}
+            loading="eager"
+          />
         </div>
 
         <div className={styles.heroContent}>

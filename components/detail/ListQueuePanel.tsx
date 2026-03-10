@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { PosterArtwork } from "../../components/PosterArtwork";
 import type { PublicListQueueRecord, PublicMediaListItem, PublicMediaListPageRecord } from "../../types/media";
 import styles from "./detail-page.module.css";
 
@@ -62,10 +63,13 @@ export function ListQueuePanel({
           <div className={styles.listQueueCurrentCard}>
             <p className={styles.listContextLabel}>当前队列条目</p>
             <div className={styles.listQueueCurrentRow}>
-              <div
+              <PosterArtwork
+                src={currentQueueItem.posterUrl}
+                alt={`${currentQueueItem.title} poster`}
+                title={currentQueueItem.title}
+                variant="list"
                 className={styles.listQueuePoster}
-                style={{ backgroundImage: `linear-gradient(180deg, rgba(15,20,30,0.08), rgba(15,20,30,0.72)), url(${currentQueueItem.posterUrl})` }}
-                aria-hidden="true"
+                loading="lazy"
               />
 
               <div className={styles.listQueueCurrentCopy}>
