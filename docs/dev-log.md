@@ -221,3 +221,4 @@ Coordinator:
 
 Data Catalog:
 - Added an explicit optional `episodeCountLabel` to the shared browse-card contract and builder so UI Shell can render compact series/anime episode counts directly without deriving them from the legacy stats pill structure
+- Removed the shared catalog’s `/demo/...` runtime playback mapping and replaced demo-backed filler sources with explicit offline `Source pending` placeholder resources so the site no longer depends on local demo videos during the free-video integration planning round

@@ -22,13 +22,8 @@ type EpisodeExpansionPlan = {
   summaryTheme: string;
 };
 
-const demoPlaybackByType: Record<MediaItem["type"], string> = {
-  movie: "/demo/demo-movie.mp4",
-  series: "/demo/demo-tv.mp4",
-  anime: "/demo/demo-anime.mp4",
-};
-
 const placeholderPlaybackHost = "stream.example.com";
+const pendingPlaybackHost = "placeholder.invalid";
 
 const episodicExpansionPlans: Record<string, EpisodeExpansionPlan> = {
   "the-dinosaurs": {
@@ -121,16 +116,16 @@ const episodicExpansionPlans: Record<string, EpisodeExpansionPlan> = {
   },
 };
 
-function buildLocalDemoStream(resourceId: string, demoUrl: string): MediaResourceSeed {
+function buildPendingSourceStream(resourceId: string): MediaResourceSeed {
   return {
     id: resourceId,
-    label: "Local demo",
+    label: "Source pending",
     mode: "stream",
-    provider: "mp4",
-    format: "mp4",
-    quality: "Demo",
-    url: demoUrl,
-    status: "online",
+    provider: "other",
+    format: "placeholder",
+    quality: "Pending",
+    url: `https://${pendingPlaybackHost}/runtime-source-review/${resourceId}`,
+    status: "offline",
   };
 }
 
@@ -2228,7 +2223,12 @@ function buildGeneratedEpisodeSummary(media: MediaSeed, plan: EpisodeExpansionPl
 
 function buildEpisodicAvailabilityLabel(episodeCount: number, downloadCount: number): string {
   const accessLabel = downloadCount > 0 ? `${downloadCount} download resources` : "stream-only access";
-  return `${episodeCount} episodes · demo-backed playback · ${accessLabel}`;
+  return `${episodeCount} episodes · source review pending · ${accessLabel}`;
+}
+
+function buildPendingTitleAvailabilityLabel(downloadCount: number): string {
+  const accessLabel = downloadCount > 0 ? `${downloadCount} download resources` : "stream-only access";
+  return `source review pending · ${accessLabel}`;
 }
 
 function buildExpandedEpisode(media: MediaSeed, season: SeasonSeed, episodeNumber: number, plan: EpisodeExpansionPlan): EpisodeSeed {
@@ -2244,7 +2244,7 @@ function buildExpandedEpisode(media: MediaSeed, season: SeasonSeed, episodeNumbe
     title,
     summary: buildGeneratedEpisodeSummary(media, plan, episodeNumber, title),
     runtimeMinutes: plan.runtimeBase + plan.runtimeOffsets[(episodeNumber - 1) % plan.runtimeOffsets.length],
-    streamLinks: [buildLocalDemoStream(`stream-${media.slug}-${seasonToken}${episodeToken}`, demoPlaybackByType[media.type])],
+    streamLinks: [buildPendingSourceStream(`stream-${media.slug}-${seasonToken}${episodeToken}`)],
     downloadLinks: [],
   };
 }
@@ -2310,12 +2310,9 @@ function isPlaceholderPlaybackUrl(url: string): boolean {
     return true;
   }
 
-  if (url.startsWith("/demo/")) {
-    return false;
-  }
-
   try {
-    return new URL(url).hostname === placeholderPlaybackHost;
+    const hostname = new URL(url).hostname;
+    return hostname === placeholderPlaybackHost || hostname === pendingPlaybackHost;
   } catch {
     return false;
   }
@@ -2332,10 +2329,10 @@ function backfillMovieResources(media: MediaSeed): MediaResourceSeed[] {
 
   const downloads = media.resources.filter((resource) => resource.mode === "download");
   const firstStream = media.resources.find((resource) => resource.mode === "stream");
-  const resourceId = firstStream?.id ?? `stream-${media.slug}-local-demo`;
-  const localDemoStream = buildLocalDemoStream(resourceId, demoPlaybackByType.movie);
+  const resourceId = firstStream?.id ?? `stream-${media.slug}-source-pending`;
+  const pendingStream = buildPendingSourceStream(resourceId);
 
-  return [localDemoStream, ...downloads];
+  return [pendingStream, ...downloads];
 }
 
 function backfillEpisodeStreams(media: MediaSeed, episode: EpisodeSeed): EpisodeSeed {
@@ -2343,19 +2340,28 @@ function backfillEpisodeStreams(media: MediaSeed, episode: EpisodeSeed): Episode
     return episode;
   }
 
-  const resourceId = episode.streamLinks[0]?.id ?? `stream-${episode.slug}-local-demo`;
+  const resourceId = episode.streamLinks[0]?.id ?? `stream-${episode.slug}-source-pending`;
 
   return {
     ...episode,
-    streamLinks: [buildLocalDemoStream(resourceId, demoPlaybackByType[media.type])],
+    streamLinks: [buildPendingSourceStream(resourceId)],
   };
 }
 
-function applyDemoPlaybackBackfill(media: MediaSeed): MediaSeed {
+function normalizeRuntimePlaybackSources(media: MediaSeed): MediaSeed {
   if (media.type === "movie") {
+    const resources = backfillMovieResources(media);
+    const downloadCount = resources.filter((resource) => resource.mode === "download").length;
+
     return {
       ...media,
-      resources: backfillMovieResources(media),
+      resources,
+      resourceSummary: {
+        ...media.resourceSummary,
+        streamCount: resources.filter((resource) => resource.mode === "stream").length,
+        downloadCount,
+        availabilityLabel: buildPendingTitleAvailabilityLabel(downloadCount),
+      },
     };
   }
 
@@ -2422,4 +2428,4 @@ function enrichMediaIdentity(media: MediaSeed): MediaItem {
   };
 }
 
-export const mediaCatalog: MediaItem[] = mediaCatalogSeed.map(expandEpisodicCoverage).map(applyDemoPlaybackBackfill).map(enrichMediaIdentity);
+export const mediaCatalog: MediaItem[] = mediaCatalogSeed.map(expandEpisodicCoverage).map(normalizeRuntimePlaybackSources).map(enrichMediaIdentity);
