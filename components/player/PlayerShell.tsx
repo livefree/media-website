@@ -13,6 +13,8 @@ const VOLUME_STEP = 0.05;
 const SPEED_STEP = 0.05;
 const SPEED_PRESETS = [1, 1.25, 1.5, 2];
 const MEDIA_PROGRESS_EVENT = "media-progress-updated";
+const RESUME_EXCLUSION_SECONDS = 30;
+const RESUME_SNAP_SECONDS = 5;
 
 type StoredPlaybackProgress = {
   currentTime: number;
@@ -82,6 +84,55 @@ function persistStoredProgress(progressKey: string, progress: StoredPlaybackProg
   }
 
   window.localStorage.setItem(progressKey, JSON.stringify(progress));
+}
+
+function clearStoredProgress(progressKey: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.removeItem(progressKey);
+}
+
+function snapResumeTime(currentTime: number) {
+  return Math.floor(currentTime / RESUME_SNAP_SECONDS) * RESUME_SNAP_SECONDS;
+}
+
+function isResumableTime(currentTime: number, duration: number) {
+  return (
+    Number.isFinite(duration) &&
+    duration > RESUME_EXCLUSION_SECONDS * 2 &&
+    currentTime >= RESUME_EXCLUSION_SECONDS &&
+    duration - currentTime > RESUME_EXCLUSION_SECONDS
+  );
+}
+
+function sanitizeStoredProgress(progress: StoredPlaybackProgress | null) {
+  if (!progress) {
+    return null;
+  }
+
+  if (progress.completed) {
+    return progress;
+  }
+
+  if (!isResumableTime(progress.currentTime, progress.duration)) {
+    return null;
+  }
+
+  const snappedTime = snapResumeTime(progress.currentTime);
+  if (!isResumableTime(snappedTime, progress.duration)) {
+    return null;
+  }
+
+  if (snappedTime === progress.currentTime) {
+    return progress;
+  }
+
+  return {
+    ...progress,
+    currentTime: snappedTime,
+  };
 }
 
 function ControlShell({
@@ -351,20 +402,65 @@ export function PlayerShell({
     );
   }
 
+  function clearProgress(nextDuration: number) {
+    if (!progressKey || typeof window === "undefined") {
+      return;
+    }
+
+    clearStoredProgress(progressKey);
+    lastPersistedTimeRef.current = 0;
+    emitProgress({
+      currentTime: 0,
+      duration: nextDuration,
+      updatedAt: Date.now(),
+      completed: false,
+    });
+  }
+
   function saveProgress(time: number, nextDuration: number, completed: boolean) {
     if (!progressKey || typeof window === "undefined") {
       return;
     }
 
-    const normalizedTime = completed ? nextDuration : Math.max(0, time);
+    if (!Number.isFinite(nextDuration) || nextDuration <= 0) {
+      clearProgress(0);
+      return;
+    }
+
+    if (completed || nextDuration - time <= RESUME_EXCLUSION_SECONDS) {
+      const completionProgress: StoredPlaybackProgress = {
+        currentTime: nextDuration,
+        duration: nextDuration,
+        updatedAt: Date.now(),
+        completed: true,
+      };
+
+      persistStoredProgress(progressKey, completionProgress);
+      lastPersistedTimeRef.current = nextDuration;
+      emitProgress(completionProgress);
+      return;
+    }
+
+    if (!isResumableTime(time, nextDuration)) {
+      clearProgress(nextDuration);
+      return;
+    }
+
+    const normalizedTime = snapResumeTime(Math.max(0, time));
+    if (!isResumableTime(normalizedTime, nextDuration)) {
+      clearProgress(nextDuration);
+      return;
+    }
+
     const progress: StoredPlaybackProgress = {
       currentTime: normalizedTime,
       duration: nextDuration,
       updatedAt: Date.now(),
-      completed,
+      completed: false,
     };
 
     persistStoredProgress(progressKey, progress);
+    lastPersistedTimeRef.current = normalizedTime;
     emitProgress(progress);
   }
 
@@ -455,13 +551,26 @@ export function PlayerShell({
       return undefined;
     }
 
-    pendingResumeRef.current = readStoredProgress(progressKey);
+    const storedProgress = readStoredProgress(progressKey);
+    const sanitizedProgress = sanitizeStoredProgress(storedProgress);
+    pendingResumeRef.current = sanitizedProgress;
     lastPersistedTimeRef.current = 0;
     setPlaybackError(null);
     setCurrentTime(0);
     setDuration(0);
     setBufferedUntil(0);
     setIsPlaying(false);
+
+    if (storedProgress && !sanitizedProgress) {
+      clearProgress(storedProgress.duration);
+    } else if (
+      storedProgress &&
+      sanitizedProgress &&
+      !sanitizedProgress.completed &&
+      sanitizedProgress.currentTime !== storedProgress.currentTime
+    ) {
+      persistStoredProgress(progressKey, sanitizedProgress);
+    }
 
     if (hlsRef.current) {
       hlsRef.current.destroy();
@@ -493,13 +602,8 @@ export function PlayerShell({
     video.muted = isMuted;
     video.volume = volume;
     video.playbackRate = playbackRate;
-
-    const playAttempt = video.play();
-    if (playAttempt) {
-      void playAttempt.catch(() => {
-        setIsPlaying(false);
-      });
-    }
+    video.preload = "auto";
+    video.pause();
 
     return () => {
       video.pause();
@@ -861,7 +965,7 @@ export function PlayerShell({
             ref={videoRef}
             className={styles.playerVideo}
             playsInline
-            preload="metadata"
+            preload="auto"
             poster={media.posterUrl}
             onClick={() => void togglePlayback()}
             onPlay={() => setIsPlaying(true)}
@@ -874,20 +978,23 @@ export function PlayerShell({
               if (
                 saved &&
                 !saved.completed &&
-                saved.currentTime > 5 &&
-                nextDuration > 15 &&
-                saved.currentTime < nextDuration - 10
+                isResumableTime(saved.currentTime, nextDuration)
               ) {
                 video.currentTime = saved.currentTime;
                 setCurrentTime(saved.currentTime);
+                video.pause();
               }
             }}
             onDurationChange={(event) => setDuration(event.currentTarget.duration || 0)}
             onTimeUpdate={(event) => {
               const video = event.currentTarget;
               setCurrentTime(video.currentTime);
-              if (Math.abs(video.currentTime - lastPersistedTimeRef.current) >= 5 && Number.isFinite(video.duration) && video.duration > 0) {
-                lastPersistedTimeRef.current = video.currentTime;
+              if (!Number.isFinite(video.duration) || video.duration <= 0 || !isResumableTime(video.currentTime, video.duration)) {
+                return;
+              }
+
+              const snappedTime = snapResumeTime(video.currentTime);
+              if (snappedTime >= RESUME_EXCLUSION_SECONDS && snappedTime !== lastPersistedTimeRef.current) {
                 saveProgress(video.currentTime, video.duration, false);
               }
             }}

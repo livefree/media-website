@@ -179,3 +179,4 @@ Reviewer:
 Detail Player:
 - Upgraded `/watch` list playback from a simple previous/next context card into a read-only queue panel that shows the active list item, nearby queue entries, and upcoming clickable items from shared canonical queue data while preserving `list` / `li` through in-scope watch transitions
 - Removed the visible watch-page source chooser, kept playback on the first internally resolved playable source, and switched detail-owned poster surfaces to the shared fallback poster treatment so broken artwork no longer renders raw in the hero, related cards, or queue context
+- Tightened player resume rules so only middle-window progress persists at snapped 5-second boundaries, first-30s and end-of-video exits no longer keep resumable state, and watch-page startup now restores valid resume positions while staying paused
