@@ -145,6 +145,7 @@ Data Catalog:
 - Expanded the shared catalog dataset from 7 to 21 titles across movie, series, and anime, adding older years, more regions, and denser genre overlaps so Catalog Filter Round 1 has meaningful type/genre/region/year/sort/pagination combinations to exercise
 - Added a reusable coverage summary helper in `lib/media-catalog.ts` so downstream search/review work can verify total pages and type/genre/region/year pair counts without relying on UI-only inspection
 - Added canonical public list href generation at `/list/<publicId>`, promoted public list data from raw seeds into page-ready shared records with poster/title/subtitle/order/navigation metadata, and extended list schema planning with ordered item and episode-level identity support for future list-aware watch flows
+- Expanded shared public-list data into directory/share/queue-ready records, added broader seeded list discovery beyond a single homepage slice, and exposed canonical list-directory plus queue helpers so UI Shell and Detail Player can build richer public-list flows without recomputing structure in-page
 
 UI Shell:
 - Switched the shared browse/search media card entry links to canonical `/watch?...` hrefs so public-facing catalog entry surfaces stop defaulting to compatibility slug routes

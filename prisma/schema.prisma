@@ -368,6 +368,8 @@ model UserList {
   publicId  String?        @unique
   userId    String
   name      String
+  description String?
+  coverImageUrl String?
   type      ListType       @default(WATCHLIST)
   isSystem  Boolean        @default(false)
   createdAt DateTime       @default(now())
