@@ -1495,7 +1495,7 @@ export function PlayerShell({
 
         <div className={styles.playerStatusRight}>
           {statusLabel ? <span>{statusLabel}</span> : null}
-          <span>{availableSources.length > 0 ? `${availableSources.length} 个可切换播放源` : "演示播放源"}</span>
+          <span>{availableSources.length > 0 ? `${availableSources.length} 个可切换播放源` : "播放源待补充"}</span>
         </div>
       </div>
     </>
