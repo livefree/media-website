@@ -16,6 +16,8 @@ const SPEED_PRESETS = [1, 1.25, 1.5, 2];
 const MEDIA_PROGRESS_EVENT = "media-progress-updated";
 const RESUME_EXCLUSION_SECONDS = 30;
 const RESUME_SNAP_SECONDS = 5;
+const DEFAULT_CHROME_HIDE_DELAY_MS = 1800;
+const IMMERSIVE_CHROME_HIDE_DELAY_MS = 3000;
 
 type StoredPlaybackProgress = {
   currentTime: number;
@@ -363,6 +365,7 @@ export function PlayerShell({
     () => buildProgressKey(media.slug, activeEpisode?.slug),
     [activeEpisode?.slug, media.slug],
   );
+  const isImmersiveMode = isTheaterMode || isFullscreen;
   const activeEpisodeIndex = useMemo(
     () => episodes.findIndex((episode) => episode.isActive),
     [episodes],
@@ -520,18 +523,25 @@ export function PlayerShell({
       return;
     }
 
-    hideControlsTimeoutRef.current = window.setTimeout(() => {
-      setIsControlsVisible(false);
-    }, 1800);
-    cursorHideTimeoutRef.current = window.setTimeout(() => {
-      setIsCursorHidden(true);
-    }, 1800);
+    if (isImmersiveMode) {
+      hideControlsTimeoutRef.current = window.setTimeout(() => {
+        setIsControlsVisible(false);
+        setIsCursorHidden(true);
+      }, IMMERSIVE_CHROME_HIDE_DELAY_MS);
+    } else {
+      hideControlsTimeoutRef.current = window.setTimeout(() => {
+        setIsControlsVisible(false);
+      }, DEFAULT_CHROME_HIDE_DELAY_MS);
+      cursorHideTimeoutRef.current = window.setTimeout(() => {
+        setIsCursorHidden(true);
+      }, DEFAULT_CHROME_HIDE_DELAY_MS);
+    }
 
     return () => {
       clearHideControlsTimeout();
       clearCursorHideTimeout();
     };
-  }, [interactionTick, isFocusWithinPlayer, isPlaying, isVolumeExpanded, isVolumeTemporarilyVisible, playbackError, showEpisodePanel, showSpeedPanel]);
+  }, [interactionTick, isFocusWithinPlayer, isImmersiveMode, isPlaying, isVolumeExpanded, isVolumeTemporarilyVisible, playbackError, showEpisodePanel, showSpeedPanel]);
 
   useEffect(() => {
     return () => {
@@ -1088,6 +1098,10 @@ export function PlayerShell({
         onMouseMove={revealControls}
         onMouseEnter={revealControls}
         onMouseLeave={() => {
+          if (isImmersiveMode) {
+            return;
+          }
+
           clearHideControlsTimeout();
           clearCursorHideTimeout();
           if (isPlaying && !showSpeedPanel && !showEpisodePanel && !isVolumeExpanded && !isFocusWithinPlayer) {

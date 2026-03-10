@@ -204,6 +204,7 @@ Detail Player:
 - Strengthened episode-popup visual feedback by rendering the active episode number in red and deepening hover/focus border contrast for non-active candidates without changing selector behavior
 - Anchored theater/fullscreen controls to the bottom screen edge and added one-shot internal autoplay intent so direct watch entry stays paused while ended-next, `下一集`, and episode-selector transitions autoplay without changing canonical `/watch` URLs
 - Replaced the watch-page player heading with a real playback title string and added a matching immersive top-edge title overlay in theater/fullscreen that hides and reappears with the existing immersive chrome lifecycle
+- Unified immersive idle handling so theater/fullscreen now hide the bottom controls, top title, and cursor together after 3 seconds and reveal them together on interaction without changing inline-mode behavior
 
 Coordinator:
 - Opened `Player Control Position And Episodic Autoplay Round 1` to move theater/fullscreen controls to the bottom edge of the page or screen while preserving paused direct-entry startup and allowing autoplay only for episode-to-episode transitions triggered by playback completion, the `下一集` control, or the episode selector
