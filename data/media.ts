@@ -13,6 +13,15 @@ type MediaSeed = Omit<MediaItem, "publicId" | "canonicalWatchHref" | "compatibil
   resources: MediaResourceSeed[];
 };
 
+type EpisodeExpansionPlan = {
+  targetEpisodes: number;
+  runtimeBase: number;
+  runtimeOffsets: number[];
+  titleStarts: string[];
+  titleEnds: string[];
+  summaryTheme: string;
+};
+
 const demoPlaybackByType: Record<MediaItem["type"], string> = {
   movie: "/demo/demo-movie.mp4",
   series: "/demo/demo-tv.mp4",
@@ -20,6 +29,110 @@ const demoPlaybackByType: Record<MediaItem["type"], string> = {
 };
 
 const placeholderPlaybackHost = "stream.example.com";
+
+const episodicExpansionPlans: Record<string, EpisodeExpansionPlan> = {
+  "the-dinosaurs": {
+    targetEpisodes: 12,
+    runtimeBase: 48,
+    runtimeOffsets: [0, 1, -1, 2, 0, 1],
+    titleStarts: ["Ashen", "River", "Stone", "Sky", "Bone", "Last"],
+    titleEnds: ["Kingdom", "Migration", "Nest", "Fault", "Rain", "Frontier"],
+    summaryTheme: "the species-scale fight for survival and migration dominance",
+  },
+  "1923-season-two": {
+    targetEpisodes: 10,
+    runtimeBase: 52,
+    runtimeOffsets: [0, 2, -1, 1, 0],
+    titleStarts: ["Dust", "Winter", "Broken", "Frontier", "Red", "Quiet"],
+    titleEnds: ["Ledger", "Crossing", "Telegraph", "Prairie", "Oath", "Reckoning"],
+    summaryTheme: "the ranch war closing in from every border",
+  },
+  "school-spirits-s1": {
+    targetEpisodes: 10,
+    runtimeBase: 43,
+    runtimeOffsets: [0, -1, 1, 0, 2],
+    titleStarts: ["Midnight", "Hollow", "Locker", "Chalk", "South", "Mirror"],
+    titleEnds: ["Detention", "Signal", "Stairwell", "Echo", "Roster", "Confession"],
+    summaryTheme: "the campus mystery surrounding the vanished class",
+  },
+  "prism-hearts": {
+    targetEpisodes: 12,
+    runtimeBase: 24,
+    runtimeOffsets: [0, 1, 0, -1, 1, 0],
+    titleStarts: ["Shining", "Encore", "Velvet", "Silver", "Ribbon", "Starlit"],
+    titleEnds: ["Cadence", "Promise", "Refrain", "Backstage", "Overture", "Harmony"],
+    summaryTheme: "the idol unit’s climb through the next live circuit",
+  },
+  "northline-station": {
+    targetEpisodes: 12,
+    runtimeBase: 46,
+    runtimeOffsets: [0, 1, -1, 2, 0, 1],
+    titleStarts: ["Polar", "Blind", "Signal", "White", "Silent", "After"],
+    titleEnds: ["Trace", "Watch", "Storm", "Beacon", "Static", "Outpost"],
+    summaryTheme: "the frozen-border investigation tightening around the station crew",
+  },
+  "blue-coast-files": {
+    targetEpisodes: 10,
+    runtimeBase: 45,
+    runtimeOffsets: [0, -1, 1, 0, 1],
+    titleStarts: ["Harbor", "Cold", "Salt", "Broken", "Low", "Night"],
+    titleEnds: ["Ledger", "Marina", "Wake", "Tide", "Anchor", "Channel"],
+    summaryTheme: "the marina case file widening into a regional conspiracy",
+  },
+  "deep-space-ward": {
+    targetEpisodes: 11,
+    runtimeBase: 44,
+    runtimeOffsets: [0, 1, 0, -1, 2],
+    titleStarts: ["Quiet", "Docking", "Neon", "Gravity", "Night", "Signal"],
+    titleEnds: ["Orbit", "Triage", "Pulse", "Transfer", "Burn", "Protocol"],
+    summaryTheme: "the orbital medical team covering up a deep-station emergency",
+  },
+  "city-afterglow": {
+    targetEpisodes: 10,
+    runtimeBase: 42,
+    runtimeOffsets: [0, 1, -1, 0, 1],
+    titleStarts: ["Window", "Side", "Late", "Street", "Faded", "South"],
+    titleEnds: ["Light", "Letter", "Transit", "Promise", "Crossing", "Afterglow"],
+    summaryTheme: "the neighborhood’s quiet chain of missed connections and returns",
+  },
+  "neon-shogun-zero": {
+    targetEpisodes: 14,
+    runtimeBase: 25,
+    runtimeOffsets: [0, 1, 0, -1, 1, 0],
+    titleStarts: ["Protocol", "Signal", "Steel", "Crimson", "Neon", "Ghost"],
+    titleEnds: ["Blade", "Court", "Archive", "Parade", "Circuit", "Mandate"],
+    summaryTheme: "the court-tech uprising spreading beyond the capital grid",
+  },
+  "star-mail-courier": {
+    targetEpisodes: 12,
+    runtimeBase: 24,
+    runtimeOffsets: [0, 1, 0, -1, 1, 0],
+    titleStarts: ["First", "Cloud", "Orbit", "Amber", "Night", "Comet"],
+    titleEnds: ["Route", "Transit", "Parcel", "Harbor", "Dispatch", "Relay"],
+    summaryTheme: "the long-haul delivery route opening into a larger star-map mystery",
+  },
+  "white-tower-notes": {
+    targetEpisodes: 10,
+    runtimeBase: 23,
+    runtimeOffsets: [0, 1, 0, -1, 1],
+    titleStarts: ["Record", "After", "White", "Dust", "Silent", "Lantern"],
+    titleEnds: ["Room", "Image", "Archive", "Hall", "Index", "Margin"],
+    summaryTheme: "the tower’s hidden archive shifting from notes into warnings",
+  },
+};
+
+function buildLocalDemoStream(resourceId: string, demoUrl: string): MediaResourceSeed {
+  return {
+    id: resourceId,
+    label: "Local demo",
+    mode: "stream",
+    provider: "mp4",
+    format: "mp4",
+    quality: "Demo",
+    url: demoUrl,
+    status: "online",
+  };
+}
 
 const mediaCatalogSeed: MediaSeed[] = [
   {
@@ -2103,6 +2216,95 @@ function buildWatchHref(mediaPublicId: string, episodePublicId?: string, resourc
   return `/watch?${params.toString()}`;
 }
 
+function buildGeneratedEpisodeTitle(plan: EpisodeExpansionPlan, episodeNumber: number): string {
+  const start = plan.titleStarts[(episodeNumber - 1) % plan.titleStarts.length];
+  const end = plan.titleEnds[Math.floor((episodeNumber - 1) / plan.titleStarts.length) % plan.titleEnds.length];
+  return `${start} ${end}`;
+}
+
+function buildGeneratedEpisodeSummary(media: MediaSeed, plan: EpisodeExpansionPlan, episodeNumber: number, title: string): string {
+  return `${media.title} continues with "${title}" as episode ${episodeNumber} pushes deeper into ${plan.summaryTheme}.`;
+}
+
+function buildEpisodicAvailabilityLabel(episodeCount: number, downloadCount: number): string {
+  const accessLabel = downloadCount > 0 ? `${downloadCount} download resources` : "stream-only access";
+  return `${episodeCount} episodes · demo-backed playback · ${accessLabel}`;
+}
+
+function buildExpandedEpisode(media: MediaSeed, season: SeasonSeed, episodeNumber: number, plan: EpisodeExpansionPlan): EpisodeSeed {
+  const seasonToken = `s${season.seasonNumber}`;
+  const episodeToken = `e${episodeNumber}`;
+  const title = buildGeneratedEpisodeTitle(plan, episodeNumber);
+
+  return {
+    id: `episode-${media.slug}-${seasonToken}${episodeToken}`,
+    slug: `${media.slug}-${seasonToken}${episodeToken}`,
+    seasonNumber: season.seasonNumber,
+    episodeNumber,
+    title,
+    summary: buildGeneratedEpisodeSummary(media, plan, episodeNumber, title),
+    runtimeMinutes: plan.runtimeBase + plan.runtimeOffsets[(episodeNumber - 1) % plan.runtimeOffsets.length],
+    streamLinks: [buildLocalDemoStream(`stream-${media.slug}-${seasonToken}${episodeToken}`, demoPlaybackByType[media.type])],
+    downloadLinks: [],
+  };
+}
+
+function buildExpandedEpisodeList(media: MediaSeed, season: SeasonSeed, plan: EpisodeExpansionPlan): EpisodeSeed[] {
+  const episodes = [...season.episodes];
+
+  for (let episodeNumber = episodes.length + 1; episodeNumber <= plan.targetEpisodes; episodeNumber += 1) {
+    episodes.push(buildExpandedEpisode(media, season, episodeNumber, plan));
+  }
+
+  return episodes;
+}
+
+function buildExpandedEpisodicSummary(media: MediaSeed): MediaSeed["resourceSummary"] {
+  const episodeCount = media.seasons.reduce((total, season) => total + season.episodes.length, 0);
+  const streamCount =
+    media.resources.filter((resource) => resource.mode === "stream").length +
+    media.seasons.reduce((total, season) => total + season.episodes.reduce((count, episode) => count + episode.streamLinks.length, 0), 0);
+  const downloadCount =
+    media.resources.filter((resource) => resource.mode === "download").length +
+    media.seasons.reduce((total, season) => total + season.episodes.reduce((count, episode) => count + episode.downloadLinks.length, 0), 0);
+
+  return {
+    streamCount,
+    downloadCount,
+    episodeCount,
+    availabilityLabel: buildEpisodicAvailabilityLabel(episodeCount, downloadCount),
+  };
+}
+
+function expandEpisodicCoverage(media: MediaSeed): MediaSeed {
+  if (media.type === "movie") {
+    return media;
+  }
+
+  const plan = episodicExpansionPlans[media.slug];
+  if (!plan || media.seasons.length === 0) {
+    return media;
+  }
+
+  const seasons = media.seasons.map((season, index) =>
+    index === 0
+      ? {
+          ...season,
+          episodes: buildExpandedEpisodeList(media, season, plan),
+        }
+      : season,
+  );
+  const expandedMedia = {
+    ...media,
+    seasons,
+  };
+
+  return {
+    ...expandedMedia,
+    resourceSummary: buildExpandedEpisodicSummary(expandedMedia),
+  };
+}
+
 function isPlaceholderPlaybackUrl(url: string): boolean {
   if (!url.trim()) {
     return true;
@@ -2117,19 +2319,6 @@ function isPlaceholderPlaybackUrl(url: string): boolean {
   } catch {
     return false;
   }
-}
-
-function buildLocalDemoStream(resourceId: string, demoUrl: string): MediaResourceSeed {
-  return {
-    id: resourceId,
-    label: "Local demo",
-    mode: "stream",
-    provider: "mp4",
-    format: "mp4",
-    quality: "Demo",
-    url: demoUrl,
-    status: "online",
-  };
 }
 
 function hasKnownGoodStream(resources: MediaResourceSeed[]): boolean {
@@ -2233,4 +2422,4 @@ function enrichMediaIdentity(media: MediaSeed): MediaItem {
   };
 }
 
-export const mediaCatalog: MediaItem[] = mediaCatalogSeed.map(applyDemoPlaybackBackfill).map(enrichMediaIdentity);
+export const mediaCatalog: MediaItem[] = mediaCatalogSeed.map(expandEpisodicCoverage).map(applyDemoPlaybackBackfill).map(enrichMediaIdentity);

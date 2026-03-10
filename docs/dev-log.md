@@ -155,6 +155,7 @@ Data Catalog:
 - Added canonical public list href generation at `/list/<publicId>`, promoted public list data from raw seeds into page-ready shared records with poster/title/subtitle/order/navigation metadata, and extended list schema planning with ordered item and episode-level identity support for future list-aware watch flows
 - Expanded shared public-list data into directory/share/queue-ready records, added broader seeded list discovery beyond a single homepage slice, and exposed canonical list-directory plus queue helpers so UI Shell and Detail Player can build richer public-list flows without recomputing structure in-page
 - Replaced placeholder `stream.example.com` playback in the shared demo catalog with deterministic local demo streams by media type, preserving existing media/episode public identity and canonical watch/list behavior while simplifying affected contexts down to one primary playable demo source
+- Expanded every current `series` and `anime` seed entry to a deterministic 10-14 episode range with generated hover-title metadata, while preserving the existing canonical watch routing and demo-backed playback strategy for selector and next-episode testing
 
 UI Shell:
 - Switched the shared browse/search media card entry links to canonical `/watch?...` hrefs so public-facing catalog entry surfaces stop defaulting to compatibility slug routes
