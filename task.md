@@ -23,7 +23,7 @@ PlayerShell
 
 ## Current Active Task
 
-### Player Title Overlay Round 1
+### Immersive Chrome Auto-Hide Round 1
 
 Coordinator-only rule:
 - Coordinator may define scope, update task docs, dispatch agents, review ownership, and merge accepted work.
@@ -31,29 +31,29 @@ Coordinator-only rule:
 
 Required execution order for this task:
 1. Planner writes the implementation breakdown and acceptance criteria
-2. Detail Player implements the playback-title and immersive-top-overlay behavior inside the watch/player surface
-3. Reviewer validates the watch-page title replacement and immersive top-overlay behavior before merge
+2. Detail Player implements the immersive inactive-timer behavior inside the watch/player surface
+3. Reviewer validates the immersive 3-second auto-hide behavior before merge
 6. User review remains authoritative for visual and interaction acceptance; a user-rejected candidate is not accepted even if code review passes
 
 Scope for this refinement:
-- Watch-page player title copy and immersive-mode top overlay behavior
+- Immersive-mode auto-hide timing for controls, top title, and cursor
 - Owned surfaces:
   - Detail Player: `app/media/`, `app/watch/`, `components/player/`, `components/detail/`
   - Planner/Reviewer: docs and acceptance only
-- No browse-card changes, route-model changes, data-contract changes, or broader player redesign beyond title display and immersive overlay behavior
+- No browse-card changes, route-model changes, data-contract changes, or broader player redesign beyond immersive auto-hide timing and synchronization
 
 Acceptance criteria:
-- The watch-page section heading must change from `在线播放` to `视频名称 + 【集数】`
-- For movies or non-episodic playback, the heading must still show a clean media-title-only form without a broken episode suffix
-- In theater mode and fullscreen mode, the top edge of the page/screen must also show `视频名称 + 【集数】`
-- That immersive top title must auto-hide together with the player chrome/cursor behavior and reappear on interaction
-- Existing control-bar auto-hide behavior, playback controls, and routing must not regress
+- In theater mode, after 3 seconds of inactivity, the control bar, immersive top title, and mouse cursor must all auto-hide
+- In fullscreen mode, after 3 seconds of inactivity, the control bar, immersive top title, and mouse cursor must all auto-hide
+- Interaction in immersive modes must reveal those elements again
+- Non-immersive playback must not regress
+- Existing playback controls, title display, and routing must not regress
 
 Current user-requested improvement to implement:
-1. Replace `在线播放` with `视频名称 + 【集数】`.
-2. In fullscreen mode and theater mode, also show `视频名称 + 【集数】` at the top edge of the page or screen.
-3. The immersive top title must auto-hide the same way the player controls and cursor auto-hide.
+1. Check theater/fullscreen modes for cases where the controller, title, or mouse pointer do not auto-hide.
+2. Ensure those components auto-hide after 3 seconds of inactivity.
+3. Keep them synchronized so immersive chrome behaves consistently.
 
 Current baseline:
-- The watch page currently renders a generic `在线播放` heading above the player.
-- The immersive player chrome already manages bottom control visibility, but does not yet expose a matching top title overlay in theater/fullscreen modes.
+- The player already contains auto-hide state and timeout logic for immersive chrome.
+- The remaining work is to verify and tighten the inactive 3-second behavior so the bottom controls, top title overlay, and cursor all hide reliably in theater and fullscreen.
