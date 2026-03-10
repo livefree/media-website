@@ -29,6 +29,7 @@ export interface ResolvedPublicPlayback {
   resource?: MediaResourceLink;
   list?: PublicMediaListPageRecord;
   listItem?: PublicMediaListItem;
+  queue?: PublicListQueueRecord;
 }
 
 export interface RatingSnapshot {
@@ -356,12 +357,53 @@ export interface PublicMediaList {
   description: string;
   visibility: "public" | "unlisted";
   canonicalListHref: string;
+  shareHref: string;
+  shareTitle: string;
+  shareDescription: string;
+  visibilityLabel: string;
   itemCount: number;
+  itemCountLabel: string;
   coverPosterUrl?: string;
+  coverBackdropUrl?: string;
   firstItemPublicRef?: string;
   firstItemWatchHref?: string;
 }
 
 export interface PublicMediaListPageRecord extends PublicMediaList {
   items: PublicMediaListItem[];
+}
+
+export interface PublicListDirectoryRecord {
+  title: string;
+  description: string;
+  canonicalDirectoryHref: string;
+  listCount: number;
+  listCountLabel: string;
+  items: PublicMediaList[];
+}
+
+export interface PublicListQueueItem {
+  publicRef: string;
+  position: number;
+  positionLabel: string;
+  title: string;
+  subtitle: string;
+  posterUrl: string;
+  canonicalWatchHref: string;
+  isCurrent: boolean;
+  isPlayed: boolean;
+  isUpNext: boolean;
+}
+
+export interface PublicListQueueRecord {
+  listPublicId: string;
+  listTitle: string;
+  canonicalListHref: string;
+  totalItems: number;
+  totalItemsLabel: string;
+  currentItem?: PublicListQueueItem;
+  previousItem?: PublicListQueueItem;
+  nextItem?: PublicListQueueItem;
+  items: PublicListQueueItem[];
+  upcomingItems: PublicListQueueItem[];
 }

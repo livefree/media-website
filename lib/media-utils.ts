@@ -83,6 +83,10 @@ export function buildPublicListHref(publicId: string): string {
   return `/list/${publicId}`;
 }
 
+export function buildPublicListDirectoryHref(): string {
+  return "/lists";
+}
+
 export function buildMediaWatchContext(
   media: Pick<MediaItem, "publicId">,
   options?: Omit<PublicWatchQuery, "mediaPublicId">,
@@ -120,6 +124,14 @@ export function buildListItemSubtitle(media: Pick<MediaItem, "type" | "year" | "
   }
 
   return [media.originalTitle, String(media.year), getMediaTypeLabel(media.type)].filter(Boolean).join(" · ");
+}
+
+export function getPublicListVisibilityLabel(visibility: "public" | "unlisted"): string {
+  return visibility === "unlisted" ? "Unlisted" : "Public";
+}
+
+export function buildListCountLabel(count: number): string {
+  return `${count} titles`;
 }
 
 export function getCompatibilityMediaHref(media: Pick<MediaItem, "slug">): string {

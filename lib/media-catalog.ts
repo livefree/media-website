@@ -11,6 +11,9 @@ import type {
   CatalogScope,
   CatalogSortValue,
   MediaDetailRecord,
+  PublicListDirectoryRecord,
+  PublicListQueueItem,
+  PublicListQueueRecord,
   PublicMediaList,
   PublicMediaListItem,
   PublicMediaListPageRecord,
@@ -22,14 +25,17 @@ import type {
   SearchSuggestion,
 } from "../types/media";
 import {
+  buildListCountLabel,
   buildCompatibilityWatchHref,
   buildBrowseMediaCard,
   buildDetailMetadata,
   buildListItemSubtitle,
+  buildPublicListDirectoryHref,
   buildPublicListHref,
   buildWatchHref,
   buildMediaWatchContext,
   buildMediaSearchText,
+  getPublicListVisibilityLabel,
   compareFeaturedMedia,
   getCompatibilityMediaHref,
   getDownloadResources,
@@ -151,6 +157,42 @@ function buildPublicMediaListItem(
   };
 }
 
+function getDiscoverablePublicListSeeds() {
+  return [...publicLists]
+    .filter((list) => list.visibility === "public")
+    .sort((left, right) => (left.discoveryRank ?? Number.MAX_SAFE_INTEGER) - (right.discoveryRank ?? Number.MAX_SAFE_INTEGER));
+}
+
+function buildPublicMediaListSummary(
+  list: (typeof publicLists)[number],
+  items: PublicMediaListItem[],
+): PublicMediaList {
+  const firstItem = items[0];
+  const coverMedia = firstItem ? getMediaByPublicId(firstItem.mediaPublicId) : undefined;
+  const shareHref = buildPublicListHref(list.publicId);
+  const itemCount = items.length;
+
+  return {
+    id: list.id,
+    publicId: list.publicId,
+    slug: list.slug,
+    title: list.title,
+    description: list.description,
+    visibility: list.visibility,
+    canonicalListHref: shareHref,
+    shareHref,
+    shareTitle: list.shareTitle ?? list.title,
+    shareDescription: list.shareDescription ?? list.description,
+    visibilityLabel: getPublicListVisibilityLabel(list.visibility),
+    itemCount,
+    itemCountLabel: buildListCountLabel(itemCount),
+    coverPosterUrl: firstItem?.posterUrl,
+    coverBackdropUrl: coverMedia?.backdropUrl ?? firstItem?.posterUrl,
+    firstItemPublicRef: firstItem?.publicRef,
+    firstItemWatchHref: firstItem?.canonicalWatchHref,
+  };
+}
+
 function buildPublicMediaListPageRecord(list: (typeof publicLists)[number]): PublicMediaListPageRecord {
   const baseItems = list.items
     .map((item, index) => buildPublicMediaListItem(list.publicId, index + 1, item))
@@ -176,21 +218,53 @@ function buildPublicMediaListPageRecord(list: (typeof publicLists)[number]): Pub
           }
         : undefined,
   }));
-  const firstItem = items[0];
+  const summary = buildPublicMediaListSummary(list, items);
 
   return {
-    id: list.id,
-    publicId: list.publicId,
-    slug: list.slug,
-    title: list.title,
-    description: list.description,
-    visibility: list.visibility,
-    canonicalListHref: buildPublicListHref(list.publicId),
-    itemCount: items.length,
-    coverPosterUrl: firstItem?.posterUrl,
-    firstItemPublicRef: firstItem?.publicRef,
-    firstItemWatchHref: firstItem?.canonicalWatchHref,
+    ...summary,
     items,
+  };
+}
+
+function buildPublicListQueueItem(item: PublicMediaListItem, currentPublicRef?: string): PublicListQueueItem {
+  const isCurrent = item.publicRef === currentPublicRef;
+
+  return {
+    publicRef: item.publicRef,
+    position: item.position,
+    positionLabel: item.positionLabel,
+    title: item.title,
+    subtitle: item.subtitle,
+    posterUrl: item.posterUrl,
+    canonicalWatchHref: item.canonicalWatchHref,
+    isCurrent,
+    isPlayed: false,
+    isUpNext: false,
+  };
+}
+
+function buildPublicListQueueRecord(list: PublicMediaListPageRecord, currentPublicRef?: string): PublicListQueueRecord {
+  const currentIndex = currentPublicRef ? list.items.findIndex((item) => item.publicRef === currentPublicRef) : -1;
+  const queueItems = list.items.map((item, index) => ({
+    ...buildPublicListQueueItem(item, currentPublicRef),
+    isPlayed: currentIndex >= 0 ? index < currentIndex : false,
+    isUpNext: currentIndex >= 0 ? index > currentIndex : index > 0,
+  }));
+  const currentItem = currentIndex >= 0 ? queueItems[currentIndex] : undefined;
+  const previousItem = currentIndex > 0 ? queueItems[currentIndex - 1] : undefined;
+  const nextItem = currentIndex >= 0 && currentIndex < queueItems.length - 1 ? queueItems[currentIndex + 1] : queueItems[1];
+
+  return {
+    listPublicId: list.publicId,
+    listTitle: list.title,
+    canonicalListHref: list.canonicalListHref,
+    totalItems: list.itemCount,
+    totalItemsLabel: list.itemCountLabel,
+    currentItem,
+    previousItem,
+    nextItem,
+    items: queueItems,
+    upcomingItems: currentIndex >= 0 ? queueItems.slice(currentIndex + 1, currentIndex + 4) : queueItems.slice(1, 4),
   };
 }
 
@@ -233,11 +307,24 @@ export function getResourceByPublicId(publicId: string): MediaResourceLink | und
 }
 
 export function getPublicLists(): PublicMediaList[] {
-  return publicLists.map((list) => {
+  return getDiscoverablePublicListSeeds().map((list) => {
     const page = buildPublicMediaListPageRecord(list);
     const { items: _items, ...summary } = page;
     return summary;
   });
+}
+
+export function getPublicListDirectory(): PublicListDirectoryRecord {
+  const items = getPublicLists();
+
+  return {
+    title: "Public Lists",
+    description: "Discover queue-ready public watchlists built on opaque list identity and canonical watch URLs.",
+    canonicalDirectoryHref: buildPublicListDirectoryHref(),
+    listCount: items.length,
+    listCountLabel: `${items.length} public lists`,
+    items,
+  };
 }
 
 export function getPublicListPageRecord(publicId: string): PublicMediaListPageRecord | undefined {
@@ -247,6 +334,11 @@ export function getPublicListPageRecord(publicId: string): PublicMediaListPageRe
 
 export function getPublicListByPublicId(publicId: string): PublicMediaListPageRecord | undefined {
   return getPublicListPageRecord(publicId);
+}
+
+export function getPublicListQueue(publicId: string, currentPublicRef?: string): PublicListQueueRecord | undefined {
+  const list = getPublicListPageRecord(publicId);
+  return list ? buildPublicListQueueRecord(list, currentPublicRef) : undefined;
 }
 
 export function resolvePublicPlayback({
@@ -265,6 +357,7 @@ export function resolvePublicPlayback({
   const resource = resourcePublicId ? getResourceFromMedia(media, resourcePublicId) : undefined;
   const list = listPublicId ? getPublicListPageRecord(listPublicId) : undefined;
   const listItem = list && listItemPublicRef ? list.items.find((item) => item.publicRef === listItemPublicRef) : undefined;
+  const queue = list ? buildPublicListQueueRecord(list, listItem?.publicRef) : undefined;
 
   return {
     media,
@@ -272,6 +365,7 @@ export function resolvePublicPlayback({
     resource,
     list,
     listItem,
+    queue,
   };
 }
 

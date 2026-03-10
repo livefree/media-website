@@ -163,6 +163,9 @@ export const publicLists: PublicListRecord[] = [
     title: "Weekend Sci-Fi Run",
     description: "A minimal public list seed used to preserve list and list-item context in canonical watch URLs.",
     visibility: "public",
+    discoveryRank: 1,
+    shareTitle: "Weekend Sci-Fi Run",
+    shareDescription: "A queue-ready sci-fi watchlist spanning a feature film, an anime episode, and a serial episode.",
     items: [
       {
         publicRef: "li_9m2rx4vc1ka",
@@ -177,6 +180,59 @@ export const publicLists: PublicListRecord[] = [
         publicRef: "li_6qs3fd8jp4w",
         mediaSlug: "deep-space-ward",
         episodeSlug: "deep-space-ward-s1e1",
+      },
+    ],
+  },
+  {
+    id: "public-list-atmosphere-files",
+    publicId: "lst_8qh2x6md5sy",
+    slug: "atmosphere-files",
+    title: "Atmosphere Files",
+    description: "Mystery-led picks for a slower queue, spanning investigation thrillers, haunted drama, and urban anime.",
+    visibility: "public",
+    discoveryRank: 2,
+    shareTitle: "Atmosphere Files",
+    shareDescription: "A public mystery list with three queue-friendly entries and canonical opaque list identity.",
+    items: [
+      {
+        publicRef: "li_3xv7pa2me4c",
+        mediaSlug: "glass-harbor",
+      },
+      {
+        publicRef: "li_4zb8kt1ns6q",
+        mediaSlug: "school-spirits-s1",
+        episodeSlug: "school-spirits-s1e1",
+      },
+      {
+        publicRef: "li_7hd5ru9cw2m",
+        mediaSlug: "white-tower-notes",
+        episodeSlug: "white-tower-notes-s1e1",
+      },
+    ],
+  },
+  {
+    id: "public-list-night-shift-unlisted",
+    publicId: "lst_5jc9nf2yr8d",
+    slug: "night-shift-unlisted",
+    title: "Night Shift Unlisted",
+    description: "A quieter unlisted queue used to exercise share-ready list pages without putting every list into directory discovery.",
+    visibility: "unlisted",
+    discoveryRank: 4,
+    shareTitle: "Night Shift Unlisted",
+    shareDescription: "An unlisted public queue anchored on opaque list identity and list-aware watch links.",
+    items: [
+      {
+        publicRef: "li_1mv3qk8pd7a",
+        mediaSlug: "equator-storm-line",
+      },
+      {
+        publicRef: "li_6ry4sb2tw9e",
+        mediaSlug: "blue-coast-files",
+        episodeSlug: "blue-coast-files-s1e2",
+      },
+      {
+        publicRef: "li_8up1dz5fh3n",
+        mediaSlug: "lunar-signal",
       },
     ],
   },

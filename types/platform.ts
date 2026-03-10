@@ -82,5 +82,8 @@ export interface PublicListRecord {
   title: string;
   description: string;
   visibility: PublicListVisibility;
+  discoveryRank?: number;
+  shareTitle?: string;
+  shareDescription?: string;
   items: PublicListItemRecord[];
 }
