@@ -23,7 +23,7 @@ PlayerShell
 
 ## Current Active Task
 
-### Player Resume And Startup Round 1
+### Episode Navigation And Selector Round 1
 
 Coordinator-only rule:
 - Coordinator may define scope, update task docs, dispatch agents, review ownership, and merge accepted work.
@@ -31,33 +31,34 @@ Coordinator-only rule:
 
 Required execution order for this task:
 1. Planner writes the implementation breakdown and acceptance criteria
-2. Detail Player implements the resume/startup behavior changes inside the watch/player surface
-3. Reviewer validates resume rules, startup behavior, and playback continuity before merge
+2. Data Catalog expands series/anime episode coverage for realistic selector and next-episode testing
+3. Detail Player implements the episode-selector and next-episode interaction changes inside the watch/player surface
+4. Reviewer validates next-episode behavior, selector popup behavior, keyboard interaction, and expanded episode coverage before merge
 6. User review remains authoritative for visual and interaction acceptance; a user-rejected candidate is not accepted even if code review passes
 
 Scope for this refinement:
-- Player resume persistence rules, startup/autoplay behavior, and resume-aware preload behavior
+- Episode navigation UX, selector interaction, and expanding episodic test data for series/anime playback
 - Owned surfaces:
+  - Data Catalog: `data/`, `types/`, `lib/media*`
   - Detail Player: `app/media/`, `app/watch/`, `components/player/`, `components/detail/`
   - Planner/Reviewer: docs and acceptance only
-- No unrelated browse redesign, auth flow, admin tooling, data-catalog rewrites, or broader player redesign beyond these resume/startup rules
+- No unrelated browse redesign, auth flow, admin tooling, or broader player redesign beyond these episode-navigation rules
 
 Acceptance criteria:
-- Resume points must not be recorded when the user exits within the first 30 seconds
-- Resume points must not be recorded when the user exits within the final 30 seconds; that case should be treated as completed / no resume
-- Persisted resume points must snap to 5-second precision
-- Entering the watch page must not auto-play video; playback starts only after explicit user action
-- Preload behavior may prepare media before play, and if a valid resume point exists the preload flow should begin from that resume point rather than from time 0
-- Reviewer sign-off must confirm the resume/startup rules work without regressing existing watch/list behavior
+- Series and anime entries used for testing must expose 10-50 episodes each through the existing data model
+- The main in-player episode buttons must render as numeric labels (`1`, `2`, `3`, ...) rather than verbose titles
+- Hovering an episode button must reveal the episode title when one exists
+- The player must expose a visible `下一集` button when a next episode exists, with the same tooltip/shortcut treatment as other controls
+- A right-edge `选集 (E)` trigger must reveal an episode popup anchored like the speed panel, with the current episode highlighted and keyboard navigation via arrow keys plus `Enter`
+- Existing canonical watch/list behavior and next-episode routing must not regress
 
 Current user-requested improvement to implement:
-1. Do not record a resume point if the user exits within the first 30 seconds.
-2. If the user exits within the final 30 seconds, treat the video as completed and do not keep a resume point.
-3. Store resume points at 5-second precision.
-4. Do not auto-play when entering the video page; playback should start only after user interaction.
-5. Allow preload/buffering before playback, and when a valid resume point exists, bias preload from that resume point.
+1. Keep or add a `下一集` button for videos that have a next episode.
+2. Convert the current episode selector to numeric buttons only, while showing episode titles on hover.
+3. Expand all current `series` and `anime` entries to 10-50 episodes each for testing, still using demo video playback.
+4. Add a right-side `选集 (E)` trigger that opens a compact episode popup at the lower-left of the player, with current-episode highlighting and mouse/keyboard selection support.
 
 Current baseline:
-- The player already persists local resume data and restores it on reopen, but the current thresholds and precision do not match the requested first-30s / last-30s / 5-second rules.
-- The player may currently restore and continue too aggressively relative to the desired no-autoplay startup behavior.
-- Preload is currently lightweight and not explicitly aligned with resume-aware startup behavior.
+- The player already contains a next-episode action with `N`, but it must now be treated as part of the unified episode-navigation acceptance surface.
+- The current episode selector still renders full episode titles as inline buttons rather than a numeric-first compact selector system.
+- Current series/anime episode counts are too small for realistic selector and popup testing.
