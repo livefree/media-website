@@ -13,6 +13,14 @@ type MediaSeed = Omit<MediaItem, "publicId" | "canonicalWatchHref" | "compatibil
   resources: MediaResourceSeed[];
 };
 
+const demoPlaybackByType: Record<MediaItem["type"], string> = {
+  movie: "/demo/demo-movie.mp4",
+  series: "/demo/demo-tv.mp4",
+  anime: "/demo/demo-anime.mp4",
+};
+
+const placeholderPlaybackHost = "stream.example.com";
+
 const mediaCatalogSeed: MediaSeed[] = [
   {
     id: "media-the-dinosaurs",
@@ -2095,6 +2103,82 @@ function buildWatchHref(mediaPublicId: string, episodePublicId?: string, resourc
   return `/watch?${params.toString()}`;
 }
 
+function isPlaceholderPlaybackUrl(url: string): boolean {
+  if (!url.trim()) {
+    return true;
+  }
+
+  if (url.startsWith("/demo/")) {
+    return false;
+  }
+
+  try {
+    return new URL(url).hostname === placeholderPlaybackHost;
+  } catch {
+    return false;
+  }
+}
+
+function buildLocalDemoStream(resourceId: string, demoUrl: string): MediaResourceSeed {
+  return {
+    id: resourceId,
+    label: "Local demo",
+    mode: "stream",
+    provider: "mp4",
+    format: "mp4",
+    quality: "Demo",
+    url: demoUrl,
+    status: "online",
+  };
+}
+
+function hasKnownGoodStream(resources: MediaResourceSeed[]): boolean {
+  return resources.some((resource) => resource.mode === "stream" && !isPlaceholderPlaybackUrl(resource.url));
+}
+
+function backfillMovieResources(media: MediaSeed): MediaResourceSeed[] {
+  if (hasKnownGoodStream(media.resources)) {
+    return media.resources;
+  }
+
+  const downloads = media.resources.filter((resource) => resource.mode === "download");
+  const firstStream = media.resources.find((resource) => resource.mode === "stream");
+  const resourceId = firstStream?.id ?? `stream-${media.slug}-local-demo`;
+  const localDemoStream = buildLocalDemoStream(resourceId, demoPlaybackByType.movie);
+
+  return [localDemoStream, ...downloads];
+}
+
+function backfillEpisodeStreams(media: MediaSeed, episode: EpisodeSeed): EpisodeSeed {
+  if (hasKnownGoodStream(episode.streamLinks)) {
+    return episode;
+  }
+
+  const resourceId = episode.streamLinks[0]?.id ?? `stream-${episode.slug}-local-demo`;
+
+  return {
+    ...episode,
+    streamLinks: [buildLocalDemoStream(resourceId, demoPlaybackByType[media.type])],
+  };
+}
+
+function applyDemoPlaybackBackfill(media: MediaSeed): MediaSeed {
+  if (media.type === "movie") {
+    return {
+      ...media,
+      resources: backfillMovieResources(media),
+    };
+  }
+
+  return {
+    ...media,
+    seasons: media.seasons.map((season) => ({
+      ...season,
+      episodes: season.episodes.map((episode) => backfillEpisodeStreams(media, episode)),
+    })),
+  };
+}
+
 function enrichMediaIdentity(media: MediaSeed): MediaItem {
   const mediaPublicId = buildPublicId("med", media.id);
   const compatibilityHref = buildCompatibilityHref(media.slug);
@@ -2149,4 +2233,4 @@ function enrichMediaIdentity(media: MediaSeed): MediaItem {
   };
 }
 
-export const mediaCatalog: MediaItem[] = mediaCatalogSeed.map(enrichMediaIdentity);
+export const mediaCatalog: MediaItem[] = mediaCatalogSeed.map(applyDemoPlaybackBackfill).map(enrichMediaIdentity);
