@@ -1,6 +1,6 @@
 import { catalogCategories, catalogFilterGroups, hotSearchSuggestionSlugs, quickFilterChips } from "../data/categories";
 import { mediaCatalog } from "../data/media";
-import { browseEvents, platformUsers, recentSearches, resourceActivities } from "../data/platform";
+import { browseEvents, platformUsers, publicLists, recentSearches, resourceActivities } from "../data/platform";
 import type {
   BrowseMediaCard,
   CatalogCoverageSummary,
@@ -11,6 +11,9 @@ import type {
   CatalogScope,
   CatalogSortValue,
   MediaDetailRecord,
+  MediaEpisodeOption,
+  PublicMediaList,
+  PublicMediaListItem,
   MediaResourceLink,
   MediaItem,
   MediaType,
@@ -19,15 +22,17 @@ import type {
   SearchSuggestion,
 } from "../types/media";
 import {
+  buildCompatibilityWatchHref,
   buildBrowseMediaCard,
   buildDetailMetadata,
+  buildWatchHref,
+  buildMediaWatchContext,
   buildMediaSearchText,
   compareFeaturedMedia,
   getCompatibilityMediaHref,
   getDownloadResources,
   getEpisodeCount,
   getEpisodeOptions,
-  getMediaHref,
   getPlaybackSources,
   getResourceCounts,
 } from "./media-utils";
@@ -76,12 +81,15 @@ function countFacetOptions(values: string[]): CatalogFilterOption[] {
 }
 
 function buildSearchSuggestion(media: MediaItem): SearchSuggestion {
+  const watchContext = buildMediaWatchContext(media);
+
   return {
     slug: media.slug,
-    href: media.compatibilityHref,
+    href: media.canonicalWatchHref,
     publicId: media.publicId,
     canonicalWatchHref: media.canonicalWatchHref,
     compatibilityHref: media.compatibilityHref,
+    watchContext,
     title: media.title,
     type: media.type,
     year: media.year,
@@ -93,6 +101,10 @@ function getEpisodeFromMedia(media: MediaItem, publicId: string) {
   return media.seasons.flatMap((season) => season.episodes).find((episode) => episode.publicId === publicId);
 }
 
+function getEpisodeBySlugFromMedia(media: MediaItem, slug: string) {
+  return media.seasons.flatMap((season) => season.episodes).find((episode) => episode.slug === slug);
+}
+
 function getResourceFromMedia(media: MediaItem, publicId: string) {
   return (
     media.resources.find((resource) => resource.publicId === publicId) ??
@@ -100,6 +112,53 @@ function getResourceFromMedia(media: MediaItem, publicId: string) {
       .flatMap((season) => season.episodes.flatMap((episode) => [...episode.streamLinks, ...episode.downloadLinks]))
       .find((resource) => resource.publicId === publicId)
   );
+}
+
+function buildPublicMediaListItem(
+  listPublicId: string,
+  position: number,
+  item: { publicRef: string; mediaSlug: string; episodeSlug?: string },
+): PublicMediaListItem | null {
+  const media = getMediaBySlug(item.mediaSlug);
+  if (!media) {
+    return null;
+  }
+
+  const episode = item.episodeSlug ? getEpisodeBySlugFromMedia(media, item.episodeSlug) : undefined;
+  const watchContext = buildMediaWatchContext(media, {
+    episodePublicId: episode?.publicId,
+    listPublicId,
+    listItemPublicRef: item.publicRef,
+  });
+
+  return {
+    publicRef: item.publicRef,
+    position,
+    mediaSlug: media.slug,
+    mediaPublicId: media.publicId,
+    mediaTitle: media.title,
+    episodeSlug: episode?.slug,
+    episodePublicId: episode?.publicId,
+    canonicalWatchHref: buildWatchHref(watchContext),
+    compatibilityHref: buildCompatibilityWatchHref(media, { episodeSlug: episode?.slug }),
+    watchContext,
+  };
+}
+
+function buildPublicMediaList(list: (typeof publicLists)[number]): PublicMediaList {
+  const items = list.items
+    .map((item, index) => buildPublicMediaListItem(list.publicId, index + 1, item))
+    .filter((item): item is PublicMediaListItem => item !== null);
+
+  return {
+    id: list.id,
+    publicId: list.publicId,
+    slug: list.slug,
+    title: list.title,
+    description: list.description,
+    visibility: list.visibility,
+    items,
+  };
 }
 
 export function getAllMedia(): MediaItem[] {
@@ -140,11 +199,22 @@ export function getResourceByPublicId(publicId: string): MediaResourceLink | und
   return undefined;
 }
 
+export function getPublicLists(): PublicMediaList[] {
+  return publicLists.map(buildPublicMediaList);
+}
+
+export function getPublicListByPublicId(publicId: string): PublicMediaList | undefined {
+  const list = publicLists.find((entry) => entry.publicId === publicId);
+  return list ? buildPublicMediaList(list) : undefined;
+}
+
 export function resolvePublicPlayback({
   mediaPublicId,
   episodePublicId,
   resourcePublicId,
-}: Pick<PublicWatchQuery, "mediaPublicId" | "episodePublicId" | "resourcePublicId">): ResolvedPublicPlayback | undefined {
+  listPublicId,
+  listItemPublicRef,
+}: Pick<PublicWatchQuery, "mediaPublicId" | "episodePublicId" | "resourcePublicId" | "listPublicId" | "listItemPublicRef">): ResolvedPublicPlayback | undefined {
   const media = getMediaByPublicId(mediaPublicId);
   if (!media) {
     return undefined;
@@ -152,11 +222,15 @@ export function resolvePublicPlayback({
 
   const episode = episodePublicId ? getEpisodeFromMedia(media, episodePublicId) : undefined;
   const resource = resourcePublicId ? getResourceFromMedia(media, resourcePublicId) : undefined;
+  const list = listPublicId ? getPublicListByPublicId(listPublicId) : undefined;
+  const listItem = list && listItemPublicRef ? list.items.find((item) => item.publicRef === listItemPublicRef) : undefined;
 
   return {
     media,
     episode,
     resource,
+    list,
+    listItem,
   };
 }
 
@@ -342,12 +416,14 @@ export function getMediaDetail(slug: string): MediaDetailRecord | undefined {
 
   const episodes = getEpisodeOptions(media);
   const compatibilityHref = getCompatibilityMediaHref(media);
+  const watchContext = buildMediaWatchContext(media);
 
   return {
     media,
-    href: getMediaHref(media),
+    href: media.canonicalWatchHref,
     canonicalWatchHref: media.canonicalWatchHref,
     compatibilityHref,
+    watchContext,
     metadata: buildDetailMetadata(media),
     playbackSources: getPlaybackSources(media),
     downloads: getDownloadResources(media),
@@ -409,11 +485,21 @@ export function getContinueWatching(userId: string) {
         return null;
       }
 
+      const episode =
+        entry.episodeSlug !== undefined ? media.seasons.flatMap((season) => season.episodes).find((item) => item.slug === entry.episodeSlug) : undefined;
+      const watchContext = buildMediaWatchContext(media, {
+        episodePublicId: episode?.publicId,
+        timeSeconds: entry.currentTimeSeconds,
+      });
+
       return {
         media,
         card: buildBrowseMediaCard(media),
         detail: getMediaDetail(media.slug),
         episodeSlug: entry.episodeSlug,
+        episodePublicId: episode?.publicId,
+        canonicalWatchHref: buildWatchHref(watchContext),
+        watchContext,
         progressPercent: entry.progressPercent,
         currentTimeSeconds: entry.currentTimeSeconds,
         durationSeconds: entry.durationSeconds,

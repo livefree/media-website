@@ -1,6 +1,7 @@
 import type {
   BrowseEventRecord,
   PlatformUser,
+  PublicListRecord,
   ResourceActivityRecord,
   SearchRecord,
 } from "../types/platform";
@@ -151,5 +152,32 @@ export const resourceActivities: ResourceActivityRecord[] = [
     mode: "download",
     action: "report_invalid",
     createdAt: "2026-03-08T05:02:00Z",
+  },
+];
+
+export const publicLists: PublicListRecord[] = [
+  {
+    id: "public-list-weekend-sci-fi",
+    publicId: "lst_4wp7n1kg9zr",
+    slug: "weekend-sci-fi-run",
+    title: "Weekend Sci-Fi Run",
+    description: "A minimal public list seed used to preserve list and list-item context in canonical watch URLs.",
+    visibility: "public",
+    items: [
+      {
+        publicRef: "li_9m2rx4vc1ka",
+        mediaSlug: "war-machine",
+      },
+      {
+        publicRef: "li_2tb8q7hy5nu",
+        mediaSlug: "prism-hearts",
+        episodeSlug: "prism-hearts-s1e1",
+      },
+      {
+        publicRef: "li_6qs3fd8jp4w",
+        mediaSlug: "deep-space-ward",
+        episodeSlug: "deep-space-ward-s1e1",
+      },
+    ],
   },
 ];
