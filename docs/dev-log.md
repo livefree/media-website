@@ -213,6 +213,7 @@ Coordinator:
 - Promoted the accepted browse-card simplification work to version `0.8.3` under the project semver rules as a patch-level presentation refinement
 - Opened `Player Title Overlay Round 1` to replace the generic watch-page player heading with media-title-plus-episode copy and add a matching auto-hiding top title overlay in theater/fullscreen modes
 - Opened `Immersive Chrome Auto-Hide Round 1` to verify and tighten the 3-second inactivity hide behavior so immersive controls, top title overlay, and cursor all disappear reliably in theater and fullscreen modes
+- Opened `Immersive Input Layering Round 1` to correct video-surface cursor semantics and refactor immersive idle behavior toward a YouTube-style separation between passive video area, real controls, and a single shared idle manager
 
 Data Catalog:
 - Added an explicit optional `episodeCountLabel` to the shared browse-card contract and builder so UI Shell can render compact series/anime episode counts directly without deriving them from the legacy stats pill structure
