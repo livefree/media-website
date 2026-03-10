@@ -23,7 +23,7 @@ PlayerShell
 
 ## Current Active Task
 
-### Episode Navigation And Selector Round 1
+### Episode Navigation And Selector Round 2
 
 Coordinator-only rule:
 - Coordinator may define scope, update task docs, dispatch agents, review ownership, and merge accepted work.
@@ -31,34 +31,30 @@ Coordinator-only rule:
 
 Required execution order for this task:
 1. Planner writes the implementation breakdown and acceptance criteria
-2. Data Catalog expands series/anime episode coverage for realistic selector and next-episode testing
-3. Detail Player implements the episode-selector and next-episode interaction changes inside the watch/player surface
-4. Reviewer validates next-episode behavior, selector popup behavior, keyboard interaction, and expanded episode coverage before merge
+2. Detail Player implements the selector-entry and popup-behavior corrections inside the watch/player surface
+3. Reviewer validates hover-trigger behavior, popup stability, compact episode layout, and keyboard interaction before merge
 6. User review remains authoritative for visual and interaction acceptance; a user-rejected candidate is not accepted even if code review passes
 
 Scope for this refinement:
-- Episode navigation UX, selector interaction, and expanding episodic test data for series/anime playback
+- Episode-navigation UX corrections for the newly added selector-entry and popup behavior
 - Owned surfaces:
-  - Data Catalog: `data/`, `types/`, `lib/media*`
   - Detail Player: `app/media/`, `app/watch/`, `components/player/`, `components/detail/`
   - Planner/Reviewer: docs and acceptance only
 - No unrelated browse redesign, auth flow, admin tooling, or broader player redesign beyond these episode-navigation rules
 
 Acceptance criteria:
-- Series and anime entries used for testing must expose 10-50 episodes each through the existing data model
-- The main in-player episode buttons must render as numeric labels (`1`, `2`, `3`, ...) rather than verbose titles
-- Hovering an episode button must reveal the episode title when one exists
-- The player must expose a visible `下一集` button when a next episode exists, with the same tooltip/shortcut treatment as other controls
-- A right-edge `选集 (E)` trigger must reveal an episode popup anchored like the speed panel, with the current episode highlighted and keyboard navigation via arrow keys plus `Enter`
-- Existing canonical watch/list behavior and next-episode routing must not regress
+- The episode-entry control must remain hidden until the user hovers the `下一集` area and should slide out from the right side of the next-episode button instead of staying always visible
+- The episode-entry control must show an icon plus the current episode number, without the literal text `选集`
+- Opening the episode popup or navigating it from the keyboard must not cause the page or player viewport to shift unexpectedly
+- The episode popup must render a denser numeric-only episode grid/list rather than oversized title buttons
+- Existing `N` / `E` shortcuts, hover tooltips, canonical routing, and next-episode behavior must not regress
 
 Current user-requested improvement to implement:
-1. Keep or add a `下一集` button for videos that have a next episode.
-2. Convert the current episode selector to numeric buttons only, while showing episode titles on hover.
-3. Expand all current `series` and `anime` entries to 10-50 episodes each for testing, still using demo video playback.
-4. Add a right-side `选集 (E)` trigger that opens a compact episode popup at the lower-left of the player, with current-episode highlighting and mouse/keyboard selection support.
+1. Make the episode-entry control slide out from the right of `下一集` on hover instead of staying always visible.
+2. Show only an icon plus the current episode number on that control, without the text `选集`.
+3. Eliminate page movement when opening the episode popup or changing popup selection from the keyboard.
+4. Shrink the popup episode items to numeric-only dense buttons laid out horizontally or in a compact grid.
 
 Current baseline:
-- The player already contains a next-episode action with `N`, but it must now be treated as part of the unified episode-navigation acceptance surface.
-- The current episode selector still renders full episode titles as inline buttons rather than a numeric-first compact selector system.
-- Current series/anime episode counts are too small for realistic selector and popup testing.
+- The current `N` next-episode behavior and expanded episode counts are already in place from Round 1.
+- The remaining issues are visible interaction defects around when the `E` selector entry appears, what it displays, popup stability, and popup density.
