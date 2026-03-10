@@ -612,7 +612,11 @@ export function PlayerShell({
     window.requestAnimationFrame(() => {
       const target = episodeItemRefs.current[nextIndex];
       target?.focus({ preventScroll: true });
-      target?.scrollIntoView({ block: "center", inline: "nearest" });
+      const container = episodeListRef.current;
+      if (container && target) {
+        const nextTop = Math.max(0, target.offsetTop - (container.clientHeight - target.offsetHeight) / 2);
+        container.scrollTo({ top: nextTop });
+      }
     });
   }, [activeEpisodeIndex, episodes.length, showEpisodePanel]);
 
@@ -1004,9 +1008,13 @@ export function PlayerShell({
     const clampedIndex = clamp(nextIndex, 0, episodes.length - 1);
     setFocusedEpisodeIndex(clampedIndex);
     window.requestAnimationFrame(() => {
+      const container = episodeListRef.current;
       const target = episodeItemRefs.current[clampedIndex];
       target?.focus({ preventScroll: true });
-      target?.scrollIntoView({ block: "center", inline: "nearest" });
+      if (container && target) {
+        const nextTop = Math.max(0, target.offsetTop - (container.clientHeight - target.offsetHeight) / 2);
+        container.scrollTo({ top: nextTop });
+      }
     });
   }
 
@@ -1056,7 +1064,7 @@ export function PlayerShell({
   const volumeTooltip = isMuted ? "Unmute (M / ↑ / ↓)" : "Mute (M) / Volume (↑ / ↓)";
   const playTooltip = isPlaying ? "Pause (K / Space)" : "Play (K / Space)";
   const speedButtonLabel = formatRateLabel(playbackRate);
-  const episodeButtonLabel = activeEpisode ? `选集 ${activeEpisode.episodeNumber}` : "选集";
+  const episodeButtonLabel = activeEpisode ? `${activeEpisode.episodeNumber}` : "1";
 
   return (
     <>
@@ -1177,16 +1185,39 @@ export function PlayerShell({
                 </ControlShell>
 
                 {nextEpisodeHref ? (
-                  <ControlShell tooltip={`Next Episode (N)`}>
-                    <button
-                      type="button"
-                      className={styles.playerControlButton}
-                      onClick={() => navigateToEpisode(nextEpisodeHref)}
-                      aria-label={`下一集 ${nextEpisodeLabel ?? ""} (N)`}
-                    >
-                      <NextEpisodeIcon />
-                    </button>
-                  </ControlShell>
+                  <div className={styles.playerEpisodeEntryGroup}>
+                    <ControlShell tooltip={`Next Episode (N)`}>
+                      <button
+                        type="button"
+                        className={styles.playerControlButton}
+                        onClick={() => navigateToEpisode(nextEpisodeHref)}
+                        aria-label={`下一集 ${nextEpisodeLabel ?? ""} (N)`}
+                      >
+                        <NextEpisodeIcon />
+                      </button>
+                    </ControlShell>
+
+                    {episodes.length > 0 ? (
+                      <div
+                        className={`${styles.playerEpisodeDock} ${showEpisodePanel ? styles.playerEpisodeDockVisible : ""}`}
+                      >
+                        <ControlShell tooltip="Episodes (E)">
+                          <button
+                            ref={episodeButtonRef}
+                            type="button"
+                            className={`${styles.playerControlButton} ${styles.playerEpisodeButton}`}
+                            onClick={toggleEpisodePanel}
+                            aria-label={`选集 ${episodeButtonLabel} (E)`}
+                            aria-expanded={showEpisodePanel}
+                            aria-controls="player-episode-panel"
+                          >
+                            <EpisodeListIcon />
+                            <span className={styles.playerEpisodeLabel}>{episodeButtonLabel}</span>
+                          </button>
+                        </ControlShell>
+                      </div>
+                    ) : null}
+                  </div>
                 ) : null}
 
                 <div
@@ -1247,7 +1278,7 @@ export function PlayerShell({
                 </div>
 
                 <div className={styles.playerSecondaryCluster}>
-                  {episodes.length > 0 ? (
+                  {!nextEpisodeHref && episodes.length > 0 ? (
                     <div className={styles.playerEpisodeDock}>
                       <ControlShell tooltip="Episodes (E)">
                         <button
@@ -1255,7 +1286,7 @@ export function PlayerShell({
                           type="button"
                           className={`${styles.playerControlButton} ${styles.playerEpisodeButton}`}
                           onClick={toggleEpisodePanel}
-                          aria-label="选集 (E)"
+                          aria-label={`选集 ${episodeButtonLabel} (E)`}
                           aria-expanded={showEpisodePanel}
                           aria-controls="player-episode-panel"
                         >
@@ -1403,13 +1434,14 @@ export function PlayerShell({
                         className={`${styles.playerEpisodeOption} ${episode.isActive ? styles.playerEpisodeOptionActive : ""} ${
                           isFocused ? styles.playerEpisodeOptionFocused : ""
                         }`}
+                        title={tooltip}
+                        aria-label={tooltip}
                         aria-selected={episode.isActive}
                         onMouseEnter={() => setFocusedEpisodeIndex(index)}
                         onFocus={() => setFocusedEpisodeIndex(index)}
                         onClick={() => navigateToEpisode(episode.href)}
                       >
                         <span className={styles.playerEpisodeOptionNumber}>{episode.episodeNumber}</span>
-                        <span className={styles.playerEpisodeOptionTitle}>{tooltip}</span>
                       </button>
                     );
                   })}
