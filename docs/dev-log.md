@@ -192,3 +192,4 @@ Detail Player:
 - Tightened player resume rules so only middle-window progress persists at snapped 5-second boundaries, first-30s and end-of-video exits no longer keep resumable state, and watch-page startup now restores valid resume positions while staying paused
 - Converted the main episode chips to numeric labels with hover titles, preserved the `N` next-episode control, and added a right-side `选集 (E)` player popup with current-episode centering plus arrow-key and Enter selection
 - Refined the episode-entry control so it now slides out from the `下一集` area with icon-plus-number only, and compacted the popup into a page-stable numeric grid that keeps keyboard navigation local to the popup
+- Strengthened episode-popup visual feedback by rendering the active episode number in red and deepening hover/focus border contrast for non-active candidates without changing selector behavior
