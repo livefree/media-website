@@ -201,6 +201,7 @@ export interface BrowseMediaCard {
   statusLabel: string;
   genres: string[];
   availabilityLabel: string;
+  episodeCountLabel?: string;
   stats: BrowseMediaStat[];
 }
 

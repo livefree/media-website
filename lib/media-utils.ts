@@ -244,6 +244,9 @@ export function compareFeaturedMedia(left: MediaItem, right: MediaItem): number 
 
 export function buildBrowseMediaCard(media: MediaItem): BrowseMediaCard {
   const watchContext = buildMediaWatchContext(media);
+  const episodeCount = getEpisodeCount(media);
+  const episodeCountLabel =
+    media.type === "movie" ? undefined : `${episodeCount} ${episodeCount === 1 ? "episode" : "episodes"}`;
 
   return {
     id: media.id,
@@ -267,6 +270,7 @@ export function buildBrowseMediaCard(media: MediaItem): BrowseMediaCard {
     statusLabel: getMediaStatusLabel(media.status),
     genres: media.genres,
     availabilityLabel: media.resourceSummary.availabilityLabel,
+    episodeCountLabel,
     stats: [
       { label: "Streams", value: String(media.resourceSummary.streamCount) },
       { label: "Downloads", value: String(media.resourceSummary.downloadCount) },
