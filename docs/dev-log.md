@@ -220,6 +220,7 @@ Coordinator:
 - Opened `Immersive Chrome Auto-Hide Round 1` to verify and tighten the 3-second inactivity hide behavior so immersive controls, top title overlay, and cursor all disappear reliably in theater and fullscreen modes
 - Opened `Immersive Input Layering Round 1` to correct video-surface cursor semantics and refactor immersive idle behavior toward a YouTube-style separation between passive video area, real controls, and a single shared idle manager
 - Recorded the current engineering review in `docs/engineering-review-2026-03-10.md`, opened `Free Video Source Integration Planning Round 1`, and queued the removal of local demo-video runtime dependencies ahead of a lawful free-video ingestion and playback architecture plan
+- Promoted the accepted free-video source planning and demo-runtime cleanup work to version `0.8.4` under the project semver rules as a patch-level platform-planning and runtime-cleanup refinement
 
 Data Catalog:
 - Added an explicit optional `episodeCountLabel` to the shared browse-card contract and builder so UI Shell can render compact series/anime episode counts directly without deriving them from the legacy stats pill structure
