@@ -23,6 +23,11 @@ type StoredPlaybackProgress = {
   completed: boolean;
 };
 
+type EpisodeNavigationOption = MediaEpisodeOption & {
+  href: string;
+  isActive: boolean;
+};
+
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
@@ -179,6 +184,14 @@ function NextEpisodeIcon() {
   );
 }
 
+function EpisodeListIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.playerIcon}>
+      <path d="M6 7.5h3.2M6 12h3.2M6 16.5h3.2M11.5 7.5H18M11.5 12H18M11.5 16.5H18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function VolumeIcon({ muted, volume }: { muted: boolean; volume: number }) {
   if (muted || volume <= 0.01) {
     return (
@@ -290,6 +303,7 @@ export function PlayerShell({
   media,
   source,
   availableSources = [],
+  episodes = [],
   activeEpisode,
   nextEpisodeHref,
   nextEpisodeLabel,
@@ -297,6 +311,7 @@ export function PlayerShell({
   media: MediaItem;
   source: PlaybackSourceOption | null;
   availableSources?: PlaybackSourceOption[];
+  episodes?: EpisodeNavigationOption[];
   activeEpisode?: MediaEpisodeOption;
   nextEpisodeHref?: string;
   nextEpisodeLabel?: string;
@@ -307,6 +322,10 @@ export function PlayerShell({
   const playerRef = useRef<HTMLDivElement | null>(null);
   const speedPanelRef = useRef<HTMLDivElement | null>(null);
   const speedButtonRef = useRef<HTMLButtonElement | null>(null);
+  const episodePanelRef = useRef<HTMLDivElement | null>(null);
+  const episodeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const episodeListRef = useRef<HTMLDivElement | null>(null);
+  const episodeItemRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const hlsRef = useRef<Hls | null>(null);
   const lastPersistedTimeRef = useRef(0);
@@ -326,6 +345,8 @@ export function PlayerShell({
   const [isTheaterMode, setIsTheaterMode] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showSpeedPanel, setShowSpeedPanel] = useState(false);
+  const [showEpisodePanel, setShowEpisodePanel] = useState(false);
+  const [focusedEpisodeIndex, setFocusedEpisodeIndex] = useState(-1);
   const [playbackError, setPlaybackError] = useState<string | null>(null);
   const [isControlsVisible, setIsControlsVisible] = useState(true);
   const [interactionTick, setInteractionTick] = useState(0);
@@ -338,6 +359,10 @@ export function PlayerShell({
     () => buildProgressKey(media.slug, activeEpisode?.slug),
     [activeEpisode?.slug, media.slug],
   );
+  const activeEpisodeIndex = useMemo(
+    () => episodes.findIndex((episode) => episode.isActive),
+    [episodes],
+  );
   const currentTimeLabel = formatTime(currentTime);
   const durationLabel = formatTime(duration);
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
@@ -349,6 +374,15 @@ export function PlayerShell({
 
   function closeSpeedPanel() {
     setShowSpeedPanel(false);
+  }
+
+  function closeEpisodePanel() {
+    setShowEpisodePanel(false);
+  }
+
+  function closeTransientPanels() {
+    closeSpeedPanel();
+    closeEpisodePanel();
   }
 
   function clearHideControlsTimeout() {
@@ -471,6 +505,7 @@ export function PlayerShell({
     if (
       !isPlaying ||
       showSpeedPanel ||
+      showEpisodePanel ||
       isVolumeExpanded ||
       isVolumeTemporarilyVisible ||
       isFocusWithinPlayer ||
@@ -492,7 +527,7 @@ export function PlayerShell({
       clearHideControlsTimeout();
       clearCursorHideTimeout();
     };
-  }, [interactionTick, isFocusWithinPlayer, isPlaying, isVolumeExpanded, isVolumeTemporarilyVisible, playbackError, showSpeedPanel]);
+  }, [interactionTick, isFocusWithinPlayer, isPlaying, isVolumeExpanded, isVolumeTemporarilyVisible, playbackError, showEpisodePanel, showSpeedPanel]);
 
   useEffect(() => {
     return () => {
@@ -544,6 +579,42 @@ export function PlayerShell({
     window.addEventListener("mousedown", handlePointerDown);
     return () => window.removeEventListener("mousedown", handlePointerDown);
   }, [showSpeedPanel]);
+
+  useEffect(() => {
+    if (!showEpisodePanel) {
+      return undefined;
+    }
+
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (
+        episodePanelRef.current?.contains(target) ||
+        episodeButtonRef.current?.contains(target)
+      ) {
+        return;
+      }
+
+      closeEpisodePanel();
+    };
+
+    window.addEventListener("mousedown", handlePointerDown);
+    return () => window.removeEventListener("mousedown", handlePointerDown);
+  }, [showEpisodePanel]);
+
+  useEffect(() => {
+    if (!showEpisodePanel || episodes.length === 0) {
+      return;
+    }
+
+    const nextIndex = activeEpisodeIndex >= 0 ? activeEpisodeIndex : 0;
+    setFocusedEpisodeIndex(nextIndex);
+
+    window.requestAnimationFrame(() => {
+      const target = episodeItemRefs.current[nextIndex];
+      target?.focus({ preventScroll: true });
+      target?.scrollIntoView({ block: "center", inline: "nearest" });
+    });
+  }, [activeEpisodeIndex, episodes.length, showEpisodePanel]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -688,6 +759,33 @@ export function PlayerShell({
         return;
       }
 
+      if (showEpisodePanel && episodes.length > 0) {
+        switch (event.key) {
+          case "ArrowLeft":
+          case "ArrowUp":
+            event.preventDefault();
+            focusEpisodeByIndex((focusedEpisodeIndex >= 0 ? focusedEpisodeIndex : activeEpisodeIndex) - 1);
+            return;
+          case "ArrowRight":
+          case "ArrowDown":
+            event.preventDefault();
+            focusEpisodeByIndex((focusedEpisodeIndex >= 0 ? focusedEpisodeIndex : activeEpisodeIndex) + 1);
+            return;
+          case "Enter":
+            event.preventDefault();
+            if (focusedEpisodeIndex >= 0) {
+              navigateToEpisode(episodes[focusedEpisodeIndex].href);
+            }
+            return;
+          case "Escape":
+            event.preventDefault();
+            closeEpisodePanel();
+            return;
+          default:
+            break;
+        }
+      }
+
       switch (event.key) {
         case " ":
         case "k":
@@ -720,7 +818,15 @@ export function PlayerShell({
         case "S":
           event.preventDefault();
           revealControls();
+          closeEpisodePanel();
           setShowSpeedPanel((value) => !value);
+          break;
+        case "e":
+        case "E":
+          if (episodes.length > 0) {
+            event.preventDefault();
+            toggleEpisodePanel();
+          }
           break;
         case "[":
           event.preventDefault();
@@ -760,8 +866,7 @@ export function PlayerShell({
         case "N":
           if (nextEpisodeHref) {
             event.preventDefault();
-            closeSpeedPanel();
-            router.push(nextEpisodeHref, { scroll: false });
+            navigateToEpisode(nextEpisodeHref);
           }
           break;
         default:
@@ -771,10 +876,10 @@ export function PlayerShell({
 
     window.addEventListener("keydown", handleKeydown);
     return () => window.removeEventListener("keydown", handleKeydown);
-  }, [isMuted, nextEpisodeHref, playbackRate, previousVolume, router, volume]);
+  }, [activeEpisodeIndex, episodes, focusedEpisodeIndex, isMuted, nextEpisodeHref, playbackRate, previousVolume, router, showEpisodePanel, volume]);
 
   async function togglePlayback() {
-    closeSpeedPanel();
+    closeTransientPanels();
     revealControls();
     const video = videoRef.current;
     if (!video) {
@@ -796,7 +901,7 @@ export function PlayerShell({
   }
 
   function seekBy(delta: number) {
-    closeSpeedPanel();
+    closeTransientPanels();
     revealControls();
     const video = videoRef.current;
     if (!video) {
@@ -818,14 +923,14 @@ export function PlayerShell({
       return;
     }
 
-    closeSpeedPanel();
+    closeTransientPanels();
     revealControls();
     video.currentTime = nextTime;
     setCurrentTime(nextTime);
   }
 
   function updateVolume(nextVolume: number) {
-    closeSpeedPanel();
+    closeTransientPanels();
     revealControls();
     temporarilyRevealVolume();
     const safeVolume = clamp(nextVolume, 0, 1);
@@ -843,7 +948,7 @@ export function PlayerShell({
   }
 
   function toggleMute() {
-    closeSpeedPanel();
+    closeTransientPanels();
     revealControls();
     const video = videoRef.current;
 
@@ -868,18 +973,19 @@ export function PlayerShell({
   }
 
   function updatePlaybackRate(nextRate: number) {
+    closeEpisodePanel();
     revealControls();
     setPlaybackRate(Number(clamp(nextRate, 0.25, 2).toFixed(2)));
   }
 
   function toggleTheaterMode() {
-    closeSpeedPanel();
+    closeTransientPanels();
     revealControls();
     setIsTheaterMode((value) => !value);
   }
 
   async function toggleFullscreen() {
-    closeSpeedPanel();
+    closeTransientPanels();
     revealControls();
     const element = playerRef.current;
     if (!element) {
@@ -892,6 +998,27 @@ export function PlayerShell({
     }
 
     await element.requestFullscreen();
+  }
+
+  function focusEpisodeByIndex(nextIndex: number) {
+    const clampedIndex = clamp(nextIndex, 0, episodes.length - 1);
+    setFocusedEpisodeIndex(clampedIndex);
+    window.requestAnimationFrame(() => {
+      const target = episodeItemRefs.current[clampedIndex];
+      target?.focus({ preventScroll: true });
+      target?.scrollIntoView({ block: "center", inline: "nearest" });
+    });
+  }
+
+  function navigateToEpisode(href: string) {
+    closeTransientPanels();
+    router.push(href, { scroll: false });
+  }
+
+  function toggleEpisodePanel() {
+    revealControls();
+    closeSpeedPanel();
+    setShowEpisodePanel((value) => !value);
   }
 
   const wrapperClassName = [
@@ -929,6 +1056,7 @@ export function PlayerShell({
   const volumeTooltip = isMuted ? "Unmute (M / ↑ / ↓)" : "Mute (M) / Volume (↑ / ↓)";
   const playTooltip = isPlaying ? "Pause (K / Space)" : "Play (K / Space)";
   const speedButtonLabel = formatRateLabel(playbackRate);
+  const episodeButtonLabel = activeEpisode ? `选集 ${activeEpisode.episodeNumber}` : "选集";
 
   return (
     <>
@@ -940,7 +1068,7 @@ export function PlayerShell({
         onMouseLeave={() => {
           clearHideControlsTimeout();
           clearCursorHideTimeout();
-          if (isPlaying && !showSpeedPanel && !isVolumeExpanded && !isFocusWithinPlayer) {
+          if (isPlaying && !showSpeedPanel && !showEpisodePanel && !isVolumeExpanded && !isFocusWithinPlayer) {
             setIsControlsVisible(false);
             setIsCursorHidden(true);
           }
@@ -1053,10 +1181,7 @@ export function PlayerShell({
                     <button
                       type="button"
                       className={styles.playerControlButton}
-                      onClick={() => {
-                        closeSpeedPanel();
-                        router.push(nextEpisodeHref, { scroll: false });
-                      }}
+                      onClick={() => navigateToEpisode(nextEpisodeHref)}
                       aria-label={`下一集 ${nextEpisodeLabel ?? ""} (N)`}
                     >
                       <NextEpisodeIcon />
@@ -1122,6 +1247,25 @@ export function PlayerShell({
                 </div>
 
                 <div className={styles.playerSecondaryCluster}>
+                  {episodes.length > 0 ? (
+                    <div className={styles.playerEpisodeDock}>
+                      <ControlShell tooltip="Episodes (E)">
+                        <button
+                          ref={episodeButtonRef}
+                          type="button"
+                          className={`${styles.playerControlButton} ${styles.playerEpisodeButton}`}
+                          onClick={toggleEpisodePanel}
+                          aria-label="选集 (E)"
+                          aria-expanded={showEpisodePanel}
+                          aria-controls="player-episode-panel"
+                        >
+                          <EpisodeListIcon />
+                          <span className={styles.playerEpisodeLabel}>{episodeButtonLabel}</span>
+                        </button>
+                      </ControlShell>
+                    </div>
+                  ) : null}
+
                   <div className={styles.playerSpeedDock}>
                   <ControlShell tooltip="Speed (S)">
                     <button
@@ -1130,6 +1274,7 @@ export function PlayerShell({
                       className={`${styles.playerControlButton} ${styles.playerRateButton}`}
                       onClick={() => {
                         revealControls();
+                        closeEpisodePanel();
                         setShowSpeedPanel((value) => !value);
                       }}
                       aria-label="倍速设置 (S)"
@@ -1225,6 +1370,49 @@ export function PlayerShell({
                       {value.toFixed(value === 1 ? 1 : 2).replace(".00", "")}
                     </button>
                   ))}
+                </div>
+              </div>
+            ) : null}
+
+            {showEpisodePanel && episodes.length > 0 ? (
+              <div
+                ref={episodePanelRef}
+                id="player-episode-panel"
+                className={`${styles.playerEpisodePanel} ${styles.playerPanelVisible}`}
+                role="dialog"
+                aria-label="选集列表"
+                onPointerDown={(event) => event.stopPropagation()}
+              >
+                <div className={styles.playerEpisodePanelHeader}>
+                  <p className={styles.playerEpisodePanelTitle}>选集</p>
+                  <span className={styles.playerEpisodePanelHint}>方向键切换，Enter 进入</span>
+                </div>
+
+                <div ref={episodeListRef} className={styles.playerEpisodeList} role="listbox" aria-activedescendant={focusedEpisodeIndex >= 0 ? `episode-option-${focusedEpisodeIndex}` : undefined}>
+                  {episodes.map((episode, index) => {
+                    const tooltip = episode.title || `第 ${episode.episodeNumber} 集`;
+                    const isFocused = index === focusedEpisodeIndex;
+                    return (
+                      <button
+                        key={episode.id}
+                        ref={(node) => {
+                          episodeItemRefs.current[index] = node;
+                        }}
+                        id={`episode-option-${index}`}
+                        type="button"
+                        className={`${styles.playerEpisodeOption} ${episode.isActive ? styles.playerEpisodeOptionActive : ""} ${
+                          isFocused ? styles.playerEpisodeOptionFocused : ""
+                        }`}
+                        aria-selected={episode.isActive}
+                        onMouseEnter={() => setFocusedEpisodeIndex(index)}
+                        onFocus={() => setFocusedEpisodeIndex(index)}
+                        onClick={() => navigateToEpisode(episode.href)}
+                      >
+                        <span className={styles.playerEpisodeOptionNumber}>{episode.episodeNumber}</span>
+                        <span className={styles.playerEpisodeOptionTitle}>{tooltip}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             ) : null}

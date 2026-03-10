@@ -286,6 +286,7 @@ export default function WatchPage({ searchParams }: RouteProps) {
             media={detail.media}
             source={activeSource}
             availableSources={activePlaybackOptions}
+            episodes={episodeOptions}
             activeEpisode={activeEpisode}
             nextEpisodeHref={nextEpisodeHref}
             nextEpisodeLabel={nextEpisode?.title}

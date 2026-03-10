@@ -99,17 +99,22 @@ export function EpisodeSelector({
 
       <div className={styles.selectorTabs}>
         {episodes.map((episode) => (
-          <Link
-            key={episode.id}
-            href={episode.href}
-            scroll={false}
-            className={`${styles.selectorButton} ${episode.isActive ? styles.selectorButtonActive : ""} ${
-              watchedEpisodes.has(episode.slug) && !episode.isActive ? styles.selectorButtonWatched : ""
-            }`}
-            aria-current={episode.isActive ? "page" : undefined}
-          >
-            {episode.title}
-          </Link>
+          <div key={episode.id} className={styles.selectorButtonShell}>
+            <Link
+              href={episode.href}
+              scroll={false}
+              className={`${styles.selectorButton} ${styles.selectorButtonNumeric} ${
+                episode.isActive ? styles.selectorButtonActive : ""
+              } ${watchedEpisodes.has(episode.slug) && !episode.isActive ? styles.selectorButtonWatched : ""}`}
+              aria-current={episode.isActive ? "page" : undefined}
+              aria-label={episode.title || `第 ${episode.episodeNumber} 集`}
+            >
+              {episode.episodeNumber}
+            </Link>
+            <span role="tooltip" className={styles.selectorTooltip}>
+              {episode.title || `第 ${episode.episodeNumber} 集`}
+            </span>
+          </div>
         ))}
       </div>
     </section>
