@@ -205,6 +205,7 @@ Coordinator:
 - Opened `Player Control Position And Episodic Autoplay Round 1` to move theater/fullscreen controls to the bottom edge of the page or screen while preserving paused direct-entry startup and allowing autoplay only for episode-to-episode transitions triggered by playback completion, the `下一集` control, or the episode selector
 - Opened `Browse Card Simplification Round 1` to remove browse-card stat pills, collapse card copy to title-only for movies, and show only a compact episode-count secondary line for series/anime cards without changing routes or poster badges
 - Promoted the accepted browse-card simplification work to version `0.8.3` under the project semver rules as a patch-level presentation refinement
+- Opened `Player Title Overlay Round 1` to replace the generic watch-page player heading with media-title-plus-episode copy and add a matching auto-hiding top title overlay in theater/fullscreen modes
 
 Data Catalog:
 - Added an explicit optional `episodeCountLabel` to the shared browse-card contract and builder so UI Shell can render compact series/anime episode counts directly without deriving them from the legacy stats pill structure
