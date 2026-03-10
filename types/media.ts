@@ -18,10 +18,17 @@ export interface PublicWatchQuery {
   timeSeconds?: number;
 }
 
+export interface PublicListContext {
+  listPublicId: string;
+  listItemPublicRef?: string;
+}
+
 export interface ResolvedPublicPlayback {
   media: MediaItem;
   episode?: EpisodeItem;
   resource?: MediaResourceLink;
+  list?: PublicMediaList;
+  listItem?: PublicMediaListItem;
 }
 
 export interface RatingSnapshot {
@@ -148,6 +155,7 @@ export interface SearchSuggestion {
   publicId: string;
   canonicalWatchHref: string;
   compatibilityHref: string;
+  watchContext: PublicWatchQuery;
   title: string;
   type: MediaType;
   year: number;
@@ -177,6 +185,7 @@ export interface BrowseMediaCard {
   href: string;
   canonicalWatchHref: string;
   compatibilityHref: string;
+  watchContext: PublicWatchQuery;
   title: string;
   originalTitle?: string;
   year: number;
@@ -239,6 +248,7 @@ export interface PlaybackSourceOption {
   episodeNumber?: number;
   episodeTitle?: string;
   canonicalWatchHref: string;
+  watchContext: PublicWatchQuery;
 }
 
 export interface DownloadResourceOption {
@@ -262,6 +272,7 @@ export interface DownloadResourceOption {
   episodeNumber?: number;
   episodeTitle?: string;
   canonicalWatchHref: string;
+  watchContext: PublicWatchQuery;
 }
 
 export interface MediaEpisodeOption {
@@ -278,6 +289,7 @@ export interface MediaEpisodeOption {
   downloadCount: number;
   isDefault: boolean;
   canonicalWatchHref: string;
+  watchContext: PublicWatchQuery;
 }
 
 export interface MediaDetailMetadata {
@@ -297,6 +309,7 @@ export interface MediaDetailRecord {
   href: string;
   canonicalWatchHref: string;
   compatibilityHref: string;
+  watchContext: PublicWatchQuery;
   metadata: MediaDetailMetadata;
   playbackSources: PlaybackSourceOption[];
   downloads: DownloadResourceOption[];
@@ -304,4 +317,27 @@ export interface MediaDetailRecord {
   defaultEpisodeSlug?: string;
   defaultEpisodePublicId?: string;
   relatedCards: BrowseMediaCard[];
+}
+
+export interface PublicMediaListItem {
+  publicRef: string;
+  position: number;
+  mediaSlug: string;
+  mediaPublicId: string;
+  mediaTitle: string;
+  episodeSlug?: string;
+  episodePublicId?: string;
+  canonicalWatchHref: string;
+  compatibilityHref: string;
+  watchContext: PublicWatchQuery;
+}
+
+export interface PublicMediaList {
+  id: string;
+  publicId: string;
+  slug: string;
+  title: string;
+  description: string;
+  visibility: "public" | "unlisted";
+  items: PublicMediaListItem[];
 }

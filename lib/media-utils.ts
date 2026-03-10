@@ -79,8 +79,38 @@ export function buildWatchHref({
   return `/watch?${params.toString()}`;
 }
 
+export function buildMediaWatchContext(
+  media: Pick<MediaItem, "publicId">,
+  options?: Omit<PublicWatchQuery, "mediaPublicId">,
+): PublicWatchQuery {
+  return {
+    mediaPublicId: media.publicId,
+    episodePublicId: options?.episodePublicId,
+    resourcePublicId: options?.resourcePublicId,
+    listPublicId: options?.listPublicId,
+    listItemPublicRef: options?.listItemPublicRef,
+    timeSeconds: options?.timeSeconds,
+  };
+}
+
+export function buildCompatibilityWatchHref(
+  media: Pick<MediaItem, "slug">,
+  options?: {
+    episodeSlug?: string;
+  },
+): string {
+  const params = new URLSearchParams();
+
+  if (options?.episodeSlug) {
+    params.set("episode", options.episodeSlug);
+  }
+
+  const query = params.toString();
+  return query ? `/media/${media.slug}?${query}` : `/media/${media.slug}`;
+}
+
 export function getCompatibilityMediaHref(media: Pick<MediaItem, "slug">): string {
-  return `/media/${media.slug}`;
+  return buildCompatibilityWatchHref(media);
 }
 
 // Legacy helper retained so current slug routes can remain compatibility entry points.
@@ -98,14 +128,15 @@ export function getCanonicalWatchHref(
     timeSeconds?: number;
   },
 ): string {
-  return buildWatchHref({
-    mediaPublicId: media.publicId,
-    episodePublicId: options?.episode?.publicId,
-    resourcePublicId: options?.resource?.publicId,
-    listPublicId: options?.listPublicId,
-    listItemPublicRef: options?.listItemPublicRef,
-    timeSeconds: options?.timeSeconds,
-  });
+  return buildWatchHref(
+    buildMediaWatchContext(media, {
+      episodePublicId: options?.episode?.publicId,
+      resourcePublicId: options?.resource?.publicId,
+      listPublicId: options?.listPublicId,
+      listItemPublicRef: options?.listItemPublicRef,
+      timeSeconds: options?.timeSeconds,
+    }),
+  );
 }
 
 export function getMediaTypeLabel(type: MediaType): string {
@@ -187,13 +218,16 @@ export function compareFeaturedMedia(left: MediaItem, right: MediaItem): number 
 }
 
 export function buildBrowseMediaCard(media: MediaItem): BrowseMediaCard {
+  const watchContext = buildMediaWatchContext(media);
+
   return {
     id: media.id,
     publicId: media.publicId,
     slug: media.slug,
-    href: media.compatibilityHref,
+    href: media.canonicalWatchHref,
     canonicalWatchHref: media.canonicalWatchHref,
     compatibilityHref: media.compatibilityHref,
+    watchContext,
     title: media.title,
     originalTitle: media.originalTitle,
     year: media.year,
@@ -219,30 +253,16 @@ export function buildBrowseMediaCard(media: MediaItem): BrowseMediaCard {
 export function getPlaybackSources(media: MediaItem): PlaybackSourceOption[] {
   const titleSources = media.resources
     .filter((resource) => resource.mode === "stream")
-    .map((resource) => ({
-      id: resource.id,
-      publicId: resource.publicId,
-      mediaSlug: media.slug,
-      mediaPublicId: media.publicId,
-      label: resource.label,
-      provider: resource.provider,
-      providerLabel: getProviderLabel(resource.provider),
-      quality: resource.quality,
-      format: resource.format,
-      status: resource.status,
-      url: resource.url,
-      canonicalWatchHref: resource.canonicalWatchHref,
-    }));
+    .map((resource) => {
+      const watchContext = buildMediaWatchContext(media, {
+        resourcePublicId: resource.publicId,
+      });
 
-  const episodeSources = media.seasons.flatMap((season) =>
-    season.episodes.flatMap((episode) =>
-      episode.streamLinks.map((resource) => ({
+      return {
         id: resource.id,
         publicId: resource.publicId,
         mediaSlug: media.slug,
         mediaPublicId: media.publicId,
-        episodeSlug: episode.slug,
-        episodePublicId: episode.publicId,
         label: resource.label,
         provider: resource.provider,
         providerLabel: getProviderLabel(resource.provider),
@@ -250,11 +270,40 @@ export function getPlaybackSources(media: MediaItem): PlaybackSourceOption[] {
         format: resource.format,
         status: resource.status,
         url: resource.url,
-        seasonNumber: season.seasonNumber,
-        episodeNumber: episode.episodeNumber,
-        episodeTitle: episode.title,
         canonicalWatchHref: resource.canonicalWatchHref,
-      })),
+        watchContext,
+      };
+    });
+
+  const episodeSources = media.seasons.flatMap((season) =>
+    season.episodes.flatMap((episode) =>
+      episode.streamLinks.map((resource) => {
+        const watchContext = buildMediaWatchContext(media, {
+          episodePublicId: episode.publicId,
+          resourcePublicId: resource.publicId,
+        });
+
+        return {
+          id: resource.id,
+          publicId: resource.publicId,
+          mediaSlug: media.slug,
+          mediaPublicId: media.publicId,
+          episodeSlug: episode.slug,
+          episodePublicId: episode.publicId,
+          label: resource.label,
+          provider: resource.provider,
+          providerLabel: getProviderLabel(resource.provider),
+          quality: resource.quality,
+          format: resource.format,
+          status: resource.status,
+          url: resource.url,
+          seasonNumber: season.seasonNumber,
+          episodeNumber: episode.episodeNumber,
+          episodeTitle: episode.title,
+          canonicalWatchHref: resource.canonicalWatchHref,
+          watchContext,
+        };
+      }),
     ),
   );
 
@@ -264,33 +313,16 @@ export function getPlaybackSources(media: MediaItem): PlaybackSourceOption[] {
 export function getDownloadResources(media: MediaItem): DownloadResourceOption[] {
   const titleDownloads = media.resources
     .filter((resource) => resource.mode === "download")
-    .map((resource) => ({
-      id: resource.id,
-      publicId: resource.publicId,
-      mediaSlug: media.slug,
-      mediaPublicId: media.publicId,
-      label: resource.label,
-      provider: resource.provider,
-      providerLabel: getProviderLabel(resource.provider),
-      quality: resource.quality,
-      format: resource.format,
-      status: resource.status,
-      url: resource.url,
-      maskedUrl: resource.maskedUrl,
-      accessCode: resource.accessCode,
-      reportCount: resource.reportCount,
-      canonicalWatchHref: resource.canonicalWatchHref,
-    }));
+    .map((resource) => {
+      const watchContext = buildMediaWatchContext(media, {
+        resourcePublicId: resource.publicId,
+      });
 
-  const episodeDownloads = media.seasons.flatMap((season) =>
-    season.episodes.flatMap((episode) =>
-      episode.downloadLinks.map((resource) => ({
+      return {
         id: resource.id,
         publicId: resource.publicId,
         mediaSlug: media.slug,
         mediaPublicId: media.publicId,
-        episodeSlug: episode.slug,
-        episodePublicId: episode.publicId,
         label: resource.label,
         provider: resource.provider,
         providerLabel: getProviderLabel(resource.provider),
@@ -301,11 +333,43 @@ export function getDownloadResources(media: MediaItem): DownloadResourceOption[]
         maskedUrl: resource.maskedUrl,
         accessCode: resource.accessCode,
         reportCount: resource.reportCount,
-        seasonNumber: season.seasonNumber,
-        episodeNumber: episode.episodeNumber,
-        episodeTitle: episode.title,
         canonicalWatchHref: resource.canonicalWatchHref,
-      })),
+        watchContext,
+      };
+    });
+
+  const episodeDownloads = media.seasons.flatMap((season) =>
+    season.episodes.flatMap((episode) =>
+      episode.downloadLinks.map((resource) => {
+        const watchContext = buildMediaWatchContext(media, {
+          episodePublicId: episode.publicId,
+          resourcePublicId: resource.publicId,
+        });
+
+        return {
+          id: resource.id,
+          publicId: resource.publicId,
+          mediaSlug: media.slug,
+          mediaPublicId: media.publicId,
+          episodeSlug: episode.slug,
+          episodePublicId: episode.publicId,
+          label: resource.label,
+          provider: resource.provider,
+          providerLabel: getProviderLabel(resource.provider),
+          quality: resource.quality,
+          format: resource.format,
+          status: resource.status,
+          url: resource.url,
+          maskedUrl: resource.maskedUrl,
+          accessCode: resource.accessCode,
+          reportCount: resource.reportCount,
+          seasonNumber: season.seasonNumber,
+          episodeNumber: episode.episodeNumber,
+          episodeTitle: episode.title,
+          canonicalWatchHref: resource.canonicalWatchHref,
+          watchContext,
+        };
+      }),
     ),
   );
 
@@ -314,21 +378,28 @@ export function getDownloadResources(media: MediaItem): DownloadResourceOption[]
 
 export function getEpisodeOptions(media: MediaItem): MediaEpisodeOption[] {
   return media.seasons.flatMap((season, seasonIndex) =>
-    season.episodes.map((episode, episodeIndex) => ({
-      id: episode.id,
-      publicId: episode.publicId,
-      slug: episode.slug,
-      mediaPublicId: media.publicId,
-      seasonNumber: season.seasonNumber,
-      episodeNumber: episode.episodeNumber,
-      title: episode.title,
-      runtimeMinutes: episode.runtimeMinutes,
-      summary: episode.summary,
-      streamCount: episode.streamLinks.length,
-      downloadCount: episode.downloadLinks.length,
-      isDefault: seasonIndex === 0 && episodeIndex === 0,
-      canonicalWatchHref: episode.canonicalWatchHref,
-    })),
+    season.episodes.map((episode, episodeIndex) => {
+      const watchContext = buildMediaWatchContext(media, {
+        episodePublicId: episode.publicId,
+      });
+
+      return {
+        id: episode.id,
+        publicId: episode.publicId,
+        slug: episode.slug,
+        mediaPublicId: media.publicId,
+        seasonNumber: season.seasonNumber,
+        episodeNumber: episode.episodeNumber,
+        title: episode.title,
+        runtimeMinutes: episode.runtimeMinutes,
+        summary: episode.summary,
+        streamCount: episode.streamLinks.length,
+        downloadCount: episode.downloadLinks.length,
+        isDefault: seasonIndex === 0 && episodeIndex === 0,
+        canonicalWatchHref: episode.canonicalWatchHref,
+        watchContext,
+      };
+    }),
   );
 }
 

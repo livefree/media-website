@@ -138,10 +138,11 @@ Coordinator:
 Data Catalog:
 - Expanded the shared catalog dataset from 7 to 21 titles across movie, series, and anime, adding older years, more regions, and denser genre overlaps so Catalog Filter Round 1 has meaningful type/genre/region/year/sort/pagination combinations to exercise
 - Added a reusable coverage summary helper in `lib/media-catalog.ts` so downstream search/review work can verify total pages and type/genre/region/year pair counts without relying on UI-only inspection
+- Added stable opaque `med_/ep_/res_` public IDs across shared catalog data, introduced canonical `/watch?v=...` identity helpers and public-ID lookup utilities in `lib/media*`, and extended Prisma planning for `MediaTitle`, `Episode`, `Resource`, `UserList`, and `UserListItem` while keeping slug routes as compatibility-only identifiers for the next Detail Player round
+- Promoted canonical `/watch?...` hrefs to the default shared public entry links, added explicit `watchContext` contracts across browse/search/detail projections, and introduced minimal public list/list-item seed data plus shared list-aware helpers so `list` and `li` are concrete app-facing context rather than placeholder query params
 
 UI Shell:
 - Switched the shared browse/search media card entry links to canonical `/watch?...` hrefs so public-facing catalog entry surfaces stop defaulting to compatibility slug routes
-- Added stable opaque `med_/ep_/res_` public IDs across shared catalog data, introduced canonical `/watch?v=...` identity helpers and public-ID lookup utilities in `lib/media*`, and extended Prisma planning for `MediaTitle`, `Episode`, `Resource`, `UserList`, and `UserListItem` while keeping slug routes as compatibility-only identifiers for the next Detail Player round
 
 UI Shell:
 - Removed the redundant browse/search quick-filter chip row and the visible Apply button from the shared filter presentation, keeping the facet controls balanced and ready for Search Filter to wire live updates next

@@ -11,6 +11,7 @@ export type BrowseEventType =
   | "resource_action";
 export type DeviceType = "web" | "ios" | "android" | "tv" | "desktop";
 export type ResourceAction = "open" | "copy" | "qr_scan" | "report_invalid";
+export type PublicListVisibility = "public" | "unlisted";
 
 export interface ContinueWatchingRecord {
   mediaSlug: string;
@@ -66,4 +67,20 @@ export interface ResourceActivityRecord {
   mode: ResourceMode;
   action: ResourceAction;
   createdAt: string;
+}
+
+export interface PublicListItemRecord {
+  publicRef: string;
+  mediaSlug: string;
+  episodeSlug?: string;
+}
+
+export interface PublicListRecord {
+  id: string;
+  publicId: string;
+  slug: string;
+  title: string;
+  description: string;
+  visibility: PublicListVisibility;
+  items: PublicListItemRecord[];
 }
