@@ -131,6 +131,14 @@ function getResolvedListItem(
   return items.find((item) => item.mediaPublicId === mediaPublicId && !item.episodePublicId) ?? items.find((item) => item.mediaPublicId === mediaPublicId);
 }
 
+function getPlaybackTitle(title: string, episodeNumber?: number) {
+  if (!episodeNumber) {
+    return title;
+  }
+
+  return `${title}【第${episodeNumber}集】`;
+}
+
 export async function generateMetadata({ searchParams }: RouteProps): Promise<Metadata> {
   const mediaPublicId = getStringParam(searchParams?.v);
   if (!mediaPublicId) {
@@ -248,6 +256,7 @@ export default function WatchPage({ searchParams }: RouteProps) {
     episodePublicId: activeEpisodePublicId ?? null,
     resourcePublicId: resolvedResourcePublicId ?? null,
   });
+  const playbackTitle = getPlaybackTitle(detail.media.title, activeEpisode?.episodeNumber);
 
   return (
     <main className="page-shell">
@@ -277,13 +286,14 @@ export default function WatchPage({ searchParams }: RouteProps) {
         <section className={styles.playerSection} aria-labelledby="player-shell-title">
           <div className={styles.sectionBlockHeader}>
             <h2 id="player-shell-title" className={styles.sectionHeading}>
-              在线播放
+              {playbackTitle}
             </h2>
           </div>
 
           {detail.episodes.length > 0 ? <EpisodeSelector mediaSlug={detail.media.slug} episodes={episodeOptions} /> : null}
           <PlayerShell
             media={detail.media}
+            playbackTitle={playbackTitle}
             source={activeSource}
             availableSources={activePlaybackOptions}
             episodes={episodeOptions}

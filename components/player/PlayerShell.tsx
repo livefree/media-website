@@ -302,6 +302,7 @@ function FullscreenIcon({ active }: { active: boolean }) {
 
 export function PlayerShell({
   media,
+  playbackTitle,
   source,
   availableSources = [],
   episodes = [],
@@ -310,6 +311,7 @@ export function PlayerShell({
   nextEpisodeLabel,
 }: {
   media: MediaItem;
+  playbackTitle: string;
   source: PlaybackSourceOption | null;
   availableSources?: PlaybackSourceOption[];
   episodes?: EpisodeNavigationOption[];
@@ -1056,6 +1058,12 @@ export function PlayerShell({
   ]
     .filter(Boolean)
     .join(" ");
+  const immersiveTitleClassName = [
+    styles.playerImmersiveTitle,
+    isControlsVisible ? styles.playerImmersiveTitleVisible : styles.playerImmersiveTitleHidden,
+  ]
+    .filter(Boolean)
+    .join(" ");
   const volumeDockClassName = [
     styles.playerVolumeDock,
     isVolumeExpanded || isVolumeTemporarilyVisible ? styles.playerVolumeDockExpanded : "",
@@ -1098,6 +1106,12 @@ export function PlayerShell({
           }
         }}
       >
+        {isTheaterMode || isFullscreen ? (
+          <div className={immersiveTitleClassName}>
+            <span className={styles.playerImmersiveTitleText}>{playbackTitle}</span>
+          </div>
+        ) : null}
+
         <div className={viewportClassName}>
           {media.backdropUrl ? (
             <div className={styles.playerBackdrop} style={{ backgroundImage: `url(${media.backdropUrl})` }} aria-hidden="true" />
