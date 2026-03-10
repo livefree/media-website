@@ -337,7 +337,6 @@ export function PlayerShell({
   const pendingResumeRef = useRef<StoredPlaybackProgress | null>(null);
   const hideControlsTimeoutRef = useRef<number | null>(null);
   const volumeRevealTimeoutRef = useRef<number | null>(null);
-  const cursorHideTimeoutRef = useRef<number | null>(null);
   const shouldAutoplayOnLoadRef = useRef(false);
 
   const [isPlaying, setIsPlaying] = useState(false);
@@ -403,13 +402,6 @@ export function PlayerShell({
     if (volumeRevealTimeoutRef.current !== null) {
       window.clearTimeout(volumeRevealTimeoutRef.current);
       volumeRevealTimeoutRef.current = null;
-    }
-  }
-
-  function clearCursorHideTimeout() {
-    if (cursorHideTimeoutRef.current !== null) {
-      window.clearTimeout(cursorHideTimeoutRef.current);
-      cursorHideTimeoutRef.current = null;
     }
   }
 
@@ -507,7 +499,6 @@ export function PlayerShell({
 
   useEffect(() => {
     clearHideControlsTimeout();
-    clearCursorHideTimeout();
 
     if (
       !isPlaying ||
@@ -515,7 +506,7 @@ export function PlayerShell({
       showEpisodePanel ||
       isVolumeExpanded ||
       isVolumeTemporarilyVisible ||
-      isFocusWithinPlayer ||
+      (!isImmersiveMode && isFocusWithinPlayer) ||
       playbackError
     ) {
       setIsControlsVisible(true);
@@ -523,23 +514,16 @@ export function PlayerShell({
       return;
     }
 
-    if (isImmersiveMode) {
-      hideControlsTimeoutRef.current = window.setTimeout(() => {
+    hideControlsTimeoutRef.current = window.setTimeout(
+      () => {
         setIsControlsVisible(false);
         setIsCursorHidden(true);
-      }, IMMERSIVE_CHROME_HIDE_DELAY_MS);
-    } else {
-      hideControlsTimeoutRef.current = window.setTimeout(() => {
-        setIsControlsVisible(false);
-      }, DEFAULT_CHROME_HIDE_DELAY_MS);
-      cursorHideTimeoutRef.current = window.setTimeout(() => {
-        setIsCursorHidden(true);
-      }, DEFAULT_CHROME_HIDE_DELAY_MS);
-    }
+      },
+      isImmersiveMode ? IMMERSIVE_CHROME_HIDE_DELAY_MS : DEFAULT_CHROME_HIDE_DELAY_MS,
+    );
 
     return () => {
       clearHideControlsTimeout();
-      clearCursorHideTimeout();
     };
   }, [interactionTick, isFocusWithinPlayer, isImmersiveMode, isPlaying, isVolumeExpanded, isVolumeTemporarilyVisible, playbackError, showEpisodePanel, showSpeedPanel]);
 
@@ -547,7 +531,6 @@ export function PlayerShell({
     return () => {
       clearHideControlsTimeout();
       clearVolumeRevealTimeout();
-      clearCursorHideTimeout();
     };
   }, []);
 
@@ -1095,21 +1078,20 @@ export function PlayerShell({
       <div
         ref={playerRef}
         className={wrapperClassName}
-        onMouseMove={revealControls}
-        onMouseEnter={revealControls}
-        onMouseLeave={() => {
+        onPointerMove={revealControls}
+        onPointerEnter={revealControls}
+        onPointerDown={revealControls}
+        onPointerLeave={() => {
           if (isImmersiveMode) {
             return;
           }
 
           clearHideControlsTimeout();
-          clearCursorHideTimeout();
           if (isPlaying && !showSpeedPanel && !showEpisodePanel && !isVolumeExpanded && !isFocusWithinPlayer) {
             setIsControlsVisible(false);
             setIsCursorHidden(true);
           }
         }}
-        onTouchStart={revealControls}
         onFocusCapture={() => {
           setIsFocusWithinPlayer(true);
           revealControls();
@@ -1137,7 +1119,6 @@ export function PlayerShell({
             playsInline
             preload="auto"
             poster={media.posterUrl}
-            onClick={() => void togglePlayback()}
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
             onLoadedMetadata={(event) => {
@@ -1197,6 +1178,12 @@ export function PlayerShell({
                 navigateToEpisode(nextEpisodeHref, true);
               }
             }}
+          />
+
+          <div
+            className={styles.playerGestureLayer}
+            aria-hidden="true"
+            onClick={() => void togglePlayback()}
           />
 
           <div className={chromeClassName}>

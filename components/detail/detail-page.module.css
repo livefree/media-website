@@ -621,19 +621,29 @@
 .playerBackdrop {
   position: absolute;
   inset: 0;
+  z-index: 0;
   background-position: center;
   background-size: cover;
   opacity: 0.1;
+  pointer-events: none;
 }
 
 .playerVideo {
   position: absolute;
   inset: 0;
+  z-index: 1;
   width: 100%;
   height: 100%;
   object-fit: contain;
   background: #000;
-  cursor: pointer;
+  pointer-events: none;
+}
+
+.playerGestureLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  cursor: default;
 }
 
 .playerCursorHidden,
@@ -646,6 +656,7 @@
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: 4;
   display: grid;
   align-content: end;
   padding: 0 0 8px;
@@ -849,6 +860,7 @@
   border-radius: 8px;
   background: transparent;
   color: #fff;
+  cursor: pointer;
 }
 
 .playerRateButton {
@@ -1042,6 +1054,7 @@
   width: 100%;
   appearance: none;
   background: transparent;
+  cursor: pointer;
 }
 
 .playerVolumeSlider::-webkit-slider-runnable-track,
@@ -1172,6 +1185,7 @@
   background: rgba(255, 255, 255, 0.06);
   color: #fff;
   text-align: center;
+  cursor: pointer;
 }
 
 .playerEpisodeOption:hover,
@@ -1240,6 +1254,7 @@
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
   font-size: 0.8rem;
+  cursor: pointer;
 }
 
 .playerPresetButtonActive {
