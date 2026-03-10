@@ -31,6 +31,11 @@ type EpisodeNavigationOption = MediaEpisodeOption & {
   isActive: boolean;
 };
 
+type SourceNavigationOption = PlaybackSourceOption & {
+  href: string;
+  isActive: boolean;
+};
+
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
@@ -259,6 +264,39 @@ function SpeedIcon() {
   );
 }
 
+function SourceIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.playerIcon}>
+      <path
+        d="M5.8 8.2h12.4M5.8 12h8.4M5.8 15.8h12.4"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      <circle cx="18.5" cy="12" r="2.1" fill="currentColor" />
+    </svg>
+  );
+}
+
+function getCompactSourceLabel(source: PlaybackSourceOption, index: number) {
+  const qualityLabel = source.quality?.trim();
+  const sourceLabel = source.label.trim();
+
+  if (sourceLabel && sourceLabel.length <= 8) {
+    return sourceLabel;
+  }
+
+  if (qualityLabel) {
+    return qualityLabel;
+  }
+
+  if (source.providerLabel.trim()) {
+    return source.providerLabel.trim();
+  }
+
+  return `线路${index + 1}`;
+}
+
 function TheaterIcon({ active }: { active: boolean }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.playerIcon}>
@@ -307,6 +345,7 @@ export function PlayerShell({
   playbackTitle,
   source,
   availableSources = [],
+  sourceOptions = [],
   episodes = [],
   activeEpisode,
   nextEpisodeHref,
@@ -316,6 +355,7 @@ export function PlayerShell({
   playbackTitle: string;
   source: PlaybackSourceOption | null;
   availableSources?: PlaybackSourceOption[];
+  sourceOptions?: SourceNavigationOption[];
   episodes?: EpisodeNavigationOption[];
   activeEpisode?: MediaEpisodeOption;
   nextEpisodeHref?: string;
@@ -327,6 +367,8 @@ export function PlayerShell({
   const playerRef = useRef<HTMLDivElement | null>(null);
   const speedPanelRef = useRef<HTMLDivElement | null>(null);
   const speedButtonRef = useRef<HTMLButtonElement | null>(null);
+  const sourcePanelRef = useRef<HTMLDivElement | null>(null);
+  const sourceButtonRef = useRef<HTMLButtonElement | null>(null);
   const episodePanelRef = useRef<HTMLDivElement | null>(null);
   const episodeButtonRef = useRef<HTMLButtonElement | null>(null);
   const episodeListRef = useRef<HTMLDivElement | null>(null);
@@ -350,6 +392,7 @@ export function PlayerShell({
   const [isTheaterMode, setIsTheaterMode] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showSpeedPanel, setShowSpeedPanel] = useState(false);
+  const [showSourcePanel, setShowSourcePanel] = useState(false);
   const [showEpisodePanel, setShowEpisodePanel] = useState(false);
   const [focusedEpisodeIndex, setFocusedEpisodeIndex] = useState(-1);
   const [playbackError, setPlaybackError] = useState<string | null>(null);
@@ -382,12 +425,17 @@ export function PlayerShell({
     setShowSpeedPanel(false);
   }
 
+  function closeSourcePanel() {
+    setShowSourcePanel(false);
+  }
+
   function closeEpisodePanel() {
     setShowEpisodePanel(false);
   }
 
   function closeTransientPanels() {
     closeSpeedPanel();
+    closeSourcePanel();
     closeEpisodePanel();
   }
 
@@ -503,6 +551,7 @@ export function PlayerShell({
     if (
       !isPlaying ||
       showSpeedPanel ||
+      showSourcePanel ||
       showEpisodePanel ||
       isVolumeExpanded ||
       isVolumeTemporarilyVisible ||
@@ -525,7 +574,7 @@ export function PlayerShell({
     return () => {
       clearHideControlsTimeout();
     };
-  }, [interactionTick, isFocusWithinPlayer, isImmersiveMode, isPlaying, isVolumeExpanded, isVolumeTemporarilyVisible, playbackError, showEpisodePanel, showSpeedPanel]);
+  }, [interactionTick, isFocusWithinPlayer, isImmersiveMode, isPlaying, isVolumeExpanded, isVolumeTemporarilyVisible, playbackError, showEpisodePanel, showSourcePanel, showSpeedPanel]);
 
   useEffect(() => {
     return () => {
@@ -576,6 +625,27 @@ export function PlayerShell({
     window.addEventListener("mousedown", handlePointerDown);
     return () => window.removeEventListener("mousedown", handlePointerDown);
   }, [showSpeedPanel]);
+
+  useEffect(() => {
+    if (!showSourcePanel) {
+      return undefined;
+    }
+
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (
+        sourcePanelRef.current?.contains(target) ||
+        sourceButtonRef.current?.contains(target)
+      ) {
+        return;
+      }
+
+      closeSourcePanel();
+    };
+
+    window.addEventListener("mousedown", handlePointerDown);
+    return () => window.removeEventListener("mousedown", handlePointerDown);
+  }, [showSourcePanel]);
 
   useEffect(() => {
     if (!showEpisodePanel) {
@@ -820,6 +890,7 @@ export function PlayerShell({
         case "S":
           event.preventDefault();
           revealControls();
+          closeSourcePanel();
           closeEpisodePanel();
           setShowSpeedPanel((value) => !value);
           break;
@@ -1027,6 +1098,7 @@ export function PlayerShell({
   function toggleEpisodePanel() {
     revealControls();
     closeSpeedPanel();
+    closeSourcePanel();
     setShowEpisodePanel((value) => !value);
   }
 
@@ -1072,6 +1144,10 @@ export function PlayerShell({
   const playTooltip = isPlaying ? "Pause (K / Space)" : "Play (K / Space)";
   const speedButtonLabel = formatRateLabel(playbackRate);
   const episodeButtonLabel = activeEpisode ? `${activeEpisode.episodeNumber}` : "1";
+  const activeSourceIndex = sourceOptions.findIndex((option) => option.isActive);
+  const sourceButtonLabel = source
+    ? getCompactSourceLabel(source, activeSourceIndex >= 0 ? activeSourceIndex : 0)
+    : "线路";
 
   return (
     <>
@@ -1087,7 +1163,7 @@ export function PlayerShell({
           }
 
           clearHideControlsTimeout();
-          if (isPlaying && !showSpeedPanel && !showEpisodePanel && !isVolumeExpanded && !isFocusWithinPlayer) {
+          if (isPlaying && !showSpeedPanel && !showSourcePanel && !showEpisodePanel && !isVolumeExpanded && !isFocusWithinPlayer) {
             setIsControlsVisible(false);
             setIsCursorHidden(true);
           }
@@ -1248,6 +1324,66 @@ export function PlayerShell({
                             <span className={styles.playerEpisodeLabel}>{episodeButtonLabel}</span>
                           </button>
                         </ControlShell>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                {sourceOptions.length > 0 ? (
+                  <div className={styles.playerSourceDock}>
+                    <ControlShell tooltip="Playback Sources">
+                      <button
+                        ref={sourceButtonRef}
+                        type="button"
+                        className={`${styles.playerControlButton} ${styles.playerSourceButton} ${
+                          showSourcePanel ? styles.playerSourceButtonActive : ""
+                        }`}
+                        onClick={() => {
+                          revealControls();
+                          closeSpeedPanel();
+                          closeEpisodePanel();
+                          setShowSourcePanel((value) => !value);
+                        }}
+                        aria-label={`播放源 ${sourceButtonLabel}`}
+                        aria-expanded={showSourcePanel}
+                        aria-controls="player-source-panel"
+                      >
+                        <SourceIcon />
+                        <span className={styles.playerSourceLabel}>{sourceButtonLabel}</span>
+                      </button>
+                    </ControlShell>
+
+                    {showSourcePanel ? (
+                      <div
+                        ref={sourcePanelRef}
+                        id="player-source-panel"
+                        className={`${styles.playerSourcePanel} ${styles.playerPanelVisible}`}
+                        role="menu"
+                        aria-label="播放源选择"
+                        onPointerDown={(event) => event.stopPropagation()}
+                      >
+                        <div className={styles.playerSourceList}>
+                          {sourceOptions.map((option, index) => (
+                            <button
+                              key={option.publicId}
+                              type="button"
+                              role="menuitemradio"
+                              aria-checked={option.isActive}
+                              className={`${styles.playerSourceOption} ${
+                                option.isActive ? styles.playerSourceOptionActive : ""
+                              }`}
+                              onClick={() => navigateToEpisode(option.href)}
+                            >
+                              <span className={styles.playerSourceOptionMain}>
+                                {getCompactSourceLabel(option, index)}
+                              </span>
+                              <span className={styles.playerSourceOptionMeta}>
+                                {option.providerLabel}
+                                {option.quality ? ` · ${option.quality}` : ""}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     ) : null}
                   </div>

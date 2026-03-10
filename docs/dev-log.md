@@ -211,6 +211,7 @@ Detail Player:
 - Unified immersive idle handling so theater/fullscreen now hide the bottom controls, top title, and cursor together after 3 seconds and reveal them together on interaction without changing inline-mode behavior
 - Split the watch player surface into a passive video layer plus a separate click gesture layer, removed broad hand-cursor affordance from the video image area, and made immersive auto-hide stop depending on lingering control focus so theater/fullscreen chrome, title, and cursor can hide reliably after 3 seconds
 - Replaced the remaining watch-player demo-era status copy with neutral production-safe wording so missing or pending runtime sources no longer imply demo playback
+- Added a compact in-player playback-source selector next to the episode controls and made ordinary episode switching reuse the current source preference by mapping provider/format/label onto the destination episode’s matching `r` resource when possible
 
 Coordinator:
 - Opened `Player Control Position And Episodic Autoplay Round 1` to move theater/fullscreen controls to the bottom edge of the page or screen while preserving paused direct-entry startup and allowing autoplay only for episode-to-episode transitions triggered by playback completion, the `下一集` control, or the episode selector

@@ -875,6 +875,16 @@
   min-width: 54px;
 }
 
+.playerSourceButton {
+  gap: 5px;
+  padding: 0 8px;
+  min-width: 70px;
+}
+
+.playerSourceButtonActive {
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .playerEpisodeLabel {
   color: rgba(255, 255, 255, 0.96);
   font-size: 0.76rem;
@@ -882,6 +892,14 @@
   letter-spacing: 0.01em;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+
+.playerSourceLabel {
+  color: rgba(255, 255, 255, 0.96);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
 }
 
 .playerVolumeButton {
@@ -938,6 +956,7 @@
 .playerControlShell:hover .playerTooltip,
 .playerVolumeDock:hover .playerTooltip,
 .playerSpeedDock:hover .playerTooltip,
+.playerSourceDock:hover .playerTooltip,
 .playerEpisodeDock:hover .playerTooltip {
   opacity: 1;
   visibility: visible;
@@ -947,6 +966,7 @@
 .playerControlShell:hover .playerTooltipStart,
 .playerVolumeDock:hover .playerTooltipStart,
 .playerSpeedDock:hover .playerTooltipStart,
+.playerSourceDock:hover .playerTooltipStart,
 .playerEpisodeDock:hover .playerTooltipStart {
   transform: translate(0, 0);
 }
@@ -964,6 +984,7 @@
 
 .playerVolumeDock,
 .playerSpeedDock,
+.playerSourceDock,
 .playerEpisodeDock {
   position: relative;
   display: inline-flex;
@@ -1142,6 +1163,61 @@
   background: rgba(7, 9, 13, 0.66);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
   backdrop-filter: blur(14px);
+}
+
+.playerSourcePanel {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 12px);
+  z-index: 5;
+  width: min(72vw, 196px);
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(7, 9, 13, 0.7);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(14px);
+}
+
+.playerSourceList {
+  display: grid;
+  gap: 6px;
+}
+
+.playerSourceOption {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid rgba(92, 107, 132, 0.34);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.playerSourceOption:hover,
+.playerSourceOption:focus-visible {
+  border-color: rgba(157, 191, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
+  outline: none;
+}
+
+.playerSourceOptionActive {
+  border-color: rgba(79, 124, 255, 0.66);
+  background: linear-gradient(180deg, rgba(61, 99, 223, 0.18), rgba(24, 33, 49, 0.82));
+}
+
+.playerSourceOptionMain {
+  color: #eef3fb;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.playerSourceOptionMeta {
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 0.68rem;
+  line-height: 1.35;
 }
 
 .playerEpisodePanelHeader {
