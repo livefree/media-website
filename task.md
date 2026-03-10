@@ -31,13 +31,15 @@ Coordinator-only rule:
 
 Required execution order for this task:
 1. Planner writes the implementation breakdown and acceptance criteria
-2. UI Shell implements the browse-card copy and layout simplification inside the shared catalog card surface
-3. Reviewer validates the simplified card copy and browse-grid presentation before merge
+2. Data Catalog may add the minimal shared browse-card field needed for episode-count display
+3. UI Shell implements the browse-card copy and layout simplification inside the shared catalog card surface
+4. Reviewer validates the simplified card copy and browse-grid presentation before merge
 6. User review remains authoritative for visual and interaction acceptance; a user-rejected candidate is not accepted even if code review passes
 
 Scope for this refinement:
 - Shared browse/search/list card copy simplification for cleaner catalog presentation
 - Owned surfaces:
+  - Data Catalog: minimal shared browse-card contract update only if needed for episode-count display
   - UI Shell: `components/`, `styles/`, and any card-presentational shared UI it owns
   - Planner/Reviewer: docs and acceptance only
 - No player changes, routing changes, database changes, or broader browse redesign beyond card copy density
