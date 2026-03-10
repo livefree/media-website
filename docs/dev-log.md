@@ -202,3 +202,6 @@ Detail Player:
 Coordinator:
 - Opened `Player Control Position And Episodic Autoplay Round 1` to move theater/fullscreen controls to the bottom edge of the page or screen while preserving paused direct-entry startup and allowing autoplay only for episode-to-episode transitions triggered by playback completion, the `下一集` control, or the episode selector
 - Opened `Browse Card Simplification Round 1` to remove browse-card stat pills, collapse card copy to title-only for movies, and show only a compact episode-count secondary line for series/anime cards without changing routes or poster badges
+
+Data Catalog:
+- Added an explicit optional `episodeCountLabel` to the shared browse-card contract and builder so UI Shell can render compact series/anime episode counts directly without deriving them from the legacy stats pill structure
