@@ -152,6 +152,7 @@ UI Shell:
 - Added stable opaque `med_/ep_/res_` public IDs across shared catalog data, introduced canonical `/watch?v=...` identity helpers and public-ID lookup utilities in `lib/media*`, and extended Prisma planning for `MediaTitle`, `Episode`, `Resource`, `UserList`, and `UserListItem` while keeping slug routes as compatibility-only identifiers for the next Detail Player round
 - Promoted canonical `/watch?...` hrefs to the default shared public entry links, added explicit `watchContext` contracts across browse/search/detail projections, and introduced minimal public list/list-item seed data plus shared list-aware helpers so `list` and `li` are concrete app-facing context rather than placeholder query params
 - Added a real public list page at `/list/[publicId]` plus a homepage featured-lists entry surface, both rendered from shared public list records and canonical list/list-item watch links rather than page-local URL assembly
+- Expanded public list discovery with a real `/lists` directory route, added clear homepage/navbar entry paths into that directory, and upgraded `/list/[publicId]` to use shared share-ready list metadata and canonical list URLs in the presentation layer
 
 UI Shell:
 - Switched the shared browse/search media card entry links to canonical `/watch?...` hrefs so public-facing catalog entry surfaces stop defaulting to compatibility slug routes
