@@ -144,6 +144,7 @@ Coordinator:
 - Opened `Public URL Identity Round 5` to turn the formerly future-only list roadmap into a scoped implementation slice for broader public list discovery, share-ready list surfaces, and stronger playlist-style queue UX without pulling in authenticated authoring or admin flows
 - Opened `Demo Media Backfill Round 1` to replace placeholder playback with local demo videos, remove the now-unnecessary source-selection UI for the simplified demo-backed setup, and add type-based fallback poster cards for titles with missing artwork
 - Opened `Player Resume And Startup Round 1` to tighten breakpoint persistence rules, disable default autoplay on entry, and align preload behavior with valid snapped resume points
+- Opened `Episode Navigation And Selector Round 1` to turn the current ad hoc episode UX into a proper numeric selector system with a popup picker, keyboard navigation, and enough episodic test data to validate next-episode flows
 
 2026-03-09
 
