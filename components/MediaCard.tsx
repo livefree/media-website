@@ -3,9 +3,11 @@ import Link from "next/link";
 import type { BrowseMediaCard } from "../types/media";
 
 export function MediaCard({ item }: { item: BrowseMediaCard }) {
+  const publicEntryHref = item.canonicalWatchHref || item.href;
+
   return (
     <article className="media-card" data-tone={item.badge.tone}>
-      <Link href={item.href} className="media-poster-link">
+      <Link href={publicEntryHref} className="media-poster-link">
         <div className="media-poster">
           <img className="poster-image" src={item.posterUrl} alt={`${item.title} poster`} loading="lazy" />
           <div className="poster-badge badge-top-left">{item.badge.label}</div>
@@ -20,7 +22,7 @@ export function MediaCard({ item }: { item: BrowseMediaCard }) {
 
       <div className="media-copy">
         <h3 className="media-title">
-          <Link href={item.href} className="media-title-link">
+          <Link href={publicEntryHref} className="media-title-link">
             {item.title}
           </Link>
         </h3>
