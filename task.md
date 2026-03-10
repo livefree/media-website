@@ -23,7 +23,7 @@ PlayerShell
 
 ## Current Active Task
 
-### Player Control Position And Episodic Autoplay Round 1
+### Browse Card Simplification Round 1
 
 Coordinator-only rule:
 - Coordinator may define scope, update task docs, dispatch agents, review ownership, and merge accepted work.
@@ -31,31 +31,30 @@ Coordinator-only rule:
 
 Required execution order for this task:
 1. Planner writes the implementation breakdown and acceptance criteria
-2. Detail Player implements the control-position and episodic-autoplay behavior changes inside the watch/player surface
-3. Reviewer validates bottom-anchored control positioning and the autoplay exception flows before merge
+2. UI Shell implements the browse-card copy and layout simplification inside the shared catalog card surface
+3. Reviewer validates the simplified card copy and browse-grid presentation before merge
 6. User review remains authoritative for visual and interaction acceptance; a user-rejected candidate is not accepted even if code review passes
 
 Scope for this refinement:
-- Player control positioning in theater/fullscreen modes and narrowly scoped autoplay exceptions for episodic navigation
+- Shared browse/search/list card copy simplification for cleaner catalog presentation
 - Owned surfaces:
-  - Detail Player: `app/media/`, `app/watch/`, `components/player/`, `components/detail/`
+  - UI Shell: `components/`, `styles/`, and any card-presentational shared UI it owns
   - Planner/Reviewer: docs and acceptance only
-- No unrelated browse redesign, auth flow, admin tooling, or broader player redesign beyond these episode-navigation rules
+- No player changes, routing changes, database changes, or broader browse redesign beyond card copy density
 
 Acceptance criteria:
-- In theater mode and fullscreen mode, the player control bar must anchor to the bottom of the page or screen rather than staying in the same relative spot over the video frame
-- Default watch-page entry must still remain non-autoplay
-- Automatic transition to the next episode after the current episode ends must auto-play the newly entered episode
-- Using the `下一集` button or choosing a new episode from the selector popup/menu must enter the next episode with autoplay enabled
-- Existing canonical watch/list behavior, shortcuts, and selector routing must not regress
+- Browse cards must stop showing stream/download/stat pills such as `Streams`
+- Card copy under the poster should only show the media title
+- For `series` and `anime` cards, the card should also show the current contained episode count in a compact secondary line
+- `movie` cards should not show the removed stats area or an unnecessary metadata row
+- Existing links, poster behavior, badges, and grid alignment must not regress
 
 Current user-requested improvement to implement:
-1. In theater mode and fullscreen mode, move the player control bar to the bottom of the page or screen.
-2. Keep default watch-page entry paused, but auto-play when:
-   - the current episode ends and advances to the next one
-   - the user clicks the `下一集` button
-   - the user selects a new episode from the selector UI
+1. Simplify homepage and browse video cards.
+2. Remove `Streams` and similar stats from the card body.
+3. Only show the title below the poster.
+4. If the item is a series/anime, also show the current included episode count.
 
 Current baseline:
-- The player already preserves non-autoplay startup on direct entry, and episodic navigation plus next-episode routing already exist.
-- The remaining issues are mode-specific control positioning and distinguishing autoplay-exception episode transitions from ordinary watch-page entry.
+- Shared browse cards currently render a title, a year/type metadata row, and up to three stat pills.
+- The next refinement is a presentation-only reduction of that card copy without changing routes or poster-level badges.
