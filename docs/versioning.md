@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.8.1`
+Current version: `0.8.2`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.8.1` an appropriate current milestone: the prototype now has real public list pages, a broader `/lists` discovery surface, share-ready public list pages, and a stronger read-only queue experience inside `/watch`, while still remaining short of a launch-ready platform.
+That makes `0.8.2` an appropriate current milestone: the prototype keeps the accepted public-list and queue baseline, and now adds local demo-media backfill plus deterministic fallback poster cards for more reliable feature testing, while still remaining short of a launch-ready platform.
 
 ## Rules
 
@@ -30,7 +30,7 @@ That makes `0.8.1` an appropriate current milestone: the prototype now has real 
 ## Practical Mapping
 
 - `0.8.x`
-  Current baseline with real public list pages, broader public-list discovery, canonical list-backed watch flows, and stronger list-aware playback/queue context on top of the existing prototype platform.
+  Current baseline with real public list pages, broader public-list discovery, canonical list-backed watch flows, stronger list-aware playback/queue context, and local demo-backed testing support on top of the existing prototype platform.
 - `0.9.0`
   A later pre-launch milestone such as stronger database-backed catalog integration, authenticated user state, or admin/content operations becoming real product surfaces.
 - `1.0.0`
