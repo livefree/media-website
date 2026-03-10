@@ -165,3 +165,6 @@ Reviewer:
 - Accepted candidate `004da1e` for `Public URL Identity Round 1` after runtime QA confirmed legacy `/media/[slug]` playback URLs canonicalize to opaque `/watch?v=...&e=...&r=...` URLs without leaking media slugs, episode slugs, or provider details
 - Accepted `Public URL Identity Round 2` on `main` after verifying shared browse/search/recommendation entry points now default to canonical `/watch?...` URLs, list/list-item watch context is concrete in shared contracts and seed data, and the existing `/watch` plus compatibility redirect behavior already preserved the required detail-player context
 - Accepted `Public URL Identity Rounds 3 and 4` from code/build review after verifying a real homepage public-list entry surface, an opaque `/list/[publicId]` page, canonical `/watch?...&list=...&li=...` list-item links, user-visible list context inside `/watch`, and shared list-aware previous/next navigation while keeping Round 5 documented as future-only scope
+
+Detail Player:
+- Upgraded `/watch` list playback from a simple previous/next context card into a read-only queue panel that shows the active list item, nearby queue entries, and upcoming clickable items from shared canonical queue data while preserving `list` / `li` through in-scope watch transitions

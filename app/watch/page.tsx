@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import { DetailActions } from "../../components/detail/DetailActions";
 import { DetailHero } from "../../components/detail/DetailHero";
-import { ListContextPanel } from "../../components/detail/ListContextPanel";
+import { ListQueuePanel } from "../../components/detail/ListQueuePanel";
 import { DetailSynopsis } from "../../components/detail/DetailSynopsis";
 import { DownloadResources } from "../../components/detail/DownloadResources";
 import { RelatedRecommendations } from "../../components/detail/RelatedRecommendations";
@@ -160,6 +160,7 @@ export default function WatchPage({ searchParams }: RouteProps) {
     listItemPublicRef: requestedListItemPublicRef,
   });
   const resolvedList = resolvedPlayback?.list;
+  const resolvedQueue = resolvedPlayback?.queue;
   const resolvedListItem = getResolvedListItem(resolvedList?.items, detail.media.publicId, activeEpisodePublicId, requestedListItemPublicRef);
   const baseWatchState = {
     mediaPublicId: detail.media.publicId,
@@ -262,9 +263,10 @@ export default function WatchPage({ searchParams }: RouteProps) {
         </DetailHero>
 
         {resolvedList ? (
-          <ListContextPanel
+          <ListQueuePanel
             list={resolvedList}
             activeItem={resolvedListItem}
+            queue={resolvedQueue}
             canonicalWatchHref={canonicalWatchHref}
           />
         ) : null}
