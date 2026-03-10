@@ -23,7 +23,7 @@ PlayerShell
 
 ## Current Active Task
 
-### Public URL Identity Rounds 3 and 4
+### Public URL Identity Round 5
 
 Coordinator-only rule:
 - Coordinator may define scope, update task docs, dispatch agents, review ownership, and merge accepted work.
@@ -31,36 +31,39 @@ Coordinator-only rule:
 
 Required execution order for this task:
 1. Planner writes the implementation breakdown and acceptance criteria
-2. Data Catalog extends shared public list data, canonical href generation, and database planning for real public list playback context
-3. UI Shell builds the public list/list-item entry surfaces and related canonical public-entry links
-4. Detail Player extends canonical watch behavior so list-aware playback is user-visible and stateful inside `/watch`
-5. Reviewer validates public list entry behavior, list-aware watch transitions, residual slug leakage, and the recorded Round 5 plan before merge
+2. Data Catalog extends shared public-list discovery, sharing, and queue-style watch contracts
+3. UI Shell builds the richer public list discovery and sharing surfaces
+4. Detail Player extends `/watch` with a stronger playlist-style list queue experience using shared list data
+5. Reviewer validates public list discovery, public sharing surfaces, queue-style watch behavior, residual slug leakage, and adherence to Round 5 scope before merge
 6. User review remains authoritative for visual and interaction acceptance; a user-rejected candidate is not accepted even if code review passes
 
 Scope for this refinement:
-- Public URLs, public list entry surfaces, and list-aware watch/detail routing
+- Public URLs, public list discovery/sharing surfaces, and richer playlist-style watch routing within the existing public list model
 - Owned surfaces:
-  - Data Catalog: `data/`, `types/`, `lib/media*`, `prisma/schema.prisma`, and import payload/planning artifacts if required for public-list/public-ID planning
-  - UI Shell: `app/`, `components/`, and `styles/` for public list/list-item entry surfaces
-  - Detail Player: `app/media/`, `app/watch/`, `components/player/`, `components/detail/`
+  - Data Catalog: `data/`, `types/`, `lib/media*`, `prisma/schema.prisma`, and import payload/planning artifacts if required for public-list discovery/sharing planning
+  - UI Shell: `app/`, `components/`, and `styles/` for public list discovery/sharing entry surfaces
+  - Detail Player: `app/media/`, `app/watch/`, `components/player/`, `components/detail/` for queue-style watch context
   - Planner/Reviewer: docs and acceptance only
-- No unrelated browse redesign or player-control redesign unless explicitly required by the new public URL flow
+- No unrelated browse redesign, auth flow, or admin/list-authoring implementation unless explicitly required by the scoped public list flow
 
 Acceptance criteria:
 - Canonical public media entry points must continue to default to `/watch?...` rather than `/media/[slug]`
 - Public watch URLs must continue to avoid leaking media slugs, episode slugs, or provider labels in clear text
-- A real public list entry surface must exist and must compose canonical `/watch?...&list=...&li=...` URLs from shared data, not hard-coded page-local strings
-- The watch page must preserve list context across episode/resource/source transitions and must expose enough UI context that users can tell they are navigating a list-backed playback flow
+- A broader public list discovery flow must exist beyond a single homepage section, using shared list data and canonical opaque list identities
+- Public list pages must expose share-ready public identity affordances without falling back to readable slug URLs as canonical identity
+- The watch page must preserve list context across episode/resource/source transitions and expose a stronger playlist-style queue experience for the active public list
 - Existing `/media/[slug]` links may remain only as compatibility entry points; they should not become canonical again
-- Round 5 must be recorded as a planned future scope for full playlist/list management, sharing, and richer playback controls, but must not be pulled into Round 3/4 implementation
-- Reviewer sign-off must confirm the new public list flow works end-to-end and that Round 5 remains documented as future work
+- Round 5 must stay inside public discovery/sharing/queue scope and must not drift into authenticated list authoring, editing, or admin workflows
+- Reviewer sign-off must confirm the Round 5 public list flow works end-to-end without regressing the accepted Round 3/4 canonical watch behavior
 
 Current user-requested improvement to implement:
-1. Implement Round 3 by turning the existing list/list-item public-ID groundwork into real public-facing list pages and entry flows.
-2. Implement Round 4 by making the canonical `/watch` playback flow truly list-aware across episode/resource/source transitions.
-3. Record Round 5 as the planned follow-up for fuller playlist/list management, sharing, and richer playlist-style controls without prematurely implementing it now.
+1. Continue beyond the accepted Round 3/4 baseline into a real Round 5 slice for public list discovery, sharing, and playlist-style queue UX.
+2. Keep using opaque public identities and canonical `/watch?...&list=...&li=...` URLs rather than readable slugs.
+3. Improve the public list experience without pulling in authenticated list authoring, editing, or admin functionality yet.
 
 Current baseline:
 - Round 1 introduced opaque `publicId` fields for media/episodes/resources, a canonical `/watch` route, and compatibility redirects from `/media/[slug]`.
 - Round 2 migrated shared public entry points to canonical `/watch?...` URLs and made `list` / `li` explicit in shared contracts and seed-level URL composition.
-- The codebase already contains minimal public list seed data and list-aware watch-context helpers, but there is no user-facing public list page yet and the watch experience does not yet surface list navigation as a first-class flow.
+- Round 3 added a real `/list/[publicId]` page plus a visible homepage featured-lists entry surface.
+- Round 4 made `/watch` visibly list-aware with shared previous/next list-item navigation and in-scope `list` / `li` preservation.
+- What is still missing is the richer public list product layer: broader list discovery, stronger share-ready list surfaces, and a more playlist-style queue experience once playback has started.
