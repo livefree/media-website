@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { buildPublicListDirectoryHref } from "../lib/media-utils";
 import type { CatalogScope } from "../types/media";
 
 const navItems = [
@@ -7,15 +8,23 @@ const navItems = [
   { label: "Movie", href: "/movie", scope: "movie" },
   { label: "Series", href: "/series", scope: "series" },
   { label: "Anime", href: "/anime", scope: "anime" },
+  { label: "Lists", href: buildPublicListDirectoryHref() },
 ] as const;
 
 export function Navbar({
   activeScope,
+  activeHref,
   hiddenFields = [],
 }: {
   activeScope: CatalogScope;
+  activeHref?: string;
   hiddenFields?: Array<{ name: string; value: string }>;
 }) {
+  const resolvedNavItems = navItems.map((item) => ({
+    ...item,
+    isActive: activeHref ? activeHref === item.href : "scope" in item && activeScope === item.scope,
+  }));
+
   return (
     <header className="navbar">
       <Link href="/" className="brand-name-link" aria-label="Media Atlas home">
@@ -29,13 +38,13 @@ export function Navbar({
       </Link>
 
       <nav className="nav-menu" aria-label="Primary">
-        {navItems.map((item) => (
+        {resolvedNavItems.map((item) => (
           <Link
             key={item.label}
             href={item.href}
             className="nav-link"
-            data-active={activeScope === item.scope ? "true" : "false"}
-            aria-current={activeScope === item.scope ? "page" : undefined}
+            data-active={item.isActive ? "true" : "false"}
+            aria-current={item.isActive ? "page" : undefined}
           >
             {item.label}
           </Link>

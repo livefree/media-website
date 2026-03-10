@@ -1,11 +1,14 @@
 import Link from "next/link";
 
+import { buildPublicListDirectoryHref } from "../lib/media-utils";
 import type { PublicMediaList } from "../types/media";
 
 export function FeaturedListsSection({ lists }: { lists: PublicMediaList[] }) {
   if (lists.length === 0) {
     return null;
   }
+
+  const directoryHref = buildPublicListDirectoryHref();
 
   return (
     <section className="featured-lists-section" aria-labelledby="featured-lists-title">
@@ -18,6 +21,11 @@ export function FeaturedListsSection({ lists }: { lists: PublicMediaList[] }) {
           <p className="catalog-feed-description">
             Jump into ordered public lists built from the shared catalog, then open canonical watch links item by item.
           </p>
+        </div>
+        <div className="catalog-results-meta">
+          <Link href={directoryHref} className="featured-list-directory-link">
+            Browse all lists
+          </Link>
         </div>
       </div>
 
@@ -36,13 +44,13 @@ export function FeaturedListsSection({ lists }: { lists: PublicMediaList[] }) {
 
             <div className="featured-list-copy">
               <div className="featured-list-meta">
-                <span className="featured-list-visibility">{list.visibility}</span>
-                <span className="featured-list-count">{list.itemCount} items</span>
+                <span className="featured-list-visibility">{list.visibilityLabel}</span>
+                <span className="featured-list-count">{list.itemCountLabel}</span>
               </div>
               <h3 className="featured-list-title">
-                <Link href={list.canonicalListHref}>{list.title}</Link>
+                <Link href={list.canonicalListHref}>{list.shareTitle}</Link>
               </h3>
-              <p className="featured-list-description">{list.description}</p>
+              <p className="featured-list-description">{list.shareDescription}</p>
               <div className="featured-list-actions">
                 <Link href={list.canonicalListHref} className="featured-list-action">
                   Open list

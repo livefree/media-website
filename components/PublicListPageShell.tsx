@@ -1,30 +1,29 @@
 import Link from "next/link";
 
+import { buildPublicListDirectoryHref } from "../lib/media-utils";
 import type { PublicMediaListPageRecord } from "../types/media";
 import { Navbar } from "./Navbar";
 
-function formatVisibilityLabel(visibility: PublicMediaListPageRecord["visibility"]) {
-  return visibility === "public" ? "Public" : "Unlisted";
-}
-
 export function PublicListPageShell({ list }: { list: PublicMediaListPageRecord }) {
+  const directoryHref = buildPublicListDirectoryHref();
+
   return (
     <main className="page-shell">
       <div className="page-backdrop" aria-hidden="true" />
-      <Navbar activeScope="all" />
+      <Navbar activeScope="all" activeHref={directoryHref} />
 
       <section className="public-list-hero">
         <div className="public-list-hero-copy">
           <div className="public-list-meta-row">
-            <span className="public-list-visibility-badge">{formatVisibilityLabel(list.visibility)}</span>
-            <span className="public-list-item-count">{list.itemCount} items</span>
+            <span className="public-list-visibility-badge">{list.visibilityLabel}</span>
+            <span className="public-list-item-count">{list.itemCountLabel}</span>
           </div>
           <p className="section-kicker">Public list</p>
-          <h1 className="section-title">{list.title}</h1>
-          <p className="catalog-feed-description">{list.description}</p>
+          <h1 className="section-title">{list.shareTitle}</h1>
+          <p className="catalog-feed-description">{list.shareDescription}</p>
           <div className="public-list-actions">
             <Link href={list.canonicalListHref} className="featured-list-action">
-              Canonical list URL
+              Open public list
             </Link>
             {list.firstItemWatchHref ? (
               <Link href={list.firstItemWatchHref} className="featured-list-secondary-action">
@@ -34,11 +33,24 @@ export function PublicListPageShell({ list }: { list: PublicMediaListPageRecord 
           </div>
         </div>
 
-        {list.coverPosterUrl ? (
-          <div className="public-list-cover-frame">
-            <img src={list.coverPosterUrl} alt={`${list.title} cover`} className="featured-list-cover" loading="lazy" />
+        <aside className="public-list-share-card">
+          <p className="section-kicker">Share-ready link</p>
+          <p className="public-list-share-title">{list.shareTitle}</p>
+          <p className="public-list-share-copy">{list.shareDescription}</p>
+          <Link href={list.shareHref} className="public-list-share-link">
+            {list.shareHref}
+          </Link>
+          <div className="public-list-share-actions">
+            <Link href={directoryHref} className="featured-list-secondary-action">
+              Browse more lists
+            </Link>
+            {list.firstItemWatchHref ? (
+              <Link href={list.firstItemWatchHref} className="featured-list-action">
+                Play this queue
+              </Link>
+            ) : null}
           </div>
-        ) : null}
+        </aside>
       </section>
 
       <section className="public-list-items-panel" aria-labelledby="public-list-items-title">
@@ -46,8 +58,15 @@ export function PublicListPageShell({ list }: { list: PublicMediaListPageRecord 
           <div className="catalog-results-copy">
             <p className="section-kicker">Ordered entries</p>
             <h2 id="public-list-items-title" className="section-title">
-              Open any item with its canonical list-aware watch link.
+              Share this list directly, then open any title with its canonical list-aware watch link.
             </h2>
+            <p className="catalog-feed-description">
+              Every entry keeps the public list context intact, so the watch page can preserve the queue identity without falling back to slug URLs.
+            </p>
+          </div>
+          <div className="catalog-results-meta">
+            <p className="catalog-results-count">{list.itemCountLabel}</p>
+            <p className="catalog-feed-meta">{list.visibilityLabel} share surface</p>
           </div>
         </div>
 
