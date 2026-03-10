@@ -524,6 +524,98 @@ body {
   background: rgba(255, 255, 255, 0.04);
 }
 
+.poster-fallback {
+  position: relative;
+  display: grid;
+  align-content: space-between;
+  padding: 10px;
+  overflow: hidden;
+  color: #f7f7f8;
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.16), transparent 36%),
+    linear-gradient(180deg, rgba(11, 15, 22, 0.2), rgba(11, 15, 22, 0.88));
+}
+
+.poster-fallback::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 30%),
+    linear-gradient(180deg, transparent, rgba(5, 8, 12, 0.26));
+  pointer-events: none;
+}
+
+.poster-fallback[data-variant="movie"] {
+  background-color: #5c2818;
+  background-image:
+    radial-gradient(circle at top left, rgba(255, 189, 123, 0.34), transparent 34%),
+    linear-gradient(180deg, #8b4528 0%, #391913 100%);
+}
+
+.poster-fallback[data-variant="series"] {
+  background-color: #17314c;
+  background-image:
+    radial-gradient(circle at top left, rgba(127, 204, 255, 0.3), transparent 34%),
+    linear-gradient(180deg, #275d8d 0%, #14253d 100%);
+}
+
+.poster-fallback[data-variant="anime"] {
+  background-color: #472044;
+  background-image:
+    radial-gradient(circle at top left, rgba(255, 166, 219, 0.3), transparent 34%),
+    linear-gradient(180deg, #7c3877 0%, #25142c 100%);
+}
+
+.poster-fallback[data-variant="list"] {
+  background-color: #2f343f;
+  background-image:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.16), transparent 34%),
+    linear-gradient(180deg, #424955 0%, #1a1f27 100%);
+}
+
+.poster-fallback-badge,
+.poster-fallback-monogram,
+.poster-fallback-title {
+  position: relative;
+  z-index: 1;
+}
+
+.poster-fallback-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 22px;
+  padding: 0 7px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(7, 10, 15, 0.18);
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.poster-fallback-monogram {
+  align-self: center;
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  font-weight: 700;
+  letter-spacing: -0.08em;
+  line-height: 1;
+}
+
+.poster-fallback-title {
+  display: -webkit-box;
+  overflow: hidden;
+  color: rgba(247, 247, 248, 0.92);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.3;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
 .featured-list-cover-fallback {
   display: flex;
   align-items: center;
