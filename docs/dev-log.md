@@ -307,6 +307,7 @@ Data Catalog:
 - Completed the Round E list-serving follow-up by splitting published public-list summary/detail contracts, filtering directory and featured discovery to published list items only, and exposing backend featured-list discovery functions for homepage migration while preserving canonical `/list/<publicId>` and list-aware `/watch?...&list=...&li=...` identity
 
 UI Shell:
+- Added a narrow privileged `/admin/queue-failures` operator surface that reuses the existing admin source/repair presentation language to list failed and retrying jobs, expose structured triage context from the backend contract, and keep queue failure visibility inside the accepted admin boundary without broad dashboard sprawl
 - Reconnected `/lists` and `/list/[publicId]` to the published catalog service with request-time reads, removed list-surface seed-helper lookups from shared UI components, and kept the public directory/detail presentation limited to published list metadata plus canonical list/watch links
 - Added operator-facing `/admin/sources` and `/admin/repair` surfaces backed by `lib/server/admin`, including server-rendered filter forms, source inventory status summaries, durable repair queue visibility, and narrow backend-backed acknowledge/resolve actions for repair entries
 
