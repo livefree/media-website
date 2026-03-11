@@ -16,6 +16,35 @@ export const stagingFragmentKinds = ["stream", "download", "subtitle"] as const;
 
 export type StagingFragmentKind = (typeof stagingFragmentKinds)[number];
 
+export const sourceHealthStates = ["healthy", "degraded", "broken", "replaced", "offline"] as const;
+
+export type SourceHealthState = (typeof sourceHealthStates)[number];
+
+export const providerMaintenanceReasons = ["scheduled", "manual", "repair"] as const;
+
+export type ProviderMaintenanceReason = (typeof providerMaintenanceReasons)[number];
+
+export const sourceProbeKinds = ["availability", "manifest", "playback", "download", "subtitle", "metadata_refresh"] as const;
+
+export type SourceProbeKind = (typeof sourceProbeKinds)[number];
+
+export const repairSignalTriggers = [
+  "source_degraded",
+  "source_broken",
+  "source_offline",
+  "source_replaced",
+  "provider_item_missing",
+  "provider_line_missing",
+  "provider_payload_mismatch",
+  "manual_followup",
+] as const;
+
+export type RepairSignalTrigger = (typeof repairSignalTriggers)[number];
+
+export const repairSignalSeverities = ["low", "medium", "high", "critical"] as const;
+
+export type RepairSignalSeverity = (typeof repairSignalSeverities)[number];
+
 export interface ProviderAdapterMetadata {
   key: string;
   displayName: string;
@@ -38,6 +67,31 @@ export interface ProviderFetchByIdParams {
   signal?: AbortSignal;
 }
 
+export interface ProviderSourceTarget {
+  sourceId: string;
+  providerItemId: string;
+  sourceKind: StagingFragmentKind;
+  mediaId?: string;
+  episodeId?: string;
+  providerLineKey?: string;
+  label?: string;
+  urls: string[];
+  metadata?: Record<string, unknown>;
+}
+
+export interface ProviderRefreshSourceParams {
+  target: ProviderSourceTarget;
+  reason: ProviderMaintenanceReason;
+  signal?: AbortSignal;
+}
+
+export interface ProviderProbeSourceParams {
+  target: ProviderSourceTarget;
+  probeKind: SourceProbeKind;
+  reason: ProviderMaintenanceReason;
+  signal?: AbortSignal;
+}
+
 export interface ProviderFetchContext {
   requestedAt: string;
   requestId?: string;
@@ -55,7 +109,7 @@ export interface ProviderRawPayloadRecord {
   providerKey: string;
   providerItemId?: string;
   payloadFormat: ProviderPayloadFormat;
-  scope: "page" | "detail";
+  scope: "page" | "detail" | "source_refresh" | "source_probe";
   body: string | Record<string, unknown>;
   fetchedAt: string;
   request: ProviderRequestMetadata;
@@ -114,6 +168,52 @@ export interface ProviderDetailResult {
   rawPayloads: ProviderRawPayloadRecord[];
 }
 
+export interface SourceHealthFinding {
+  sourceId: string;
+  observedAt: string;
+  observedState: SourceHealthState;
+  probeKind: SourceProbeKind;
+  summary: string;
+  code?: string;
+  providerItemId?: string;
+  providerLineKey?: string;
+  evidence?: Record<string, unknown>;
+}
+
+export interface RepairIntakeSignal {
+  sourceId: string;
+  createdAt: string;
+  healthState: Exclude<SourceHealthState, "healthy">;
+  trigger: RepairSignalTrigger;
+  severity: RepairSignalSeverity;
+  summary: string;
+  probeKind?: SourceProbeKind;
+  providerItemId?: string;
+  providerLineKey?: string;
+  evidence?: Record<string, unknown>;
+}
+
+export interface ProviderSourceRefreshResult {
+  providerKey: string;
+  fetchedAt: string;
+  request: ProviderRequestMetadata;
+  target: ProviderSourceTarget;
+  item?: StagingProviderItem;
+  rawPayloads: ProviderRawPayloadRecord[];
+  findings: SourceHealthFinding[];
+  repairSignals: RepairIntakeSignal[];
+}
+
+export interface ProviderSourceProbeResult {
+  providerKey: string;
+  probedAt: string;
+  request: ProviderRequestMetadata;
+  target: ProviderSourceTarget;
+  rawPayloads: ProviderRawPayloadRecord[];
+  findings: SourceHealthFinding[];
+  repairSignals: RepairIntakeSignal[];
+}
+
 export interface ProviderHttpClient {
   fetchJson<T>(url: string, init?: RequestInit): Promise<T>;
   fetchText(url: string, init?: RequestInit): Promise<string>;
@@ -131,4 +231,12 @@ export interface ProviderAdapter {
     params: ProviderFetchByIdParams,
     context: ProviderRuntimeContext & ProviderFetchContext,
   ): Promise<ProviderDetailResult>;
+  refreshSource?(
+    params: ProviderRefreshSourceParams,
+    context: ProviderRuntimeContext & ProviderFetchContext,
+  ): Promise<ProviderSourceRefreshResult>;
+  probeSource?(
+    params: ProviderProbeSourceParams,
+    context: ProviderRuntimeContext & ProviderFetchContext,
+  ): Promise<ProviderSourceProbeResult>;
 }
