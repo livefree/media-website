@@ -8,3 +8,10 @@ export const normalizeModule = defineServerModule({
   owns: ["match pipeline", "alias and year resolution", "episode normalization", "duplicate signals"],
   dependsOn: ["config", "ingest"],
 });
+
+export * from "./types";
+export * from "./staging";
+export * from "./mappers";
+export * from "./input";
+export * from "./match";
+export * from "./service";

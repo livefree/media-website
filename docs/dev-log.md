@@ -10,6 +10,7 @@ Coordinator:
 Media Ingest:
 - Added the first server-only provider adapter contract, provider HTTP boundary, registry, and ingest orchestration entrypoints under `lib/server/provider/` and `lib/server/ingest/`, limiting outputs to staging-safe payloads, item fragments, and persistence plans instead of Prisma writes or canonical catalog logic
 - Quarantined the legacy direct canonical-import helper path by renaming the exposed npm commands to `legacy:*` and requiring an explicit legacy flag inside the legacy Prisma payload/import scripts so they are no longer presented as the active Round B ingest workflow
+- Added Round C normalization and dedup preparation under `lib/server/normalize/`, including staged-record normalization drafts for title/alias/year/type/locale/season-episode/source-fragment shaping plus suggestion-only match and duplicate orchestration that stops before persistence, review, or canonical writes
 
 2026-03-08
 
