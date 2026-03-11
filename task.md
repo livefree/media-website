@@ -40,9 +40,9 @@ Required execution order for this task:
 Scope for this round:
 - Continue the remaining provider-operationalization work packages from `docs/backend-delivery-workflow.md` on top of the accepted backend foundation
 - Implement one narrow provider-operationalization slice at a time rather than broad platform-wide changes in a single pass
-- Current operationalization slice: `Workstream 1 / Slice 6: Incremental And Backfill Sync Orchestration`
-- This slice is mapped to the remaining `incremental and backfill job execution` portion of the Workstream 1 exit gate in `docs/backend-delivery-workflow.md`
-- Current refinement status: Slice 5 is accepted and closed; this slice moves the provider pipeline from isolated guarded jobs toward sustained provider sync orchestration
+- Current operationalization slice: `Workstream 1 / Slice 7: Unattended Provider Sync Scheduling`
+- This slice is mapped to the final `the system can continuously ingest and refresh provider data without manual scripts` portion of the Workstream 1 exit gate in `docs/backend-delivery-workflow.md`
+- Current refinement status: Slice 6 is accepted and closed; this slice moves the provider pipeline from sustained orchestration semantics to unattended repeatable execution
 - Owned surfaces:
   - Planner: architecture, roadmap alignment, round-specific handoff docs
   - Media Ingest: `lib/server/provider/`, `lib/server/ingest/`, job execution, worker/runtime support for the selected operationalization slice
@@ -68,6 +68,7 @@ Current user-requested improvement to implement:
 4. Continue through the remaining provider-operationalization exit-gate slices before returning to later control-plane/governance work
 5. Continue into retry/throttling hardening for queued provider execution
 6. Continue into incremental/backfill sync orchestration for provider intake
+7. Continue into unattended provider sync scheduling until the Workstream 1 exit gate is met
 
 Current baseline:
 - Round A monolith foundations are present under `lib/server/` and `lib/db/`
@@ -89,6 +90,7 @@ Current baseline:
 - Workstream 1 / Slice 3 is accepted, so the provider pipeline now supports durable unattended worker execution for queued provider jobs
 - Workstream 1 / Slice 4 is accepted, so provider page jobs now have restart-safe continuation and durable checkpoint recovery
 - Workstream 1 / Slice 5 is accepted, so queued provider page jobs now have bounded retry semantics, provider-aware throttling, and durable backoff timing
+- Workstream 1 / Slice 6 is accepted, so one provider lane now supports deterministic backfill and incremental sync orchestration
 - The repo still lacks the remaining provider operationalization exit-gate slices, later control-plane/governance completion slices, and final launch-readiness work
 
 ## Remaining Backend Auto Queue
