@@ -14,3 +14,5 @@ export * from "./types";
 export * from "./http";
 export * from "./registry";
 export * from "./adapter";
+export * from "./jszyapi";
+export * from "./default-registry";
