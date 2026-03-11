@@ -15,6 +15,7 @@ import {
   getAdminPublishedCatalogManagementDetailByPublicId,
   getAdminPublishedCatalogManagementPage,
   acknowledgeAdminRepairQueueEntry,
+  getAdminQueueFailureMonitoringPage,
   getAdminRepairQueuePage,
   getAdminSourceInventoryPage,
   resolveAdminModerationReport,
@@ -25,7 +26,7 @@ import {
 } from "./service";
 
 import type { AdminBackendDependencies } from "./types";
-import type { AdminRepairQueueItemRecord } from "../health";
+import type { AdminQueueFailureItemRecord, AdminRepairQueueItemRecord } from "../health";
 import type { AdminSourceInventoryItemRecord, ManualSourceSubmissionDetailRecord, ManualSourceSubmissionRecord } from "../source";
 import type { ManualTitleSubmissionDetailRecord, ManualTitleSubmissionRecord, ModerationReportDetailRecord, ModerationReportRecord } from "../review";
 import type {
@@ -142,6 +143,61 @@ function createRepairItem(overrides: Partial<AdminRepairQueueItemRecord> = {}): 
     lastObservedAt: new Date("2026-03-11T09:00:00.000Z"),
     resolvedAt: null,
     updatedAt: new Date("2026-03-11T09:00:00.000Z"),
+    ...overrides,
+  };
+}
+
+function createQueueFailureItem(overrides: Partial<AdminQueueFailureItemRecord> = {}): AdminQueueFailureItemRecord {
+  return {
+    jobId: "job-1",
+    runId: "run-1",
+    providerId: "provider-1",
+    providerKey: "jszyapi_vod_json",
+    providerDisplayName: "jszyapi Base VOD JSON",
+    visibilityState: "failed",
+    status: "failed",
+    jobType: "provider_page_ingest",
+    scope: "page",
+    mode: "incremental",
+    requestId: "req-queue-1",
+    actorId: "system",
+    providerItemId: "provider-item-1",
+    attemptCount: 3,
+    retryState: "terminal_failure",
+    startedAt: new Date("2026-03-11T08:00:00.000Z"),
+    finishedAt: new Date("2026-03-11T08:05:00.000Z"),
+    durationMs: 300000,
+    lastErrorSummary: "Provider returned HTTP 500.",
+    failure: {
+      category: "provider_response",
+      code: "http_500",
+      status: 500,
+      retryable: true,
+      errorName: "ProviderHttpError",
+    },
+    target: {
+      sourceId: "source-1",
+      providerItemId: "provider-item-1",
+      sourceKind: "stream",
+      providerLineKey: "main",
+      urls: ["https://provider.example.com/item/1"],
+    },
+    request: {
+      page: 4,
+      pageSize: 24,
+      cursor: "cursor-4",
+      updatedAfter: "2026-03-10T00:00:00.000Z",
+      updatedBefore: "2026-03-11T00:00:00.000Z",
+    },
+    checkpoint: {
+      cursor: "cursor-3",
+      page: 3,
+    },
+    counts: {
+      itemCount: 12,
+      rawPayloadCount: 12,
+      warningCount: 1,
+    },
     ...overrides,
   };
 }
@@ -475,6 +531,7 @@ function createDependencies() {
     getManualSourceSubmissionDetailByPublicId: [] as string[],
     createManualSourceSubmission: [] as Array<Record<string, unknown>>,
     updateManualSourceSubmissionStatus: [] as Array<{ publicId: string; input: Record<string, unknown> }>,
+    listAdminQueueFailures: [] as Array<Record<string, unknown> | undefined>,
     listAdminRepairQueue: [] as Array<Record<string, unknown> | undefined>,
     updateRepairQueueEntryStatus: [] as Array<{ entryId: string; input: Record<string, unknown> }>,
   };
@@ -701,6 +758,45 @@ function createDependencies() {
       },
     },
     health: {
+      async listAdminQueueFailures(query) {
+        calls.listAdminQueueFailures.push(query);
+        return [
+          createQueueFailureItem(),
+          createQueueFailureItem({
+            jobId: "job-2",
+            runId: "run-2",
+            visibilityState: "retrying",
+            status: "running",
+            jobType: "scheduled_source_refresh",
+            scope: "source_refresh",
+            attemptCount: 2,
+            retryState: "retrying",
+            lastErrorSummary: "Retry scheduled after upstream timeout.",
+            failure: {
+              category: "upstream_timeout",
+              code: "timeout",
+              status: 504,
+              retryable: true,
+              errorName: "TimeoutError",
+            },
+          }),
+          createQueueFailureItem({
+            jobId: "job-3",
+            runId: "run-3",
+            visibilityState: "failed",
+            status: "failed",
+            jobType: "scheduled_source_probe",
+            scope: "source_probe",
+            target: {
+              sourceId: "source-9",
+              providerItemId: "provider-item-9",
+              sourceKind: "subtitle",
+              providerLineKey: "sub-zh",
+              urls: ["https://provider.example.com/sub/9"],
+            },
+          }),
+        ];
+      },
       async listAdminRepairQueue(query) {
         calls.listAdminRepairQueue.push(query);
         return [
@@ -803,6 +899,32 @@ test("getAdminRepairQueuePage builds operator summaries from durable repair reco
   assert.equal(page.summary.openItems, 1);
   assert.equal(page.summary.inProgressItems, 1);
   assert.equal(page.summary.resolvedItems, 1);
+});
+
+test("getAdminQueueFailureMonitoringPage returns privileged triage records for failed and retrying jobs", async () => {
+  const { calls, dependencies } = createDependencies();
+  const page = await getAdminQueueFailureMonitoringPage(
+    {
+      visibilityStates: ["failed", "retrying"],
+      providerKeys: ["jszyapi_vod_json"],
+      limit: 20,
+    },
+    dependencies,
+  );
+
+  assert.equal(calls.listAdminQueueFailures.length, 1);
+  assert.equal(page.title, "Queue Failures");
+  assert.equal(page.summary.totalItems, 3);
+  assert.equal(page.summary.failedItems, 2);
+  assert.equal(page.summary.retryingItems, 1);
+  assert.equal(page.summary.providerPageIngestItems, 1);
+  assert.equal(page.summary.sourceRefreshItems, 1);
+  assert.equal(page.summary.sourceProbeItems, 1);
+  assert.equal(page.items[0]?.failure?.code, "http_500");
+  assert.equal(page.items[0]?.target?.providerLineKey, "main");
+  assert.equal(page.items[0]?.request?.page, 4);
+  assert.equal(page.items[0]?.checkpoint?.page, 3);
+  assert.equal(page.items[1]?.visibilityState, "retrying");
 });
 
 test("getAdminModerationQueuePage builds operator summaries for moderation reports", async () => {
@@ -1073,4 +1195,28 @@ test("admin service denies underprivileged viewer access before backend dependen
   });
 
   assert.equal(calls.listAdminRepairQueue.length, 0);
+});
+
+test("queue failure monitoring denies anonymous access before triage dependencies are invoked", async () => {
+  const { calls, dependencies } = createDependencies();
+
+  await withAdminAccessStub(undefined, async () => {
+    await assert.rejects(() => getAdminQueueFailureMonitoringPage({}, dependencies), {
+      message: "Admin access requires an authenticated operator or admin identity.",
+    });
+  });
+
+  assert.equal(calls.listAdminQueueFailures.length, 0);
+});
+
+test("queue failure monitoring denies underprivileged viewer access before triage dependencies are invoked", async () => {
+  const { calls, dependencies } = createDependencies();
+
+  await withAdminAccessStub("viewer", async () => {
+    await assert.rejects(() => getAdminQueueFailureMonitoringPage({}, dependencies), {
+      message: "The current identity does not have sufficient admin privileges.",
+    });
+  });
+
+  assert.equal(calls.listAdminQueueFailures.length, 0);
 });

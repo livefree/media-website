@@ -4,6 +4,7 @@ import { requirePrivilegedAdminAccess } from "./access";
 
 import type {
   AdminBackendDependencies,
+  AdminQueueFailureMonitoringPageRecord,
   AdminManualSourceSubmissionPageRecord,
   AdminManualTitleSubmissionPageRecord,
   AdminModerationActionRequest,
@@ -15,7 +16,7 @@ import type {
   AdminRepairQueuePageRecord,
   AdminSourceInventoryPageRecord,
 } from "./types";
-import type { RepairQueueQuery, RepairQueueStatus } from "../health";
+import type { AdminQueueFailureQuery, RepairQueueQuery, RepairQueueStatus } from "../health";
 import type {
   CreateManualSourceSubmissionInput,
   ManualSourceSubmissionQuery,
@@ -59,6 +60,7 @@ async function getDefaultAdminDependencies(): Promise<AdminBackendDependencies> 
       updateManualSourceSubmissionStatus: source.updateManualSourceSubmissionStatus,
     },
     health: {
+      listAdminQueueFailures: health.listAdminQueueFailures,
       listAdminRepairQueue: health.listAdminRepairQueue,
       updateRepairQueueEntryStatus: health.updateRepairQueueEntryStatus,
     },
@@ -103,6 +105,19 @@ function buildRepairQueueSummary(items: AdminRepairQueuePageRecord["items"]): Ad
     waitingProviderItems: items.filter((item) => item.status === "waiting_provider").length,
     resolvedItems: items.filter((item) => item.status === "resolved").length,
     dismissedItems: items.filter((item) => item.status === "dismissed").length,
+  };
+}
+
+function buildQueueFailureMonitoringSummary(
+  items: AdminQueueFailureMonitoringPageRecord["items"],
+): AdminQueueFailureMonitoringPageRecord["summary"] {
+  return {
+    totalItems: items.length,
+    failedItems: items.filter((item) => item.visibilityState === "failed").length,
+    retryingItems: items.filter((item) => item.visibilityState === "retrying").length,
+    providerPageIngestItems: items.filter((item) => item.jobType === "provider_page_ingest").length,
+    sourceRefreshItems: items.filter((item) => item.jobType === "scheduled_source_refresh").length,
+    sourceProbeItems: items.filter((item) => item.jobType === "scheduled_source_probe").length,
   };
 }
 
@@ -159,6 +174,23 @@ export async function getAdminRepairQueuePage(
     description: "Operator queue for degraded, broken, offline, or replaced published sources.",
     appliedFilters: query,
     summary: buildRepairQueueSummary(items),
+    items,
+  };
+}
+
+export async function getAdminQueueFailureMonitoringPage(
+  query: AdminQueueFailureQuery = {},
+  dependencies?: AdminBackendDependencies,
+): Promise<AdminQueueFailureMonitoringPageRecord> {
+  requirePrivilegedAdminAccess("operator");
+  const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
+  const items = await resolvedDependencies.health.listAdminQueueFailures(query);
+
+  return {
+    title: "Queue Failures",
+    description: "Operator triage view for failed and retrying ingest, refresh, and probe jobs.",
+    appliedFilters: query,
+    summary: buildQueueFailureMonitoringSummary(items),
     items,
   };
 }

@@ -17,6 +17,8 @@ import type {
   SourceProbeKind,
 } from "../../../server/provider";
 import type {
+  AdminQueueFailureItemRecord,
+  AdminQueueFailureQuery,
   AdminRepairQueueItemRecord,
   PersistSourceProbeHealthRequest,
   PersistSourceRefreshHealthRequest,
@@ -24,6 +26,10 @@ import type {
   RepairQueueEntryRecord,
   RepairQueueStatusUpdateInput,
   RepairQueueStatus,
+  QueueFailureExecutionStatus,
+  QueueFailureJobType,
+  QueueFailureRetryState,
+  QueueFailureScope,
   SourceProbeRunRecord,
   SourceProbeStatus,
 } from "../../../server/health";
@@ -280,6 +286,336 @@ function unmapRepairQueueStatus(value: string): RepairQueueStatus {
   }
 
   throw new Error(`Unsupported repair queue status: ${value}`);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function toStringOrNull(value: unknown): string | null {
+  return typeof value === "string" && value.trim().length > 0 ? value : null;
+}
+
+function toNumberOrNull(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function toBooleanOrNull(value: unknown): boolean | null {
+  return typeof value === "boolean" ? value : null;
+}
+
+function toDateOrNull(value: unknown): Date | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function unmapIngestExecutionStatus(value: unknown): QueueFailureExecutionStatus | null {
+  switch (value) {
+    case "pending":
+    case "running":
+    case "succeeded":
+    case "failed":
+    case "cancelled":
+    case "partial":
+      return value;
+    default:
+      return null;
+  }
+}
+
+function unmapQueueFailureScope(value: unknown): QueueFailureScope | null {
+  switch (value) {
+    case "page":
+    case "detail":
+    case "source_refresh":
+    case "source_probe":
+      return value;
+    default:
+      return null;
+  }
+}
+
+function unmapQueueFailureJobType(value: unknown): QueueFailureJobType | null {
+  switch (value) {
+    case "provider_page_ingest":
+    case "scheduled_source_refresh":
+    case "scheduled_source_probe":
+      return value;
+    default:
+      return null;
+  }
+}
+
+function unmapQueueFailureRetryState(value: unknown): QueueFailureRetryState | null {
+  switch (value) {
+    case "none":
+    case "retrying":
+    case "retryable_failure":
+    case "terminal_failure":
+      return value;
+    default:
+      return null;
+  }
+}
+
+function inferJobTypeFromScope(scope: QueueFailureScope): QueueFailureJobType {
+  switch (scope) {
+    case "page":
+    case "detail":
+      return "provider_page_ingest";
+    case "source_refresh":
+      return "scheduled_source_refresh";
+    case "source_probe":
+      return "scheduled_source_probe";
+  }
+}
+
+function inferVisibilityState(input: {
+  status: QueueFailureExecutionStatus;
+  retryState: QueueFailureRetryState;
+  attemptCount: number;
+}): AdminQueueFailureItemRecord["visibilityState"] | null {
+  if (input.status === "failed" || input.retryState === "retryable_failure" || input.retryState === "terminal_failure") {
+    return "failed";
+  }
+
+  if ((input.status === "pending" || input.status === "running") && (input.retryState === "retrying" || input.attemptCount > 1)) {
+    return "retrying";
+  }
+
+  return null;
+}
+
+interface ExecutionTelemetrySnapshot {
+  status?: QueueFailureExecutionStatus | null;
+  jobType?: QueueFailureJobType | null;
+  scope?: QueueFailureScope | null;
+  providerKey?: string | null;
+  mode?: "backfill" | "incremental" | "manual" | null;
+  requestId?: string | null;
+  actorId?: string | null;
+  attemptCount?: number | null;
+  retryState?: QueueFailureRetryState | null;
+  startedAt?: Date | null;
+  finishedAt?: Date | null;
+  durationMs?: number | null;
+  lastErrorSummary?: string | null;
+  failure?: AdminQueueFailureItemRecord["failure"];
+  target?: AdminQueueFailureItemRecord["target"];
+  request?: AdminQueueFailureItemRecord["request"];
+  checkpoint?: AdminQueueFailureItemRecord["checkpoint"];
+  counts?: AdminQueueFailureItemRecord["counts"];
+}
+
+function extractExecutionTelemetry(metadata: Prisma.JsonValue | null): ExecutionTelemetrySnapshot | null {
+  if (!isRecord(metadata)) {
+    return null;
+  }
+
+  const execution = metadata.executionTelemetry;
+
+  if (!isRecord(execution)) {
+    return null;
+  }
+
+  const failure = isRecord(execution.failure)
+    ? {
+        category: toStringOrNull(execution.failure.category) ?? "unexpected",
+        code: toStringOrNull(execution.failure.code) ?? "unknown",
+        status: toNumberOrNull(execution.failure.status),
+        retryable: toBooleanOrNull(execution.failure.retryable) ?? false,
+        errorName: toStringOrNull(execution.failure.errorName) ?? "UnknownError",
+      }
+    : null;
+
+  const target = isRecord(execution.target)
+    ? {
+        sourceId: toStringOrNull(execution.target.sourceId) ?? "",
+        providerItemId: toStringOrNull(execution.target.providerItemId) ?? "",
+        sourceKind: toStringOrNull(execution.target.sourceKind) ?? "unknown",
+        providerLineKey: toStringOrNull(execution.target.providerLineKey),
+        urls: Array.isArray(execution.target.urls) ? execution.target.urls.filter((value): value is string => typeof value === "string") : [],
+      }
+    : null;
+
+  const request = isRecord(execution.request)
+    ? {
+        page: toNumberOrNull(execution.request.page),
+        pageSize: toNumberOrNull(execution.request.pageSize),
+        cursor: toStringOrNull(execution.request.cursor),
+        updatedAfter: toStringOrNull(execution.request.updatedAfter),
+        updatedBefore: toStringOrNull(execution.request.updatedBefore),
+      }
+    : null;
+
+  const checkpoint = isRecord(execution.checkpoint)
+    ? {
+        cursor: toStringOrNull(execution.checkpoint.cursor),
+        page: toNumberOrNull(execution.checkpoint.page),
+      }
+    : null;
+
+  return {
+    status: unmapIngestExecutionStatus(execution.status),
+    jobType: unmapQueueFailureJobType(metadata.jobType),
+    scope: unmapQueueFailureScope(execution.scope),
+    providerKey: toStringOrNull(execution.providerKey),
+    mode:
+      execution.mode === "backfill" || execution.mode === "incremental" || execution.mode === "manual"
+        ? execution.mode
+        : null,
+    requestId: toStringOrNull(execution.requestId),
+    actorId: toStringOrNull(execution.actorId),
+    attemptCount: toNumberOrNull(execution.attemptCount),
+    retryState: unmapQueueFailureRetryState(execution.retryState),
+    startedAt: toDateOrNull(execution.startedAt),
+    finishedAt: toDateOrNull(execution.finishedAt),
+    durationMs: toNumberOrNull(execution.durationMs),
+    lastErrorSummary: toStringOrNull(execution.lastErrorSummary),
+    failure,
+    target,
+    request,
+    checkpoint,
+    counts: {
+      itemCount: toNumberOrNull(execution.itemCount),
+      rawPayloadCount: toNumberOrNull(execution.rawPayloadCount),
+      warningCount: toNumberOrNull(execution.warningCount),
+    },
+  };
+}
+
+type AdminQueueFailureJobPayload = Prisma.IngestJobGetPayload<{
+  include: {
+    provider: {
+      select: {
+        id: true;
+        adapterKey: true;
+        displayName: true;
+      };
+    };
+    runs: {
+      orderBy: {
+        startedAt: "desc";
+      };
+      take: 1;
+    };
+  };
+}>;
+
+function mapAdminQueueFailureItemRecord(record: AdminQueueFailureJobPayload): AdminQueueFailureItemRecord | null {
+  const latestRun = record.runs[0] ?? null;
+  const jobTelemetry = extractExecutionTelemetry(record.metadata);
+  const runTelemetry = latestRun ? extractExecutionTelemetry(latestRun.metadata) : null;
+  const telemetry = runTelemetry ?? jobTelemetry;
+  const scope = telemetry?.scope ?? (latestRun ? unmapQueueFailureScope(latestRun.scope.toLowerCase()) : null);
+
+  if (!scope) {
+    return null;
+  }
+
+  const status =
+    telemetry?.status ??
+    (latestRun ? unmapIngestExecutionStatus(latestRun.status.toLowerCase()) : unmapIngestExecutionStatus(record.status.toLowerCase()));
+  const attemptCount = telemetry?.attemptCount ?? record.attemptCount;
+  const retryState =
+    telemetry?.retryState ??
+    ((status === "pending" || status === "running") && attemptCount > 1
+      ? "retrying"
+      : status === "failed"
+        ? "terminal_failure"
+        : "none");
+
+  if (!status || !retryState) {
+    return null;
+  }
+
+  const visibilityState = inferVisibilityState({
+    status,
+    retryState,
+    attemptCount,
+  });
+
+  if (!visibilityState) {
+    return null;
+  }
+
+  return {
+    jobId: record.id,
+    runId: latestRun?.id ?? null,
+    providerId: record.provider.id,
+    providerKey: telemetry?.providerKey ?? record.provider.adapterKey,
+    providerDisplayName: record.provider.displayName,
+    visibilityState,
+    status,
+    jobType: telemetry?.jobType ?? inferJobTypeFromScope(scope),
+    scope,
+    mode: telemetry?.mode ?? null,
+    requestId: telemetry?.requestId ?? latestRun?.requestId ?? record.requestId,
+    actorId: telemetry?.actorId ?? latestRun?.actorId ?? record.actorId,
+    providerItemId: latestRun?.providerItemId ?? null,
+    attemptCount,
+    retryState,
+    startedAt: telemetry?.startedAt ?? latestRun?.startedAt ?? record.startedAt ?? null,
+    finishedAt: telemetry?.finishedAt ?? latestRun?.finishedAt ?? record.finishedAt ?? null,
+    durationMs: telemetry?.durationMs ?? null,
+    lastErrorSummary: telemetry?.lastErrorSummary ?? latestRun?.lastErrorSummary ?? record.lastErrorSummary,
+    failure: telemetry?.failure ?? null,
+    target: telemetry?.target ?? null,
+    request: telemetry?.request ?? null,
+    checkpoint: telemetry?.checkpoint ?? null,
+    counts: {
+      itemCount: telemetry?.counts?.itemCount ?? latestRun?.itemCount ?? null,
+      rawPayloadCount: telemetry?.counts?.rawPayloadCount ?? latestRun?.rawPayloadCount ?? null,
+      warningCount: telemetry?.counts?.warningCount ?? latestRun?.warningCount ?? null,
+    },
+  };
+}
+
+function matchesQueueFailureQuery(record: AdminQueueFailureItemRecord, query?: AdminQueueFailureQuery): boolean {
+  if (!query) {
+    return true;
+  }
+
+  if (query.visibilityStates?.length && !query.visibilityStates.includes(record.visibilityState)) {
+    return false;
+  }
+
+  if (query.providerKeys?.length && !query.providerKeys.includes(record.providerKey)) {
+    return false;
+  }
+
+  if (query.jobTypes?.length && !query.jobTypes.includes(record.jobType)) {
+    return false;
+  }
+
+  const search = query.search?.trim().toLowerCase();
+
+  if (!search) {
+    return true;
+  }
+
+  const haystack = [
+    record.providerDisplayName,
+    record.providerKey,
+    record.jobType,
+    record.scope,
+    record.lastErrorSummary,
+    record.failure?.category,
+    record.failure?.code,
+    record.failure?.errorName,
+    record.target?.providerItemId,
+    record.target?.providerLineKey,
+    record.target?.sourceId,
+    record.requestId,
+  ]
+    .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+    .map((value) => value.toLowerCase());
+
+  return haystack.some((value) => value.includes(search));
 }
 
 function mapSourceProbeRunRecord(record: Prisma.SourceProbeRunGetPayload<Record<string, never>>): SourceProbeRunRecord {
@@ -607,6 +943,52 @@ export class SourceHealthRepository extends BaseRepository implements SourceHeal
     });
 
     return records.map((record) => mapRepairQueueEntryRecord(record));
+  }
+
+  async listAdminQueueFailures(query?: AdminQueueFailureQuery): Promise<AdminQueueFailureItemRecord[]> {
+    const records = await this.db.ingestJob.findMany({
+      where: {
+        status: {
+          in: ["PENDING", "RUNNING", "FAILED"],
+        },
+      },
+      include: {
+        provider: {
+          select: {
+            id: true,
+            adapterKey: true,
+            displayName: true,
+          },
+        },
+        runs: {
+          orderBy: [{ startedAt: "desc" }],
+          take: 1,
+        },
+      },
+      orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
+      take: query?.limit && query.limit > 0 ? Math.max(query.limit * 3, query.limit) : 100,
+    });
+
+    const items = records
+      .map((record) => mapAdminQueueFailureItemRecord(record))
+      .filter((record): record is AdminQueueFailureItemRecord => Boolean(record))
+      .filter((record) => matchesQueueFailureQuery(record, query))
+      .sort((left, right) => {
+        const leftTime = left.startedAt?.getTime() ?? 0;
+        const rightTime = right.startedAt?.getTime() ?? 0;
+
+        if (leftTime !== rightTime) {
+          return rightTime - leftTime;
+        }
+
+        return right.attemptCount - left.attemptCount;
+      });
+
+    if (query?.limit && query.limit > 0) {
+      return items.slice(0, query.limit);
+    }
+
+    return items;
   }
 
   async listAdminRepairQueue(query?: RepairQueueQuery): Promise<AdminRepairQueueItemRecord[]> {
