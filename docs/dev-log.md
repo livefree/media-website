@@ -252,6 +252,7 @@ Data Catalog:
 - Withdrew the public runtime catalog by preserving the prepared seed-backed media set separately while exporting an empty `mediaCatalog`, and tightened public list helpers so browse/search/watch/list surfaces resolve coherently with no listed titles
 - Added the backend monolith foundation under `lib/server/` and `lib/db/`, including server-only module boundaries, shared runtime config/logging/error conventions, and repository/transaction scaffolding without reintroducing the withdrawn public catalog
 - Added Round B staging persistence support with Prisma staging models/enums plus `lib/db` repositories for provider registry state, ingest jobs/runs, checkpoints, raw payloads, provider items, and staged candidates while keeping staging data separate from canonical catalog reads
+- Added Round C normalization persistence support with Prisma pre-review models/enums and `lib/db` repositories for normalized candidates, candidate aliases, match suggestions, and duplicate signals while keeping normalization state isolated from canonical catalog writes and publish flow
 
 Planner:
 - Produced `docs/handovers/planner-free-video-source-integration-round-1.md` to define the lawful free-video source onboarding plan, including source-class restrictions, rights/provenance workflow, ingest/transcode/storage/CDN architecture, playback-resource evolution, schema additions, ops/compliance controls, and the Round 2-4 implementation roadmap
