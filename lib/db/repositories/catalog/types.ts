@@ -13,6 +13,8 @@ import type {
   PublishedListDirectoryRecord,
   PublishedListRecord,
   PublishedListSummaryRecord,
+  UnpublishPublishedCatalogInput,
+  UnpublishPublishedCatalogResult,
   PublishedWatchQuery,
   PublishedWatchRecord,
 } from "../../../server/catalog";
@@ -27,4 +29,5 @@ export interface PublishedCatalogRepository {
   getPublishedListByPublicId(publicId: string): Promise<PublishedListRecord | null>;
   getPublishedListDirectory(): Promise<PublishedListDirectoryRecord>;
   getPublishedFeaturedLists(limit?: number): Promise<PublishedListSummaryRecord[]>;
+  unpublishPublishedCatalogRecord(input: UnpublishPublishedCatalogInput): Promise<UnpublishPublishedCatalogResult>;
 }

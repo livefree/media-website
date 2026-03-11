@@ -22,6 +22,10 @@ import type {
   CreateManualSourceSubmissionInput,
   ManualSourceSubmissionQuery,
   ManualSourceSubmissionStatusUpdateInput,
+  ReorderPublishedSourcesInput,
+  ReorderPublishedSourcesResult,
+  ReplacePublishedSourceInput,
+  ReplacePublishedSourceResult,
   SourceInventoryQuery,
   SourceOrderingUpdate,
 } from "../source";
@@ -31,6 +35,7 @@ import type {
   ManualTitleSubmissionQuery,
   ModerationReportQuery,
 } from "../review";
+import type { UnpublishPublishedCatalogInput, UnpublishPublishedCatalogResult } from "../catalog";
 
 async function getDefaultAdminDependencies(): Promise<AdminBackendDependencies> {
   const catalog = await import("../catalog");
@@ -43,6 +48,7 @@ async function getDefaultAdminDependencies(): Promise<AdminBackendDependencies> 
       getPublishedCatalogMigrationPreflight: catalog.getPublishedCatalogMigrationPreflight,
       queryAdminPublishedCatalog: catalog.getAdminPublishedCatalogPage,
       getAdminPublishedCatalogDetailByPublicId: catalog.getAdminPublishedCatalogDetailByPublicId,
+      unpublishPublishedCatalogRecord: catalog.unpublishPublishedCatalogRecord,
     },
     review: {
       listModerationReports: review.listModerationReports,
@@ -56,6 +62,8 @@ async function getDefaultAdminDependencies(): Promise<AdminBackendDependencies> 
     source: {
       listAdminSourceInventory: source.listAdminSourceInventory,
       updateSourceOrdering: source.updateSourceOrdering,
+      reorderPublishedSources: source.reorderPublishedSources,
+      replacePublishedSource: source.replacePublishedSource,
       listManualSourceSubmissions: source.listManualSourceSubmissions,
       getManualSourceSubmissionDetailByPublicId: source.getManualSourceSubmissionDetailByPublicId,
       createManualSourceSubmission: source.createManualSourceSubmission,
@@ -417,4 +425,31 @@ export async function updateAdminSourceOrdering(
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
 
   return resolvedDependencies.source.updateSourceOrdering(updates);
+}
+
+export async function reorderAdminPublishedSources(
+  input: ReorderPublishedSourcesInput,
+  dependencies?: AdminBackendDependencies,
+): Promise<ReorderPublishedSourcesResult> {
+  requirePrivilegedAdminAccess("operator");
+  const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
+  return resolvedDependencies.source.reorderPublishedSources(input);
+}
+
+export async function replaceAdminPublishedSource(
+  input: ReplacePublishedSourceInput,
+  dependencies?: AdminBackendDependencies,
+): Promise<ReplacePublishedSourceResult> {
+  requirePrivilegedAdminAccess("operator");
+  const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
+  return resolvedDependencies.source.replacePublishedSource(input);
+}
+
+export async function unpublishAdminPublishedCatalogRecord(
+  input: UnpublishPublishedCatalogInput,
+  dependencies?: AdminBackendDependencies,
+): Promise<UnpublishPublishedCatalogResult> {
+  requirePrivilegedAdminAccess("operator");
+  const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
+  return resolvedDependencies.catalog.unpublishPublishedCatalogRecord(input);
 }

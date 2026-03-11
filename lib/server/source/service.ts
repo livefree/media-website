@@ -13,6 +13,10 @@ import type {
   ManualSourceSubmissionQuery,
   ManualSourceSubmissionRecord,
   ManualSourceSubmissionStatusUpdateInput,
+  ReorderPublishedSourcesInput,
+  ReorderPublishedSourcesResult,
+  ReplacePublishedSourceInput,
+  ReplacePublishedSourceResult,
   SourceInventoryQuery,
   SourceInventoryRecord,
   SourceOrderingUpdate,
@@ -39,6 +43,43 @@ export async function upsertSourceInventory(input: UpsertSourceInventoryInput): 
 export async function updateSourceOrdering(updates: SourceOrderingUpdate[]): Promise<SourceInventoryRecord[]> {
   requirePrivilegedAdminAccess("operator");
   return createDefaultSourceInventoryRepository().updateSourceOrdering(updates);
+}
+
+export async function reorderPublishedSources(input: ReorderPublishedSourcesInput): Promise<ReorderPublishedSourcesResult> {
+  requirePrivilegedAdminAccess("operator");
+
+  if (input.updates.length === 0) {
+    throw new BackendError("At least one source ordering update is required.", {
+      status: 400,
+      code: "source_reorder_updates_required",
+    });
+  }
+
+  return runInTransaction(
+    {
+      name: "source.reorderPublishedSources",
+    },
+    async (context) => createSourceInventoryRepository(context).reorderPublishedSources(input),
+    {
+      actorId: input.actorId,
+      requestId: input.requestId,
+    },
+  );
+}
+
+export async function replacePublishedSource(input: ReplacePublishedSourceInput): Promise<ReplacePublishedSourceResult> {
+  requirePrivilegedAdminAccess("operator");
+
+  return runInTransaction(
+    {
+      name: "source.replacePublishedSource",
+    },
+    async (context) => createSourceInventoryRepository(context).replacePublishedSource(input),
+    {
+      actorId: input.actorId,
+      requestId: input.requestId,
+    },
+  );
 }
 
 function requireTrimmedValue(value: string | undefined, field: string, code: string) {

@@ -80,6 +80,36 @@ export interface SourceOrderingUpdate {
   orderingOrigin?: SourceOrderingOrigin;
 }
 
+export interface ReorderPublishedSourcesInput {
+  updates: SourceOrderingUpdate[];
+  actorId?: string;
+  requestId?: string;
+  notes?: string;
+}
+
+export interface ReplacePublishedSourceInput {
+  sourcePublicId: string;
+  replacementPublicId: string;
+  actorId?: string;
+  requestId?: string;
+  notes?: string;
+}
+
+export interface ReorderPublishedSourcesResult {
+  auditId: string;
+  summary: string;
+  recordedAt: string;
+  resources: SourceInventoryRecord[];
+}
+
+export interface ReplacePublishedSourceResult {
+  auditId: string;
+  summary: string;
+  recordedAt: string;
+  replacedSource: SourceInventoryRecord;
+  replacementSource: SourceInventoryRecord;
+}
+
 export interface SourceInventoryQuery {
   mediaId?: string;
   episodeId?: string;

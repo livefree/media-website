@@ -363,6 +363,12 @@ enum PublishAuditAction {
   PUBLISH_FAILED
 }
 
+enum OperatorLifecycleMutationAction {
+  SOURCE_REORDERED
+  SOURCE_REPLACED
+  CATALOG_UNPUBLISHED
+}
+
 enum ModerationReportKind {
   BROKEN_SOURCE
   CLOSELY_RELATED
@@ -859,6 +865,24 @@ model ResourceEvent {
   resource     Resource       @relation(fields: [resourceId], references: [id], onDelete: Cascade)
 
   @@index([resourceId, action, createdAt])
+}
+
+model OperatorLifecycleMutationAudit {
+  id                String                        @id @default(cuid())
+  action            OperatorLifecycleMutationAction
+  actorId           String?
+  requestId         String?
+  mediaId           String?
+  resourceId        String?
+  relatedResourceId String?
+  summary           String
+  notes             String?
+  metadata          Json?
+  createdAt         DateTime                      @default(now())
+
+  @@index([action, createdAt])
+  @@index([mediaId, createdAt])
+  @@index([resourceId, createdAt])
 }
 
 model RatingSnapshot {

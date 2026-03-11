@@ -7,6 +7,7 @@ import type { Prisma } from "@prisma/client";
 import type { RepositoryContext } from "../types";
 import { BaseRepository, createRepositoryContext } from "../types";
 import { requireDb } from "../../client";
+import { BackendError } from "../../../server/errors";
 
 import type { SourceInventoryRepository as SourceInventoryRepositoryContract } from "./types";
 import type { SourceHealthState } from "../../../server/provider";
@@ -18,6 +19,10 @@ import type {
   ManualSourceSubmissionQuery,
   ManualSourceSubmissionRecord,
   ManualSourceSubmissionStatusUpdateInput,
+  ReorderPublishedSourcesInput,
+  ReorderPublishedSourcesResult,
+  ReplacePublishedSourceInput,
+  ReplacePublishedSourceResult,
   SourceInventoryQuery,
   SourceInventoryRecord,
   SourceOrderingOrigin,
@@ -598,9 +603,43 @@ function buildSourceData(input: UpsertSourceInventoryInput) {
   };
 }
 
+function buildLifecycleAuditSummary(action: "source_reordered" | "source_replaced", countOrLabel: number | string) {
+  if (action === "source_reordered") {
+    return `Reordered ${countOrLabel} published sources.`;
+  }
+
+  return `Replaced published source '${countOrLabel}'.`;
+}
+
 export class SourceInventoryRepository extends BaseRepository implements SourceInventoryRepositoryContract {
   public constructor(context: RepositoryContext) {
     super(context);
+  }
+
+  private async createOperatorLifecycleAudit(input: {
+    action: "SOURCE_REORDERED" | "SOURCE_REPLACED";
+    actorId?: string;
+    requestId?: string;
+    mediaId?: string | null;
+    resourceId?: string | null;
+    relatedResourceId?: string | null;
+    summary: string;
+    notes?: string;
+    metadata?: Record<string, unknown>;
+  }) {
+    return this.db.operatorLifecycleMutationAudit.create({
+      data: {
+        action: input.action,
+        actorId: input.actorId,
+        requestId: input.requestId,
+        mediaId: input.mediaId ?? null,
+        resourceId: input.resourceId ?? null,
+        relatedResourceId: input.relatedResourceId ?? null,
+        summary: input.summary,
+        notes: input.notes ?? null,
+        metadata: input.metadata as Prisma.InputJsonValue | undefined,
+      },
+    });
   }
 
   async listSourceInventory(filters?: SourceInventoryQuery): Promise<SourceInventoryRecord[]> {
@@ -802,6 +841,215 @@ export class SourceInventoryRepository extends BaseRepository implements SourceI
     });
 
     return records.map((record) => mapSourceInventoryRecord(record));
+  }
+
+  async reorderPublishedSources(input: ReorderPublishedSourcesInput): Promise<ReorderPublishedSourcesResult> {
+    if (input.updates.length === 0) {
+      throw new BackendError("At least one source ordering update is required.", {
+        status: 400,
+        code: "source_reorder_updates_required",
+      });
+    }
+
+    const distinctIds = Array.from(new Set(input.updates.map((update) => update.resourceId)));
+    const records = await this.db.resource.findMany({
+      where: {
+        id: {
+          in: distinctIds,
+        },
+      },
+      include: {
+        replacementResource: {
+          select: {
+            id: true,
+            publicId: true,
+          },
+        },
+      },
+    });
+
+    if (records.length !== distinctIds.length) {
+      throw new BackendError("One or more sources could not be found for reordering.", {
+        status: 404,
+        code: "source_reorder_not_found",
+      });
+    }
+
+    const [first] = records;
+
+    if (!first) {
+      throw new BackendError("At least one source ordering update is required.", {
+        status: 400,
+        code: "source_reorder_updates_required",
+      });
+    }
+
+    for (const record of records) {
+      if (!record.isPublic) {
+        throw new BackendError("Only published sources can be reordered.", {
+          status: 409,
+          code: "source_reorder_not_public",
+        });
+      }
+
+      if (record.mediaId !== first.mediaId || record.episodeId !== first.episodeId || record.kind !== first.kind) {
+        throw new BackendError("Published source reordering must stay within one media/episode/kind scope.", {
+          status: 409,
+          code: "source_reorder_scope_mismatch",
+        });
+      }
+    }
+
+    const ordered = await this.updateSourceOrdering(
+      input.updates.map((update) => ({
+        ...update,
+        orderingOrigin: update.orderingOrigin ?? "manual",
+      })),
+    );
+
+    const audit = await this.createOperatorLifecycleAudit({
+      action: "SOURCE_REORDERED",
+      actorId: input.actorId,
+      requestId: input.requestId,
+      mediaId: first.mediaId,
+      resourceId: first.id,
+      summary: buildLifecycleAuditSummary("source_reordered", ordered.length),
+      notes: input.notes,
+      metadata: {
+        resourceIds: ordered.map((item) => item.id),
+        publicIds: ordered.map((item) => item.publicId),
+        episodeId: first.episodeId ?? null,
+        kind: unmapResourceKind(first.kind),
+      },
+    });
+
+    return {
+      auditId: audit.id,
+      summary: audit.summary,
+      recordedAt: audit.createdAt.toISOString(),
+      resources: ordered,
+    };
+  }
+
+  async replacePublishedSource(input: ReplacePublishedSourceInput): Promise<ReplacePublishedSourceResult> {
+    const include = {
+      replacementResource: {
+        select: {
+          id: true,
+          publicId: true,
+        },
+      },
+    } satisfies Prisma.ResourceInclude;
+
+    const [source, replacement] = await Promise.all([
+      this.db.resource.findUnique({
+        where: { publicId: input.sourcePublicId },
+        include,
+      }),
+      this.db.resource.findUnique({
+        where: { publicId: input.replacementPublicId },
+        include,
+      }),
+    ]);
+
+    if (!source) {
+      throw new BackendError(`Published source '${input.sourcePublicId}' was not found.`, {
+        status: 404,
+        code: "source_replace_not_found",
+      });
+    }
+
+    if (!replacement) {
+      throw new BackendError(`Replacement source '${input.replacementPublicId}' was not found.`, {
+        status: 404,
+        code: "source_replacement_not_found",
+      });
+    }
+
+    if (source.id === replacement.id) {
+      throw new BackendError("Replacement source must differ from the published source being replaced.", {
+        status: 400,
+        code: "source_replace_same_resource",
+      });
+    }
+
+    if (!source.isPublic || !source.isActive) {
+      throw new BackendError("Only active published sources can be replaced.", {
+        status: 409,
+        code: "source_replace_not_public",
+      });
+    }
+
+    if (source.mediaId !== replacement.mediaId || source.episodeId !== replacement.episodeId || source.kind !== replacement.kind) {
+      throw new BackendError("Replacement source must match the published source scope.", {
+        status: 409,
+        code: "source_replace_scope_mismatch",
+      });
+    }
+
+    if (["BROKEN", "OFFLINE", "REPLACED"].includes(replacement.healthState) || replacement.status === "OFFLINE") {
+      throw new BackendError("Replacement source must be usable before it can replace a published source.", {
+        status: 409,
+        code: "source_replacement_unusable",
+      });
+    }
+
+    const updatedSource = await this.db.resource.update({
+      where: {
+        id: source.id,
+      },
+      data: {
+        replacementResourceId: replacement.id,
+        healthState: "REPLACED",
+        status: "OFFLINE",
+        isPreferred: false,
+        isActive: false,
+        isPublic: false,
+        orderingOrigin: "MANUAL",
+      },
+      include,
+    });
+
+    const updatedReplacement = await this.db.resource.update({
+      where: {
+        id: replacement.id,
+      },
+      data: {
+        replacementResourceId: null,
+        isPreferred: source.isPreferred || replacement.isPreferred,
+        isActive: true,
+        isPublic: true,
+        priority: Math.max(source.priority, replacement.priority),
+        mirrorOrder: Math.min(source.mirrorOrder, replacement.mirrorOrder),
+        orderingOrigin: "MANUAL",
+      },
+      include,
+    });
+
+    const audit = await this.createOperatorLifecycleAudit({
+      action: "SOURCE_REPLACED",
+      actorId: input.actorId,
+      requestId: input.requestId,
+      mediaId: source.mediaId,
+      resourceId: source.id,
+      relatedResourceId: replacement.id,
+      summary: buildLifecycleAuditSummary("source_replaced", source.publicId),
+      notes: input.notes,
+      metadata: {
+        sourcePublicId: source.publicId,
+        replacementPublicId: replacement.publicId,
+        episodeId: source.episodeId ?? null,
+        kind: unmapResourceKind(source.kind),
+      },
+    });
+
+    return {
+      auditId: audit.id,
+      summary: audit.summary,
+      recordedAt: audit.createdAt.toISOString(),
+      replacedSource: mapSourceInventoryRecord(updatedSource),
+      replacementSource: mapSourceInventoryRecord(updatedReplacement),
+    };
   }
 
   async createManualSourceSubmission(input: CreateManualSourceSubmissionInput): Promise<ManualSourceSubmissionRecord> {

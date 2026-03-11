@@ -1,10 +1,11 @@
 import "server-only";
 
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 
 import type { RepositoryContext } from "../types";
 import { BaseRepository, createRepositoryContext } from "../types";
 import { requireDb } from "../../client";
+import { BackendError } from "../../../server/errors";
 import {
   attachListContext,
   buildListItemNavigationReference,
@@ -50,6 +51,8 @@ import type {
   PublishedResourceProvider,
   PublishedResourceStatus,
   PublishedSeasonRecord,
+  UnpublishPublishedCatalogInput,
+  UnpublishPublishedCatalogResult,
   PublishedWatchQuery,
   PublishedWatchRecord,
 } from "../../../server/catalog";
@@ -1133,6 +1136,10 @@ function mapPublishedListSummary(list: PublishedListPayload): PublishedListSumma
   };
 }
 
+function buildLifecycleAuditSummary(title: string) {
+  return `Unpublished catalog record '${title}'.`;
+}
+
 function mapPublishedList(list: PublishedListPayload): PublishedListRecord | null {
   const summary = mapPublishedListSummary(list);
 
@@ -1260,6 +1267,27 @@ function mapPublishedList(list: PublishedListPayload): PublishedListRecord | nul
 }
 
 export class PublishedCatalogRepository extends BaseRepository implements PublishedCatalogRepositoryContract {
+  private async createOperatorLifecycleAudit(input: {
+    actorId?: string;
+    requestId?: string;
+    mediaId?: string | null;
+    summary: string;
+    notes?: string;
+    metadata?: Record<string, unknown>;
+  }) {
+    return this.db.operatorLifecycleMutationAudit.create({
+      data: {
+        action: "CATALOG_UNPUBLISHED",
+        actorId: input.actorId,
+        requestId: input.requestId,
+        mediaId: input.mediaId ?? null,
+        summary: input.summary,
+        notes: input.notes ?? null,
+        metadata: input.metadata as Prisma.InputJsonValue | undefined,
+      },
+    });
+  }
+
   public constructor(context: RepositoryContext) {
     super(context);
   }
@@ -1554,6 +1582,70 @@ export class PublishedCatalogRepository extends BaseRepository implements Publis
     return lists
       .map((list) => mapPublishedListSummary(list))
       .filter((list): list is PublishedListSummaryRecord => Boolean(list));
+  }
+
+  async unpublishPublishedCatalogRecord(input: UnpublishPublishedCatalogInput): Promise<UnpublishPublishedCatalogResult> {
+    const media = await this.db.mediaTitle.findUnique({
+      where: {
+        publicId: input.mediaPublicId,
+      },
+      select: {
+        id: true,
+        publicId: true,
+        title: true,
+        publishedAt: true,
+      },
+    });
+
+    if (!media) {
+      throw new BackendError(`Published catalog record '${input.mediaPublicId}' was not found.`, {
+        status: 404,
+        code: "catalog_unpublish_not_found",
+      });
+    }
+
+    if (!media.publishedAt) {
+      throw new BackendError(`Catalog record '${input.mediaPublicId}' is already unpublished.`, {
+        status: 409,
+        code: "catalog_unpublish_already_unpublished",
+      });
+    }
+
+    const updated = await this.db.mediaTitle.update({
+      where: {
+        id: media.id,
+      },
+      data: {
+        status: "ARCHIVED",
+        isFeatured: false,
+        publishedAt: null,
+      },
+      select: {
+        id: true,
+        publicId: true,
+        status: true,
+      },
+    });
+
+    const audit = await this.createOperatorLifecycleAudit({
+      actorId: input.actorId,
+      requestId: input.requestId,
+      mediaId: updated.id,
+      summary: buildLifecycleAuditSummary(media.title),
+      notes: input.notes,
+      metadata: {
+        mediaPublicId: updated.publicId,
+      },
+    });
+
+    return {
+      auditId: audit.id,
+      summary: audit.summary,
+      recordedAt: audit.createdAt.toISOString(),
+      mediaId: updated.id,
+      mediaPublicId: updated.publicId,
+      status: mapMediaStatus(updated.status),
+    };
   }
 
   private async buildDetailRecord(media: PublishedMediaPayload): Promise<PublishedDetailRecord> {
