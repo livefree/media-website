@@ -89,6 +89,8 @@ const ingestStatusMap = {
 const ingestRunScopeMap = {
   page: "PAGE",
   detail: "DETAIL",
+  source_refresh: "SOURCE_REFRESH",
+  source_probe: "SOURCE_PROBE",
 } as const;
 
 const providerItemStatusMap = {
@@ -270,7 +272,18 @@ function unmapIngestStatus(value: string): IngestExecutionStatus {
 }
 
 function unmapIngestScope(value: string): IngestRunScope {
-  return value === "DETAIL" ? "detail" : "page";
+  switch (value) {
+    case "PAGE":
+      return "page";
+    case "DETAIL":
+      return "detail";
+    case "SOURCE_REFRESH":
+      return "source_refresh";
+    case "SOURCE_PROBE":
+      return "source_probe";
+  }
+
+  throw new Error(`Unsupported ingest scope: ${value}`);
 }
 
 function unmapProviderItemStatus(value: string): ProviderItemLifecycleStatus {

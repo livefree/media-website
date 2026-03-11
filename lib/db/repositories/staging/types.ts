@@ -9,7 +9,7 @@ export type ProviderRegistryType = (typeof providerRegistryTypes)[number];
 export const ingestExecutionStatuses = ["pending", "running", "succeeded", "failed", "cancelled", "partial"] as const;
 export type IngestExecutionStatus = (typeof ingestExecutionStatuses)[number];
 
-export const ingestRunScopes = ["page", "detail"] as const;
+export const ingestRunScopes = ["page", "detail", "source_refresh", "source_probe"] as const;
 export type IngestRunScope = (typeof ingestRunScopes)[number];
 
 export const providerItemLifecycleStatuses = ["discovered", "detail_fetched", "staged", "error", "withdrawn"] as const;

@@ -8,3 +8,6 @@ export const sourceModule = defineServerModule({
   owns: ["source ordering", "line replacement", "temporary disable and override hooks", "source inventory contracts"],
   dependsOn: ["config", "catalog"],
 });
+
+export * from "./types";
+export * from "./service";

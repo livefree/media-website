@@ -10,6 +10,14 @@ export type PublishedMediaStatus = "draft" | "upcoming" | "ongoing" | "completed
 export type PublishedResourceKind = "stream" | "download" | "subtitle" | "trailer";
 export type PublishedResourceProvider = "internal" | "m3u8" | "mp4" | "quark" | "baidu" | "aliyun" | "magnet" | "other";
 export type PublishedResourceStatus = "online" | "degraded" | "offline" | "reported" | "pending";
+export type PublishedSourceHealthState = "healthy" | "degraded" | "broken" | "replaced" | "offline";
+export type PublishedSourceResolutionReason =
+  | "explicit"
+  | "fallback_missing"
+  | "fallback_unusable"
+  | "preferred_healthy"
+  | "preferred_degraded"
+  | "no_usable_source";
 
 export interface PublishedWatchQuery {
   mediaPublicId: string;
@@ -120,6 +128,13 @@ export interface PublishedPlaybackResourceRecord {
   label: string;
   quality?: string | null;
   status: PublishedResourceStatus;
+  healthState: PublishedSourceHealthState;
+  healthSummary?: string | null;
+  priority: number;
+  mirrorOrder: number;
+  isPreferred: boolean;
+  isUsable: boolean;
+  replacementPublicId?: string | null;
   url: string;
   maskedUrl?: string | null;
   accessCode?: string | null;
@@ -247,6 +262,9 @@ export interface PublishedWatchRecord {
   media: PublishedMediaIdentityRecord;
   selectedEpisode?: PublishedEpisodeRecord;
   selectedResource?: PublishedPlaybackResourceRecord;
+  requestedResourcePublicId?: string;
+  resolvedResourcePublicId?: string;
+  sourceResolutionReason: PublishedSourceResolutionReason;
   streamResources: PublishedPlaybackResourceRecord[];
   downloadResources: PublishedPlaybackResourceRecord[];
   subtitleResources: PublishedPlaybackResourceRecord[];

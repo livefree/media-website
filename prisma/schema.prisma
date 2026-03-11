@@ -165,6 +165,8 @@ enum ProviderContentTypeHint {
 enum IngestRunScope {
   PAGE
   DETAIL
+  SOURCE_REFRESH
+  SOURCE_PROBE
 }
 
 enum IngestMode {
@@ -249,6 +251,68 @@ enum DuplicateSignalKind {
 enum DuplicateSignalStatus {
   ACTIVE
   SUPERSEDED
+}
+
+enum SourceHealthState {
+  HEALTHY
+  DEGRADED
+  BROKEN
+  REPLACED
+  OFFLINE
+}
+
+enum SourceOrderingOrigin {
+  AUTOMATED
+  MANUAL
+}
+
+enum SourceProbeKind {
+  AVAILABILITY
+  MANIFEST
+  PLAYBACK
+  DOWNLOAD
+  SUBTITLE
+  METADATA_REFRESH
+}
+
+enum ProviderMaintenanceReason {
+  SCHEDULED
+  MANUAL
+  REPAIR
+}
+
+enum SourceProbeStatus {
+  PENDING
+  RUNNING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+}
+
+enum RepairSignalTrigger {
+  SOURCE_DEGRADED
+  SOURCE_BROKEN
+  SOURCE_OFFLINE
+  SOURCE_REPLACED
+  PROVIDER_ITEM_MISSING
+  PROVIDER_LINE_MISSING
+  PROVIDER_PAYLOAD_MISMATCH
+  MANUAL_FOLLOWUP
+}
+
+enum RepairSignalSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum RepairQueueStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_PROVIDER
+  RESOLVED
+  DISMISSED
 }
 
 enum ReviewQueueStatus {
@@ -513,6 +577,9 @@ model Resource {
   publicId         String            @unique
   mediaId          String
   episodeId        String?
+  providerId       String?
+  providerItemId   String?
+  providerLineKey  String?
   kind             ResourceKind
   provider         ResourceProvider
   format           ResourceFormat
@@ -522,18 +589,93 @@ model Resource {
   maskedUrl        String?
   accessCode       String?
   status           ResourceStatus    @default(ONLINE)
+  healthState      SourceHealthState @default(HEALTHY)
+  healthSummary    String?
   mirrorOrder      Int               @default(0)
+  priority         Int               @default(0)
+  isPreferred      Boolean           @default(false)
+  orderingOrigin   SourceOrderingOrigin @default(AUTOMATED)
+  isActive         Boolean           @default(true)
+  isPublic         Boolean           @default(true)
+  replacementResourceId String?
   reportCount      Int               @default(0)
   lastCheckedAt    DateTime?
+  lastHealthyAt    DateTime?
+  failureCount     Int               @default(0)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   media            MediaTitle        @relation(fields: [mediaId], references: [id], onDelete: Cascade)
   episode          Episode?          @relation(fields: [episodeId], references: [id], onDelete: SetNull)
+  providerRegistry ProviderRegistry? @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  providerItem     ProviderItem?     @relation(fields: [providerItemId], references: [id], onDelete: SetNull)
+  replacementResource Resource?      @relation("ResourceReplacement", fields: [replacementResourceId], references: [id], onDelete: SetNull)
+  replacedResources Resource[]       @relation("ResourceReplacement")
   playbackSessions PlaybackSession[]
   resourceEvents   ResourceEvent[]
+  probeRuns        SourceProbeRun[]
+  repairQueueEntries RepairQueueEntry[]
 
   @@index([mediaId, kind, status])
   @@index([episodeId, kind])
+  @@index([providerId, providerItemId])
+  @@index([kind, isPublic, isActive, healthState, priority])
+}
+
+model SourceProbeRun {
+  id                 String                    @id @default(cuid())
+  resourceId         String
+  providerId         String?
+  providerItemId     String?
+  providerLineKey    String?
+  probeKind          SourceProbeKind
+  maintenanceReason  ProviderMaintenanceReason
+  status             SourceProbeStatus         @default(PENDING)
+  requestId          String?
+  actorId            String?
+  observedState      SourceHealthState?
+  summary            String?
+  failureSummary     String?
+  payloadCount       Int                       @default(0)
+  evidence           Json?
+  startedAt          DateTime                  @default(now())
+  completedAt        DateTime?
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
+  resource           Resource                  @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  providerRegistry   ProviderRegistry?         @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  providerItem       ProviderItem?             @relation(fields: [providerItemId], references: [id], onDelete: SetNull)
+  repairQueueEntries RepairQueueEntry[]
+
+  @@index([resourceId, probeKind, startedAt])
+  @@index([providerId, providerItemId, startedAt])
+  @@index([status, startedAt])
+}
+
+model RepairQueueEntry {
+  id                 String               @id @default(cuid())
+  resourceId         String
+  probeRunId         String?
+  providerId         String?
+  providerItemId     String?
+  providerLineKey    String?
+  trigger            RepairSignalTrigger
+  severity           RepairSignalSeverity
+  currentHealthState SourceHealthState
+  status             RepairQueueStatus    @default(OPEN)
+  summary            String
+  evidence           Json?
+  createdAt          DateTime             @default(now())
+  lastObservedAt     DateTime             @default(now())
+  resolvedAt         DateTime?
+  updatedAt          DateTime             @updatedAt
+  resource           Resource             @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  probeRun           SourceProbeRun?      @relation(fields: [probeRunId], references: [id], onDelete: SetNull)
+  providerRegistry   ProviderRegistry?    @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  providerItem       ProviderItem?        @relation(fields: [providerItemId], references: [id], onDelete: SetNull)
+
+  @@index([resourceId, status, severity, createdAt])
+  @@index([probeRunId])
+  @@index([providerId, providerItemId, createdAt])
 }
 
 model UserList {
@@ -694,6 +836,9 @@ model ProviderRegistry {
   providerItems        ProviderItem[]
   stagingCandidates    StagingCandidate[]
   normalizedCandidates NormalizedCandidate[]
+  resources            Resource[]
+  probeRuns            SourceProbeRun[]
+  repairQueueEntries   RepairQueueEntry[]
 }
 
 model IngestJob {
@@ -792,6 +937,9 @@ model ProviderItem {
   rawPayloads            ProviderRawPayload[]
   stagingCandidates      StagingCandidate[]
   normalizedCandidates   NormalizedCandidate[]
+  resources              Resource[]
+  probeRuns              SourceProbeRun[]
+  repairQueueEntries     RepairQueueEntry[]
 
   @@unique([providerId, externalId])
   @@index([providerId, latestStatus, lastSeenAt])
