@@ -1,5 +1,6 @@
 import "server-only";
 
+import { requirePrivilegedAdminAccess } from "../admin/access";
 import { BackendError } from "../errors";
 import { logger } from "../logging";
 import { applyCatalogPublication } from "../catalog/publish";
@@ -166,16 +167,19 @@ function manualTitleActionSummary(status: ManualTitleSubmissionStatusUpdateInput
 }
 
 export async function listModerationReports(query: ModerationReportQuery = {}): Promise<ModerationReportRecord[]> {
+  requirePrivilegedAdminAccess("operator");
   return createDefaultReviewWorkflowRepository().listModerationReports(query);
 }
 
 export async function getModerationReportDetailByPublicId(
   publicId: string,
 ): Promise<ModerationReportDetailRecord | null> {
+  requirePrivilegedAdminAccess("operator");
   return createDefaultReviewWorkflowRepository().getModerationReportDetailByPublicId(publicId);
 }
 
 export async function createModerationReport(input: CreateModerationReportInput): Promise<ModerationReportRecord> {
+  requirePrivilegedAdminAccess("operator");
   validateModerationReportInput(input);
 
   return runInTransaction(
@@ -207,6 +211,7 @@ export async function updateModerationReportStatus(
   publicId: string,
   input: ModerationReportStatusUpdateInput,
 ): Promise<ModerationReportDetailRecord> {
+  requirePrivilegedAdminAccess("operator");
   return runInTransaction(
     {
       name: "review.updateModerationReportStatus",
@@ -254,18 +259,21 @@ export async function updateModerationReportStatus(
 export async function listManualTitleSubmissions(
   query: ManualTitleSubmissionQuery = {},
 ): Promise<ManualTitleSubmissionRecord[]> {
+  requirePrivilegedAdminAccess("operator");
   return createDefaultReviewWorkflowRepository().listManualTitleSubmissions(query);
 }
 
 export async function getManualTitleSubmissionDetailByPublicId(
   publicId: string,
 ): Promise<ManualTitleSubmissionDetailRecord | null> {
+  requirePrivilegedAdminAccess("operator");
   return createDefaultReviewWorkflowRepository().getManualTitleSubmissionDetailByPublicId(publicId);
 }
 
 export async function createManualTitleSubmission(
   input: CreateManualTitleSubmissionInput,
 ): Promise<ManualTitleSubmissionDetailRecord> {
+  requirePrivilegedAdminAccess("operator");
   validateManualTitleSubmissionInput(input);
 
   return runInTransaction(
@@ -307,6 +315,7 @@ export async function updateManualTitleSubmissionStatus(
   publicId: string,
   input: ManualTitleSubmissionStatusUpdateInput,
 ): Promise<ManualTitleSubmissionDetailRecord> {
+  requirePrivilegedAdminAccess("operator");
   return runInTransaction(
     {
       name: "review.updateManualTitleSubmissionStatus",
@@ -355,10 +364,12 @@ export async function updateManualTitleSubmissionStatus(
 }
 
 export async function listReviewQueue(): Promise<ReviewQueueListItemRecord[]> {
+  requirePrivilegedAdminAccess("operator");
   return createDefaultReviewWorkflowRepository().listReviewQueue();
 }
 
 export async function getReviewQueueDetail(queueEntryId: string): Promise<ReviewQueueDetailRecord | null> {
+  requirePrivilegedAdminAccess("operator");
   return createDefaultReviewWorkflowRepository().getReviewQueueDetail(queueEntryId);
 }
 
@@ -401,6 +412,7 @@ export async function queueNormalizedCandidateForReview(request: QueueNormalized
 }
 
 export async function startReview(request: StartReviewRequest) {
+  requirePrivilegedAdminAccess("operator");
   return runInTransaction(
     {
       name: "review.startReview",
@@ -443,6 +455,7 @@ export async function startReview(request: StartReviewRequest) {
 }
 
 export async function submitReviewDecision(request: SubmitReviewDecisionRequest) {
+  requirePrivilegedAdminAccess("operator");
   requirePublishTarget(request.decisionType, request.targetCanonicalMediaId);
 
   return runInTransaction(
@@ -515,6 +528,7 @@ export async function submitReviewDecision(request: SubmitReviewDecisionRequest)
 }
 
 export async function publishReviewDecision(request: PublishReviewDecisionRequest) {
+  requirePrivilegedAdminAccess("operator");
   const startedAt = new Date().toISOString();
 
   const { operation, detail, publishDecisionType } = await runInTransaction(
