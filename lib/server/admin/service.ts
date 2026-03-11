@@ -2,6 +2,9 @@ import "server-only";
 
 import type {
   AdminBackendDependencies,
+  AdminPublishedCatalogDetailRecord,
+  AdminPublishedCatalogPageRecord,
+  AdminPublishedCatalogQuery,
   AdminRepairQueueActionRequest,
   AdminRepairQueuePageRecord,
   AdminSourceInventoryPageRecord,
@@ -10,10 +13,15 @@ import type { RepairQueueQuery, RepairQueueStatus } from "../health";
 import type { SourceInventoryQuery, SourceOrderingUpdate } from "../source";
 
 async function getDefaultAdminDependencies(): Promise<AdminBackendDependencies> {
+  const catalog = await import("../catalog");
   const source = await import("../source");
   const health = await import("../health");
 
   return {
+    catalog: {
+      queryAdminPublishedCatalog: catalog.getAdminPublishedCatalogPage,
+      getAdminPublishedCatalogDetailByPublicId: catalog.getAdminPublishedCatalogDetailByPublicId,
+    },
     source: {
       listAdminSourceInventory: source.listAdminSourceInventory,
       updateSourceOrdering: source.updateSourceOrdering,
@@ -23,6 +31,22 @@ async function getDefaultAdminDependencies(): Promise<AdminBackendDependencies> 
       updateRepairQueueEntryStatus: health.updateRepairQueueEntryStatus,
     },
   };
+}
+
+export async function getAdminPublishedCatalogManagementPage(
+  query: AdminPublishedCatalogQuery = {},
+  dependencies?: AdminBackendDependencies,
+): Promise<AdminPublishedCatalogPageRecord> {
+  const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
+  return resolvedDependencies.catalog.queryAdminPublishedCatalog(query);
+}
+
+export async function getAdminPublishedCatalogManagementDetailByPublicId(
+  publicId: string,
+  dependencies?: AdminBackendDependencies,
+): Promise<AdminPublishedCatalogDetailRecord | null> {
+  const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
+  return resolvedDependencies.catalog.getAdminPublishedCatalogDetailByPublicId(publicId);
 }
 
 function buildSourceInventorySummary(items: AdminSourceInventoryPageRecord["items"]): AdminSourceInventoryPageRecord["summary"] {

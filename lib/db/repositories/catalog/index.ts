@@ -16,6 +16,16 @@ import {
   buildPublishedWatchHref,
   buildPublishedWatchQuery,
 } from "../../../server/catalog/identity";
+import type {
+  AdminPublishedCatalogAuditRecord,
+  AdminPublishedCatalogDetailRecord,
+  AdminPublishedCatalogListItemRecord,
+  AdminPublishedCatalogPageRecord,
+  AdminPublishedCatalogQuery,
+  AdminPublishedCatalogSort,
+  AdminPublishedEpisodeDiagnosticRecord,
+  AdminPublishedResourceRecord,
+} from "../../../server/admin";
 
 import type {
   PublishedCatalogCard,
@@ -80,6 +90,84 @@ const publishedMediaInclude = {
 } satisfies Prisma.MediaTitleInclude;
 
 type PublishedMediaPayload = Prisma.MediaTitleGetPayload<{ include: typeof publishedMediaInclude }>;
+
+const adminPublishedMediaInclude = {
+  alternateTitles: true,
+  genres: { include: { genre: true } },
+  artwork: true,
+  seasons: {
+    include: {
+      episodes: {
+        include: {
+          resources: {
+            include: {
+              replacementResource: {
+                select: {
+                  publicId: true,
+                },
+              },
+              providerRegistry: {
+                select: {
+                  displayName: true,
+                },
+              },
+              repairQueueEntries: {
+                where: {
+                  status: {
+                    in: ["OPEN", "IN_PROGRESS", "WAITING_PROVIDER"],
+                  },
+                },
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: [{ episodeNumber: "asc" }, { title: "asc" }],
+      },
+    },
+    orderBy: { seasonNumber: "asc" },
+  },
+  resources: {
+    include: {
+      replacementResource: {
+        select: {
+          publicId: true,
+        },
+      },
+      providerRegistry: {
+        select: {
+          displayName: true,
+        },
+      },
+      repairQueueEntries: {
+        where: {
+          status: {
+            in: ["OPEN", "IN_PROGRESS", "WAITING_PROVIDER"],
+          },
+        },
+        select: {
+          id: true,
+        },
+      },
+    },
+  },
+  publishAuditRecords: {
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 5,
+  },
+  reviewQueueEntries: {
+    orderBy: {
+      updatedAt: "desc",
+    },
+    take: 1,
+  },
+} satisfies Prisma.MediaTitleInclude;
+
+type AdminPublishedMediaPayload = Prisma.MediaTitleGetPayload<{ include: typeof adminPublishedMediaInclude }>;
 
 const publishedListInclude = {
   items: {
@@ -234,9 +322,22 @@ function getAllPublishedResources(media: PublishedMediaPayload) {
   ];
 }
 
+function getAllAdminPublishedResources(media: AdminPublishedMediaPayload) {
+  return [
+    ...media.resources.map((resource) => ({ resource, episode: null as AdminPublishedMediaPayload["seasons"][number]["episodes"][number] | null })),
+    ...media.seasons.flatMap((season) =>
+      season.episodes.flatMap((episode) => episode.resources.map((resource) => ({ resource, episode }))),
+    ),
+  ];
+}
+
 type PublishedResourceEntity =
   | PublishedMediaPayload["resources"][number]
   | PublishedMediaPayload["seasons"][number]["episodes"][number]["resources"][number];
+
+type AdminPublishedResourceEntity =
+  | AdminPublishedMediaPayload["resources"][number]
+  | AdminPublishedMediaPayload["seasons"][number]["episodes"][number]["resources"][number];
 
 function isPublicResource(resource: PublishedResourceEntity) {
   return resource.isPublic && resource.isActive;
@@ -397,6 +498,18 @@ function mapPublishedMediaIdentity(media: PublishedMediaPayload): PublishedMedia
   };
 }
 
+function mapAdminPublishedAuditAction(value: string) {
+  return value.toLowerCase();
+}
+
+function mapAdminReviewStatus(value: string) {
+  return value.toLowerCase();
+}
+
+function mapAdminReviewDecisionType(value?: string | null) {
+  return value ? value.toLowerCase() : null;
+}
+
 function mapPublishedResource(
   media: PublishedMediaPayload,
   resource: PublishedResourceEntity,
@@ -437,6 +550,47 @@ function mapPublishedResource(
     accessCode: resource.accessCode,
     canonicalWatchHref: buildPublishedWatchHref(watchQuery),
     watchQuery,
+  };
+}
+
+function mapAdminPublishedResource(
+  media: AdminPublishedMediaPayload,
+  resource: AdminPublishedResourceEntity,
+  episode?: AdminPublishedMediaPayload["seasons"][number]["episodes"][number] | null,
+): AdminPublishedResourceRecord {
+  const watchQuery = buildPublishedWatchQuery(
+    { publicId: media.publicId },
+    {
+      episodePublicId: episode?.publicId ?? undefined,
+      resourcePublicId: resource.publicId,
+    },
+  );
+
+  return {
+    id: resource.id,
+    publicId: resource.publicId,
+    mediaPublicId: media.publicId,
+    episodePublicId: episode?.publicId ?? undefined,
+    kind: mapResourceKind(resource.kind),
+    provider: mapResourceProvider(resource.provider),
+    format: resource.format.toLowerCase(),
+    label: resource.label,
+    quality: resource.quality,
+    status: mapResourceStatus(resource.status),
+    healthState: mapPublishedSourceHealthState(resource.healthState),
+    healthSummary: resource.healthSummary,
+    priority: resource.priority,
+    mirrorOrder: resource.mirrorOrder,
+    isPreferred: resource.isPreferred,
+    isUsable: isUsableResource(resource),
+    replacementPublicId: resource.replacementResource?.publicId ?? null,
+    url: resource.url,
+    maskedUrl: resource.maskedUrl,
+    accessCode: resource.accessCode,
+    canonicalWatchHref: buildPublishedWatchHref(watchQuery),
+    watchQuery,
+    openRepairCount: resource.repairQueueEntries.length,
+    providerDisplayName: resource.providerRegistry?.displayName ?? null,
   };
 }
 
@@ -612,6 +766,132 @@ function buildPublishedOrderBy(sort: PublishedCatalogSort): Prisma.MediaTitleOrd
   }
 }
 
+function normalizeAdminCatalogSort(sort?: AdminPublishedCatalogSort): AdminPublishedCatalogSort {
+  return sort ?? "published_at";
+}
+
+function buildAdminPublishedWhere(input: AdminPublishedCatalogQuery = {}): Prisma.MediaTitleWhereInput {
+  const q = input.q?.trim();
+  const where: Prisma.MediaTitleWhereInput = {
+    publishedAt: {
+      not: null,
+    },
+  };
+
+  if (input.type && input.type !== "all") {
+    where.type = input.type.toUpperCase() as Prisma.MediaTitleWhereInput["type"];
+  }
+
+  if (input.status) {
+    where.status = input.status.toUpperCase() as Prisma.MediaTitleWhereInput["status"];
+  }
+
+  if (input.year) {
+    where.releaseYear = input.year;
+  }
+
+  if (input.region) {
+    where.originCountry = {
+      equals: input.region,
+      mode: "insensitive",
+    };
+  }
+
+  if (q) {
+    where.OR = [
+      { title: { contains: q, mode: "insensitive" } },
+      { originalTitle: { contains: q, mode: "insensitive" } },
+      { summary: { contains: q, mode: "insensitive" } },
+      { alternateTitles: { some: { value: { contains: q, mode: "insensitive" } } } },
+      { genres: { some: { genre: { label: { contains: q, mode: "insensitive" } } } } },
+    ];
+  }
+
+  return where;
+}
+
+function buildAdminPublishedOrderBy(sort: AdminPublishedCatalogSort): Prisma.MediaTitleOrderByWithRelationInput[] {
+  switch (sort) {
+    case "updated_at":
+      return [{ updatedAt: "desc" }];
+    case "title":
+      return [{ title: "asc" }, { publishedAt: "desc" }];
+    case "release_year":
+      return [{ releaseYear: "desc" }, { publishedAt: "desc" }];
+    case "published_at":
+    default:
+      return [{ publishedAt: "desc" }, { updatedAt: "desc" }];
+  }
+}
+
+function countOpenRepairEntries(resources: AdminPublishedResourceEntity[]) {
+  return resources.reduce((total, resource) => total + resource.repairQueueEntries.length, 0);
+}
+
+function countResourcesByKind(resources: AdminPublishedResourceEntity[], kind: PublishedResourceKind) {
+  return resources.filter((resource) => mapResourceKind(resource.kind) === kind && isPublicResource(resource)).length;
+}
+
+function countHealthyStreams(resources: AdminPublishedResourceEntity[]) {
+  return resources.filter(
+    (resource) => mapResourceKind(resource.kind) === "stream" && isPublicResource(resource) && resource.healthState === "HEALTHY",
+  ).length;
+}
+
+function countDegradedStreams(resources: AdminPublishedResourceEntity[]) {
+  return resources.filter(
+    (resource) =>
+      mapResourceKind(resource.kind) === "stream" &&
+      isPublicResource(resource) &&
+      (resource.healthState === "DEGRADED" || resource.status === "DEGRADED"),
+  ).length;
+}
+
+function countBrokenOrOfflineResources(resources: AdminPublishedResourceEntity[]) {
+  return resources.filter(
+    (resource) =>
+      isPublicResource(resource) &&
+      (resource.healthState === "BROKEN" ||
+        resource.healthState === "OFFLINE" ||
+        resource.healthState === "REPLACED" ||
+        resource.status === "OFFLINE"),
+  ).length;
+}
+
+function mapAdminPublishedCatalogListItem(media: AdminPublishedMediaPayload): AdminPublishedCatalogListItemRecord {
+  const posterUrl = getPrimaryArtwork(media.artwork, "POSTER");
+  const backdropUrl = getPrimaryArtwork(media.artwork, "BACKDROP");
+  const allResources = getAllAdminPublishedResources(media).map(({ resource }) => resource);
+
+  return {
+    id: media.id,
+    publicId: media.publicId,
+    slug: media.slug,
+    title: media.title,
+    originalTitle: media.originalTitle,
+    type: mapMediaType(media.type),
+    status: mapMediaStatus(media.status),
+    releaseYear: media.releaseYear,
+    endYear: media.endYear,
+    originCountry: media.originCountry,
+    language: media.language,
+    posterUrl,
+    backdropUrl,
+    seasonCount: media.seasonCount,
+    episodeCount: media.episodeCount,
+    publishedAt: (media.publishedAt ?? media.updatedAt).toISOString(),
+    updatedAt: media.updatedAt.toISOString(),
+    streamCount: countResourcesByKind(allResources, "stream"),
+    healthyStreamCount: countHealthyStreams(allResources),
+    degradedStreamCount: countDegradedStreams(allResources),
+    downloadCount: countResourcesByKind(allResources, "download"),
+    subtitleCount: countResourcesByKind(allResources, "subtitle"),
+    openRepairCount: countOpenRepairEntries(allResources),
+    canonicalWatchHref: buildPublishedWatchHref(buildPublishedWatchQuery({ publicId: media.publicId })),
+    compatibilityHref: buildPublishedCompatibilityHref(media.slug),
+  };
+}
+
 function buildPublishedListQueue(list: PublishedListRecord, currentPublicRef?: string): PublishedListQueueRecord {
   const currentIndex = currentPublicRef ? list.items.findIndex((item) => item.publicRef === currentPublicRef) : 0;
   const items: PublishedListQueueItem[] = list.items.map((item, index) => ({
@@ -655,6 +935,116 @@ function mapPublishedResourceCollection(
     .filter(({ resource }) => mapResourceKind(resource.kind) === kind && isPublicResource(resource))
     .sort((left, right) => comparePublishedResources(left.resource, right.resource))
     .map(({ resource, episode }) => mapPublishedResource(media, resource, episode, listPublicId, listItemPublicRef));
+}
+
+function mapAdminPublishedResourceCollection(
+  media: AdminPublishedMediaPayload,
+  resources: Array<{
+    resource: AdminPublishedResourceEntity;
+    episode: AdminPublishedMediaPayload["seasons"][number]["episodes"][number] | null;
+  }>,
+  kind: PublishedResourceKind,
+) {
+  return resources
+    .filter(({ resource }) => mapResourceKind(resource.kind) === kind && isPublicResource(resource))
+    .sort((left, right) => comparePublishedResources(left.resource, right.resource))
+    .map(({ resource, episode }) => mapAdminPublishedResource(media, resource, episode));
+}
+
+function buildAdminPublishedEpisodeDiagnostics(
+  media: AdminPublishedMediaPayload,
+): AdminPublishedEpisodeDiagnosticRecord[] {
+  return media.seasons.flatMap((season) =>
+    season.episodes.map((episode) => {
+      const publicResources = episode.resources.filter((resource) => isPublicResource(resource));
+
+      return {
+        episodePublicId: episode.publicId,
+        seasonNumber: season.seasonNumber,
+        episodeNumber: episode.episodeNumber,
+        title: episode.title,
+        streamCount: publicResources.filter((resource) => mapResourceKind(resource.kind) === "stream").length,
+        healthyStreamCount: publicResources.filter(
+          (resource) => mapResourceKind(resource.kind) === "stream" && resource.healthState === "HEALTHY",
+        ).length,
+        openRepairCount: countOpenRepairEntries(publicResources),
+      };
+    }),
+  );
+}
+
+function buildAdminPublishedSourceSummary(media: AdminPublishedMediaPayload) {
+  const allResources = getAllAdminPublishedResources(media).map(({ resource }) => resource);
+
+  return {
+    totalResources: allResources.filter((resource) => isPublicResource(resource)).length,
+    streamCount: countResourcesByKind(allResources, "stream"),
+    healthyStreamCount: countHealthyStreams(allResources),
+    degradedStreamCount: countDegradedStreams(allResources),
+    brokenOrOfflineCount: countBrokenOrOfflineResources(allResources),
+    downloadCount: countResourcesByKind(allResources, "download"),
+    subtitleCount: countResourcesByKind(allResources, "subtitle"),
+    openRepairCount: countOpenRepairEntries(allResources),
+  };
+}
+
+function mapAdminPublishedCatalogDetail(media: AdminPublishedMediaPayload): AdminPublishedCatalogDetailRecord {
+  const streamResources = mapAdminPublishedResourceCollection(media, getAllAdminPublishedResources(media), "stream");
+  const downloadResources = mapAdminPublishedResourceCollection(media, getAllAdminPublishedResources(media), "download");
+  const subtitleResources = mapAdminPublishedResourceCollection(media, getAllAdminPublishedResources(media), "subtitle");
+  const identity = {
+    id: media.id,
+    publicId: media.publicId,
+    slug: media.slug,
+    title: media.title,
+    originalTitle: media.originalTitle,
+    summary: media.summary,
+    description: media.description,
+    tagline: media.tagline,
+    type: mapMediaType(media.type),
+    status: mapMediaStatus(media.status),
+    releaseYear: media.releaseYear,
+    endYear: media.endYear,
+    originCountry: media.originCountry,
+    language: media.language,
+    runtimeMinutes: media.runtimeMinutes,
+    episodeRuntimeMinutes: media.episodeRuntimeMinutes,
+    seasonCount: media.seasonCount,
+    episodeCount: media.episodeCount,
+    posterUrl: getPrimaryArtwork(media.artwork, "POSTER"),
+    backdropUrl: getPrimaryArtwork(media.artwork, "BACKDROP"),
+    canonicalWatchHref: buildPublishedWatchHref(buildPublishedWatchQuery({ publicId: media.publicId })),
+    compatibilityHref: buildPublishedCompatibilityHref(media.slug),
+    publishedAt: (media.publishedAt ?? media.updatedAt).toISOString(),
+    updatedAt: media.updatedAt.toISOString(),
+  };
+
+  return {
+    media: identity,
+    seasons: media.seasons.map((season) => mapPublishedSeason(media as PublishedMediaPayload, season as PublishedMediaPayload["seasons"][number])),
+    streamResources,
+    downloadResources,
+    subtitleResources,
+    sourceSummary: buildAdminPublishedSourceSummary(media),
+    episodeDiagnostics: buildAdminPublishedEpisodeDiagnostics(media),
+    recentAudits: media.publishAuditRecords.map(
+      (audit): AdminPublishedCatalogAuditRecord => ({
+        action: mapAdminPublishedAuditAction(audit.action),
+        actionSummary: audit.actionSummary,
+        actorId: audit.actorId,
+        createdAt: audit.createdAt.toISOString(),
+      }),
+    ),
+    reviewContext: media.reviewQueueEntries[0]
+      ? {
+          queueEntryId: media.reviewQueueEntries[0].id,
+          status: mapAdminReviewStatus(media.reviewQueueEntries[0].status),
+          latestDecisionType: mapAdminReviewDecisionType(media.reviewQueueEntries[0].latestDecisionType),
+          latestDecisionSummary: media.reviewQueueEntries[0].latestDecisionSummary,
+          updatedAt: media.reviewQueueEntries[0].updatedAt.toISOString(),
+        }
+      : undefined,
+  };
 }
 
 function resolveSelectedResource(
@@ -906,6 +1296,44 @@ export class PublishedCatalogRepository extends BaseRepository implements Publis
     };
   }
 
+  async queryAdminPublishedCatalog(input: AdminPublishedCatalogQuery = {}): Promise<AdminPublishedCatalogPageRecord> {
+    const page = Math.max(1, input.page ?? 1);
+    const pageSize = Math.max(1, Math.min(input.pageSize ?? 24, 50));
+    const where = buildAdminPublishedWhere(input);
+    const orderBy = buildAdminPublishedOrderBy(normalizeAdminCatalogSort(input.sort));
+
+    const [totalItems, allMatching, pageItems] = await Promise.all([
+      this.db.mediaTitle.count({ where }),
+      this.db.mediaTitle.findMany({ where, include: adminPublishedMediaInclude, orderBy }),
+      this.db.mediaTitle.findMany({
+        where,
+        include: adminPublishedMediaInclude,
+        orderBy,
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+    ]);
+
+    const allItems = allMatching.map((media) => mapAdminPublishedCatalogListItem(media));
+    const items = pageItems.map((media) => mapAdminPublishedCatalogListItem(media));
+
+    return {
+      title: "Published Catalog",
+      description: "Operator view of published titles, release state, and published-source readiness.",
+      appliedFilters: input,
+      page,
+      pageSize,
+      summary: {
+        totalItems,
+        totalPages: Math.max(1, Math.ceil(totalItems / pageSize)),
+        titlesWithRepairs: allItems.filter((item) => item.openRepairCount > 0).length,
+        titlesWithHealthyStreams: allItems.filter((item) => item.healthyStreamCount > 0).length,
+        episodicTitles: allItems.filter((item) => (item.episodeCount ?? 0) > 0).length,
+      },
+      items,
+    };
+  }
+
   async getPublishedDetailBySlug(slug: string): Promise<PublishedDetailRecord | null> {
     const media = await this.db.mediaTitle.findFirst({
       where: {
@@ -932,6 +1360,20 @@ export class PublishedCatalogRepository extends BaseRepository implements Publis
     });
 
     return media ? this.buildDetailRecord(media) : null;
+  }
+
+  async getAdminPublishedCatalogDetailByPublicId(publicId: string): Promise<AdminPublishedCatalogDetailRecord | null> {
+    const media = await this.db.mediaTitle.findFirst({
+      where: {
+        publicId,
+        publishedAt: {
+          not: null,
+        },
+      },
+      include: adminPublishedMediaInclude,
+    });
+
+    return media ? mapAdminPublishedCatalogDetail(media) : null;
   }
 
   async resolvePublishedWatch(query: PublishedWatchQuery): Promise<PublishedWatchRecord | null> {
