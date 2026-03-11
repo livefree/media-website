@@ -7,6 +7,13 @@ import type {
   CompleteQueuedProviderJobInput,
   FailQueuedProviderJobInput,
 } from "../../../server/ingest";
+import type {
+  ClaimedQueuedProviderPageJob,
+  ClaimQueuedProviderPageJobInput,
+  CompleteQueuedProviderPageJobInput,
+  FailQueuedProviderPageJobInput,
+  RequeueQueuedProviderPageJobInput,
+} from "../../../server/ingest/page-worker";
 import type { ProviderCapability, ProviderContentTypeHint } from "../../../server/provider";
 
 export const providerRegistryTypes = ["catalog", "playback", "download", "subtitle", "manual_submission"] as const;
@@ -204,4 +211,11 @@ export interface DurableProviderWorkerPersistenceGateway {
   claimNextQueuedProviderJob(input: ClaimQueuedProviderJobInput): Promise<ClaimedQueuedProviderJob | null>;
   completeQueuedProviderJob(input: CompleteQueuedProviderJobInput): Promise<void>;
   failQueuedProviderJob(input: FailQueuedProviderJobInput): Promise<void>;
+}
+
+export interface DurableProviderPageWorkerPersistenceGateway {
+  claimNextQueuedProviderPageJob(input: ClaimQueuedProviderPageJobInput): Promise<ClaimedQueuedProviderPageJob | null>;
+  requeueQueuedProviderPageJob(input: RequeueQueuedProviderPageJobInput): Promise<void>;
+  completeQueuedProviderPageJob(input: CompleteQueuedProviderPageJobInput): Promise<void>;
+  failQueuedProviderPageJob(input: FailQueuedProviderPageJobInput): Promise<void>;
 }
