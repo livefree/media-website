@@ -189,7 +189,7 @@ export interface PublishedListItemRecord {
   };
 }
 
-export interface PublishedListRecord {
+export interface PublishedListSummaryRecord {
   id: string;
   publicId: string;
   title: string;
@@ -202,6 +202,9 @@ export interface PublishedListRecord {
   itemCountLabel: string;
   coverPosterUrl?: string | null;
   coverBackdropUrl?: string | null;
+}
+
+export interface PublishedListRecord extends PublishedListSummaryRecord {
   items: PublishedListItemRecord[];
 }
 
@@ -211,7 +214,7 @@ export interface PublishedListDirectoryRecord {
   canonicalDirectoryHref: string;
   listCount: number;
   listCountLabel: string;
-  items: PublishedListRecord[];
+  items: PublishedListSummaryRecord[];
 }
 
 export interface PublishedListQueueItem {
@@ -254,6 +257,12 @@ export interface PublishedWatchRecord {
   list?: PublishedListRecord;
   listItem?: PublishedListItemRecord;
   queue?: PublishedListQueueRecord;
+}
+
+export interface PublishedFeaturedListDiscoveryRecord {
+  title: string;
+  description: string;
+  items: PublishedListSummaryRecord[];
 }
 
 export interface CatalogPublishInput {

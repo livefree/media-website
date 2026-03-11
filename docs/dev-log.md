@@ -263,6 +263,7 @@ Data Catalog:
 - Added Round C normalization persistence support with Prisma pre-review models/enums and `lib/db` repositories for normalized candidates, candidate aliases, match suggestions, and duplicate signals while keeping normalization state isolated from canonical catalog writes and publish flow
 - Added Round D review/publish persistence and service boundaries with explicit review queue, review decisions, publish operations, and durable audit records plus a server-only publish path that is now the only backend route for canonical catalog writes in this round
 - Added Round E published-catalog read boundaries under `lib/db` and `lib/server/catalog` for browse/search/detail/watch/list serving, preserving canonical public watch/list identity while keeping staging and review state out of public contracts
+- Completed the Round E list-serving follow-up by splitting published public-list summary/detail contracts, filtering directory and featured discovery to published list items only, and exposing backend featured-list discovery functions for homepage migration while preserving canonical `/list/<publicId>` and list-aware `/watch?...&list=...&li=...` identity
 
 Planner:
 - Produced `docs/handovers/planner-free-video-source-integration-round-1.md` to define the lawful free-video source onboarding plan, including source-class restrictions, rights/provenance workflow, ingest/transcode/storage/CDN architecture, playback-resource evolution, schema additions, ops/compliance controls, and the Round 2-4 implementation roadmap

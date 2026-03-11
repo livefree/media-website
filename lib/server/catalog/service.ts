@@ -6,8 +6,10 @@ import type {
   PublishedCatalogPageRecord,
   PublishedCatalogQueryInput,
   PublishedDetailRecord,
+  PublishedFeaturedListDiscoveryRecord,
   PublishedListDirectoryRecord,
   PublishedListRecord,
+  PublishedListSummaryRecord,
   PublishedWatchQuery,
   PublishedWatchRecord,
 } from "./types";
@@ -34,4 +36,16 @@ export async function getPublishedCatalogListByPublicId(publicId: string): Promi
 
 export async function getPublishedCatalogListDirectory(): Promise<PublishedListDirectoryRecord> {
   return createDefaultPublishedCatalogRepository().getPublishedListDirectory();
+}
+
+export async function getPublishedCatalogFeaturedLists(limit = 3): Promise<PublishedListSummaryRecord[]> {
+  return createDefaultPublishedCatalogRepository().getPublishedFeaturedLists(limit);
+}
+
+export async function getPublishedCatalogFeaturedListDiscovery(limit = 3): Promise<PublishedFeaturedListDiscoveryRecord> {
+  return {
+    title: "Featured Lists",
+    description: "Public featured list discovery backed by published canonical catalog records.",
+    items: await getPublishedCatalogFeaturedLists(limit),
+  };
 }
