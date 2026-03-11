@@ -1,12 +1,11 @@
 import "server-only";
 
-import { getPublicLists } from "./media-catalog";
 import { buildBrowseHref, getBrowsePathForType, parseSearchParams, type SearchRouteParams } from "./search-params";
-import { getPublishedCatalogPage } from "./server/catalog/service";
+import { getPublishedCatalogFeaturedListDiscovery, getPublishedCatalogPage } from "./server/catalog/service";
 import { isBackendError } from "./server/errors";
 
 import type { PublishedCatalogCard, PublishedFacetOption } from "./server/catalog/types";
-import type { BrowseMediaCard, CatalogScope, MediaStatus, MediaType, SearchSuggestion } from "../types/media";
+import type { BrowseMediaCard, CatalogScope, MediaStatus, MediaType, PublicMediaList, SearchSuggestion } from "../types/media";
 
 const SEARCH_PAGE_SIZE = 18;
 const HOT_SEARCH_LIMIT = 5;
@@ -201,6 +200,52 @@ async function getHotSearches(scope: CatalogScope): Promise<SearchSuggestion[]> 
   return hotSearchPage.items.map(mapSearchSuggestion);
 }
 
+function mapPublishedFeaturedList(list: {
+  id: string;
+  publicId: string;
+  title: string;
+  description?: string | null;
+  canonicalListHref: string;
+  shareHref: string;
+  shareTitle: string;
+  shareDescription: string;
+  itemCount: number;
+  itemCountLabel: string;
+  coverPosterUrl?: string | null;
+  coverBackdropUrl?: string | null;
+}): PublicMediaList {
+  return {
+    id: list.id,
+    publicId: list.publicId,
+    slug: list.publicId,
+    title: list.title,
+    description: list.description ?? "",
+    visibility: "public",
+    canonicalListHref: list.canonicalListHref,
+    shareHref: list.shareHref,
+    shareTitle: list.shareTitle,
+    shareDescription: list.shareDescription,
+    visibilityLabel: "Public",
+    itemCount: list.itemCount,
+    itemCountLabel: list.itemCountLabel,
+    coverPosterUrl: list.coverPosterUrl ?? undefined,
+    coverBackdropUrl: list.coverBackdropUrl ?? undefined,
+  };
+}
+
+async function getFeaturedListsSafe(limit = 3): Promise<PublicMediaList[]> {
+  try {
+    const discovery = await getPublishedCatalogFeaturedListDiscovery(limit);
+    return discovery.items.map(mapPublishedFeaturedList);
+  } catch (error) {
+    if (isBackendError(error) && error.code === "database_not_configured") {
+      return [];
+    }
+
+    throw error;
+  }
+}
+
 function buildActiveScope(type: CatalogScope): CatalogScope {
   return type === "all" ? "all" : type;
 }
@@ -321,6 +366,7 @@ export async function buildBrowsePageData(
     pageSize: params.pageSize,
   });
   const hotSearches = await getHotSearches(scope);
+  const featuredLists = scope === "all" ? await getFeaturedListsSafe(3) : [];
   const currentPage = Math.min(params.page, requestedPage.totalPages);
   const pageRecord =
     currentPage === requestedPage.page
@@ -386,6 +432,6 @@ export async function buildBrowsePageData(
     buildHref(page: number) {
       return buildBrowseHref(currentParams, { page });
     },
-    featuredLists: scope === "all" ? getPublicLists().slice(0, 3) : [],
+    featuredLists,
   };
 }
