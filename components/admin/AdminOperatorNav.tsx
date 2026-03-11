@@ -23,12 +23,27 @@ const sections = [
     id: "review",
     label: "Review queue",
   },
+  {
+    href: "/admin/moderation",
+    id: "moderation",
+    label: "Moderation",
+  },
+  {
+    href: "/admin/manual-titles",
+    id: "manual-titles",
+    label: "Manual titles",
+  },
+  {
+    href: "/admin/manual-sources",
+    id: "manual-sources",
+    label: "Manual sources",
+  },
 ] as const;
 
 export function AdminOperatorNav({
   activeSection,
 }: {
-  activeSection: "catalog" | "sources" | "repair" | "review";
+  activeSection: "catalog" | "sources" | "repair" | "review" | "moderation" | "manual-titles" | "manual-sources";
 }) {
   return (
     <nav aria-label="Admin workflow sections" className={styles.workflowNav}>
