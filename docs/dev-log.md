@@ -17,6 +17,9 @@ Media Ingest:
 - Added Round C normalization and dedup preparation under `lib/server/normalize/`, including staged-record normalization drafts for title/alias/year/type/locale/season-episode/source-fragment shaping plus suggestion-only match and duplicate orchestration that stops before persistence, review, or canonical writes
 - Extended the provider and ingest boundaries for Round F with typed source refresh and source probe entrypoints, staging-safe refresh/probe persistence plans, and repair-intake signal generation so degraded or broken findings can feed downstream source/health workflow instead of disappearing into logs
 
+Detail Player:
+- Updated `app/watch/page.tsx` to consume Round F health-aware published watch resolution for active playback, canonical watch hrefs, episode/source switching, and download-provider fallback while keeping list-aware watch context intact
+
 2026-03-08
 
 Initial project scaffold created.
