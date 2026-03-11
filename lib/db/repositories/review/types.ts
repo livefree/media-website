@@ -7,6 +7,21 @@ import type {
   PersistedNormalizedCandidateRecord,
 } from "../normalization/types";
 import type {
+  CreateManualTitleSubmissionInput,
+  CreateModerationReportInput,
+  ManualSubmissionActionType,
+  ManualSubmissionStatus,
+  ManualTitleSubmissionActionRecord,
+  ManualTitleSubmissionDetailRecord,
+  ManualTitleSubmissionQuery,
+  ManualTitleSubmissionRecord,
+  ManualTitleSubmissionStatusUpdateInput,
+  ModerationReportActionRecord,
+  ModerationReportDetailRecord,
+  ModerationReportQuery,
+  ModerationReportRecord,
+  ModerationReportStatus,
+  ModerationReportStatusUpdateInput,
   PublishAuditAction,
   PublishOperationStatus,
   PublishOperationType,
@@ -133,6 +148,29 @@ export interface PersistedPublishAuditRecord {
   createdAt: Date;
 }
 
+export interface ModerationReportActionCreateInput {
+  reportId: string;
+  actorId?: string;
+  actionType: ModerationReportActionRecord["actionType"];
+  summary: string;
+  notes?: string;
+  statusAfter?: ModerationReportStatus;
+  linkedRepairQueueEntryId?: string;
+  metadata?: Record<string, unknown>;
+  createdAt?: string;
+}
+
+export interface ManualTitleSubmissionActionCreateInput {
+  submissionId: string;
+  actorId?: string;
+  actionType: ManualSubmissionActionType;
+  summary: string;
+  notes?: string;
+  statusAfter?: ManualSubmissionStatus;
+  metadata?: Record<string, unknown>;
+  createdAt?: string;
+}
+
 export interface ReviewQueueListItemRecord {
   queueEntry: PersistedReviewQueueEntryRecord;
   candidate: PersistedNormalizedCandidateRecord;
@@ -172,4 +210,17 @@ export interface ReviewWorkflowRepository {
   listReviewQueue(): Promise<ReviewQueueListItemRecord[]>;
   getReviewQueueDetail(queueEntryId: string): Promise<ReviewQueueDetailRecord | null>;
   getReviewDecisionDetail(reviewDecisionId: string): Promise<ReviewDecisionDetailRecord | null>;
+  createModerationReport(input: CreateModerationReportInput): Promise<ModerationReportRecord>;
+  updateModerationReportStatus(publicId: string, input: ModerationReportStatusUpdateInput): Promise<ModerationReportRecord>;
+  createModerationReportAction(input: ModerationReportActionCreateInput): Promise<ModerationReportActionRecord>;
+  listModerationReports(query?: ModerationReportQuery): Promise<ModerationReportRecord[]>;
+  getModerationReportDetailByPublicId(publicId: string): Promise<ModerationReportDetailRecord | null>;
+  createManualTitleSubmission(input: CreateManualTitleSubmissionInput): Promise<ManualTitleSubmissionRecord>;
+  updateManualTitleSubmissionStatus(
+    publicId: string,
+    input: ManualTitleSubmissionStatusUpdateInput,
+  ): Promise<ManualTitleSubmissionRecord>;
+  createManualTitleSubmissionAction(input: ManualTitleSubmissionActionCreateInput): Promise<ManualTitleSubmissionActionRecord>;
+  listManualTitleSubmissions(query?: ManualTitleSubmissionQuery): Promise<ManualTitleSubmissionRecord[]>;
+  getManualTitleSubmissionDetailByPublicId(publicId: string): Promise<ManualTitleSubmissionDetailRecord | null>;
 }

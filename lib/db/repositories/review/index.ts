@@ -1,5 +1,7 @@
 import "server-only";
 
+import { randomUUID } from "node:crypto";
+
 import { Prisma } from "@prisma/client";
 
 import type { RepositoryContext } from "../types";
@@ -8,6 +10,22 @@ import { requireDb } from "../../client";
 
 import type { MatchReason, MatchSuggestionKind, NormalizedAliasValue, NormalizedMediaType, NormalizedSeasonEpisodeHints, NormalizedSourceSummary } from "../../../server/normalize";
 import type {
+  CreateManualTitleSubmissionInput,
+  CreateModerationReportInput,
+  ManualSubmissionActionType,
+  ManualSubmissionStatus,
+  ManualTitleSubmissionActionRecord,
+  ManualTitleSubmissionDetailRecord,
+  ManualTitleSubmissionQuery,
+  ManualTitleSubmissionRecord,
+  ManualTitleSubmissionStatusUpdateInput,
+  ModerationReportActionRecord,
+  ModerationReportDetailRecord,
+  ModerationReportKind,
+  ModerationReportQuery,
+  ModerationReportRecord,
+  ModerationReportStatus,
+  ModerationReportStatusUpdateInput,
   PublishAuditAction,
   PublishOperationStatus,
   PublishOperationType,
@@ -25,6 +43,8 @@ import type {
   PersistedPublishOperationRecord,
   PersistedReviewDecisionRecord,
   PersistedReviewQueueEntryRecord,
+  ManualTitleSubmissionActionCreateInput,
+  ModerationReportActionCreateInput,
   PublishAuditCreateInput,
   PublishOperationCreateInput,
   PublishOperationUpdateInput,
@@ -117,6 +137,52 @@ const publishAuditActionMap = {
   publish_failed: "PUBLISH_FAILED",
 } as const;
 
+const moderationReportKindMap = {
+  broken_source: "BROKEN_SOURCE",
+  closely_related: "CLOSELY_RELATED",
+} as const;
+
+const moderationReportStatusMap = {
+  open: "OPEN",
+  in_review: "IN_REVIEW",
+  resolved: "RESOLVED",
+  dismissed: "DISMISSED",
+} as const;
+
+const moderationReportActionTypeMap = {
+  submitted: "SUBMITTED",
+  acknowledged: "ACKNOWLEDGED",
+  linked_repair: "LINKED_REPAIR",
+  resolved: "RESOLVED",
+  dismissed: "DISMISSED",
+  noted: "NOTED",
+} as const;
+
+const manualSubmissionStatusMap = {
+  submitted: "SUBMITTED",
+  in_review: "IN_REVIEW",
+  accepted: "ACCEPTED",
+  rejected: "REJECTED",
+  needs_followup: "NEEDS_FOLLOWUP",
+} as const;
+
+const manualSubmissionActionTypeMap = {
+  submitted: "SUBMITTED",
+  status_changed: "STATUS_CHANGED",
+  linked_review: "LINKED_REVIEW",
+  linked_resource: "LINKED_RESOURCE",
+  noted: "NOTED",
+} as const;
+
+const manualTitleTypeHintMap = {
+  movie: "MOVIE",
+  series: "SERIES",
+  anime: "ANIME",
+  variety: "VARIETY",
+  documentary: "DOCUMENTARY",
+  special: "SPECIAL",
+} as const;
+
 function toDate(value?: string | null): Date | undefined {
   if (!value) {
     return undefined;
@@ -159,6 +225,34 @@ function mapPublishOperationStatus(value: PublishOperationStatus) {
 
 function mapPublishAuditAction(value: PublishAuditAction) {
   return publishAuditActionMap[value];
+}
+
+function mapModerationReportKind(value: ModerationReportKind) {
+  return moderationReportKindMap[value];
+}
+
+function mapModerationReportStatus(value: ModerationReportStatus) {
+  return moderationReportStatusMap[value];
+}
+
+function mapModerationReportActionType(value: ModerationReportActionRecord["actionType"]) {
+  return moderationReportActionTypeMap[value];
+}
+
+function mapManualSubmissionStatus(value: ManualSubmissionStatus) {
+  return manualSubmissionStatusMap[value];
+}
+
+function mapManualSubmissionActionType(value: ManualSubmissionActionType) {
+  return manualSubmissionActionTypeMap[value];
+}
+
+function mapManualTitleTypeHint(value?: ManualTitleSubmissionRecord["typeHint"] | null) {
+  if (!value || value === "unknown") {
+    return null;
+  }
+
+  return manualTitleTypeHintMap[value];
 }
 
 function unmapNormalizedMediaType(value: keyof typeof normalizedMediaTypeMap): NormalizedMediaType {
@@ -286,6 +380,148 @@ function unmapPublishAuditAction(value: string): PublishAuditAction {
   }
 
   throw new Error(`Unsupported publish audit action: ${value}`);
+}
+
+function unmapModerationReportKind(value: string): ModerationReportKind {
+  switch (value) {
+    case "BROKEN_SOURCE":
+      return "broken_source";
+    case "CLOSELY_RELATED":
+      return "closely_related";
+  }
+
+  throw new Error(`Unsupported moderation report kind: ${value}`);
+}
+
+function unmapModerationReportStatus(value: string): ModerationReportStatus {
+  switch (value) {
+    case "OPEN":
+      return "open";
+    case "IN_REVIEW":
+      return "in_review";
+    case "RESOLVED":
+      return "resolved";
+    case "DISMISSED":
+      return "dismissed";
+  }
+
+  throw new Error(`Unsupported moderation report status: ${value}`);
+}
+
+function unmapModerationReportActionType(value: string): ModerationReportActionRecord["actionType"] {
+  switch (value) {
+    case "SUBMITTED":
+      return "submitted";
+    case "ACKNOWLEDGED":
+      return "acknowledged";
+    case "LINKED_REPAIR":
+      return "linked_repair";
+    case "RESOLVED":
+      return "resolved";
+    case "DISMISSED":
+      return "dismissed";
+    case "NOTED":
+      return "noted";
+  }
+
+  throw new Error(`Unsupported moderation report action type: ${value}`);
+}
+
+function unmapManualSubmissionStatus(value: string): ManualSubmissionStatus {
+  switch (value) {
+    case "SUBMITTED":
+      return "submitted";
+    case "IN_REVIEW":
+      return "in_review";
+    case "ACCEPTED":
+      return "accepted";
+    case "REJECTED":
+      return "rejected";
+    case "NEEDS_FOLLOWUP":
+      return "needs_followup";
+  }
+
+  throw new Error(`Unsupported manual submission status: ${value}`);
+}
+
+function unmapManualSubmissionActionType(value: string): ManualSubmissionActionType {
+  switch (value) {
+    case "SUBMITTED":
+      return "submitted";
+    case "STATUS_CHANGED":
+      return "status_changed";
+    case "LINKED_REVIEW":
+      return "linked_review";
+    case "LINKED_RESOURCE":
+      return "linked_resource";
+    case "NOTED":
+      return "noted";
+  }
+
+  throw new Error(`Unsupported manual submission action type: ${value}`);
+}
+
+function unmapManualTitleTypeHint(value: string | null): ManualTitleSubmissionRecord["typeHint"] {
+  switch (value) {
+    case "MOVIE":
+      return "movie";
+    case "SERIES":
+      return "series";
+    case "ANIME":
+      return "anime";
+    case "VARIETY":
+      return "variety";
+    case "DOCUMENTARY":
+      return "documentary";
+    case "SPECIAL":
+      return "special";
+    case null:
+      return "unknown";
+  }
+
+  throw new Error(`Unsupported manual title type hint: ${value}`);
+}
+
+function unmapResourceKind(
+  value: string | null | undefined,
+): ModerationReportRecord["resourceKind"] {
+  switch (value) {
+    case "STREAM":
+      return "stream";
+    case "DOWNLOAD":
+      return "download";
+    case "SUBTITLE":
+      return "subtitle";
+    case "TRAILER":
+      return "trailer";
+    case null:
+    case undefined:
+      return null;
+  }
+
+  throw new Error(`Unsupported moderation resource kind: ${value}`);
+}
+
+function unmapRepairQueueStatus(
+  value: string | null | undefined,
+): ModerationReportRecord["repairQueueStatus"] {
+  switch (value) {
+    case "OPEN":
+      return "open";
+    case "IN_PROGRESS":
+      return "in_progress";
+    case "WAITING_PROVIDER":
+      return "waiting_provider";
+    case "RESOLVED":
+      return "resolved";
+    case "DISMISSED":
+      return "dismissed";
+    case null:
+    case undefined:
+      return null;
+  }
+
+  throw new Error(`Unsupported moderation repair queue status: ${value}`);
 }
 
 function mapNormalizedCandidateRecord(
@@ -443,6 +679,225 @@ function mapPublishAuditRecord(
     targetCanonicalMediaId: record.targetCanonicalMediaId,
     metadata: fromJsonValue<Record<string, unknown>>(record.metadata),
     createdAt: record.createdAt,
+  };
+}
+
+function mapModerationReportRecord(
+  record: Prisma.ModerationReportGetPayload<{
+    include: {
+      media: {
+        select: {
+          id: true;
+          publicId: true;
+          title: true;
+          slug: true;
+        };
+      };
+      resource: {
+        select: {
+          id: true;
+          publicId: true;
+          kind: true;
+          label: true;
+          episode: {
+            select: {
+              publicId: true;
+              title: true;
+            };
+          };
+        };
+      };
+      repairQueueEntry: {
+        select: {
+          id: true;
+          status: true;
+        };
+      };
+    };
+  }>,
+): ModerationReportRecord {
+  return {
+    id: record.id,
+    publicId: record.publicId,
+    kind: unmapModerationReportKind(record.kind),
+    status: unmapModerationReportStatus(record.status),
+    title: record.title,
+    summary: record.summary,
+    detail: record.detail,
+    reporterName: record.reporterName,
+    reporterEmail: record.reporterEmail,
+    sourceUrl: record.sourceUrl,
+    mediaId: record.mediaId,
+    mediaPublicId: record.media?.publicId ?? null,
+    mediaTitle: record.media?.title ?? null,
+    mediaSlug: record.media?.slug ?? null,
+    resourceId: record.resourceId,
+    resourcePublicId: record.resource?.publicId ?? null,
+    resourceLabel: record.resource?.label ?? null,
+    resourceKind: unmapResourceKind(record.resource?.kind),
+    episodePublicId: record.resource?.episode?.publicId ?? null,
+    episodeTitle: record.resource?.episode?.title ?? null,
+    repairQueueEntryId: record.repairQueueEntryId,
+    repairQueueStatus: unmapRepairQueueStatus(record.repairQueueEntry?.status),
+    latestActionSummary: record.latestActionSummary,
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+    queuedAt: record.queuedAt,
+    resolvedAt: record.resolvedAt,
+    dismissedAt: record.dismissedAt,
+  };
+}
+
+function mapModerationReportActionRecord(
+  record: Prisma.ModerationReportActionGetPayload<Record<string, never>>,
+): ModerationReportActionRecord {
+  return {
+    id: record.id,
+    reportId: record.reportId,
+    actorId: record.actorId,
+    actionType: unmapModerationReportActionType(record.actionType),
+    summary: record.summary,
+    notes: record.notes,
+    statusAfter: record.statusAfter ? unmapModerationReportStatus(record.statusAfter) : null,
+    linkedRepairQueueEntryId: record.repairQueueEntryId,
+    createdAt: record.createdAt,
+  };
+}
+
+function mapManualTitleSubmissionRecord(
+  record: Prisma.ManualTitleSubmissionGetPayload<{
+    include: {
+      canonicalMedia: {
+        select: {
+          id: true;
+          publicId: true;
+          title: true;
+        };
+      };
+    };
+  }>,
+): ManualTitleSubmissionRecord {
+  return {
+    id: record.id,
+    publicId: record.publicId,
+    status: unmapManualSubmissionStatus(record.status),
+    title: record.title,
+    originalTitle: record.originalTitle,
+    typeHint: unmapManualTitleTypeHint(record.typeHint),
+    releaseYear: record.releaseYear,
+    originCountry: record.originCountry,
+    language: record.language,
+    summary: record.summary,
+    notes: record.notes,
+    sourceUrl: record.sourceUrl,
+    canonicalMediaId: record.canonicalMediaId,
+    canonicalMediaPublicId: record.canonicalMedia?.publicId ?? null,
+    canonicalMediaTitle: record.canonicalMedia?.title ?? null,
+    reviewQueueEntryId: record.reviewQueueEntryId,
+    submittedByName: record.submittedByName,
+    submittedByEmail: record.submittedByEmail,
+    latestActionSummary: record.latestActionSummary,
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+    reviewedAt: record.reviewedAt,
+  };
+}
+
+function mapManualTitleSubmissionActionRecord(
+  record: Prisma.ManualTitleSubmissionActionGetPayload<Record<string, never>>,
+): ManualTitleSubmissionActionRecord {
+  return {
+    id: record.id,
+    submissionId: record.submissionId,
+    actorId: record.actorId,
+    actionType: unmapManualSubmissionActionType(record.actionType),
+    summary: record.summary,
+    notes: record.notes,
+    statusAfter: record.statusAfter ? unmapManualSubmissionStatus(record.statusAfter) : null,
+    createdAt: record.createdAt,
+  };
+}
+
+const moderationReportListInclude = {
+  media: {
+    select: {
+      id: true,
+      publicId: true,
+      title: true,
+      slug: true,
+    },
+  },
+  resource: {
+    select: {
+      id: true,
+      publicId: true,
+      kind: true,
+      label: true,
+      episode: {
+        select: {
+          publicId: true,
+          title: true,
+        },
+      },
+    },
+  },
+  repairQueueEntry: {
+    select: {
+      id: true,
+      status: true,
+    },
+  },
+} satisfies Prisma.ModerationReportInclude;
+
+const moderationReportDetailInclude = {
+  ...moderationReportListInclude,
+  actions: {
+    orderBy: {
+      createdAt: "desc",
+    },
+  },
+} satisfies Prisma.ModerationReportInclude;
+
+const manualTitleSubmissionListInclude = {
+  canonicalMedia: {
+    select: {
+      id: true,
+      publicId: true,
+      title: true,
+    },
+  },
+} satisfies Prisma.ManualTitleSubmissionInclude;
+
+const manualTitleSubmissionDetailInclude = {
+  ...manualTitleSubmissionListInclude,
+  actions: {
+    orderBy: {
+      createdAt: "desc",
+    },
+  },
+} satisfies Prisma.ManualTitleSubmissionInclude;
+
+type ModerationReportDetailPayload = Prisma.ModerationReportGetPayload<{
+  include: typeof moderationReportDetailInclude;
+}>;
+
+type ManualTitleSubmissionDetailPayload = Prisma.ManualTitleSubmissionGetPayload<{
+  include: typeof manualTitleSubmissionDetailInclude;
+}>;
+
+function mapModerationReportDetailRecord(record: ModerationReportDetailPayload): ModerationReportDetailRecord {
+  return {
+    report: mapModerationReportRecord(record),
+    actions: record.actions.map((action) => mapModerationReportActionRecord(action)),
+  };
+}
+
+function mapManualTitleSubmissionDetailRecord(
+  record: ManualTitleSubmissionDetailPayload,
+): ManualTitleSubmissionDetailRecord {
+  return {
+    submission: mapManualTitleSubmissionRecord(record),
+    actions: record.actions.map((action) => mapManualTitleSubmissionActionRecord(action)),
   };
 }
 
@@ -665,6 +1120,229 @@ export class ReviewWorkflowRepository extends BaseRepository implements ReviewWo
       ),
       duplicateSignals: decision.queueEntry.normalizedCandidate.duplicateSignals.map((signal) => mapDuplicateSignalRecord(signal)),
     };
+  }
+
+  async createModerationReport(input: CreateModerationReportInput): Promise<ModerationReportRecord> {
+    const record = await this.db.moderationReport.create({
+      data: {
+        publicId: `modr_${randomUUID().replace(/-/g, "").slice(0, 20)}`,
+        kind: mapModerationReportKind(input.kind),
+        status: "OPEN",
+        mediaId: input.mediaId,
+        resourceId: input.resourceId,
+        title: input.title,
+        summary: input.summary,
+        detail: input.detail,
+        reporterName: input.reporterName,
+        reporterEmail: input.reporterEmail,
+        sourceUrl: input.sourceUrl,
+        evidence: toJsonValue(input.evidence),
+      },
+      include: moderationReportListInclude,
+    });
+
+    return mapModerationReportRecord(record);
+  }
+
+  async updateModerationReportStatus(
+    publicId: string,
+    input: ModerationReportStatusUpdateInput,
+  ): Promise<ModerationReportRecord> {
+    const resolvedAt = input.status === "resolved" ? new Date() : input.status === "dismissed" ? null : undefined;
+    const dismissedAt = input.status === "dismissed" ? new Date() : input.status === "resolved" ? null : undefined;
+    const record = await this.db.moderationReport.update({
+      where: {
+        publicId,
+      },
+      data: {
+        status: mapModerationReportStatus(input.status),
+        repairQueueEntryId: input.linkedRepairQueueEntryId,
+        latestActionSummary: input.notes?.trim() || undefined,
+        resolvedAt,
+        dismissedAt,
+      },
+      include: moderationReportListInclude,
+    });
+
+    return mapModerationReportRecord(record);
+  }
+
+  async createModerationReportAction(input: ModerationReportActionCreateInput): Promise<ModerationReportActionRecord> {
+    const record = await this.db.moderationReportAction.create({
+      data: {
+        reportId: input.reportId,
+        actorId: input.actorId,
+        actionType: mapModerationReportActionType(input.actionType),
+        summary: input.summary,
+        notes: input.notes,
+        statusAfter: input.statusAfter ? mapModerationReportStatus(input.statusAfter) : undefined,
+        repairQueueEntryId: input.linkedRepairQueueEntryId,
+        metadata: toJsonValue(input.metadata),
+        createdAt: toDate(input.createdAt),
+      },
+    });
+
+    return mapModerationReportActionRecord(record);
+  }
+
+  async listModerationReports(query: ModerationReportQuery = {}): Promise<ModerationReportRecord[]> {
+    const search = query.q?.trim();
+    const records = await this.db.moderationReport.findMany({
+      where: {
+        kind: query.kinds?.length
+          ? {
+              in: query.kinds.map((kind) => mapModerationReportKind(kind)),
+            }
+          : undefined,
+        status: query.statuses?.length
+          ? {
+              in: query.statuses.map((status) => mapModerationReportStatus(status)),
+            }
+          : undefined,
+        resource: query.resourcePublicId
+          ? {
+              publicId: query.resourcePublicId,
+            }
+          : undefined,
+        media: query.mediaPublicId
+          ? {
+              publicId: query.mediaPublicId,
+            }
+          : undefined,
+        OR: search
+          ? [
+              { title: { contains: search, mode: "insensitive" } },
+              { summary: { contains: search, mode: "insensitive" } },
+              { detail: { contains: search, mode: "insensitive" } },
+              { media: { title: { contains: search, mode: "insensitive" } } },
+              { resource: { label: { contains: search, mode: "insensitive" } } },
+            ]
+          : undefined,
+      },
+      include: moderationReportListInclude,
+      orderBy: [{ queuedAt: "desc" }, { createdAt: "desc" }],
+    });
+
+    return records.map((record) => mapModerationReportRecord(record));
+  }
+
+  async getModerationReportDetailByPublicId(publicId: string): Promise<ModerationReportDetailRecord | null> {
+    const record = await this.db.moderationReport.findUnique({
+      where: {
+        publicId,
+      },
+      include: moderationReportDetailInclude,
+    });
+
+    return record ? mapModerationReportDetailRecord(record) : null;
+  }
+
+  async createManualTitleSubmission(input: CreateManualTitleSubmissionInput): Promise<ManualTitleSubmissionRecord> {
+    const record = await this.db.manualTitleSubmission.create({
+      data: {
+        publicId: `mts_${randomUUID().replace(/-/g, "").slice(0, 20)}`,
+        status: "SUBMITTED",
+        title: input.title,
+        originalTitle: input.originalTitle,
+        typeHint: mapManualTitleTypeHint(input.typeHint ?? "unknown"),
+        releaseYear: input.releaseYear,
+        originCountry: input.originCountry,
+        language: input.language,
+        summary: input.summary,
+        notes: input.notes,
+        sourceUrl: input.sourceUrl,
+        submittedByName: input.submittedByName,
+        submittedByEmail: input.submittedByEmail,
+        latestActionSummary: "Manual title submission created.",
+      },
+      include: manualTitleSubmissionListInclude,
+    });
+
+    return mapManualTitleSubmissionRecord(record);
+  }
+
+  async updateManualTitleSubmissionStatus(
+    publicId: string,
+    input: ManualTitleSubmissionStatusUpdateInput,
+  ): Promise<ManualTitleSubmissionRecord> {
+    const reviewedAt =
+      input.status === "accepted" || input.status === "rejected" || input.status === "needs_followup" ? new Date() : undefined;
+    const record = await this.db.manualTitleSubmission.update({
+      where: {
+        publicId,
+      },
+      data: {
+        status: mapManualSubmissionStatus(input.status),
+        canonicalMediaId: input.canonicalMediaId,
+        reviewQueueEntryId: input.reviewQueueEntryId,
+        latestActionSummary: input.notes?.trim() || undefined,
+        reviewedAt,
+      },
+      include: manualTitleSubmissionListInclude,
+    });
+
+    return mapManualTitleSubmissionRecord(record);
+  }
+
+  async createManualTitleSubmissionAction(
+    input: ManualTitleSubmissionActionCreateInput,
+  ): Promise<ManualTitleSubmissionActionRecord> {
+    const record = await this.db.manualTitleSubmissionAction.create({
+      data: {
+        submissionId: input.submissionId,
+        actorId: input.actorId,
+        actionType: mapManualSubmissionActionType(input.actionType),
+        summary: input.summary,
+        notes: input.notes,
+        statusAfter: input.statusAfter ? mapManualSubmissionStatus(input.statusAfter) : undefined,
+        metadata: toJsonValue(input.metadata),
+        createdAt: toDate(input.createdAt),
+      },
+    });
+
+    return mapManualTitleSubmissionActionRecord(record);
+  }
+
+  async listManualTitleSubmissions(query: ManualTitleSubmissionQuery = {}): Promise<ManualTitleSubmissionRecord[]> {
+    const search = query.q?.trim();
+    const records = await this.db.manualTitleSubmission.findMany({
+      where: {
+        status: query.statuses?.length
+          ? {
+              in: query.statuses.map((status) => mapManualSubmissionStatus(status)),
+            }
+          : undefined,
+        typeHint: query.typeHints?.length
+          ? {
+              in: query.typeHints
+                .map((typeHint) => mapManualTitleTypeHint(typeHint))
+                .filter((value): value is NonNullable<typeof value> => Boolean(value)),
+            }
+          : undefined,
+        OR: search
+          ? [
+              { title: { contains: search, mode: "insensitive" } },
+              { originalTitle: { contains: search, mode: "insensitive" } },
+              { summary: { contains: search, mode: "insensitive" } },
+            ]
+          : undefined,
+      },
+      include: manualTitleSubmissionListInclude,
+      orderBy: [{ createdAt: "desc" }],
+    });
+
+    return records.map((record) => mapManualTitleSubmissionRecord(record));
+  }
+
+  async getManualTitleSubmissionDetailByPublicId(publicId: string): Promise<ManualTitleSubmissionDetailRecord | null> {
+    const record = await this.db.manualTitleSubmission.findUnique({
+      where: {
+        publicId,
+      },
+      include: manualTitleSubmissionDetailInclude,
+    });
+
+    return record ? mapManualTitleSubmissionDetailRecord(record) : null;
   }
 }
 

@@ -13,7 +13,24 @@ import type {
   RepairQueueStatusUpdateInput,
 } from "../health";
 import type {
+  CreateManualTitleSubmissionInput,
+  ManualSubmissionStatus,
+  ManualTitleSubmissionDetailRecord,
+  ManualTitleSubmissionQuery,
+  ManualTitleSubmissionRecord,
+  ModerationReportDetailRecord,
+  ModerationReportQuery,
+  ModerationReportRecord,
+  ModerationReportStatus,
+  ModerationReportStatusUpdateInput,
+} from "../review";
+import type {
   AdminSourceInventoryItemRecord,
+  CreateManualSourceSubmissionInput,
+  ManualSourceSubmissionDetailRecord,
+  ManualSourceSubmissionQuery,
+  ManualSourceSubmissionRecord,
+  ManualSourceSubmissionStatusUpdateInput,
   SourceInventoryQuery,
   SourceOrderingUpdate,
 } from "../source";
@@ -57,6 +74,64 @@ export interface AdminRepairQueueActionRequest {
   entryId: string;
   actorId?: string;
   requestId?: string;
+}
+
+export interface AdminModerationQueueSummary {
+  totalItems: number;
+  openItems: number;
+  inReviewItems: number;
+  resolvedItems: number;
+  dismissedItems: number;
+}
+
+export interface AdminModerationQueuePageRecord {
+  title: string;
+  description: string;
+  appliedFilters: ModerationReportQuery;
+  summary: AdminModerationQueueSummary;
+  items: ModerationReportRecord[];
+}
+
+export interface AdminModerationActionRequest {
+  publicId: string;
+  actorId?: string;
+  requestId?: string;
+  notes?: string;
+  linkedRepairQueueEntryId?: string;
+}
+
+export interface AdminManualTitleSubmissionSummary {
+  totalItems: number;
+  submittedItems: number;
+  inReviewItems: number;
+  acceptedItems: number;
+  rejectedItems: number;
+  followupItems: number;
+}
+
+export interface AdminManualTitleSubmissionPageRecord {
+  title: string;
+  description: string;
+  appliedFilters: ManualTitleSubmissionQuery;
+  summary: AdminManualTitleSubmissionSummary;
+  items: ManualTitleSubmissionRecord[];
+}
+
+export interface AdminManualSourceSubmissionSummary {
+  totalItems: number;
+  submittedItems: number;
+  inReviewItems: number;
+  acceptedItems: number;
+  rejectedItems: number;
+  followupItems: number;
+}
+
+export interface AdminManualSourceSubmissionPageRecord {
+  title: string;
+  description: string;
+  appliedFilters: ManualSourceSubmissionQuery;
+  summary: AdminManualSourceSubmissionSummary;
+  items: ManualSourceSubmissionRecord[];
 }
 
 export type AdminPublishedCatalogSort = "published_at" | "updated_at" | "title" | "release_year";
@@ -201,9 +276,38 @@ export interface AdminBackendDependencies {
     queryAdminPublishedCatalog(query?: AdminPublishedCatalogQuery): Promise<AdminPublishedCatalogPageRecord>;
     getAdminPublishedCatalogDetailByPublicId(publicId: string): Promise<AdminPublishedCatalogDetailRecord | null>;
   };
+  review: {
+    listModerationReports(query?: ModerationReportQuery): Promise<ModerationReportRecord[]>;
+    getModerationReportDetailByPublicId(publicId: string): Promise<ModerationReportDetailRecord | null>;
+    updateModerationReportStatus(
+      publicId: string,
+      input: ModerationReportStatusUpdateInput,
+    ): Promise<ModerationReportDetailRecord>;
+    listManualTitleSubmissions(query?: ManualTitleSubmissionQuery): Promise<ManualTitleSubmissionRecord[]>;
+    getManualTitleSubmissionDetailByPublicId(publicId: string): Promise<ManualTitleSubmissionDetailRecord | null>;
+    createManualTitleSubmission(input: CreateManualTitleSubmissionInput): Promise<ManualTitleSubmissionDetailRecord>;
+    updateManualTitleSubmissionStatus(
+      publicId: string,
+      input: {
+        status: ManualSubmissionStatus;
+        actorId?: string;
+        requestId?: string;
+        notes?: string;
+        canonicalMediaId?: string;
+        reviewQueueEntryId?: string;
+      },
+    ): Promise<ManualTitleSubmissionDetailRecord>;
+  };
   source: {
     listAdminSourceInventory(query?: SourceInventoryQuery): Promise<AdminSourceInventoryItemRecord[]>;
     updateSourceOrdering(updates: SourceOrderingUpdate[]): Promise<unknown>;
+    listManualSourceSubmissions(query?: ManualSourceSubmissionQuery): Promise<ManualSourceSubmissionRecord[]>;
+    getManualSourceSubmissionDetailByPublicId(publicId: string): Promise<ManualSourceSubmissionDetailRecord | null>;
+    createManualSourceSubmission(input: CreateManualSourceSubmissionInput): Promise<ManualSourceSubmissionDetailRecord>;
+    updateManualSourceSubmissionStatus(
+      publicId: string,
+      input: ManualSourceSubmissionStatusUpdateInput,
+    ): Promise<ManualSourceSubmissionDetailRecord>;
   };
   health: {
     listAdminRepairQueue(query?: RepairQueueQuery): Promise<AdminRepairQueueItemRecord[]>;

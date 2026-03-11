@@ -7,13 +7,28 @@ import { runInTransaction } from "../../db/transactions";
 import { createDefaultReviewWorkflowRepository, createReviewWorkflowRepository } from "../../db/repositories/review";
 
 import type {
+  CreateManualTitleSubmissionInput,
+  CreateModerationReportInput,
+  ManualTitleSubmissionRecord,
+  ManualTitleSubmissionDetailRecord,
+  ManualTitleSubmissionQuery,
+  ManualTitleSubmissionStatusUpdateInput,
+  ModerationReportRecord,
+  ModerationReportDetailRecord,
+  ModerationReportQuery,
+  ModerationReportStatus,
+  ModerationReportStatusUpdateInput,
   PublishReviewDecisionRequest,
   QueueNormalizedCandidateRequest,
   StartReviewRequest,
   SubmitReviewDecisionRequest,
 } from "./types";
 import type { PublishOperationType, ReviewDecisionType, ReviewQueueStatus } from "./types";
-import type { ReviewDecisionDetailRecord, ReviewQueueDetailRecord, ReviewQueueListItemRecord } from "../../db/repositories/review";
+import type {
+  ReviewDecisionDetailRecord,
+  ReviewQueueDetailRecord,
+  ReviewQueueListItemRecord,
+} from "../../db/repositories/review";
 
 const reviewLogger = logger.child({ subsystem: "review.service" });
 
@@ -81,6 +96,262 @@ function ensureDecisionCanPublish(detail: ReviewDecisionDetailRecord) {
       code: "review_queue_not_ready_for_publish",
     });
   }
+}
+
+function requireTrimmedValue(value: string | undefined, field: string, code: string) {
+  if (!value?.trim()) {
+    throw new BackendError(`${field} is required.`, {
+      status: 400,
+      code,
+    });
+  }
+}
+
+function validateOptionalEmail(email: string | undefined, code: string) {
+  if (!email) {
+    return;
+  }
+
+  if (!email.includes("@")) {
+    throw new BackendError("Email must be valid when provided.", {
+      status: 400,
+      code,
+    });
+  }
+}
+
+function validateModerationReportInput(input: CreateModerationReportInput) {
+  requireTrimmedValue(input.title, "Report title", "moderation_title_required");
+  requireTrimmedValue(input.summary, "Report summary", "moderation_summary_required");
+  validateOptionalEmail(input.reporterEmail, "moderation_reporter_email_invalid");
+
+  if (input.kind === "broken_source" && !input.resourceId) {
+    throw new BackendError("Broken-source reports require a target resource.", {
+      status: 400,
+      code: "moderation_resource_required",
+    });
+  }
+}
+
+function validateManualTitleSubmissionInput(input: CreateManualTitleSubmissionInput) {
+  requireTrimmedValue(input.title, "Submission title", "manual_title_required");
+  validateOptionalEmail(input.submittedByEmail, "manual_title_submitter_email_invalid");
+
+  if (input.releaseYear && (input.releaseYear < 1888 || input.releaseYear > 2100)) {
+    throw new BackendError("Release year is outside the supported range.", {
+      status: 400,
+      code: "manual_title_release_year_invalid",
+    });
+  }
+}
+
+function moderationActionTypeForStatus(status: ModerationReportStatus) {
+  switch (status) {
+    case "open":
+    case "in_review":
+      return "acknowledged" as const;
+    case "resolved":
+      return "resolved" as const;
+    case "dismissed":
+      return "dismissed" as const;
+  }
+}
+
+function moderationActionSummary(status: ModerationReportStatus, notes?: string) {
+  return notes?.trim() || `Moderation report moved to ${status}.`;
+}
+
+function manualTitleActionSummary(status: ManualTitleSubmissionStatusUpdateInput["status"], notes?: string) {
+  return notes?.trim() || `Manual title submission moved to ${status}.`;
+}
+
+export async function listModerationReports(query: ModerationReportQuery = {}): Promise<ModerationReportRecord[]> {
+  return createDefaultReviewWorkflowRepository().listModerationReports(query);
+}
+
+export async function getModerationReportDetailByPublicId(
+  publicId: string,
+): Promise<ModerationReportDetailRecord | null> {
+  return createDefaultReviewWorkflowRepository().getModerationReportDetailByPublicId(publicId);
+}
+
+export async function createModerationReport(input: CreateModerationReportInput): Promise<ModerationReportRecord> {
+  validateModerationReportInput(input);
+
+  return runInTransaction(
+    {
+      name: "review.createModerationReport",
+    },
+    async (context) => {
+      const repository = createReviewWorkflowRepository(context);
+      const report = await repository.createModerationReport(input);
+
+      await repository.createModerationReportAction({
+        reportId: report.id,
+        actorId: input.actorId,
+        actionType: "submitted",
+        summary: "Moderation report created.",
+        notes: input.detail,
+      });
+
+      return report;
+    },
+    {
+      actorId: input.actorId,
+      requestId: input.requestId,
+    },
+  );
+}
+
+export async function updateModerationReportStatus(
+  publicId: string,
+  input: ModerationReportStatusUpdateInput,
+): Promise<ModerationReportDetailRecord> {
+  return runInTransaction(
+    {
+      name: "review.updateModerationReportStatus",
+    },
+    async (context) => {
+      const repository = createReviewWorkflowRepository(context);
+      const existing = await repository.getModerationReportDetailByPublicId(publicId);
+
+      if (!existing) {
+        throw new BackendError(`Moderation report '${publicId}' was not found.`, {
+          status: 404,
+          code: "moderation_report_not_found",
+        });
+      }
+
+      await repository.updateModerationReportStatus(publicId, input);
+      await repository.createModerationReportAction({
+        reportId: existing.report.id,
+        actorId: input.actorId,
+        actionType: input.linkedRepairQueueEntryId ? "linked_repair" : moderationActionTypeForStatus(input.status),
+        summary: moderationActionSummary(input.status, input.notes),
+        notes: input.notes,
+        statusAfter: input.status,
+        linkedRepairQueueEntryId: input.linkedRepairQueueEntryId,
+      });
+
+      const updated = await repository.getModerationReportDetailByPublicId(publicId);
+
+      if (!updated) {
+        throw new BackendError(`Moderation report '${publicId}' was not found after update.`, {
+          status: 500,
+          code: "moderation_report_missing_after_update",
+        });
+      }
+
+      return updated;
+    },
+    {
+      actorId: input.actorId,
+      requestId: input.requestId,
+    },
+  );
+}
+
+export async function listManualTitleSubmissions(
+  query: ManualTitleSubmissionQuery = {},
+): Promise<ManualTitleSubmissionRecord[]> {
+  return createDefaultReviewWorkflowRepository().listManualTitleSubmissions(query);
+}
+
+export async function getManualTitleSubmissionDetailByPublicId(
+  publicId: string,
+): Promise<ManualTitleSubmissionDetailRecord | null> {
+  return createDefaultReviewWorkflowRepository().getManualTitleSubmissionDetailByPublicId(publicId);
+}
+
+export async function createManualTitleSubmission(
+  input: CreateManualTitleSubmissionInput,
+): Promise<ManualTitleSubmissionDetailRecord> {
+  validateManualTitleSubmissionInput(input);
+
+  return runInTransaction(
+    {
+      name: "review.createManualTitleSubmission",
+    },
+    async (context) => {
+      const repository = createReviewWorkflowRepository(context);
+      const submission = await repository.createManualTitleSubmission(input);
+
+      await repository.createManualTitleSubmissionAction({
+        submissionId: submission.id,
+        actorId: input.actorId,
+        actionType: "submitted",
+        summary: "Manual title submission created.",
+        notes: input.notes,
+        statusAfter: "submitted",
+      });
+
+      const detail = await repository.getManualTitleSubmissionDetailByPublicId(submission.publicId);
+
+      if (!detail) {
+        throw new BackendError(`Manual title submission '${submission.publicId}' was not found after creation.`, {
+          status: 500,
+          code: "manual_title_submission_missing_after_create",
+        });
+      }
+
+      return detail;
+    },
+    {
+      actorId: input.actorId,
+      requestId: input.requestId,
+    },
+  );
+}
+
+export async function updateManualTitleSubmissionStatus(
+  publicId: string,
+  input: ManualTitleSubmissionStatusUpdateInput,
+): Promise<ManualTitleSubmissionDetailRecord> {
+  return runInTransaction(
+    {
+      name: "review.updateManualTitleSubmissionStatus",
+    },
+    async (context) => {
+      const repository = createReviewWorkflowRepository(context);
+      const existing = await repository.getManualTitleSubmissionDetailByPublicId(publicId);
+
+      if (!existing) {
+        throw new BackendError(`Manual title submission '${publicId}' was not found.`, {
+          status: 404,
+          code: "manual_title_submission_not_found",
+        });
+      }
+
+      await repository.updateManualTitleSubmissionStatus(publicId, input);
+      await repository.createManualTitleSubmissionAction({
+        submissionId: existing.submission.id,
+        actorId: input.actorId,
+        actionType: input.reviewQueueEntryId ? "linked_review" : "status_changed",
+        summary: manualTitleActionSummary(input.status, input.notes),
+        notes: input.notes,
+        statusAfter: input.status,
+        metadata: {
+          canonicalMediaId: input.canonicalMediaId ?? null,
+          reviewQueueEntryId: input.reviewQueueEntryId ?? null,
+        },
+      });
+
+      const updated = await repository.getManualTitleSubmissionDetailByPublicId(publicId);
+
+      if (!updated) {
+        throw new BackendError(`Manual title submission '${publicId}' was not found after update.`, {
+          status: 500,
+          code: "manual_title_submission_missing_after_update",
+        });
+      }
+
+      return updated;
+    },
+    {
+      actorId: input.actorId,
+      requestId: input.requestId,
+    },
+  );
 }
 
 export async function listReviewQueue(): Promise<ReviewQueueListItemRecord[]> {
