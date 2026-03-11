@@ -1,5 +1,11 @@
 # Development Log
 
+2026-03-10
+
+Coordinator:
+- Promoted `reference-assets/backend.md` into tracked `docs/backend-spec.md` so backend planning is no longer anchored to an untracked reference file
+- Added a README entry point for the backend spec before starting backend-phase implementation work
+
 2026-03-08
 
 Initial project scaffold created.
@@ -240,3 +246,4 @@ Planner:
 - Produced `docs/handovers/planner-free-video-source-integration-round-1.md` to define the lawful free-video source onboarding plan, including source-class restrictions, rights/provenance workflow, ingest/transcode/storage/CDN architecture, playback-resource evolution, schema additions, ops/compliance controls, and the Round 2-4 implementation roadmap
 - Produced `docs/handovers/planner-compact-playback-source-selector-round-1.md` to define a compact player-local source selector near the episode controls, preserve sticky source preference across episode switches via destination-source matching, and keep the canonical `/watch?...&r=...` model unchanged without reviving the old large source section
 - Replanned the post-frontend phase around `reference-assets/backend.md`, rewriting `docs/architecture.md` and `docs/roadmap.md` for an adapter-based aggregation backend with staging, normalization, review/publish, catalog serving, and source healthcheck as the main delivery sequence
+- Produced `docs/handovers/planner-backend-monolith-foundation-round-a.md` to translate Round A into a concrete monolith-foundation checklist for Data Catalog and Reviewer, focused on `lib/server/`, `lib/db/`, shared backend conventions, and strict avoidance of premature provider or staging business logic

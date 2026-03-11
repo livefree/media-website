@@ -23,34 +23,43 @@ PlayerShell
 
 ## Current Active Task
 
-### Catalog Withdrawal Round 1
+### Backend Monolith Foundation Round A
 
 Coordinator-only rule:
 - Coordinator may define scope, update task docs, dispatch agents, review ownership, and merge accepted work.
 - Coordinator must not directly implement files owned by Planner, UI Shell, Data Catalog, Media Ingest, Search Filter, Detail Player, or Reviewer unless the user explicitly authorizes an exception.
 
 Required execution order for this task:
-1. Data Catalog removes currently listed video titles from the runtime catalog
-2. Reviewer validates that public browse/search/watch entry points no longer expose listed titles
-6. User review remains authoritative for visual and interaction acceptance; a user-rejected candidate is not accepted even if code review passes
+1. Coordinator formalizes backend planning inputs in tracked docs and sets the Round A scope
+2. Planner defines the implementation breakdown, module map, and acceptance checklist for the monolith foundation
+3. Data Catalog implements backend foundation scaffolding only within backend ownership boundaries
+4. Reviewer validates the resulting module boundaries, backend conventions, and ownership drift before merge
+5. User review remains authoritative for planning direction; rejected backend structure must not be represented as accepted
 
-Scope for this refinement:
-- Withdraw all currently listed video titles from the public runtime catalog before backend development continues
+Scope for this round:
+- Establish the backend-first monolith foundation described in `docs/backend-spec.md`, `docs/architecture.md`, and `docs/roadmap.md`
+- Turn the backend phase from “planning only” into a concrete repo module structure and backend convention baseline
+- Keep the runtime catalog withdrawn; this round is not for reintroducing public content
 - Owned surfaces:
-  - Data Catalog: `data/`, `lib/media*`, `types/` only as needed for catalog withdrawal
-  - Reviewer: docs and acceptance only
-- No player redesign, no new ingestion architecture changes, and no route-model rewrite in this round
+  - Planner: architecture, roadmap alignment, round-specific handoff docs
+  - Data Catalog: Prisma/backend contracts, `lib/db/`, `lib/server/`, and related backend foundation files within its backend-phase ownership
+  - Reviewer: acceptance and findings docs only
+- No provider-specific adapter implementation yet
+- No staging-to-publish business logic yet
+- No admin UI yet
+- No player or public route redesign in this round
 
 Acceptance criteria:
-- Public browse routes must show no listed titles
-- Search results must resolve to empty-state behavior rather than returning current listed titles
-- Watch and compatibility entry points for withdrawn titles must no longer expose playable listed content
-- Current public list/list-directory views must not expose catalog items as active listed entries
-- Existing empty-state and not-found behavior must remain coherent
+- The repo has a documented backend module map aligned to `docs/backend-spec.md`
+- Server-only boundaries exist for provider, ingest, normalize, review, catalog, source, health, search, and admin modules
+- Shared backend conventions exist for config, logging, errors, and DB/repository boundaries
+- Backend scaffolding does not leak raw provider or staging logic into public route files
+- The project remains buildable after Round A changes
 
 Current user-requested improvement to implement:
-1. Remove all currently listed videos from the website before backend work continues.
+1. Treat `backend.md` as a key planning source by promoting its guidance into tracked docs
+2. Start Round A: backend monolith foundation immediately after the documentation handoff is fixed
 
 Current baseline:
-- The runtime catalog is still populated from the shared seed-backed `mediaCatalog`.
-- Browse/search/list/watch routes currently derive their public entries from that same runtime catalog.
+- Public runtime catalog has already been withdrawn from the site
+- Backend direction is documented, but the repo still lacks a finalized monolith module skeleton and backend foundation conventions

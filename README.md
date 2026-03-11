@@ -2,10 +2,9 @@
 
 Current project version: `0.8.6`
 
-This project demonstrates how to recreate the **front‑end information architecture of a media catalog website**
-using Codex with a multi‑agent workflow.
+This project started as a front-end information-architecture recreation of a media catalog website and is now moving into a backend-first aggregation phase using Codex with a multi-agent workflow.
 
-The goal is **UI + information architecture replication only**, not content aggregation or scraping.
+The active direction is no longer just shell replication. The next milestone is a backend for lawful content intake, normalization, review/publish, and source operations.
 
 Versioning follows the project rules in [docs/versioning.md](/Users/livefree/projects/media-website-v2/docs/versioning.md).
 
@@ -188,6 +187,7 @@ Important project documentation:
 docs/
 - roadmap.md
 - architecture.md
+- backend-spec.md
 - ui-reference.md
 - dev-log.md
 - handovers/
