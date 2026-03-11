@@ -78,3 +78,27 @@ export interface SourceOrderingUpdate {
   isPreferred?: boolean;
   orderingOrigin?: SourceOrderingOrigin;
 }
+
+export interface SourceInventoryQuery {
+  mediaId?: string;
+  episodeId?: string;
+  kind?: SourceInventoryRecord["kind"];
+  providerId?: string;
+  healthStates?: SourceHealthState[];
+  statuses?: SourceInventoryRecord["status"][];
+  includeInactive?: boolean;
+  includePrivate?: boolean;
+  search?: string;
+}
+
+export interface AdminSourceInventoryItemRecord extends SourceInventoryRecord {
+  mediaPublicId: string;
+  mediaTitle: string;
+  mediaSlug: string;
+  episodePublicId?: string | null;
+  episodeTitle?: string | null;
+  episodeLabel?: string | null;
+  providerAdapterKey?: string | null;
+  providerDisplayName?: string | null;
+  repairOpenCount: number;
+}

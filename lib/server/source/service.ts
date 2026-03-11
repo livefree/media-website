@@ -2,14 +2,20 @@ import "server-only";
 
 import { createDefaultSourceInventoryRepository } from "../../db/repositories/source";
 
-import type { SourceInventoryRecord, SourceOrderingUpdate, UpsertSourceInventoryInput } from "./types";
+import type {
+  AdminSourceInventoryItemRecord,
+  SourceInventoryQuery,
+  SourceInventoryRecord,
+  SourceOrderingUpdate,
+  UpsertSourceInventoryInput,
+} from "./types";
 
-export async function listSourceInventory(filters?: {
-  mediaId?: string;
-  episodeId?: string;
-  kind?: SourceInventoryRecord["kind"];
-}): Promise<SourceInventoryRecord[]> {
+export async function listSourceInventory(filters?: SourceInventoryQuery): Promise<SourceInventoryRecord[]> {
   return createDefaultSourceInventoryRepository().listSourceInventory(filters);
+}
+
+export async function listAdminSourceInventory(filters?: SourceInventoryQuery): Promise<AdminSourceInventoryItemRecord[]> {
+  return createDefaultSourceInventoryRepository().listAdminSourceInventory(filters);
 }
 
 export async function getSourceInventoryByPublicId(publicId: string): Promise<SourceInventoryRecord | null> {

@@ -99,6 +99,7 @@ Data Catalog:
 - Rebuilt `skills/data-catalog/` into a reusable skill for streaming-platform schema design, mock catalog generation, and browse/watch analytics modeling
 - Added `prisma/schema.prisma` with a PostgreSQL-ready relational schema covering media titles, episodic hierarchy, resources, users, preferences, search history, browse events, playback sessions, progress tracking, lists, and rating snapshots
 - Added Round F source inventory, source health, and repair-queue persistence plus server/source-health boundaries, and made published watch reads prefer usable public sources without re-coupling source state to canonical title identity
+- Added Workstream 2 Slice 1 admin backend support for operator source inventory and repair queue surfaces, including joined admin-facing list contracts, narrow repair-status actions, and backend summary records for upcoming UI Shell pages
 - Added shared contracts in `types/media.ts` and `types/platform.ts` for catalog, resource, user, and behavior data
 - Added shared seed-ready data in `data/categories.ts`, `data/media.ts`, and `data/platform.ts` to cover movie, series, anime, user state, and browse/resource activity
 - Added reusable catalog helpers in `lib/media-catalog.ts` and `lib/media-utils.ts` for downstream search, detail, and homepage integration

@@ -72,3 +72,34 @@ export interface PersistSourceProbeHealthRequest {
   requestId?: string;
   persistence: IngestSourceProbePersistencePlan;
 }
+
+export interface RepairQueueQuery {
+  statuses?: RepairQueueStatus[];
+  severities?: RepairSignalSeverity[];
+  healthStates?: SourceHealthState[];
+  providerId?: string;
+  search?: string;
+}
+
+export interface RepairQueueStatusUpdateInput {
+  status: RepairQueueStatus;
+  actorId?: string;
+  requestId?: string;
+  resolvedAt?: string;
+}
+
+export interface AdminRepairQueueItemRecord extends RepairQueueEntryRecord {
+  resourcePublicId: string;
+  resourceKind: "stream" | "download" | "subtitle" | "trailer";
+  resourceLabel: string;
+  mediaPublicId: string;
+  mediaTitle: string;
+  mediaSlug: string;
+  episodePublicId?: string | null;
+  episodeTitle?: string | null;
+  episodeLabel?: string | null;
+  providerAdapterKey?: string | null;
+  providerDisplayName?: string | null;
+  probeKind?: SourceProbeKind | null;
+  probeSummary?: string | null;
+}

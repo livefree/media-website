@@ -10,7 +10,14 @@ import { requireDb } from "../../client";
 
 import type { SourceInventoryRepository as SourceInventoryRepositoryContract } from "./types";
 import type { SourceHealthState } from "../../../server/provider";
-import type { SourceInventoryRecord, SourceOrderingOrigin, SourceOrderingUpdate, UpsertSourceInventoryInput } from "../../../server/source";
+import type {
+  AdminSourceInventoryItemRecord,
+  SourceInventoryQuery,
+  SourceInventoryRecord,
+  SourceOrderingOrigin,
+  SourceOrderingUpdate,
+  UpsertSourceInventoryInput,
+} from "../../../server/source";
 
 const resourceKindMap = {
   stream: "STREAM",
@@ -247,6 +254,143 @@ function mapSourceInventoryRecord(
   };
 }
 
+function buildSourceWhere(filters?: SourceInventoryQuery): Prisma.ResourceWhereInput {
+  const search = filters?.search?.trim();
+
+  return {
+    mediaId: filters?.mediaId,
+    episodeId: filters?.episodeId,
+    providerId: filters?.providerId,
+    kind: filters?.kind ? mapResourceKind(filters.kind) : undefined,
+    healthState: filters?.healthStates?.length
+      ? {
+          in: filters.healthStates.map((state) => mapSourceHealthState(state)),
+        }
+      : undefined,
+    status: filters?.statuses?.length
+      ? {
+          in: filters.statuses.map((status) => mapResourceStatus(status)),
+        }
+      : undefined,
+    isActive: filters?.includeInactive ? undefined : true,
+    isPublic: filters?.includePrivate ? undefined : true,
+    OR: search
+      ? [
+          {
+            label: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+          {
+            media: {
+              OR: [
+                {
+                  title: {
+                    contains: search,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  originalTitle: {
+                    contains: search,
+                    mode: "insensitive",
+                  },
+                },
+              ],
+            },
+          },
+          {
+            episode: {
+              title: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+          },
+          {
+            providerRegistry: {
+              displayName: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+          },
+        ]
+      : undefined,
+  };
+}
+
+function buildEpisodeLabel(record: {
+  episode?: {
+    episodeNumber: number | null;
+    title: string;
+  } | null;
+}) {
+  if (!record.episode) {
+    return null;
+  }
+
+  if (record.episode.episodeNumber) {
+    return `E${String(record.episode.episodeNumber).padStart(2, "0")} · ${record.episode.title}`;
+  }
+
+  return record.episode.title;
+}
+
+function mapAdminSourceInventoryItemRecord(
+  record: Prisma.ResourceGetPayload<{
+    include: {
+      replacementResource: {
+        select: {
+          id: true;
+          publicId: true;
+        };
+      };
+      media: {
+        select: {
+          publicId: true;
+          title: true;
+          slug: true;
+        };
+      };
+      episode: {
+        select: {
+          publicId: true;
+          title: true;
+          episodeNumber: true;
+        };
+      };
+      providerRegistry: {
+        select: {
+          adapterKey: true;
+          displayName: true;
+        };
+      };
+      repairQueueEntries: {
+        select: {
+          id: true;
+        };
+      };
+    };
+  }>,
+): AdminSourceInventoryItemRecord {
+  const base = mapSourceInventoryRecord(record);
+
+  return {
+    ...base,
+    mediaPublicId: record.media.publicId,
+    mediaTitle: record.media.title,
+    mediaSlug: record.media.slug,
+    episodePublicId: record.episode?.publicId ?? null,
+    episodeTitle: record.episode?.title ?? null,
+    episodeLabel: buildEpisodeLabel(record),
+    providerAdapterKey: record.providerRegistry?.adapterKey ?? null,
+    providerDisplayName: record.providerRegistry?.displayName ?? null,
+    repairOpenCount: record.repairQueueEntries.length,
+  };
+}
+
 function buildSourceOrderBy(): Prisma.ResourceOrderByWithRelationInput[] {
   return [
     { isPreferred: "desc" },
@@ -292,17 +436,9 @@ export class SourceInventoryRepository extends BaseRepository implements SourceI
     super(context);
   }
 
-  async listSourceInventory(filters?: {
-    mediaId?: string;
-    episodeId?: string;
-    kind?: SourceInventoryRecord["kind"];
-  }): Promise<SourceInventoryRecord[]> {
+  async listSourceInventory(filters?: SourceInventoryQuery): Promise<SourceInventoryRecord[]> {
     const records = await this.db.resource.findMany({
-      where: {
-        mediaId: filters?.mediaId,
-        episodeId: filters?.episodeId,
-        kind: filters?.kind ? mapResourceKind(filters.kind) : undefined,
-      },
+      where: buildSourceWhere(filters),
       include: {
         replacementResource: {
           select: {
@@ -315,6 +451,57 @@ export class SourceInventoryRepository extends BaseRepository implements SourceI
     });
 
     return records.map((record) => mapSourceInventoryRecord(record));
+  }
+
+  async listAdminSourceInventory(filters?: SourceInventoryQuery): Promise<AdminSourceInventoryItemRecord[]> {
+    const records = await this.db.resource.findMany({
+      where: buildSourceWhere({
+        ...filters,
+        includeInactive: filters?.includeInactive ?? true,
+        includePrivate: filters?.includePrivate ?? true,
+      }),
+      include: {
+        replacementResource: {
+          select: {
+            id: true,
+            publicId: true,
+          },
+        },
+        media: {
+          select: {
+            publicId: true,
+            title: true,
+            slug: true,
+          },
+        },
+        episode: {
+          select: {
+            publicId: true,
+            title: true,
+            episodeNumber: true,
+          },
+        },
+        providerRegistry: {
+          select: {
+            adapterKey: true,
+            displayName: true,
+          },
+        },
+        repairQueueEntries: {
+          where: {
+            status: {
+              in: ["OPEN", "IN_PROGRESS", "WAITING_PROVIDER"],
+            },
+          },
+          select: {
+            id: true,
+          },
+        },
+      },
+      orderBy: buildSourceOrderBy(),
+    });
+
+    return records.map((record) => mapAdminSourceInventoryItemRecord(record));
   }
 
   async getSourceInventoryByPublicId(publicId: string): Promise<SourceInventoryRecord | null> {
