@@ -9,6 +9,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "..");
 const DEFAULT_INPUT_PATH = path.join(repoRoot, "import-data", "media-prisma-payload.json");
+const LEGACY_FLAG = "--legacy-direct-import";
+
+function getPositionArgs() {
+  return process.argv.slice(2).filter((value) => !value.startsWith("--"));
+}
 
 function toPosix(value) {
   return value.split(path.sep).join("/");
@@ -16,6 +21,19 @@ function toPosix(value) {
 
 function getFlag(flag) {
   return process.argv.includes(flag);
+}
+
+function requireLegacyDirectImportFlag() {
+  if (!getFlag(LEGACY_FLAG)) {
+    console.error(
+      [
+        "This script is a legacy direct-to-canonical import path.",
+        "It is quarantined from the active Round B provider/staging workflow.",
+        `Run it only with the explicit ${LEGACY_FLAG} flag.`,
+      ].join(" "),
+    );
+    process.exit(1);
+  }
 }
 
 function readPayload(filePath) {
@@ -178,10 +196,13 @@ async function createMediaTitle(prisma, item) {
   };
 }
 
-const inputPath = path.resolve(process.argv[2] ?? DEFAULT_INPUT_PATH);
+const [inputArg] = getPositionArgs();
+const inputPath = path.resolve(inputArg ?? DEFAULT_INPUT_PATH);
 const shouldApply = getFlag("--apply");
 
 async function main() {
+  requireLegacyDirectImportFlag();
+
   const payload = readPayload(inputPath);
 
   if (!shouldApply) {
