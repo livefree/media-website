@@ -98,6 +98,7 @@ export async function executeProviderPageIngestRun(
       status: "running",
       attemptCount,
       startedAt,
+      lastErrorSummary: null,
     }),
   });
   const run = await persistence.createIngestRun({
@@ -113,6 +114,7 @@ export async function executeProviderPageIngestRun(
       status: "running",
       attemptCount,
       startedAt,
+      lastErrorSummary: null,
     }),
   });
 
@@ -182,6 +184,7 @@ export async function executeProviderPageIngestRun(
         startedAt,
         finishedAt,
         failure,
+        lastErrorSummary,
       }),
     });
     await persistence.updateIngestJobStatus(job.id, {
@@ -195,6 +198,7 @@ export async function executeProviderPageIngestRun(
         startedAt,
         finishedAt,
         failure,
+        lastErrorSummary,
       }),
     });
 

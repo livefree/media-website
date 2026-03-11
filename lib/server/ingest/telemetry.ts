@@ -20,6 +20,7 @@ export const ingestFailureCategories = [
 export type IngestFailureCategory = (typeof ingestFailureCategories)[number];
 
 export type IngestJobKind = "provider_page_ingest" | "scheduled_source_refresh" | "scheduled_source_probe";
+export type IngestRetryState = "none" | "retrying" | "retryable_failure" | "terminal_failure";
 
 interface JobExecutionTargetSnapshot {
   sourceId: string;
@@ -70,6 +71,7 @@ interface BuildExecutionTelemetryMetadataInput {
     page: number | null;
   };
   failure?: IngestExecutionFailureSummary;
+  lastErrorSummary?: string | null;
 }
 
 function toNullableString(value: string | undefined): string | null {
@@ -120,6 +122,19 @@ function inferRetryable(error: BackendError): boolean {
   return error.code === "provider_request_failed" || error.status >= 500;
 }
 
+function deriveBackendErrorSummary(error: BackendError): string {
+  const providerMessage =
+    error.details && typeof error.details.message === "string" && error.details.message.trim().length > 0
+      ? error.details.message.trim()
+      : null;
+
+  if (error.code === "provider_payload_invalid" && providerMessage) {
+    return `Provider response 'msg' indicated an error: ${providerMessage}.`;
+  }
+
+  return error.message;
+}
+
 function buildErrorSummary(error: unknown): string {
   if (error instanceof Error) {
     return error.message;
@@ -143,6 +158,18 @@ function computeDurationMs(startedAt?: string, finishedAt?: string): number | nu
   return Math.max(0, finish - start);
 }
 
+function deriveRetryState(input: BuildExecutionTelemetryMetadataInput): IngestRetryState {
+  if (input.status === "failed") {
+    return input.failure?.retryable ? "retryable_failure" : "terminal_failure";
+  }
+
+  if ((input.status === "pending" || input.status === "running") && input.attemptCount > 1) {
+    return "retrying";
+  }
+
+  return "none";
+}
+
 export function classifyIngestExecutionFailure(error: unknown): IngestExecutionFailureSummary {
   if (error instanceof BackendError) {
     return {
@@ -150,7 +177,7 @@ export function classifyIngestExecutionFailure(error: unknown): IngestExecutionF
       code: error.code,
       status: error.status,
       retryable: inferRetryable(error),
-      summary: error.message,
+      summary: deriveBackendErrorSummary(error),
       errorName: error.name,
     };
   }
@@ -231,6 +258,8 @@ export function buildExecutionTelemetryMetadata(
   context: IngestExecutionContext,
   input: BuildExecutionTelemetryMetadataInput,
 ): Record<string, unknown> {
+  const lastErrorSummary = input.lastErrorSummary ?? input.failure?.summary ?? null;
+
   return {
     jobType: context.jobType,
     ...(context.maintenanceReason ? { maintenanceReason: context.maintenanceReason } : {}),
@@ -250,9 +279,11 @@ export function buildExecutionTelemetryMetadata(
       target: context.target,
       request: context.request,
       attemptCount: input.attemptCount,
+      retryState: deriveRetryState(input),
       startedAt: input.startedAt ?? null,
       finishedAt: input.finishedAt ?? null,
       durationMs: computeDurationMs(input.startedAt, input.finishedAt),
+      lastErrorSummary,
       itemCount: input.itemCount ?? null,
       rawPayloadCount: input.rawPayloadCount ?? null,
       warningCount: input.warningCount ?? null,

@@ -36,7 +36,7 @@ function createTarget() {
   };
 }
 
-function createSourceJobDouble(options?: { attemptCount?: number }) {
+function createSourceJobDouble(options?: { attemptCount?: number; lastErrorSummary?: string | null }) {
   const calls = {
     upsertProviderRegistry: [] as Array<Record<string, unknown>>,
     createIngestJob: [] as IngestJobCreateInput[],
@@ -68,7 +68,7 @@ function createSourceJobDouble(options?: { attemptCount?: number }) {
     attemptCount: options?.attemptCount ?? 0,
     startedAt: null,
     finishedAt: null,
-    lastErrorSummary: null,
+    lastErrorSummary: options?.lastErrorSummary ?? null,
   };
 
   const run: PersistedIngestRunRecord = {
@@ -86,7 +86,7 @@ function createSourceJobDouble(options?: { attemptCount?: number }) {
     warningCount: 0,
     startedAt: new Date("2026-03-11T08:00:00.000Z"),
     finishedAt: null,
-    lastErrorSummary: null,
+    lastErrorSummary: options?.lastErrorSummary ?? null,
   };
 
   const probeRun: SourceProbeRunRecord = {
@@ -347,6 +347,8 @@ test("executeScheduledSourceProbeJob marks durable failure state when probing th
   )?.executionTelemetry;
   assert.equal(failureTelemetry?.status, "failed");
   assert.equal(failureTelemetry?.attemptCount, 1);
+  assert.equal(failureTelemetry?.retryState, "retryable_failure");
+  assert.equal(failureTelemetry?.lastErrorSummary, "Probe transport failed.");
   assert.equal(failureTelemetry?.failure?.category, "provider_request");
   assert.equal(failureTelemetry?.failure?.code, "provider_request_failed");
   assert.equal(failureTelemetry?.failure?.retryable, true);
@@ -355,7 +357,10 @@ test("executeScheduledSourceProbeJob marks durable failure state when probing th
 test("executeScheduledSourceRefreshJob increments attempt telemetry on repeated execution", async () => {
   const payload = await loadFixture();
   const registry = createDefaultProviderRegistry();
-  const { calls, persistence, health } = createSourceJobDouble({ attemptCount: 2 });
+  const { calls, persistence, health } = createSourceJobDouble({
+    attemptCount: 2,
+    lastErrorSummary: "Previous refresh failed.",
+  });
   const http: ProviderHttpClient = {
     async fetchJson() {
       return payload;
@@ -385,8 +390,10 @@ test("executeScheduledSourceRefreshJob increments attempt telemetry on repeated 
   assert.equal(calls.updateIngestJobStatus[0]?.input.attemptCount, 3);
   const runningTelemetry = (
     calls.updateIngestRunStatus[0]?.input.metadata as {
-      executionTelemetry?: { attemptCount?: number };
+      executionTelemetry?: { attemptCount?: number; retryState?: string; lastErrorSummary?: string | null };
     }
   )?.executionTelemetry;
   assert.equal(runningTelemetry?.attemptCount, 3);
+  assert.equal(runningTelemetry?.retryState, "retrying");
+  assert.equal(runningTelemetry?.lastErrorSummary, "Previous refresh failed.");
 });
