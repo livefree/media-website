@@ -2,18 +2,32 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  acknowledgeAdminModerationReport,
+  createAdminManualSourceSubmission,
+  createAdminManualTitleSubmission,
+  dismissAdminModerationReport,
+  getAdminManualSourceSubmissionDetailByPublicId,
+  getAdminManualSourceSubmissionPage,
+  getAdminManualTitleSubmissionDetailByPublicId,
+  getAdminManualTitleSubmissionPage,
+  getAdminModerationQueuePage,
+  getAdminModerationReportDetailByPublicId,
   getAdminPublishedCatalogManagementDetailByPublicId,
   getAdminPublishedCatalogManagementPage,
   acknowledgeAdminRepairQueueEntry,
   getAdminRepairQueuePage,
   getAdminSourceInventoryPage,
+  resolveAdminModerationReport,
   resolveAdminRepairQueueEntry,
+  updateAdminManualSourceSubmissionStatus,
+  updateAdminManualTitleSubmissionStatus,
   updateAdminSourceOrdering,
 } from "./service";
 
 import type { AdminBackendDependencies } from "./types";
 import type { AdminRepairQueueItemRecord } from "../health";
-import type { AdminSourceInventoryItemRecord } from "../source";
+import type { AdminSourceInventoryItemRecord, ManualSourceSubmissionDetailRecord, ManualSourceSubmissionRecord } from "../source";
+import type { ManualTitleSubmissionDetailRecord, ManualTitleSubmissionRecord, ModerationReportDetailRecord, ModerationReportRecord } from "../review";
 import type {
   AdminPublishedCatalogDetailRecord,
   AdminPublishedCatalogListItemRecord,
@@ -245,12 +259,190 @@ function createPublishedCatalogDetail(
   };
 }
 
+function createModerationReport(overrides: Partial<ModerationReportRecord> = {}): ModerationReportRecord {
+  return {
+    id: "moderation-1",
+    publicId: "modr_public_1",
+    kind: "broken_source",
+    status: "open",
+    title: "Broken stream report",
+    summary: "Main line returns 404.",
+    detail: "Operator reproduced the failure.",
+    reporterName: "Operator One",
+    reporterEmail: "operator@example.com",
+    sourceUrl: null,
+    mediaId: "media-1",
+    mediaPublicId: "med_public_1",
+    mediaTitle: "Northline Station",
+    mediaSlug: "northline-station",
+    resourceId: "resource-1",
+    resourcePublicId: "src_public_1",
+    resourceLabel: "Main line",
+    resourceKind: "stream",
+    episodePublicId: "ep_public_1",
+    episodeTitle: "Episode 1",
+    repairQueueEntryId: "repair-1",
+    repairQueueStatus: "open",
+    latestActionSummary: "Waiting for moderation.",
+    createdAt: new Date("2026-03-11T07:00:00.000Z"),
+    updatedAt: new Date("2026-03-11T08:00:00.000Z"),
+    queuedAt: new Date("2026-03-11T07:00:00.000Z"),
+    resolvedAt: null,
+    dismissedAt: null,
+    ...overrides,
+  };
+}
+
+function createModerationDetail(
+  overrides: Partial<ModerationReportDetailRecord> = {},
+): ModerationReportDetailRecord {
+  return {
+    report: createModerationReport(),
+    actions: [
+      {
+        id: "moderation-action-1",
+        reportId: "moderation-1",
+        actorId: "operator-1",
+        actionType: "submitted",
+        summary: "Moderation report created.",
+        notes: null,
+        statusAfter: "open",
+        linkedRepairQueueEntryId: null,
+        createdAt: new Date("2026-03-11T07:00:00.000Z"),
+      },
+    ],
+    ...overrides,
+  };
+}
+
+function createManualTitleSubmission(
+  overrides: Partial<ManualTitleSubmissionRecord> = {},
+): ManualTitleSubmissionRecord {
+  return {
+    id: "manual-title-1",
+    publicId: "mts_public_1",
+    status: "submitted",
+    title: "Glass Harbor",
+    originalTitle: null,
+    typeHint: "movie",
+    releaseYear: 2025,
+    originCountry: "Japan",
+    language: "ja",
+    summary: "A candidate title from operator intake.",
+    notes: "Needs metadata confirmation.",
+    sourceUrl: "https://example.com/title-note",
+    canonicalMediaId: null,
+    canonicalMediaPublicId: null,
+    canonicalMediaTitle: null,
+    reviewQueueEntryId: null,
+    submittedByName: "Operator One",
+    submittedByEmail: "operator@example.com",
+    latestActionSummary: "Manual title submission created.",
+    createdAt: new Date("2026-03-11T07:30:00.000Z"),
+    updatedAt: new Date("2026-03-11T07:30:00.000Z"),
+    reviewedAt: null,
+    ...overrides,
+  };
+}
+
+function createManualTitleSubmissionDetail(
+  overrides: Partial<ManualTitleSubmissionDetailRecord> = {},
+): ManualTitleSubmissionDetailRecord {
+  return {
+    submission: createManualTitleSubmission(),
+    actions: [
+      {
+        id: "manual-title-action-1",
+        submissionId: "manual-title-1",
+        actorId: "operator-1",
+        actionType: "submitted",
+        summary: "Manual title submission created.",
+        notes: "Needs metadata confirmation.",
+        statusAfter: "submitted",
+        createdAt: new Date("2026-03-11T07:30:00.000Z"),
+      },
+    ],
+    ...overrides,
+  };
+}
+
+function createManualSourceSubmission(
+  overrides: Partial<ManualSourceSubmissionRecord> = {},
+): ManualSourceSubmissionRecord {
+  return {
+    id: "manual-source-1",
+    publicId: "mss_public_1",
+    status: "submitted",
+    mediaId: "media-1",
+    mediaPublicId: "med_public_1",
+    mediaTitle: "Northline Station",
+    mediaSlug: "northline-station",
+    episodeId: "episode-1",
+    episodePublicId: "ep_public_1",
+    episodeTitle: "Episode 1",
+    targetTitleText: null,
+    targetEpisodeText: null,
+    kind: "stream",
+    provider: "m3u8",
+    format: "hls",
+    label: "Operator backup line",
+    quality: "1080p",
+    url: "https://example.com/operator.m3u8",
+    maskedUrl: null,
+    accessCode: null,
+    notes: "Manual replacement line.",
+    sourceUrl: "https://example.com/source-note",
+    submittedByName: "Operator One",
+    submittedByEmail: "operator@example.com",
+    linkedResourceId: null,
+    linkedResourcePublicId: null,
+    linkedRepairQueueEntryId: null,
+    latestActionSummary: "Manual source submission created.",
+    createdAt: new Date("2026-03-11T08:30:00.000Z"),
+    updatedAt: new Date("2026-03-11T08:30:00.000Z"),
+    reviewedAt: null,
+    ...overrides,
+  };
+}
+
+function createManualSourceSubmissionDetail(
+  overrides: Partial<ManualSourceSubmissionDetailRecord> = {},
+): ManualSourceSubmissionDetailRecord {
+  return {
+    submission: createManualSourceSubmission(),
+    actions: [
+      {
+        id: "manual-source-action-1",
+        submissionId: "manual-source-1",
+        actorId: "operator-1",
+        actionType: "submitted",
+        summary: "Manual source submission created.",
+        notes: "Manual replacement line.",
+        statusAfter: "submitted",
+        createdAt: new Date("2026-03-11T08:30:00.000Z"),
+      },
+    ],
+    ...overrides,
+  };
+}
+
 function createDependencies() {
   const calls = {
     queryAdminPublishedCatalog: [] as Array<Record<string, unknown> | undefined>,
     getAdminPublishedCatalogDetailByPublicId: [] as string[],
+    listModerationReports: [] as Array<Record<string, unknown> | undefined>,
+    getModerationReportDetailByPublicId: [] as string[],
+    updateModerationReportStatus: [] as Array<{ publicId: string; input: Record<string, unknown> }>,
+    listManualTitleSubmissions: [] as Array<Record<string, unknown> | undefined>,
+    getManualTitleSubmissionDetailByPublicId: [] as string[],
+    createManualTitleSubmission: [] as Array<Record<string, unknown>>,
+    updateManualTitleSubmissionStatus: [] as Array<{ publicId: string; input: Record<string, unknown> }>,
     listAdminSourceInventory: [] as Array<Record<string, unknown> | undefined>,
     updateSourceOrdering: [] as Array<Record<string, unknown>>,
+    listManualSourceSubmissions: [] as Array<Record<string, unknown> | undefined>,
+    getManualSourceSubmissionDetailByPublicId: [] as string[],
+    createManualSourceSubmission: [] as Array<Record<string, unknown>>,
+    updateManualSourceSubmissionStatus: [] as Array<{ publicId: string; input: Record<string, unknown> }>,
     listAdminRepairQueue: [] as Array<Record<string, unknown> | undefined>,
     updateRepairQueueEntryStatus: [] as Array<{ entryId: string; input: Record<string, unknown> }>,
   };
@@ -295,6 +487,102 @@ function createDependencies() {
         return publicId === "missing" ? null : createPublishedCatalogDetail();
       },
     },
+    review: {
+      async listModerationReports(query) {
+        calls.listModerationReports.push(query);
+        return [
+          createModerationReport(),
+          createModerationReport({
+            id: "moderation-2",
+            publicId: "modr_public_2",
+            kind: "closely_related",
+            status: "in_review",
+            title: "Related-title report",
+            summary: "This title may be a duplicate listing.",
+            resourceId: null,
+            resourcePublicId: null,
+            resourceLabel: null,
+            resourceKind: null,
+            repairQueueEntryId: null,
+            repairQueueStatus: null,
+          }),
+          createModerationReport({
+            id: "moderation-3",
+            publicId: "modr_public_3",
+            status: "resolved",
+            latestActionSummary: "Linked to repair queue.",
+            resolvedAt: new Date("2026-03-11T10:00:00.000Z"),
+          }),
+        ];
+      },
+      async getModerationReportDetailByPublicId(publicId) {
+        calls.getModerationReportDetailByPublicId.push(publicId);
+        return publicId === "missing"
+          ? null
+          : createModerationDetail({
+              report: createModerationReport({ publicId }),
+            });
+      },
+      async updateModerationReportStatus(publicId, input) {
+        calls.updateModerationReportStatus.push({ publicId, input: input as Record<string, unknown> });
+        return createModerationDetail({
+          report: createModerationReport({
+            publicId,
+            status: input.status,
+            repairQueueEntryId: input.linkedRepairQueueEntryId ?? null,
+          }),
+        });
+      },
+      async listManualTitleSubmissions(query) {
+        calls.listManualTitleSubmissions.push(query);
+        return [
+          createManualTitleSubmission(),
+          createManualTitleSubmission({
+            id: "manual-title-2",
+            publicId: "mts_public_2",
+            status: "in_review",
+          }),
+          createManualTitleSubmission({
+            id: "manual-title-3",
+            publicId: "mts_public_3",
+            status: "accepted",
+            canonicalMediaPublicId: "med_public_2",
+            canonicalMediaTitle: "Glass Harbor",
+          }),
+        ];
+      },
+      async getManualTitleSubmissionDetailByPublicId(publicId) {
+        calls.getManualTitleSubmissionDetailByPublicId.push(publicId);
+        return publicId === "missing"
+          ? null
+          : createManualTitleSubmissionDetail({
+              submission: createManualTitleSubmission({ publicId }),
+            });
+      },
+      async createManualTitleSubmission(input) {
+        calls.createManualTitleSubmission.push(input as Record<string, unknown>);
+        return createManualTitleSubmissionDetail({
+          submission: createManualTitleSubmission({
+            title: input.title,
+            originalTitle: input.originalTitle ?? null,
+            typeHint: input.typeHint ?? "unknown",
+            submittedByName: input.submittedByName ?? null,
+            submittedByEmail: input.submittedByEmail ?? null,
+          }),
+        });
+      },
+      async updateManualTitleSubmissionStatus(publicId, input) {
+        calls.updateManualTitleSubmissionStatus.push({ publicId, input: input as Record<string, unknown> });
+        return createManualTitleSubmissionDetail({
+          submission: createManualTitleSubmission({
+            publicId,
+            status: input.status,
+            canonicalMediaId: input.canonicalMediaId ?? null,
+            reviewQueueEntryId: input.reviewQueueEntryId ?? null,
+          }),
+        });
+      },
+    },
     source: {
       async listAdminSourceInventory(query) {
         calls.listAdminSourceInventory.push(query);
@@ -328,6 +616,56 @@ function createDependencies() {
       async updateSourceOrdering(updates) {
         calls.updateSourceOrdering.push({ updates });
         return updates;
+      },
+      async listManualSourceSubmissions(query) {
+        calls.listManualSourceSubmissions.push(query);
+        return [
+          createManualSourceSubmission(),
+          createManualSourceSubmission({
+            id: "manual-source-2",
+            publicId: "mss_public_2",
+            status: "needs_followup",
+            targetTitleText: "Unknown title",
+            mediaId: null,
+            mediaPublicId: null,
+            mediaTitle: null,
+            mediaSlug: null,
+            episodeId: null,
+            episodePublicId: null,
+            episodeTitle: null,
+          }),
+        ];
+      },
+      async getManualSourceSubmissionDetailByPublicId(publicId) {
+        calls.getManualSourceSubmissionDetailByPublicId.push(publicId);
+        return publicId === "missing"
+          ? null
+          : createManualSourceSubmissionDetail({
+              submission: createManualSourceSubmission({ publicId }),
+            });
+      },
+      async createManualSourceSubmission(input) {
+        calls.createManualSourceSubmission.push(input as Record<string, unknown>);
+        return createManualSourceSubmissionDetail({
+          submission: createManualSourceSubmission({
+            targetTitleText: input.targetTitleText ?? null,
+            label: input.label,
+            url: input.url,
+            submittedByName: input.submittedByName ?? null,
+            submittedByEmail: input.submittedByEmail ?? null,
+          }),
+        });
+      },
+      async updateManualSourceSubmissionStatus(publicId, input) {
+        calls.updateManualSourceSubmissionStatus.push({ publicId, input: input as Record<string, unknown> });
+        return createManualSourceSubmissionDetail({
+          submission: createManualSourceSubmission({
+            publicId,
+            status: input.status,
+            linkedResourceId: input.linkedResourceId ?? null,
+            linkedRepairQueueEntryId: input.linkedRepairQueueEntryId ?? null,
+          }),
+        });
       },
     },
     health: {
@@ -433,6 +771,194 @@ test("getAdminRepairQueuePage builds operator summaries from durable repair reco
   assert.equal(page.summary.openItems, 1);
   assert.equal(page.summary.inProgressItems, 1);
   assert.equal(page.summary.resolvedItems, 1);
+});
+
+test("getAdminModerationQueuePage builds operator summaries for moderation reports", async () => {
+  const { calls, dependencies } = createDependencies();
+  const page = await getAdminModerationQueuePage(
+    {
+      q: "broken",
+      statuses: ["open", "in_review"],
+    },
+    dependencies,
+  );
+
+  assert.equal(calls.listModerationReports.length, 1);
+  assert.equal(page.title, "Moderation Reports");
+  assert.equal(page.summary.totalItems, 3);
+  assert.equal(page.summary.openItems, 1);
+  assert.equal(page.summary.inReviewItems, 1);
+  assert.equal(page.summary.resolvedItems, 1);
+});
+
+test("moderation detail and status actions stay inside the review backend boundary", async () => {
+  const { calls, dependencies } = createDependencies();
+  const detail = await getAdminModerationReportDetailByPublicId("modr_public_1", dependencies);
+  await acknowledgeAdminModerationReport(
+    {
+      publicId: "modr_public_1",
+      actorId: "operator-ui",
+      requestId: "mod-ack-1",
+      notes: "Checking the source.",
+      linkedRepairQueueEntryId: "repair-1",
+    },
+    dependencies,
+  );
+  await resolveAdminModerationReport(
+    {
+      publicId: "modr_public_1",
+      actorId: "operator-ui",
+      requestId: "mod-resolve-1",
+      notes: "Replacement source linked.",
+    },
+    dependencies,
+  );
+  await dismissAdminModerationReport(
+    {
+      publicId: "modr_public_2",
+      actorId: "operator-ui",
+      requestId: "mod-dismiss-1",
+      notes: "No action required.",
+    },
+    dependencies,
+  );
+
+  assert.equal(detail?.report.publicId, "modr_public_1");
+  assert.deepEqual(calls.getModerationReportDetailByPublicId, ["modr_public_1"]);
+  assert.deepEqual(calls.updateModerationReportStatus, [
+    {
+      publicId: "modr_public_1",
+      input: {
+        status: "in_review",
+        actorId: "operator-ui",
+        requestId: "mod-ack-1",
+        notes: "Checking the source.",
+        linkedRepairQueueEntryId: "repair-1",
+      },
+    },
+    {
+      publicId: "modr_public_1",
+      input: {
+        status: "resolved",
+        actorId: "operator-ui",
+        requestId: "mod-resolve-1",
+        notes: "Replacement source linked.",
+        linkedRepairQueueEntryId: undefined,
+      },
+    },
+    {
+      publicId: "modr_public_2",
+      input: {
+        status: "dismissed",
+        actorId: "operator-ui",
+        requestId: "mod-dismiss-1",
+        notes: "No action required.",
+      },
+    },
+  ]);
+});
+
+test("manual title submission admin flows expose list, detail, create, and status updates", async () => {
+  const { calls, dependencies } = createDependencies();
+  const page = await getAdminManualTitleSubmissionPage(
+    {
+      statuses: ["submitted", "in_review"],
+    },
+    dependencies,
+  );
+  const detail = await getAdminManualTitleSubmissionDetailByPublicId("mts_public_1", dependencies);
+  const created = await createAdminManualTitleSubmission(
+    {
+      title: "New Harbor",
+      typeHint: "movie",
+      submittedByName: "Operator Two",
+      submittedByEmail: "two@example.com",
+    },
+    dependencies,
+  );
+  await updateAdminManualTitleSubmissionStatus(
+    "mts_public_1",
+    {
+      status: "accepted",
+      actorId: "operator-ui",
+      requestId: "title-accept-1",
+      canonicalMediaId: "media-2",
+      reviewQueueEntryId: "queue-22",
+    },
+    dependencies,
+  );
+
+  assert.equal(page.title, "Manual Title Submissions");
+  assert.equal(page.summary.totalItems, 3);
+  assert.equal(page.summary.submittedItems, 1);
+  assert.equal(page.summary.inReviewItems, 1);
+  assert.equal(page.summary.acceptedItems, 1);
+  assert.equal(detail?.submission.publicId, "mts_public_1");
+  assert.equal(created.submission.title, "New Harbor");
+  assert.equal(calls.createManualTitleSubmission.length, 1);
+  assert.deepEqual(calls.updateManualTitleSubmissionStatus[0], {
+    publicId: "mts_public_1",
+    input: {
+      status: "accepted",
+      actorId: "operator-ui",
+      requestId: "title-accept-1",
+      canonicalMediaId: "media-2",
+      reviewQueueEntryId: "queue-22",
+    },
+  });
+});
+
+test("manual source submission admin flows expose list, detail, create, and status updates", async () => {
+  const { calls, dependencies } = createDependencies();
+  const page = await getAdminManualSourceSubmissionPage(
+    {
+      statuses: ["submitted", "needs_followup"],
+    },
+    dependencies,
+  );
+  const detail = await getAdminManualSourceSubmissionDetailByPublicId("mss_public_1", dependencies);
+  const created = await createAdminManualSourceSubmission(
+    {
+      targetTitleText: "Northline Station",
+      kind: "stream",
+      provider: "m3u8",
+      format: "hls",
+      label: "Operator backup line",
+      url: "https://example.com/backup.m3u8",
+      submittedByName: "Operator Three",
+      submittedByEmail: "three@example.com",
+    },
+    dependencies,
+  );
+  await updateAdminManualSourceSubmissionStatus(
+    "mss_public_1",
+    {
+      status: "accepted",
+      actorId: "operator-ui",
+      requestId: "source-accept-1",
+      linkedResourceId: "resource-4",
+      linkedRepairQueueEntryId: "repair-1",
+    },
+    dependencies,
+  );
+
+  assert.equal(page.title, "Manual Source Submissions");
+  assert.equal(page.summary.totalItems, 2);
+  assert.equal(page.summary.submittedItems, 1);
+  assert.equal(page.summary.followupItems, 1);
+  assert.equal(detail?.submission.publicId, "mss_public_1");
+  assert.equal(created.submission.label, "Operator backup line");
+  assert.equal(calls.createManualSourceSubmission.length, 1);
+  assert.deepEqual(calls.updateManualSourceSubmissionStatus[0], {
+    publicId: "mss_public_1",
+    input: {
+      status: "accepted",
+      actorId: "operator-ui",
+      requestId: "source-accept-1",
+      linkedResourceId: "resource-4",
+      linkedRepairQueueEntryId: "repair-1",
+    },
+  });
 });
 
 test("admin repair queue actions use backend-owned status transitions", async () => {

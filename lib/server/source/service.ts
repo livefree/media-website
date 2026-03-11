@@ -1,9 +1,17 @@
 import "server-only";
 
+import { BackendError } from "../errors";
+import { runInTransaction } from "../../db/transactions";
 import { createDefaultSourceInventoryRepository } from "../../db/repositories/source";
+import { createSourceInventoryRepository } from "../../db/repositories/source";
 
 import type {
   AdminSourceInventoryItemRecord,
+  CreateManualSourceSubmissionInput,
+  ManualSourceSubmissionDetailRecord,
+  ManualSourceSubmissionQuery,
+  ManualSourceSubmissionRecord,
+  ManualSourceSubmissionStatusUpdateInput,
   SourceInventoryQuery,
   SourceInventoryRecord,
   SourceOrderingUpdate,
@@ -28,4 +36,146 @@ export async function upsertSourceInventory(input: UpsertSourceInventoryInput): 
 
 export async function updateSourceOrdering(updates: SourceOrderingUpdate[]): Promise<SourceInventoryRecord[]> {
   return createDefaultSourceInventoryRepository().updateSourceOrdering(updates);
+}
+
+function requireTrimmedValue(value: string | undefined, field: string, code: string) {
+  if (!value?.trim()) {
+    throw new BackendError(`${field} is required.`, {
+      status: 400,
+      code,
+    });
+  }
+}
+
+function validateOptionalEmail(email: string | undefined, code: string) {
+  if (!email) {
+    return;
+  }
+
+  if (!email.includes("@")) {
+    throw new BackendError("Email must be valid when provided.", {
+      status: 400,
+      code,
+    });
+  }
+}
+
+function validateManualSourceSubmissionInput(input: CreateManualSourceSubmissionInput) {
+  requireTrimmedValue(input.label, "Source label", "manual_source_label_required");
+  requireTrimmedValue(input.url, "Source URL", "manual_source_url_required");
+  validateOptionalEmail(input.submittedByEmail, "manual_source_submitter_email_invalid");
+
+  if (!input.mediaId && !input.targetTitleText?.trim()) {
+    throw new BackendError("Manual source submission requires a target title or media reference.", {
+      status: 400,
+      code: "manual_source_target_required",
+    });
+  }
+}
+
+function manualSourceActionSummary(status: ManualSourceSubmissionStatusUpdateInput["status"], notes?: string) {
+  return notes?.trim() || `Manual source submission moved to ${status}.`;
+}
+
+export async function listManualSourceSubmissions(
+  query: ManualSourceSubmissionQuery = {},
+): Promise<ManualSourceSubmissionRecord[]> {
+  return createDefaultSourceInventoryRepository().listManualSourceSubmissions(query);
+}
+
+export async function getManualSourceSubmissionDetailByPublicId(
+  publicId: string,
+): Promise<ManualSourceSubmissionDetailRecord | null> {
+  return createDefaultSourceInventoryRepository().getManualSourceSubmissionDetailByPublicId(publicId);
+}
+
+export async function createManualSourceSubmission(
+  input: CreateManualSourceSubmissionInput,
+): Promise<ManualSourceSubmissionDetailRecord> {
+  validateManualSourceSubmissionInput(input);
+
+  return runInTransaction(
+    {
+      name: "source.createManualSourceSubmission",
+    },
+    async (context) => {
+      const repository = createSourceInventoryRepository(context);
+      const submission = await repository.createManualSourceSubmission(input);
+
+      await repository.createManualSourceSubmissionAction({
+        submissionId: submission.id,
+        actorId: input.actorId,
+        actionType: "submitted",
+        summary: "Manual source submission created.",
+        notes: input.notes,
+        statusAfter: "submitted",
+      });
+
+      const detail = await repository.getManualSourceSubmissionDetailByPublicId(submission.publicId);
+
+      if (!detail) {
+        throw new BackendError(`Manual source submission '${submission.publicId}' was not found after creation.`, {
+          status: 500,
+          code: "manual_source_submission_missing_after_create",
+        });
+      }
+
+      return detail;
+    },
+    {
+      actorId: input.actorId,
+      requestId: input.requestId,
+    },
+  );
+}
+
+export async function updateManualSourceSubmissionStatus(
+  publicId: string,
+  input: ManualSourceSubmissionStatusUpdateInput,
+): Promise<ManualSourceSubmissionDetailRecord> {
+  return runInTransaction(
+    {
+      name: "source.updateManualSourceSubmissionStatus",
+    },
+    async (context) => {
+      const repository = createSourceInventoryRepository(context);
+      const existing = await repository.getManualSourceSubmissionDetailByPublicId(publicId);
+
+      if (!existing) {
+        throw new BackendError(`Manual source submission '${publicId}' was not found.`, {
+          status: 404,
+          code: "manual_source_submission_not_found",
+        });
+      }
+
+      await repository.updateManualSourceSubmissionStatus(publicId, input);
+      await repository.createManualSourceSubmissionAction({
+        submissionId: existing.submission.id,
+        actorId: input.actorId,
+        actionType: input.linkedResourceId ? "linked_resource" : "status_changed",
+        summary: manualSourceActionSummary(input.status, input.notes),
+        notes: input.notes,
+        statusAfter: input.status,
+        metadata: {
+          linkedResourceId: input.linkedResourceId ?? null,
+          linkedRepairQueueEntryId: input.linkedRepairQueueEntryId ?? null,
+        },
+      });
+
+      const updated = await repository.getManualSourceSubmissionDetailByPublicId(publicId);
+
+      if (!updated) {
+        throw new BackendError(`Manual source submission '${publicId}' was not found after update.`, {
+          status: 500,
+          code: "manual_source_submission_missing_after_update",
+        });
+      }
+
+      return updated;
+    },
+    {
+      actorId: input.actorId,
+      requestId: input.requestId,
+    },
+  );
 }

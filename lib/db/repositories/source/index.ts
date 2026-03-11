@@ -12,12 +12,20 @@ import type { SourceInventoryRepository as SourceInventoryRepositoryContract } f
 import type { SourceHealthState } from "../../../server/provider";
 import type {
   AdminSourceInventoryItemRecord,
+  CreateManualSourceSubmissionInput,
+  ManualSourceSubmissionActionRecord,
+  ManualSourceSubmissionDetailRecord,
+  ManualSourceSubmissionQuery,
+  ManualSourceSubmissionRecord,
+  ManualSourceSubmissionStatusUpdateInput,
   SourceInventoryQuery,
   SourceInventoryRecord,
   SourceOrderingOrigin,
   SourceOrderingUpdate,
   UpsertSourceInventoryInput,
 } from "../../../server/source";
+import type { ManualSubmissionActionType, ManualSubmissionStatus } from "../../../server/review";
+import type { ManualSourceSubmissionActionCreateInput } from "./types";
 
 const resourceKindMap = {
   stream: "STREAM",
@@ -58,6 +66,22 @@ const sourceOrderingOriginMap = {
   manual: "MANUAL",
 } as const;
 
+const manualSubmissionStatusMap = {
+  submitted: "SUBMITTED",
+  in_review: "IN_REVIEW",
+  accepted: "ACCEPTED",
+  rejected: "REJECTED",
+  needs_followup: "NEEDS_FOLLOWUP",
+} as const;
+
+const manualSubmissionActionTypeMap = {
+  submitted: "SUBMITTED",
+  status_changed: "STATUS_CHANGED",
+  linked_review: "LINKED_REVIEW",
+  linked_resource: "LINKED_RESOURCE",
+  noted: "NOTED",
+} as const;
+
 function toDate(value?: string): Date | undefined {
   if (!value) {
     return undefined;
@@ -84,6 +108,14 @@ function mapSourceHealthState(value: SourceHealthState) {
 
 function mapSourceOrderingOrigin(value: SourceOrderingOrigin) {
   return sourceOrderingOriginMap[value];
+}
+
+function mapManualSubmissionStatus(value: ManualSubmissionStatus) {
+  return manualSubmissionStatusMap[value];
+}
+
+function mapManualSubmissionActionType(value: ManualSubmissionActionType) {
+  return manualSubmissionActionTypeMap[value];
 }
 
 function unmapResourceKind(value: string): SourceInventoryRecord["kind"] {
@@ -169,6 +201,40 @@ function unmapSourceOrderingOrigin(value: string): SourceOrderingOrigin {
   throw new Error(`Unsupported source ordering origin: ${value}`);
 }
 
+function unmapManualSubmissionStatus(value: string): ManualSubmissionStatus {
+  switch (value) {
+    case "SUBMITTED":
+      return "submitted";
+    case "IN_REVIEW":
+      return "in_review";
+    case "ACCEPTED":
+      return "accepted";
+    case "REJECTED":
+      return "rejected";
+    case "NEEDS_FOLLOWUP":
+      return "needs_followup";
+  }
+
+  throw new Error(`Unsupported manual submission status: ${value}`);
+}
+
+function unmapManualSubmissionActionType(value: string): ManualSubmissionActionType {
+  switch (value) {
+    case "SUBMITTED":
+      return "submitted";
+    case "STATUS_CHANGED":
+      return "status_changed";
+    case "LINKED_REVIEW":
+      return "linked_review";
+    case "LINKED_RESOURCE":
+      return "linked_resource";
+    case "NOTED":
+      return "noted";
+  }
+
+  throw new Error(`Unsupported manual submission action type: ${value}`);
+}
+
 function buildSourcePublicId() {
   return `src_${randomUUID().replace(/-/g, "").slice(0, 20)}`;
 }
@@ -251,6 +317,107 @@ function mapSourceInventoryRecord(
     failureCount: record.failureCount,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
+  };
+}
+
+const manualSourceSubmissionListInclude = {
+  media: {
+    select: {
+      id: true,
+      publicId: true,
+      title: true,
+      slug: true,
+    },
+  },
+  episode: {
+    select: {
+      id: true,
+      publicId: true,
+      title: true,
+    },
+  },
+  linkedResource: {
+    select: {
+      id: true,
+      publicId: true,
+    },
+  },
+} satisfies Prisma.ManualSourceSubmissionInclude;
+
+const manualSourceSubmissionDetailInclude = {
+  ...manualSourceSubmissionListInclude,
+  actions: {
+    orderBy: {
+      createdAt: "desc",
+    },
+  },
+} satisfies Prisma.ManualSourceSubmissionInclude;
+
+type ManualSourceSubmissionDetailPayload = Prisma.ManualSourceSubmissionGetPayload<{
+  include: typeof manualSourceSubmissionDetailInclude;
+}>;
+
+function mapManualSourceSubmissionRecord(
+  record: Prisma.ManualSourceSubmissionGetPayload<{
+    include: typeof manualSourceSubmissionListInclude;
+  }>,
+): ManualSourceSubmissionRecord {
+  return {
+    id: record.id,
+    publicId: record.publicId,
+    status: unmapManualSubmissionStatus(record.status),
+    mediaId: record.mediaId,
+    mediaPublicId: record.media?.publicId ?? null,
+    mediaTitle: record.media?.title ?? null,
+    mediaSlug: record.media?.slug ?? null,
+    episodeId: record.episodeId,
+    episodePublicId: record.episode?.publicId ?? null,
+    episodeTitle: record.episode?.title ?? null,
+    targetTitleText: record.targetTitleText,
+    targetEpisodeText: record.targetEpisodeText,
+    kind: unmapResourceKind(record.kind),
+    provider: unmapResourceProvider(record.provider),
+    format: record.format.toLowerCase(),
+    label: record.label,
+    quality: record.quality,
+    url: record.url,
+    maskedUrl: record.maskedUrl,
+    accessCode: record.accessCode,
+    notes: record.notes,
+    sourceUrl: record.sourceUrl,
+    submittedByName: record.submittedByName,
+    submittedByEmail: record.submittedByEmail,
+    linkedResourceId: record.linkedResourceId,
+    linkedResourcePublicId: record.linkedResource?.publicId ?? null,
+    linkedRepairQueueEntryId: record.linkedRepairQueueEntryId,
+    latestActionSummary: record.latestActionSummary,
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+    reviewedAt: record.reviewedAt,
+  };
+}
+
+function mapManualSourceSubmissionActionRecord(
+  record: Prisma.ManualSourceSubmissionActionGetPayload<Record<string, never>>,
+): ManualSourceSubmissionActionRecord {
+  return {
+    id: record.id,
+    submissionId: record.submissionId,
+    actorId: record.actorId,
+    actionType: unmapManualSubmissionActionType(record.actionType),
+    summary: record.summary,
+    notes: record.notes,
+    statusAfter: record.statusAfter ? unmapManualSubmissionStatus(record.statusAfter) : null,
+    createdAt: record.createdAt,
+  };
+}
+
+function mapManualSourceSubmissionDetailRecord(
+  record: ManualSourceSubmissionDetailPayload,
+): ManualSourceSubmissionDetailRecord {
+  return {
+    submission: mapManualSourceSubmissionRecord(record),
+    actions: record.actions.map((action) => mapManualSourceSubmissionActionRecord(action)),
   };
 }
 
@@ -635,6 +802,123 @@ export class SourceInventoryRepository extends BaseRepository implements SourceI
     });
 
     return records.map((record) => mapSourceInventoryRecord(record));
+  }
+
+  async createManualSourceSubmission(input: CreateManualSourceSubmissionInput): Promise<ManualSourceSubmissionRecord> {
+    const record = await this.db.manualSourceSubmission.create({
+      data: {
+        publicId: `mss_${randomUUID().replace(/-/g, "").slice(0, 20)}`,
+        status: "SUBMITTED",
+        mediaId: input.mediaId ?? null,
+        episodeId: input.episodeId ?? null,
+        targetTitleText: input.targetTitleText ?? null,
+        targetEpisodeText: input.targetEpisodeText ?? null,
+        kind: mapResourceKind(input.kind),
+        provider: mapResourceProvider(input.provider),
+        format: mapResourceFormat(input.format, input.kind),
+        label: input.label,
+        quality: input.quality ?? null,
+        url: input.url,
+        maskedUrl: input.maskedUrl ?? null,
+        accessCode: input.accessCode ?? null,
+        notes: input.notes ?? null,
+        sourceUrl: input.sourceUrl ?? null,
+        submittedByName: input.submittedByName ?? null,
+        submittedByEmail: input.submittedByEmail ?? null,
+        latestActionSummary: "Manual source submission created.",
+      },
+      include: manualSourceSubmissionListInclude,
+    });
+
+    return mapManualSourceSubmissionRecord(record);
+  }
+
+  async updateManualSourceSubmissionStatus(
+    publicId: string,
+    input: ManualSourceSubmissionStatusUpdateInput,
+  ): Promise<ManualSourceSubmissionRecord> {
+    const reviewedAt =
+      input.status === "accepted" || input.status === "rejected" || input.status === "needs_followup" ? new Date() : undefined;
+    const record = await this.db.manualSourceSubmission.update({
+      where: {
+        publicId,
+      },
+      data: {
+        status: mapManualSubmissionStatus(input.status),
+        linkedResourceId: input.linkedResourceId ?? undefined,
+        linkedRepairQueueEntryId: input.linkedRepairQueueEntryId ?? undefined,
+        latestActionSummary: input.notes?.trim() || undefined,
+        reviewedAt,
+      },
+      include: manualSourceSubmissionListInclude,
+    });
+
+    return mapManualSourceSubmissionRecord(record);
+  }
+
+  async createManualSourceSubmissionAction(
+    input: ManualSourceSubmissionActionCreateInput,
+  ): Promise<ManualSourceSubmissionActionRecord> {
+    const record = await this.db.manualSourceSubmissionAction.create({
+      data: {
+        submissionId: input.submissionId,
+        actorId: input.actorId,
+        actionType: mapManualSubmissionActionType(input.actionType),
+        summary: input.summary,
+        notes: input.notes,
+        statusAfter: input.statusAfter ? mapManualSubmissionStatus(input.statusAfter) : undefined,
+        metadata: input.metadata as Prisma.InputJsonValue | undefined,
+        createdAt: toDate(input.createdAt),
+      },
+    });
+
+    return mapManualSourceSubmissionActionRecord(record);
+  }
+
+  async listManualSourceSubmissions(query: ManualSourceSubmissionQuery = {}): Promise<ManualSourceSubmissionRecord[]> {
+    const search = query.q?.trim();
+    const records = await this.db.manualSourceSubmission.findMany({
+      where: {
+        status: query.statuses?.length
+          ? {
+              in: query.statuses.map((status) => mapManualSubmissionStatus(status)),
+            }
+          : undefined,
+        kind: query.kinds?.length
+          ? {
+              in: query.kinds.map((kind) => mapResourceKind(kind)),
+            }
+          : undefined,
+        media: query.mediaPublicId
+          ? {
+              publicId: query.mediaPublicId,
+            }
+          : undefined,
+        OR: search
+          ? [
+              { label: { contains: search, mode: "insensitive" } },
+              { targetTitleText: { contains: search, mode: "insensitive" } },
+              { targetEpisodeText: { contains: search, mode: "insensitive" } },
+              { notes: { contains: search, mode: "insensitive" } },
+            ]
+          : undefined,
+      },
+      include: manualSourceSubmissionListInclude,
+      orderBy: [{ createdAt: "desc" }],
+    });
+
+    return records.map((record) => mapManualSourceSubmissionRecord(record));
+  }
+
+  async getManualSourceSubmissionDetailByPublicId(publicId: string): Promise<ManualSourceSubmissionDetailRecord | null> {
+    const record = await this.db.manualSourceSubmission.findUnique({
+      where: {
+        publicId,
+      },
+      include: manualSourceSubmissionDetailInclude,
+    });
+
+    return record ? mapManualSourceSubmissionDetailRecord(record) : null;
   }
 }
 

@@ -357,6 +357,43 @@ enum PublishAuditAction {
   PUBLISH_FAILED
 }
 
+enum ModerationReportKind {
+  BROKEN_SOURCE
+  CLOSELY_RELATED
+}
+
+enum ModerationReportStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
+enum ModerationReportActionType {
+  SUBMITTED
+  ACKNOWLEDGED
+  LINKED_REPAIR
+  RESOLVED
+  DISMISSED
+  NOTED
+}
+
+enum ManualSubmissionStatus {
+  SUBMITTED
+  IN_REVIEW
+  ACCEPTED
+  REJECTED
+  NEEDS_FOLLOWUP
+}
+
+enum ManualSubmissionActionType {
+  SUBMITTED
+  STATUS_CHANGED
+  LINKED_REVIEW
+  LINKED_RESOURCE
+  NOTED
+}
+
 model User {
   id               String            @id @default(cuid())
   email            String            @unique
@@ -438,6 +475,9 @@ model MediaTitle {
   publishOperationTargets PublishOperation[]    @relation("PublishOperationTargetCanonicalMedia")
   publishOperationResults PublishOperation[]    @relation("PublishOperationResultCanonicalMedia")
   publishAuditRecords   PublishAuditRecord[]    @relation("PublishAuditCanonicalMedia")
+  moderationReports     ModerationReport[]      @relation("ModerationReportMedia")
+  manualTitleSubmissions ManualTitleSubmission[] @relation("ManualTitleSubmissionCanonicalMedia")
+  manualSourceSubmissions ManualSourceSubmission[] @relation("ManualSourceSubmissionMedia")
 }
 
 model MediaAlternateTitle {
@@ -553,6 +593,7 @@ model Episode {
   listItems      UserListItem[]
   watchProgress  WatchProgress[]
   playbackSessions PlaybackSession[]
+  manualSourceSubmissions ManualSourceSubmission[] @relation("ManualSourceSubmissionEpisode")
 
   @@unique([mediaId, slug])
   @@index([seasonId, episodeNumber])
@@ -614,6 +655,8 @@ model Resource {
   resourceEvents   ResourceEvent[]
   probeRuns        SourceProbeRun[]
   repairQueueEntries RepairQueueEntry[]
+  moderationReports ModerationReport[]         @relation("ModerationReportResource")
+  linkedManualSourceSubmissions ManualSourceSubmission[] @relation("ManualSourceSubmissionLinkedResource")
 
   @@index([mediaId, kind, status])
   @@index([episodeId, kind])
@@ -672,6 +715,9 @@ model RepairQueueEntry {
   probeRun           SourceProbeRun?      @relation(fields: [probeRunId], references: [id], onDelete: SetNull)
   providerRegistry   ProviderRegistry?    @relation(fields: [providerId], references: [id], onDelete: SetNull)
   providerItem       ProviderItem?        @relation(fields: [providerItemId], references: [id], onDelete: SetNull)
+  moderationReports  ModerationReport[]   @relation("ModerationReportRepairQueueEntry")
+  moderationActions  ModerationReportAction[]
+  linkedManualSourceSubmissions ManualSourceSubmission[] @relation("ManualSourceSubmissionLinkedRepairQueueEntry")
 
   @@index([resourceId, status, severity, createdAt])
   @@index([probeRunId])
@@ -1198,4 +1244,151 @@ model PublishAuditRecord {
   @@index([publishOperationId, createdAt])
   @@index([normalizedCandidateId, createdAt])
   @@index([targetCanonicalMediaId, createdAt])
+}
+
+model ModerationReport {
+  id                 String                 @id @default(cuid())
+  publicId           String                 @unique
+  kind               ModerationReportKind
+  status             ModerationReportStatus @default(OPEN)
+  mediaId            String?
+  resourceId         String?
+  repairQueueEntryId String?
+  title              String
+  summary            String
+  detail             String?
+  reporterName       String?
+  reporterEmail      String?
+  sourceUrl          String?
+  evidence           Json?
+  latestActionSummary String?
+  queuedAt           DateTime               @default(now())
+  resolvedAt         DateTime?
+  dismissedAt        DateTime?
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  media              MediaTitle?            @relation("ModerationReportMedia", fields: [mediaId], references: [id], onDelete: SetNull)
+  resource           Resource?              @relation("ModerationReportResource", fields: [resourceId], references: [id], onDelete: SetNull)
+  repairQueueEntry   RepairQueueEntry?      @relation("ModerationReportRepairQueueEntry", fields: [repairQueueEntryId], references: [id], onDelete: SetNull)
+  actions            ModerationReportAction[]
+
+  @@index([status, queuedAt])
+  @@index([mediaId, status])
+  @@index([resourceId, status])
+  @@index([repairQueueEntryId])
+}
+
+model ModerationReportAction {
+  id                 String                    @id @default(cuid())
+  reportId           String
+  actorId            String?
+  actionType         ModerationReportActionType
+  summary            String
+  notes              String?
+  statusAfter        ModerationReportStatus?
+  repairQueueEntryId String?
+  metadata           Json?
+  createdAt          DateTime                  @default(now())
+  report             ModerationReport          @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  repairQueueEntry   RepairQueueEntry?         @relation(fields: [repairQueueEntryId], references: [id], onDelete: SetNull)
+
+  @@index([reportId, createdAt])
+  @@index([repairQueueEntryId])
+}
+
+model ManualTitleSubmission {
+  id                 String                 @id @default(cuid())
+  publicId           String                 @unique
+  status             ManualSubmissionStatus @default(SUBMITTED)
+  title              String
+  originalTitle      String?
+  typeHint           MediaType?
+  releaseYear        Int?
+  originCountry      String?
+  language           String?
+  summary            String?
+  notes              String?
+  sourceUrl          String?
+  canonicalMediaId   String?
+  reviewQueueEntryId String?
+  submittedByName    String?
+  submittedByEmail   String?
+  latestActionSummary String?
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  reviewedAt         DateTime?
+  canonicalMedia     MediaTitle?            @relation("ManualTitleSubmissionCanonicalMedia", fields: [canonicalMediaId], references: [id], onDelete: SetNull)
+  actions            ManualTitleSubmissionAction[]
+
+  @@index([status, createdAt])
+  @@index([canonicalMediaId, status])
+}
+
+model ManualTitleSubmissionAction {
+  id           String                    @id @default(cuid())
+  submissionId String
+  actorId      String?
+  actionType   ManualSubmissionActionType
+  summary      String
+  notes        String?
+  statusAfter  ManualSubmissionStatus?
+  metadata     Json?
+  createdAt    DateTime                  @default(now())
+  submission   ManualTitleSubmission     @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@index([submissionId, createdAt])
+}
+
+model ManualSourceSubmission {
+  id                   String                 @id @default(cuid())
+  publicId             String                 @unique
+  status               ManualSubmissionStatus @default(SUBMITTED)
+  mediaId              String?
+  episodeId            String?
+  linkedResourceId     String?
+  linkedRepairQueueEntryId String?
+  targetTitleText      String?
+  targetEpisodeText    String?
+  kind                 ResourceKind
+  provider             ResourceProvider
+  format               ResourceFormat
+  label                String
+  quality              String?
+  url                  String
+  maskedUrl            String?
+  accessCode           String?
+  notes                String?
+  sourceUrl            String?
+  submittedByName      String?
+  submittedByEmail     String?
+  latestActionSummary  String?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  reviewedAt           DateTime?
+  media                MediaTitle?            @relation("ManualSourceSubmissionMedia", fields: [mediaId], references: [id], onDelete: SetNull)
+  episode              Episode?               @relation("ManualSourceSubmissionEpisode", fields: [episodeId], references: [id], onDelete: SetNull)
+  linkedResource       Resource?              @relation("ManualSourceSubmissionLinkedResource", fields: [linkedResourceId], references: [id], onDelete: SetNull)
+  linkedRepairQueueEntry RepairQueueEntry?    @relation("ManualSourceSubmissionLinkedRepairQueueEntry", fields: [linkedRepairQueueEntryId], references: [id], onDelete: SetNull)
+  actions              ManualSourceSubmissionAction[]
+
+  @@index([status, createdAt])
+  @@index([mediaId, status])
+  @@index([episodeId, status])
+  @@index([linkedResourceId])
+  @@index([linkedRepairQueueEntryId])
+}
+
+model ManualSourceSubmissionAction {
+  id           String                    @id @default(cuid())
+  submissionId String
+  actorId      String?
+  actionType   ManualSubmissionActionType
+  summary      String
+  notes        String?
+  statusAfter  ManualSubmissionStatus?
+  metadata     Json?
+  createdAt    DateTime                  @default(now())
+  submission   ManualSourceSubmission    @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@index([submissionId, createdAt])
 }
