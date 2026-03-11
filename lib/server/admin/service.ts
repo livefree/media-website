@@ -4,6 +4,7 @@ import { requirePrivilegedAdminAccess } from "./access";
 
 import type {
   AdminBackendDependencies,
+  AdminMigrationSafetyPageRecord,
   AdminQueueFailureMonitoringPageRecord,
   AdminManualSourceSubmissionPageRecord,
   AdminManualTitleSubmissionPageRecord,
@@ -39,6 +40,7 @@ async function getDefaultAdminDependencies(): Promise<AdminBackendDependencies> 
 
   return {
     catalog: {
+      getPublishedCatalogMigrationPreflight: catalog.getPublishedCatalogMigrationPreflight,
       queryAdminPublishedCatalog: catalog.getAdminPublishedCatalogPage,
       getAdminPublishedCatalogDetailByPublicId: catalog.getAdminPublishedCatalogDetailByPublicId,
     },
@@ -74,6 +76,20 @@ export async function getAdminPublishedCatalogManagementPage(
   requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
   return resolvedDependencies.catalog.queryAdminPublishedCatalog(query);
+}
+
+export async function getAdminMigrationSafetyPage(
+  dependencies?: AdminBackendDependencies,
+): Promise<AdminMigrationSafetyPageRecord> {
+  requirePrivilegedAdminAccess("operator");
+  const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
+  const preflight = await resolvedDependencies.catalog.getPublishedCatalogMigrationPreflight();
+
+  return {
+    title: "Migration Safety",
+    description: "Privileged rollout guardrail state for the published catalog runtime.",
+    preflight,
+  };
 }
 
 export async function getAdminPublishedCatalogManagementDetailByPublicId(
