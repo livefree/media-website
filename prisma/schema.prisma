@@ -946,10 +946,17 @@ model ProviderSyncLaneState {
   pendingBackfillRequestedAt DateTime?
   pendingIncrementalRequest  Json?
   pendingIncrementalRequestedAt DateTime?
+  nextIncrementalAt          DateTime?
+  nextBackfillAt             DateTime?
+  lastIncrementalTriggeredAt DateTime?
+  lastIncrementalCompletedAt DateTime?
+  lastBackfillTriggeredAt    DateTime?
+  lastBackfillCompletedAt    DateTime?
   createdAt                  DateTime                   @default(now())
   updatedAt                  DateTime                   @updatedAt
 
   @@index([providerKey, updatedAt])
+  @@index([providerKey, nextIncrementalAt, nextBackfillAt])
 }
 
 model IngestRun {

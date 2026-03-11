@@ -36,6 +36,7 @@ import type {
   QueueProviderSyncPageJobInput,
   QueuedProviderSyncRequest,
 } from "../../../server/ingest/sync-orchestration";
+import type { UnattendedProviderSyncScheduleState } from "../../../server/ingest/sync-scheduler";
 import type {
   ProviderCapability,
   ProviderContentTypeHint,
@@ -62,6 +63,7 @@ import type {
   PersistedStagingCandidateRecord,
   DurableProviderPageWorkerPersistenceGateway,
   DurableProviderSyncOrchestrationPersistenceGateway,
+  DurableProviderSyncSchedulingPersistenceGateway,
   ProviderItemLifecycleStatus,
   ProviderRegistryType,
   ProviderRegistryUpsertInput,
@@ -903,7 +905,8 @@ export class StagingPersistenceRepository
   implements
     DurableProviderWorkerPersistenceGateway,
     DurableProviderPageWorkerPersistenceGateway,
-    DurableProviderSyncOrchestrationPersistenceGateway
+    DurableProviderSyncOrchestrationPersistenceGateway,
+    DurableProviderSyncSchedulingPersistenceGateway
 {
   public constructor(context: RepositoryContext) {
     super(context);
@@ -968,6 +971,73 @@ export class StagingPersistenceRepository
     });
 
     return mapProviderSyncStateRecord(record);
+  }
+
+  async loadUnattendedProviderSyncScheduleState(providerKey: string): Promise<UnattendedProviderSyncScheduleState | null> {
+    const record = await this.db.providerSyncLaneState.findUnique({
+      where: {
+        providerKey,
+      },
+    });
+
+    if (
+      !record ||
+      (record.nextIncrementalAt == null &&
+        record.nextBackfillAt == null &&
+        record.lastIncrementalTriggeredAt == null &&
+        record.lastIncrementalCompletedAt == null &&
+        record.lastBackfillTriggeredAt == null &&
+        record.lastBackfillCompletedAt == null)
+    ) {
+      return null;
+    }
+
+    return {
+      providerKey: record.providerKey,
+      nextIncrementalAt: record.nextIncrementalAt?.toISOString() ?? new Date(0).toISOString(),
+      nextBackfillAt: record.nextBackfillAt?.toISOString() ?? null,
+      lastIncrementalTriggeredAt: record.lastIncrementalTriggeredAt?.toISOString() ?? null,
+      lastIncrementalCompletedAt: record.lastIncrementalCompletedAt?.toISOString() ?? null,
+      lastBackfillTriggeredAt: record.lastBackfillTriggeredAt?.toISOString() ?? null,
+      lastBackfillCompletedAt: record.lastBackfillCompletedAt?.toISOString() ?? null,
+    };
+  }
+
+  async saveUnattendedProviderSyncScheduleState(
+    state: UnattendedProviderSyncScheduleState,
+  ): Promise<UnattendedProviderSyncScheduleState> {
+    const record = await this.db.providerSyncLaneState.upsert({
+      where: {
+        providerKey: state.providerKey,
+      },
+      create: {
+        providerKey: state.providerKey,
+        nextIncrementalAt: toDateUpdate(state.nextIncrementalAt, null) ?? undefined,
+        nextBackfillAt: toDateUpdate(state.nextBackfillAt, null) ?? undefined,
+        lastIncrementalTriggeredAt: toDateUpdate(state.lastIncrementalTriggeredAt, null) ?? undefined,
+        lastIncrementalCompletedAt: toDateUpdate(state.lastIncrementalCompletedAt, null) ?? undefined,
+        lastBackfillTriggeredAt: toDateUpdate(state.lastBackfillTriggeredAt, null) ?? undefined,
+        lastBackfillCompletedAt: toDateUpdate(state.lastBackfillCompletedAt, null) ?? undefined,
+      },
+      update: {
+        nextIncrementalAt: toDateUpdate(state.nextIncrementalAt, null),
+        nextBackfillAt: toDateUpdate(state.nextBackfillAt, null),
+        lastIncrementalTriggeredAt: toDateUpdate(state.lastIncrementalTriggeredAt, null),
+        lastIncrementalCompletedAt: toDateUpdate(state.lastIncrementalCompletedAt, null),
+        lastBackfillTriggeredAt: toDateUpdate(state.lastBackfillTriggeredAt, null),
+        lastBackfillCompletedAt: toDateUpdate(state.lastBackfillCompletedAt, null),
+      },
+    });
+
+    return {
+      providerKey: record.providerKey,
+      nextIncrementalAt: record.nextIncrementalAt?.toISOString() ?? state.nextIncrementalAt,
+      nextBackfillAt: record.nextBackfillAt?.toISOString() ?? null,
+      lastIncrementalTriggeredAt: record.lastIncrementalTriggeredAt?.toISOString() ?? null,
+      lastIncrementalCompletedAt: record.lastIncrementalCompletedAt?.toISOString() ?? null,
+      lastBackfillTriggeredAt: record.lastBackfillTriggeredAt?.toISOString() ?? null,
+      lastBackfillCompletedAt: record.lastBackfillCompletedAt?.toISOString() ?? null,
+    };
   }
 
   async enqueueQueuedProviderPageSyncJob(input: QueueProviderSyncPageJobInput): Promise<QueuedProviderPageJob> {

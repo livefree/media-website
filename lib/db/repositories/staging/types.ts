@@ -16,6 +16,7 @@ import type {
 } from "../../../server/ingest/page-worker";
 import type { ProviderSyncState, QueueProviderSyncPageJobInput } from "../../../server/ingest/sync-orchestration";
 import type { QueuedProviderPageJob } from "../../../server/ingest/page-worker";
+import type { UnattendedProviderSyncScheduleState } from "../../../server/ingest/sync-scheduler";
 import type { ProviderCapability, ProviderContentTypeHint } from "../../../server/provider";
 
 export const providerRegistryTypes = ["catalog", "playback", "download", "subtitle", "manual_submission"] as const;
@@ -226,4 +227,11 @@ export interface DurableProviderSyncOrchestrationPersistenceGateway {
   loadProviderSyncState(providerKey: string): Promise<ProviderSyncState>;
   saveProviderSyncState(state: ProviderSyncState): Promise<ProviderSyncState>;
   enqueueQueuedProviderPageSyncJob(input: QueueProviderSyncPageJobInput): Promise<QueuedProviderPageJob>;
+}
+
+export interface DurableProviderSyncSchedulingPersistenceGateway {
+  loadUnattendedProviderSyncScheduleState(providerKey: string): Promise<UnattendedProviderSyncScheduleState | null>;
+  saveUnattendedProviderSyncScheduleState(
+    state: UnattendedProviderSyncScheduleState,
+  ): Promise<UnattendedProviderSyncScheduleState>;
 }
