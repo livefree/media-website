@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import styles from "./admin-review.module.css";
 import { publishDecisionAction, startReviewAction, submitDecisionAction } from "../../app/admin/review/actions";
+import { AdminOperatorNav } from "./AdminOperatorNav";
 
 import type { ReviewQueueDetailRecord } from "../../lib/db/repositories/review";
 
@@ -64,6 +65,8 @@ export function AdminReviewDetailPage({
     return (
       <main className={styles.adminPage}>
         <div className={styles.adminShell}>
+          <AdminOperatorNav activeSection="review" />
+
           <header className={styles.adminHeader}>
             <div>
               <p className={styles.eyebrow}>Admin Workflow</p>
@@ -89,6 +92,8 @@ export function AdminReviewDetailPage({
   return (
     <main className={styles.adminPage}>
       <div className={styles.adminShell}>
+        <AdminOperatorNav activeSection="review" />
+
         <header className={styles.adminHeader}>
           <div>
             <p className={styles.eyebrow}>Admin Workflow</p>

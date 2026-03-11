@@ -1,0 +1,465 @@
+.opsPage {
+  min-height: 100vh;
+  padding: 32px 24px 64px;
+  background:
+    radial-gradient(circle at top right, rgba(71, 160, 145, 0.16), transparent 28%),
+    radial-gradient(circle at top left, rgba(255, 158, 94, 0.14), transparent 34%),
+    linear-gradient(180deg, #081019 0%, #05080f 100%);
+  color: #eef4fb;
+}
+
+.opsShell {
+  width: min(1380px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 24px;
+}
+
+.workflowNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.workflowNavLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(176, 198, 224, 0.16);
+  background: rgba(10, 18, 29, 0.76);
+  color: rgba(232, 239, 250, 0.82);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.workflowNavLink:hover,
+.workflowNavLink:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(255, 182, 123, 0.36);
+}
+
+.workflowNavLinkActive {
+  background: linear-gradient(135deg, rgba(255, 161, 94, 0.2), rgba(63, 146, 144, 0.2));
+  border-color: rgba(255, 177, 122, 0.38);
+  color: #fff3e4;
+}
+
+.heroCard,
+.panel,
+.queueCard {
+  border: 1px solid rgba(176, 198, 224, 0.14);
+  border-radius: 28px;
+  background: rgba(8, 14, 23, 0.88);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.24);
+}
+
+.heroCard {
+  padding: 28px;
+  display: grid;
+  gap: 24px;
+}
+
+.heroCopy {
+  display: grid;
+  gap: 10px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #ffb77c;
+  font-size: 0.77rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.pageTitle {
+  margin: 0;
+  font-size: clamp(2.3rem, 5vw, 4.4rem);
+  line-height: 0.94;
+  letter-spacing: -0.05em;
+}
+
+.pageSubtitle {
+  margin: 0;
+  max-width: 820px;
+  color: rgba(227, 236, 248, 0.74);
+  line-height: 1.6;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.metricCard {
+  padding: 16px 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(176, 198, 224, 0.12);
+  background: linear-gradient(180deg, rgba(17, 27, 42, 0.9), rgba(10, 16, 27, 0.88));
+}
+
+.metricValue {
+  display: block;
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.metricLabel {
+  display: block;
+  margin-top: 8px;
+  color: rgba(220, 231, 246, 0.66);
+  font-size: 0.9rem;
+}
+
+.panel {
+  padding: 24px;
+}
+
+.panelHeader {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: 1.18rem;
+  letter-spacing: -0.02em;
+}
+
+.panelSubtitle {
+  margin: 8px 0 0;
+  color: rgba(227, 236, 248, 0.68);
+  line-height: 1.55;
+}
+
+.filterForm {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.fieldLabel {
+  display: grid;
+  gap: 8px;
+  color: rgba(238, 244, 251, 0.88);
+  font-size: 0.94rem;
+}
+
+.fieldInput {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(176, 198, 224, 0.14);
+  background: rgba(8, 13, 22, 0.86);
+  color: #eef4fb;
+}
+
+.filterToggleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.toggleLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(176, 198, 224, 0.14);
+  background: rgba(9, 15, 25, 0.78);
+  color: rgba(232, 239, 250, 0.86);
+}
+
+.toggleLabel input {
+  accent-color: #ff9c5d;
+}
+
+.filterActions {
+  display: flex;
+  align-items: flex-end;
+}
+
+.primaryButton,
+.secondaryButton,
+.secondaryLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 11px 16px;
+  font-weight: 600;
+}
+
+.primaryButton {
+  border: 0;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ffaf66, #ff7348);
+  color: #220f06;
+}
+
+.secondaryButton {
+  border: 1px solid rgba(176, 198, 224, 0.16);
+  cursor: pointer;
+  background: rgba(23, 34, 50, 0.9);
+  color: #eef4fb;
+}
+
+.secondaryLink {
+  border: 1px solid rgba(176, 198, 224, 0.16);
+  background: rgba(23, 34, 50, 0.7);
+  color: #eef4fb;
+}
+
+.emptyState,
+.warningState,
+.flashMessage {
+  padding: 18px 20px;
+  border-radius: 20px;
+}
+
+.emptyState {
+  border: 1px dashed rgba(176, 198, 224, 0.2);
+  background: rgba(13, 20, 32, 0.72);
+  color: rgba(227, 236, 248, 0.72);
+}
+
+.warningState {
+  border: 1px solid rgba(255, 170, 112, 0.32);
+  background: rgba(63, 29, 12, 0.42);
+  color: #ffd8b4;
+}
+
+.flashMessage {
+  border: 1px solid rgba(117, 214, 171, 0.24);
+  background: rgba(18, 55, 43, 0.42);
+  color: #c9ffe3;
+}
+
+.inventoryTable,
+.cardList {
+  display: grid;
+  gap: 14px;
+}
+
+.inventoryRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(220px, 0.9fr) minmax(0, 1fr) minmax(200px, 0.86fr);
+  gap: 18px;
+  padding: 18px 20px;
+  border-radius: 24px;
+  border: 1px solid rgba(176, 198, 224, 0.12);
+  background: linear-gradient(180deg, rgba(13, 21, 34, 0.9), rgba(8, 13, 23, 0.92));
+}
+
+.inventoryHeader {
+  padding-top: 14px;
+  padding-bottom: 14px;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(177, 193, 219, 0.72);
+}
+
+.inventoryCell {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.queueCard {
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+}
+
+.queueHeader {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cardTitle,
+.cellLead {
+  margin: 0;
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+}
+
+.cardMeta,
+.cardSummary,
+.inlineText {
+  margin: 0;
+  color: rgba(227, 236, 248, 0.68);
+  line-height: 1.55;
+}
+
+.cardSummary {
+  color: rgba(240, 245, 252, 0.9);
+}
+
+.badgeRow,
+.inlineLinks,
+.cardLinks,
+.actionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(176, 198, 224, 0.14);
+  background: rgba(25, 38, 57, 0.82);
+  color: rgba(239, 244, 251, 0.9);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.statusOpen {
+  border-color: rgba(255, 196, 116, 0.32);
+  color: #ffd495;
+}
+
+.statusInProgress {
+  border-color: rgba(110, 189, 255, 0.32);
+  color: #b1e2ff;
+}
+
+.statusWaiting {
+  border-color: rgba(211, 179, 255, 0.28);
+  color: #e3ccff;
+}
+
+.statusResolved {
+  border-color: rgba(121, 221, 176, 0.32);
+  color: #baf5d5;
+}
+
+.statusDismissed {
+  border-color: rgba(184, 197, 217, 0.24);
+  color: #d9e1ee;
+}
+
+.severityLow {
+  border-color: rgba(124, 214, 184, 0.28);
+}
+
+.severityMedium {
+  border-color: rgba(255, 205, 120, 0.28);
+}
+
+.severityHigh {
+  border-color: rgba(255, 151, 122, 0.32);
+}
+
+.severityCritical {
+  border-color: rgba(255, 120, 120, 0.36);
+  color: #ffb2b2;
+}
+
+.healthHealthy {
+  border-color: rgba(121, 221, 176, 0.32);
+  color: #baf5d5;
+}
+
+.healthDegraded {
+  border-color: rgba(255, 205, 120, 0.3);
+  color: #ffdba1;
+}
+
+.healthBroken,
+.healthOffline {
+  border-color: rgba(255, 132, 132, 0.34);
+  color: #ffb0b0;
+}
+
+.healthReplaced {
+  border-color: rgba(151, 184, 255, 0.3);
+  color: #c9daff;
+}
+
+.dataGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.dataTile {
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(176, 198, 224, 0.1);
+  background: rgba(12, 20, 32, 0.8);
+}
+
+.dataLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(180, 196, 220, 0.74);
+}
+
+.dataValue {
+  display: block;
+  color: rgba(239, 244, 251, 0.9);
+  line-height: 1.45;
+}
+
+@media (max-width: 1120px) {
+  .inventoryRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .inventoryHeader {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .opsPage {
+    padding-inline: 16px;
+  }
+
+  .heroCard,
+  .panel,
+  .queueCard,
+  .inventoryRow {
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .filterForm,
+  .summaryGrid,
+  .dataGrid,
+  .inventoryRow {
+    grid-template-columns: 1fr;
+  }
+
+  .queueHeader,
+  .panelHeader {
+    flex-direction: column;
+  }
+}

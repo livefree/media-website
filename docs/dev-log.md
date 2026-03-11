@@ -287,6 +287,7 @@ Data Catalog:
 
 UI Shell:
 - Reconnected `/lists` and `/list/[publicId]` to the published catalog service with request-time reads, removed list-surface seed-helper lookups from shared UI components, and kept the public directory/detail presentation limited to published list metadata plus canonical list/watch links
+- Added operator-facing `/admin/sources` and `/admin/repair` surfaces backed by `lib/server/admin`, including server-rendered filter forms, source inventory status summaries, durable repair queue visibility, and narrow backend-backed acknowledge/resolve actions for repair entries
 
 Planner:
 - Produced `docs/handovers/planner-free-video-source-integration-round-1.md` to define the lawful free-video source onboarding plan, including source-class restrictions, rights/provenance workflow, ingest/transcode/storage/CDN architecture, playback-resource evolution, schema additions, ops/compliance controls, and the Round 2-4 implementation roadmap
