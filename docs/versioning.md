@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.17.0`
+Current version: `0.18.0`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.17.0` an appropriate current milestone: the platform now layers accepted server-side admin/operator access hardening on top of the structured job telemetry, moderation, source-health, and published-catalog backend foundation, so privileged operator surfaces no longer rely on implicit reachability while the project still remains pre-launch because broader hardening, security, and final launch-readiness work are not finished.
+That makes `0.18.0` an appropriate current milestone: the platform now layers accepted operator-visible queue failure monitoring on top of the server-side admin access boundary and structured ingest telemetry, so privileged operators can triage failed and retrying jobs without falling back to raw logs as the primary workflow, while the project still remains pre-launch because broader hardening, security, and final launch-readiness work are not finished.
 
 ## Rules
 
@@ -49,6 +49,8 @@ That makes `0.17.0` an appropriate current milestone: the platform now layers ac
   Current baseline with structured ingest-job telemetry, stable failure classification, and stronger operator-visible failure context across ingest, scheduled refresh, and source-probe flows.
 - `0.17.x`
   Current baseline with explicit server-side admin/operator access boundaries, role checks, and safe deny behavior across existing privileged backend and admin route surfaces.
+- `0.18.x`
+  Current baseline with privileged queue-failure monitoring, triage-friendly ingest telemetry, and deterministic UI coverage for the narrow operator-facing queue failure surface.
 - `1.0.0`
   First production-ready launch baseline.
 
