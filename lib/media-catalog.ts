@@ -307,6 +307,10 @@ export function getResourceByPublicId(publicId: string): MediaResourceLink | und
 }
 
 export function getPublicLists(): PublicMediaList[] {
+  if (mediaCatalog.length === 0) {
+    return [];
+  }
+
   return getDiscoverablePublicListSeeds().map((list) => {
     const page = buildPublicMediaListPageRecord(list);
     const { items: _items, ...summary } = page;
@@ -328,6 +332,10 @@ export function getPublicListDirectory(): PublicListDirectoryRecord {
 }
 
 export function getPublicListPageRecord(publicId: string): PublicMediaListPageRecord | undefined {
+  if (mediaCatalog.length === 0) {
+    return undefined;
+  }
+
   const list = publicLists.find((entry) => entry.publicId === publicId);
   return list ? buildPublicMediaListPageRecord(list) : undefined;
 }
