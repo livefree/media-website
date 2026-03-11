@@ -16,9 +16,9 @@ export default async function AdminCatalogPageRoute({
 
   try {
     const page = await getAdminPublishedCatalogManagementPage(query);
-    return <AdminPublishedCatalogPage page={page} returnTo={returnTo} searchState={searchState} />;
+    return <AdminPublishedCatalogPage flashMessage={searchState.flashMessage} page={page} returnTo={returnTo} searchState={searchState} />;
   } catch (error) {
     const message = isBackendError(error) ? error.message : "Operator published catalog backend is unavailable.";
-    return <AdminPublishedCatalogPage errorMessage={message} returnTo={returnTo} searchState={searchState} />;
+    return <AdminPublishedCatalogPage errorMessage={message} flashMessage={searchState.flashMessage} returnTo={returnTo} searchState={searchState} />;
   }
 }
