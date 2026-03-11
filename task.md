@@ -40,9 +40,9 @@ Required execution order for this task:
 Scope for this round:
 - Establish the first explicit observability, security, and launch-hardening slice on top of the accepted provider, catalog, source, and admin backend foundation described in `docs/backend-spec.md`, `docs/roadmap.md`, and `docs/backend-delivery-workflow.md`
 - Implement one narrow hardening slice at a time rather than broad platform-wide changes in a single pass
-- Current hardening slice: `Workstream 4 / Slice 3: Queue Failure Monitoring And Operator Visibility`
-- This slice is mapped to the `metrics and alerts` plus `queue failure monitoring` deliverables under Workstream 4 in `docs/backend-delivery-workflow.md` and Phase 8 in `docs/roadmap.md`
-- Current refinement status: backend and privileged UI surface are implemented, but reviewer rejected acceptance pending deterministic UI coverage for `/admin/queue-failures`
+- Current hardening slice: `Workstream 4 / Slice 4: Migration Safety And Rollout Guardrails`
+- This slice is mapped to the `migration safety` deliverable under Workstream 4 in `docs/backend-delivery-workflow.md` and Phase 8 in `docs/roadmap.md`
+- Current refinement status: Slice 3 is accepted and closed; Slice 4 will focus on safe migration and rollout controls without reopening observability or admin monitoring scope
 - Owned surfaces:
   - Planner: architecture, roadmap alignment, round-specific handoff docs
   - Data Catalog: Prisma/schema only if narrowly required, `lib/db/`, `lib/server/admin/`, `lib/server/health/`, `lib/server/catalog/`, and related shared backend support for the selected hardening slice
@@ -66,6 +66,7 @@ Current user-requested improvement to implement:
 2. Continue into the next fixed work package from `docs/backend-delivery-workflow.md`
 3. Harden admin and operator-facing surfaces with explicit access-control boundaries before broader launch hardening slices
 4. Continue by exposing queue/job failure visibility to operators on top of the accepted telemetry baseline
+5. Continue into migration-safety hardening without ad hoc scope expansion
 
 Current baseline:
 - Round A monolith foundations are present under `lib/server/` and `lib/db/`
@@ -81,5 +82,5 @@ Current baseline:
 - Workstream 3 is accepted, so moderation/report handling and manual title/source submission workflows are now in place
 - Workstream 4 / Slice 1 is accepted, so structured job execution telemetry and failure visibility are now in place for ingest, scheduled refresh, and source-probe flows
 - Workstream 4 / Slice 2 is accepted, so existing admin/operator backend surfaces now require explicit server-side access control with correct `401`/`403` behavior
-- The repo still lacks queue failure monitoring, broader hardening slices, and final launch-readiness work
-- The active follow-up for Slice 3 is limited to the missing UI coverage required by the planner and reviewer; no backend contract redesign is authorized in this follow-up
+- Workstream 4 / Slice 3 is accepted, so operators now have a privileged queue-failure monitoring surface with deterministic UI coverage
+- The repo still lacks migration safety, broader hardening slices, and final launch-readiness work
