@@ -1,0 +1,45 @@
+{
+  "code": "1",
+  "msg": "数据列表",
+  "page": "2",
+  "pagecount": "3",
+  "limit": "20",
+  "total": "42",
+  "list": [
+    {
+      "vod_id": 1001,
+      "vod_name": "潜行者",
+      "vod_sub": "Stealth Run",
+      "vod_content": "<p>卧底行动升级，必须在失控前完成潜入任务。</p>",
+      "vod_remarks": "HD",
+      "vod_area": "中国香港",
+      "vod_lang": "粤语",
+      "vod_year": "2024",
+      "vod_time": "2026-03-09 10:00:00",
+      "vod_class": "动作 犯罪",
+      "type_name": "动作片",
+      "vod_play_from": "jsm3u8$$$jsyun",
+      "vod_play_url": "正片$https://cdn.example.com/qianxingzhe/master.m3u8$$$备用$https://pan.example.com/qianxingzhe",
+      "vod_down_from": "quark",
+      "vod_down_url": "全集$https://download.example.com/qianxingzhe.zip",
+      "vod_score": "8.4"
+    },
+    {
+      "vod_id": "1002",
+      "vod_name": "星域行者",
+      "vod_sub": "",
+      "vod_content": "少年踏上远征，寻找失落星图。",
+      "vod_remarks": "更新至第3集",
+      "vod_area": "大陆",
+      "vod_lang": "国语",
+      "vod_year": "2026",
+      "vod_time": "2026-03-10 08:00:00",
+      "vod_class": "热血 冒险",
+      "type_name": "国产动漫",
+      "vod_play_from": "jsm3u8",
+      "vod_play_url": "第1集$https://cdn.example.com/xingyu/1.m3u8#第2集$https://cdn.example.com/xingyu/2.m3u8#第3集$https://cdn.example.com/xingyu/3.m3u8",
+      "vod_down_from": "",
+      "vod_down_url": ""
+    }
+  ]
+}
