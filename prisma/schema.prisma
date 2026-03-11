@@ -128,6 +128,85 @@ enum DeviceType {
   DESKTOP
 }
 
+enum ProviderType {
+  CATALOG_PROVIDER
+  PLAYBACK_PROVIDER
+  DOWNLOAD_PROVIDER
+  SUBTITLE_PROVIDER
+  MANUAL_SUBMISSION_PROVIDER
+}
+
+enum ProviderCapability {
+  CATALOG
+  PLAYBACK
+  DOWNLOAD
+  SUBTITLE
+  MANUAL_SUBMISSION
+}
+
+enum ProviderPayloadFormat {
+  JSON
+  XML
+  HTML
+  TEXT
+  OTHER
+}
+
+enum ProviderContentTypeHint {
+  MOVIE
+  SERIES
+  ANIME
+  VARIETY
+  DOCUMENTARY
+  SPECIAL
+  UNKNOWN
+}
+
+enum IngestRunScope {
+  PAGE
+  DETAIL
+}
+
+enum IngestMode {
+  BACKFILL
+  INCREMENTAL
+  MANUAL
+}
+
+enum IngestJobStatus {
+  PENDING
+  RUNNING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+  PARTIAL
+}
+
+enum IngestRunStatus {
+  PENDING
+  RUNNING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+  PARTIAL
+}
+
+enum ProviderItemStatus {
+  DISCOVERED
+  DETAIL_FETCHED
+  STAGED
+  ERROR
+  WITHDRAWN
+}
+
+enum StagingCandidateStatus {
+  PENDING
+  PARSED
+  READY_FOR_NORMALIZATION
+  PARSE_FAILED
+  SKIPPED
+}
+
 model User {
   id               String            @id @default(cuid())
   email            String            @unique
@@ -314,6 +393,7 @@ model Episode {
   media          MediaTitle         @relation(fields: [mediaId], references: [id], onDelete: Cascade)
   season         Season?            @relation(fields: [seasonId], references: [id], onDelete: SetNull)
   resources      Resource[]
+  listItems      UserListItem[]
   watchProgress  WatchProgress[]
   playbackSessions PlaybackSession[]
 
@@ -498,4 +578,186 @@ model RatingSnapshot {
   media       MediaTitle  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
 
   @@index([mediaId, capturedAt])
+}
+
+model ProviderRegistry {
+  id                   String                 @id @default(cuid())
+  adapterKey           String                 @unique
+  displayName          String
+  providerType         ProviderType
+  capabilities         ProviderCapability[]   @default([])
+  baseUrl              String?
+  enabled              Boolean                @default(true)
+  metadata             Json?
+  lastSuccessfulSyncAt DateTime?
+  lastErrorAt          DateTime?
+  lastErrorSummary     String?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  ingestJobs           IngestJob[]
+  ingestRuns           IngestRun[]
+  checkpoints          IngestCheckpoint[]
+  rawPayloads          ProviderRawPayload[]
+  providerItems        ProviderItem[]
+  stagingCandidates    StagingCandidate[]
+}
+
+model IngestJob {
+  id               String            @id @default(cuid())
+  providerId       String
+  mode             IngestMode
+  status           IngestJobStatus   @default(PENDING)
+  requestId        String?
+  actorId          String?
+  startedAt        DateTime?
+  finishedAt       DateTime?
+  attemptCount     Int               @default(0)
+  lastErrorSummary String?
+  metadata         Json?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  provider         ProviderRegistry  @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  runs             IngestRun[]
+  checkpoints      IngestCheckpoint[]
+  rawPayloads      ProviderRawPayload[]
+  stagingCandidates StagingCandidate[]
+
+  @@index([providerId, status, mode])
+  @@index([requestId])
+}
+
+model IngestRun {
+  id               String            @id @default(cuid())
+  ingestJobId      String
+  providerId       String
+  mode             IngestMode
+  scope            IngestRunScope
+  status           IngestRunStatus   @default(PENDING)
+  requestId        String?
+  actorId          String?
+  providerItemId   String?
+  startedAt        DateTime          @default(now())
+  finishedAt       DateTime?
+  itemCount        Int               @default(0)
+  rawPayloadCount  Int               @default(0)
+  warningCount     Int               @default(0)
+  lastErrorSummary String?
+  metadata         Json?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  ingestJob        IngestJob         @relation(fields: [ingestJobId], references: [id], onDelete: Cascade)
+  provider         ProviderRegistry  @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  checkpoints      IngestCheckpoint[]
+  rawPayloads      ProviderRawPayload[]
+  stagingCandidates StagingCandidate[]
+
+  @@index([ingestJobId, status, startedAt])
+  @@index([providerId, scope, startedAt])
+}
+
+model IngestCheckpoint {
+  id                String            @id @default(cuid())
+  providerId        String
+  ingestJobId       String?
+  ingestRunId       String?
+  cursor            String?
+  page              Int?
+  updatedAfter      DateTime?
+  updatedBefore     DateTime?
+  providerUpdatedAt DateTime?
+  metadata          Json?
+  recordedAt        DateTime          @default(now())
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  provider          ProviderRegistry  @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  ingestJob         IngestJob?        @relation(fields: [ingestJobId], references: [id], onDelete: Cascade)
+  ingestRun         IngestRun?        @relation(fields: [ingestRunId], references: [id], onDelete: Cascade)
+
+  @@index([providerId, recordedAt])
+  @@index([ingestJobId])
+  @@index([ingestRunId])
+}
+
+model ProviderItem {
+  id                     String                 @id @default(cuid())
+  providerId             String
+  externalId             String
+  titleSnapshot          String
+  originalTitleSnapshot  String?
+  latestStatus           ProviderItemStatus    @default(DISCOVERED)
+  typeHint               ProviderContentTypeHint @default(UNKNOWN)
+  providerUpdatedAt      DateTime?
+  lastSeenAt             DateTime              @default(now())
+  latestRawPayloadAt     DateTime?
+  latestCandidateStatus  StagingCandidateStatus?
+  latestCandidateAt      DateTime?
+  metadata               Json?
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  provider               ProviderRegistry      @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  rawPayloads            ProviderRawPayload[]
+  stagingCandidates      StagingCandidate[]
+
+  @@unique([providerId, externalId])
+  @@index([providerId, latestStatus, lastSeenAt])
+}
+
+model ProviderRawPayload {
+  id             String                @id @default(cuid())
+  providerId     String
+  ingestJobId    String?
+  ingestRunId    String?
+  providerItemId String?
+  externalItemId String?
+  payloadFormat  ProviderPayloadFormat
+  scope          IngestRunScope
+  requestUrl     String?
+  requestMethod  String?
+  requestCursor  String?
+  requestPage    Int?
+  body           Json
+  fetchedAt      DateTime
+  createdAt      DateTime              @default(now())
+  provider       ProviderRegistry      @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  ingestJob      IngestJob?            @relation(fields: [ingestJobId], references: [id], onDelete: Cascade)
+  ingestRun      IngestRun?            @relation(fields: [ingestRunId], references: [id], onDelete: Cascade)
+  providerItem   ProviderItem?         @relation(fields: [providerItemId], references: [id], onDelete: SetNull)
+
+  @@index([providerId, fetchedAt])
+  @@index([ingestJobId])
+  @@index([ingestRunId])
+  @@index([providerItemId])
+}
+
+model StagingCandidate {
+  id                    String                  @id @default(cuid())
+  providerId            String
+  providerItemId        String
+  ingestJobId           String?
+  ingestRunId           String?
+  status                StagingCandidateStatus @default(READY_FOR_NORMALIZATION)
+  title                 String
+  originalTitle         String?
+  summary               String?
+  releaseYear           Int?
+  region                String?
+  language              String?
+  rawCategory           String?
+  rawEpisodeText        String?
+  typeHint              ProviderContentTypeHint @default(UNKNOWN)
+  providerUpdatedAt     DateTime?
+  sourceFragmentSummary Json?
+  warnings              String[]               @default([])
+  parseFailureSummary   String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  provider              ProviderRegistry       @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  providerItem          ProviderItem           @relation(fields: [providerItemId], references: [id], onDelete: Cascade)
+  ingestJob             IngestJob?             @relation(fields: [ingestJobId], references: [id], onDelete: SetNull)
+  ingestRun             IngestRun?             @relation(fields: [ingestRunId], references: [id], onDelete: SetNull)
+
+  @@index([providerId, status, updatedAt])
+  @@index([providerItemId, status])
+  @@index([ingestJobId])
+  @@index([ingestRunId])
 }
