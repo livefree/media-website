@@ -903,6 +903,9 @@ model IngestJob {
   startedAt        DateTime?
   finishedAt       DateTime?
   attemptCount     Int               @default(0)
+  retryCount       Int               @default(0)
+  lastAttemptedAt  DateTime?
+  nextAttemptAt    DateTime?
   leaseWorkerId    String?
   leaseId          String?
   leaseClaimedAt   DateTime?
@@ -919,6 +922,7 @@ model IngestJob {
 
   @@index([providerId, status, mode])
   @@index([status, leaseExpiresAt, createdAt])
+  @@index([status, nextAttemptAt, createdAt])
   @@index([requestId])
 }
 
