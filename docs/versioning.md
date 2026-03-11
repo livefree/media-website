@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.8.5`
+Current version: `0.8.6`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.8.5` an appropriate current milestone: the prototype now exposes compact in-player source selection, preserves chosen source preference across episode changes, retains the demo-free runtime baseline, and keeps the existing canonical watch URL model intact while preparing for real network-backed video ingestion.
+That makes `0.8.6` an appropriate current milestone: the public runtime catalog has now been fully withdrawn ahead of backend work, the README documents the system structure more clearly, and the repository keeps the accepted watch/player URL model while shifting focus from demo catalog delivery to backend and ingestion preparation.
 
 ## Rules
 
