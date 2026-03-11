@@ -1,0 +1,406 @@
+.adminPage {
+  min-height: 100vh;
+  padding: 40px 32px 64px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 148, 84, 0.12), transparent 35%),
+    linear-gradient(180deg, #0b111f 0%, #070a11 100%);
+  color: #edf1fb;
+}
+
+.adminShell {
+  max-width: 1360px;
+  margin: 0 auto;
+  display: grid;
+  gap: 24px;
+}
+
+.adminHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  padding: 24px 28px;
+  border: 1px solid rgba(166, 184, 219, 0.18);
+  border-radius: 28px;
+  background: rgba(8, 13, 25, 0.84);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #ffb06e;
+}
+
+.adminTitle {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.6rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.adminSubtitle {
+  margin: 10px 0 0;
+  max-width: 760px;
+  color: rgba(226, 233, 247, 0.76);
+  line-height: 1.6;
+}
+
+.headerMeta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.metricPill {
+  padding: 12px 16px;
+  border: 1px solid rgba(166, 184, 219, 0.18);
+  border-radius: 999px;
+  background: rgba(22, 29, 48, 0.72);
+  color: rgba(240, 243, 252, 0.86);
+  font-size: 0.94rem;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.96fr) minmax(340px, 0.74fr);
+  gap: 24px;
+}
+
+.panel {
+  border: 1px solid rgba(166, 184, 219, 0.14);
+  border-radius: 24px;
+  background: rgba(8, 13, 25, 0.9);
+  padding: 24px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: 1.2rem;
+  letter-spacing: -0.02em;
+}
+
+.panelSubtitle {
+  margin: 8px 0 0;
+  color: rgba(226, 233, 247, 0.68);
+  line-height: 1.55;
+}
+
+.emptyState,
+.warningState {
+  padding: 22px 20px;
+  border-radius: 20px;
+  border: 1px dashed rgba(166, 184, 219, 0.2);
+  background: rgba(15, 20, 36, 0.74);
+  color: rgba(226, 233, 247, 0.75);
+}
+
+.warningState {
+  border-style: solid;
+  border-color: rgba(255, 160, 99, 0.38);
+  background: rgba(56, 28, 12, 0.38);
+}
+
+.queueList {
+  display: grid;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.queueCard {
+  border: 1px solid rgba(166, 184, 219, 0.14);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(19, 25, 43, 0.94), rgba(11, 16, 31, 0.94));
+  padding: 18px 18px 20px;
+  display: grid;
+  gap: 14px;
+}
+
+.queueTopRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.queueTitle {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+
+.queueMeta {
+  margin: 8px 0 0;
+  color: rgba(226, 233, 247, 0.66);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 128px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(166, 184, 219, 0.16);
+  background: rgba(31, 39, 63, 0.72);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #f2f4fc;
+}
+
+.statusPending {
+  border-color: rgba(255, 180, 111, 0.34);
+  color: #ffc88f;
+}
+
+.statusInReview {
+  border-color: rgba(95, 167, 255, 0.34);
+  color: #97d0ff;
+}
+
+.statusApproved {
+  border-color: rgba(117, 217, 164, 0.34);
+  color: #a2efbf;
+}
+
+.statusRejected,
+.statusUnpublished {
+  border-color: rgba(255, 122, 122, 0.34);
+  color: #ff9e9e;
+}
+
+.statusPublished {
+  border-color: rgba(183, 163, 255, 0.34);
+  color: #d8c7ff;
+}
+
+.statusSuperseded {
+  border-color: rgba(188, 198, 215, 0.26);
+  color: #d3dbe9;
+}
+
+.pillRow,
+.detailMetaList,
+.detailCardGrid,
+.actionGrid,
+.decisionList,
+.auditList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.microPill {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(27, 35, 55, 0.74);
+  border: 1px solid rgba(166, 184, 219, 0.12);
+  color: rgba(236, 241, 251, 0.82);
+  font-size: 0.86rem;
+}
+
+.queueActionLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  padding: 11px 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff9e56, #ff7048);
+  color: #1b0d07;
+  font-weight: 600;
+}
+
+.detailLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.9fr);
+  gap: 24px;
+}
+
+.flashMessage {
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 192, 122, 0.28);
+  background: rgba(70, 35, 15, 0.42);
+  color: #ffd9ad;
+}
+
+.detailBlock {
+  display: grid;
+  gap: 16px;
+}
+
+.detailHeadingRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.detailTitle {
+  margin: 0;
+  font-size: clamp(1.9rem, 3vw, 2.7rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.detailLead {
+  margin: 10px 0 0;
+  color: rgba(226, 233, 247, 0.72);
+  line-height: 1.6;
+}
+
+.gridList {
+  display: grid;
+  gap: 12px;
+}
+
+.infoTile {
+  padding: 16px 18px;
+  border-radius: 20px;
+  background: rgba(15, 21, 36, 0.8);
+  border: 1px solid rgba(166, 184, 219, 0.12);
+}
+
+.infoLabel {
+  margin: 0 0 8px;
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(170, 184, 214, 0.78);
+}
+
+.infoValue {
+  margin: 0;
+  color: rgba(242, 244, 252, 0.92);
+  line-height: 1.55;
+}
+
+.form {
+  display: grid;
+  gap: 12px;
+}
+
+.formLabel {
+  display: grid;
+  gap: 8px;
+  color: rgba(236, 241, 251, 0.88);
+  font-size: 0.94rem;
+}
+
+.formField,
+.formTextarea {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(166, 184, 219, 0.16);
+  background: rgba(9, 14, 26, 0.8);
+  color: #edf1fb;
+}
+
+.formTextarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.primaryButton,
+.secondaryButton,
+.dangerButton {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.primaryButton {
+  background: linear-gradient(135deg, #ff9d4f, #ff6c48);
+  color: #1e0e07;
+}
+
+.secondaryButton {
+  background: rgba(32, 41, 64, 0.9);
+  color: #eef3fb;
+  border: 1px solid rgba(166, 184, 219, 0.16);
+}
+
+.dangerButton {
+  background: rgba(118, 32, 32, 0.82);
+  color: #ffe3e3;
+  border: 1px solid rgba(255, 151, 151, 0.18);
+}
+
+.timelineCard {
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: rgba(15, 21, 36, 0.82);
+  border: 1px solid rgba(166, 184, 219, 0.1);
+  display: grid;
+  gap: 8px;
+}
+
+.timelineHeading {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.timelineMeta {
+  color: rgba(215, 223, 238, 0.74);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.detailLink {
+  color: #8bc5ff;
+  font-weight: 600;
+}
+
+@media (max-width: 1080px) {
+  .cardGrid,
+  .detailLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .adminHeader {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .headerMeta {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  .adminPage {
+    padding: 24px 16px 40px;
+  }
+
+  .adminHeader,
+  .panel {
+    padding: 20px;
+    border-radius: 22px;
+  }
+
+  .queueTopRow,
+  .detailHeadingRow {
+    flex-direction: column;
+  }
+
+  .statusBadge {
+    min-width: 0;
+  }
+}
