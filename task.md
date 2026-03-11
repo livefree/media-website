@@ -23,7 +23,7 @@ PlayerShell
 
 ## Current Active Task
 
-### Workstream 4: Observability, Security, And Launch Hardening
+### Workstream 1: Make Provider Intake Operational
 
 Coordinator-only rule:
 - Coordinator may define scope, update task docs, dispatch agents, review ownership, and merge accepted work.
@@ -31,43 +31,40 @@ Coordinator-only rule:
 
 Required execution order for this task:
 1. Coordinator aligns the work package to `docs/backend-spec.md`, `docs/roadmap.md`, and `docs/backend-delivery-workflow.md`
-2. Planner defines the implementation breakdown, ownership boundaries, testing scope, and acceptance checklist for observability, security, and launch hardening work
-3. Data Catalog and Media Ingest implement the backend/runtime support required by the chosen hardening slice
-4. UI Shell only participates if an operator-facing observability surface is explicitly required by the planned slice
+2. Planner defines the implementation breakdown, ownership boundaries, testing scope, and acceptance checklist for the active provider-operationalization slice
+3. Media Ingest implements the provider/runtime support required by the chosen slice
+4. Data Catalog participates only if the planned slice requires durable backend support outside existing ingest boundaries
 5. Reviewer validates operator workflow correctness, scope discipline, and test/build coverage before merge
 6. User review remains authoritative for planning direction; rejected backend structure must not be represented as accepted
 
 Scope for this round:
-- Establish the first explicit observability, security, and launch-hardening slice on top of the accepted provider, catalog, source, and admin backend foundation described in `docs/backend-spec.md`, `docs/roadmap.md`, and `docs/backend-delivery-workflow.md`
-- Implement one narrow hardening slice at a time rather than broad platform-wide changes in a single pass
-- Current hardening slice: `Workstream 4 / Slice 5: End-to-End Backend Validation Path`
-- This slice is mapped to the `end-to-end validation across ingest -> normalize -> review -> publish -> watch -> healthcheck` deliverable under Workstream 4 in `docs/backend-delivery-workflow.md` and Phase 8 in `docs/roadmap.md`
-- Current refinement status: Slice 4 is accepted and closed; Slice 5 will focus on a narrow, deterministic validation path across the accepted backend foundation without reopening observability or migration-safety scope
+- Continue the remaining provider-operationalization work packages from `docs/backend-delivery-workflow.md` on top of the accepted backend foundation
+- Implement one narrow provider-operationalization slice at a time rather than broad platform-wide changes in a single pass
+- Current operationalization slice: `Workstream 1 / Slice 3: Durable Worker Execution`
+- This slice is mapped to the remaining `Redis-backed or equivalent operational worker execution` deliverable under Workstream 1 in `docs/backend-delivery-workflow.md`
+- Current refinement status: Workstream 4 / Slice 5 is accepted and closed; this slice moves the provider pipeline closer to sustained unattended operation
 - Owned surfaces:
   - Planner: architecture, roadmap alignment, round-specific handoff docs
-  - Data Catalog: Prisma/schema only if narrowly required, `lib/db/`, `lib/server/admin/`, `lib/server/health/`, `lib/server/catalog/`, and related shared backend support for the selected hardening slice
-  - Media Ingest: `lib/server/provider/`, `lib/server/ingest/`, job execution, and provider/runtime support for the selected hardening slice
-  - UI Shell: only if the planned hardening slice explicitly requires an operator-facing admin surface
+  - Media Ingest: `lib/server/provider/`, `lib/server/ingest/`, job execution, worker/runtime support for the selected operationalization slice
+  - Data Catalog: only where the selected slice requires durable state or backend support outside existing ingest boundaries
+  - UI Shell: not expected unless a later planner handoff explicitly requires a minimal operator surface
   - Reviewer: acceptance and findings docs only
 - No public route redesign
 - No player work
-- No broad auth/session product expansion beyond hardening needs
+- No broad auth/session product expansion
 - No broad admin suite expansion unless the planned slice explicitly requires it
 
 Acceptance criteria:
-- The chosen hardening slice improves backend operability, safety, or observability in a measurable way
-- The slice remains narrow, testable, and grounded in tracked backend docs rather than ad hoc hardening changes
+- The chosen operationalization slice measurably improves unattended backend provider execution
+- The slice remains narrow, testable, and grounded in tracked backend docs rather than ad hoc changes
 - New support remains inside accepted backend boundaries and does not leak into public route logic
 - The implementation includes the necessary tests and remains buildable after this slice
 - No public route redesign, player work, or broader out-of-scope platform drift is introduced
 
 Current user-requested improvement to implement:
 1. Continue using the fixed backend workflow without ad hoc phases
-2. Continue into the next fixed work package from `docs/backend-delivery-workflow.md`
-3. Harden admin and operator-facing surfaces with explicit access-control boundaries before broader launch hardening slices
-4. Continue by exposing queue/job failure visibility to operators on top of the accepted telemetry baseline
-5. Continue into migration-safety hardening without ad hoc scope expansion
-6. Continue into a deterministic end-to-end backend validation slice
+2. Push the remaining backend multi-round tasks into `task.md`
+3. Continue auto-executing the tracked backend work packages until a real blocker occurs
 
 Current baseline:
 - Round A monolith foundations are present under `lib/server/` and `lib/db/`
@@ -85,7 +82,8 @@ Current baseline:
 - Workstream 4 / Slice 2 is accepted, so existing admin/operator backend surfaces now require explicit server-side access control with correct `401`/`403` behavior
 - Workstream 4 / Slice 3 is accepted, so operators now have a privileged queue-failure monitoring surface with deterministic UI coverage
 - Workstream 4 / Slice 4 is accepted, so published-catalog runtime now has deterministic migration preflight and fail-closed rollout guardrails
-- The repo still lacks end-to-end validation, broader hardening slices, and final launch-readiness work
+- Workstream 4 / Slice 5 is accepted, so the repo now has one deterministic backend golden path across ingest staging, publish, published read, and watch/health contract validation
+- The repo still lacks provider operationalization exit-gate slices, later control-plane/governance completion slices, and final launch-readiness work
 
 ## Remaining Backend Auto Queue
 
