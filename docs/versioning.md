@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.22.0`
+Current version: `0.23.0`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.22.0` an appropriate current milestone: the platform now layers accepted restart-safe resumability and durable checkpoint hardening for provider page jobs on top of unattended worker execution and the earlier backend foundation, moving provider intake materially closer to sustained recoverable operation while it still remains pre-launch because final provider-operationalization and launch-readiness work are not finished.
+That makes `0.23.0` an appropriate current milestone: the platform now layers accepted bounded retry behavior, provider-aware throttling, and deterministic backoff persistence for provider page jobs on top of unattended worker execution and resumable checkpoints, moving provider intake materially closer to sustained rate-aware operation while it still remains pre-launch because final provider-operationalization and launch-readiness work are not finished.
 
 ## Rules
 
@@ -59,6 +59,8 @@ That makes `0.22.0` an appropriate current milestone: the platform now layers ac
   Current baseline with durable in-repo worker execution, queue claim/lease safety, and offline-tested unattended provider job processing layered onto the accepted backend foundation.
 - `0.22.x`
   Current baseline with restart-safe continuation, durable checkpoint advancement, and idempotent recovery for provider page jobs layered onto the unattended worker path.
+- `0.23.x`
+  Current baseline with bounded retry semantics, provider-aware throttling, and durable backoff timing for queued provider page jobs.
 - `1.0.0`
   First production-ready launch baseline.
 
