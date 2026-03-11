@@ -251,6 +251,48 @@ enum DuplicateSignalStatus {
   SUPERSEDED
 }
 
+enum ReviewQueueStatus {
+  PENDING
+  IN_REVIEW
+  APPROVED_FOR_PUBLISH
+  REJECTED
+  PUBLISHED
+  SUPERSEDED
+  UNPUBLISHED
+}
+
+enum ReviewDecisionType {
+  APPROVE
+  REJECT
+  MERGE
+  REPLACE
+  UNPUBLISH
+}
+
+enum PublishOperationType {
+  CREATE_TITLE
+  MERGE_INTO_EXISTING
+  REPLACE_EXISTING
+  UNPUBLISH_EXISTING
+}
+
+enum PublishOperationStatus {
+  PENDING
+  RUNNING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+}
+
+enum PublishAuditAction {
+  QUEUED
+  REVIEW_STARTED
+  REVIEW_DECISION_RECORDED
+  PUBLISH_STARTED
+  PUBLISH_SUCCEEDED
+  PUBLISH_FAILED
+}
+
 model User {
   id               String            @id @default(cuid())
   email            String            @unique
@@ -327,6 +369,11 @@ model MediaTitle {
   ratingSnapshots       RatingSnapshot[]
   incomingMatchSuggestions MatchSuggestion[]
   incomingDuplicateSignals DuplicateSignal[]
+  reviewQueueEntries    ReviewQueueEntry[]      @relation("ReviewQueueCanonicalMedia")
+  reviewDecisions       ReviewDecision[]        @relation("ReviewDecisionCanonicalMedia")
+  publishOperationTargets PublishOperation[]    @relation("PublishOperationTargetCanonicalMedia")
+  publishOperationResults PublishOperation[]    @relation("PublishOperationResultCanonicalMedia")
+  publishAuditRecords   PublishAuditRecord[]    @relation("PublishAuditCanonicalMedia")
 }
 
 model MediaAlternateTitle {
@@ -842,6 +889,10 @@ model NormalizedCandidate {
   incomingMatchSuggestions MatchSuggestion[]       @relation("TargetCandidateMatchSuggestions")
   duplicateSignals       DuplicateSignal[]         @relation("SourceCandidateDuplicateSignals")
   incomingDuplicateSignals DuplicateSignal[]       @relation("TargetCandidateDuplicateSignals")
+  reviewQueueEntry       ReviewQueueEntry?
+  reviewDecisions        ReviewDecision[]
+  publishOperations      PublishOperation[]
+  publishAuditRecords    PublishAuditRecord[]
 
   @@index([providerId, status, updatedAt])
   @@index([providerItemId, updatedAt])
@@ -901,4 +952,102 @@ model DuplicateSignal {
   @@index([sourceNormalizedCandidateId, kind, status, confidence])
   @@index([targetCanonicalMediaId])
   @@index([targetNormalizedCandidateId])
+}
+
+model ReviewQueueEntry {
+  id                    String             @id @default(cuid())
+  normalizedCandidateId String             @unique
+  canonicalMediaId      String?
+  status                ReviewQueueStatus  @default(PENDING)
+  assignedReviewerId    String?
+  latestDecisionType    ReviewDecisionType?
+  latestDecisionSummary String?
+  queuedAt              DateTime           @default(now())
+  startedAt             DateTime?
+  reviewedAt            DateTime?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  normalizedCandidate   NormalizedCandidate @relation(fields: [normalizedCandidateId], references: [id], onDelete: Cascade)
+  canonicalMedia        MediaTitle?        @relation("ReviewQueueCanonicalMedia", fields: [canonicalMediaId], references: [id], onDelete: SetNull)
+  decisions             ReviewDecision[]
+  publishOperations     PublishOperation[]
+  audits                PublishAuditRecord[]
+
+  @@index([status, queuedAt])
+  @@index([canonicalMediaId])
+}
+
+model ReviewDecision {
+  id                    String             @id @default(cuid())
+  queueEntryId          String
+  normalizedCandidateId String
+  decisionType          ReviewDecisionType
+  actorId               String?
+  targetCanonicalMediaId String?
+  notes                 String?
+  createdAt             DateTime           @default(now())
+  queueEntry            ReviewQueueEntry   @relation(fields: [queueEntryId], references: [id], onDelete: Cascade)
+  normalizedCandidate   NormalizedCandidate @relation(fields: [normalizedCandidateId], references: [id], onDelete: Cascade)
+  targetCanonicalMedia  MediaTitle?        @relation("ReviewDecisionCanonicalMedia", fields: [targetCanonicalMediaId], references: [id], onDelete: SetNull)
+  publishOperations     PublishOperation[]
+  audits                PublishAuditRecord[]
+
+  @@index([queueEntryId, createdAt])
+  @@index([normalizedCandidateId, decisionType, createdAt])
+  @@index([targetCanonicalMediaId])
+}
+
+model PublishOperation {
+  id                      String                @id @default(cuid())
+  queueEntryId            String
+  reviewDecisionId        String
+  normalizedCandidateId   String
+  actorId                 String?
+  operationType           PublishOperationType
+  status                  PublishOperationStatus @default(PENDING)
+  targetCanonicalMediaId  String?
+  resultingCanonicalMediaId String?
+  operationSummary        String?
+  failureSummary          String?
+  startedAt               DateTime             @default(now())
+  completedAt             DateTime?
+  createdAt               DateTime             @default(now())
+  updatedAt               DateTime             @updatedAt
+  queueEntry              ReviewQueueEntry     @relation(fields: [queueEntryId], references: [id], onDelete: Cascade)
+  reviewDecision          ReviewDecision       @relation(fields: [reviewDecisionId], references: [id], onDelete: Cascade)
+  normalizedCandidate     NormalizedCandidate  @relation(fields: [normalizedCandidateId], references: [id], onDelete: Cascade)
+  targetCanonicalMedia    MediaTitle?          @relation("PublishOperationTargetCanonicalMedia", fields: [targetCanonicalMediaId], references: [id], onDelete: SetNull)
+  resultingCanonicalMedia MediaTitle?          @relation("PublishOperationResultCanonicalMedia", fields: [resultingCanonicalMediaId], references: [id], onDelete: SetNull)
+  audits                  PublishAuditRecord[]
+
+  @@index([queueEntryId, createdAt])
+  @@index([reviewDecisionId])
+  @@index([status, startedAt])
+  @@index([targetCanonicalMediaId])
+  @@index([resultingCanonicalMediaId])
+}
+
+model PublishAuditRecord {
+  id                    String              @id @default(cuid())
+  queueEntryId          String?
+  reviewDecisionId      String?
+  publishOperationId    String?
+  normalizedCandidateId String?
+  actorId               String?
+  action                PublishAuditAction
+  actionSummary         String
+  targetCanonicalMediaId String?
+  metadata              Json?
+  createdAt             DateTime            @default(now())
+  queueEntry            ReviewQueueEntry?   @relation(fields: [queueEntryId], references: [id], onDelete: SetNull)
+  reviewDecision        ReviewDecision?     @relation(fields: [reviewDecisionId], references: [id], onDelete: SetNull)
+  publishOperation      PublishOperation?   @relation(fields: [publishOperationId], references: [id], onDelete: SetNull)
+  normalizedCandidate   NormalizedCandidate? @relation(fields: [normalizedCandidateId], references: [id], onDelete: SetNull)
+  targetCanonicalMedia  MediaTitle?         @relation("PublishAuditCanonicalMedia", fields: [targetCanonicalMediaId], references: [id], onDelete: SetNull)
+
+  @@index([queueEntryId, createdAt])
+  @@index([reviewDecisionId, createdAt])
+  @@index([publishOperationId, createdAt])
+  @@index([normalizedCandidateId, createdAt])
+  @@index([targetCanonicalMediaId, createdAt])
 }
