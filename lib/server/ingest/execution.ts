@@ -1,6 +1,11 @@
 import "server-only";
 
 import { ingestProviderPage } from "./service";
+import {
+  buildExecutionTelemetryMetadata,
+  classifyIngestExecutionFailure,
+  createPageIngestTelemetryContext,
+} from "./telemetry";
 
 import type { ProviderRegistry, ProviderRuntimeContext } from "../provider";
 import type { PersistIngestPlanResult } from "../../db/repositories/staging/types";
@@ -63,14 +68,6 @@ function deriveProviderType(capabilities: PersistedProviderRegistryRecord["capab
   return "manual_submission";
 }
 
-function buildErrorSummary(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return "Unknown ingest failure.";
-}
-
 export async function executeProviderPageIngestRun(
   persistence: PageIngestPersistenceGateway,
   registry: ProviderRegistry,
@@ -80,6 +77,8 @@ export async function executeProviderPageIngestRun(
   const adapter = registry.get(request.providerKey);
   const now = runtimeOverrides.now ?? (() => new Date());
   const startedAt = now().toISOString();
+  const attemptCount = 1;
+  const telemetryContext = createPageIngestTelemetryContext(request);
   const provider = await persistence.upsertProviderRegistry({
     adapterKey: adapter.metadata.key,
     displayName: adapter.metadata.displayName,
@@ -95,6 +94,11 @@ export async function executeProviderPageIngestRun(
     requestId: request.requestId,
     actorId: request.actorId,
     startedAt,
+    metadata: buildExecutionTelemetryMetadata(telemetryContext, {
+      status: "running",
+      attemptCount,
+      startedAt,
+    }),
   });
   const run = await persistence.createIngestRun({
     ingestJobId: job.id,
@@ -105,6 +109,11 @@ export async function executeProviderPageIngestRun(
     requestId: request.requestId,
     actorId: request.actorId,
     startedAt,
+    metadata: buildExecutionTelemetryMetadata(telemetryContext, {
+      status: "running",
+      attemptCount,
+      startedAt,
+    }),
   });
 
   try {
@@ -123,10 +132,32 @@ export async function executeProviderPageIngestRun(
       itemCount: persisted.providerItems.length,
       rawPayloadCount: persisted.rawPayloads.length,
       warningCount,
+      metadata: buildExecutionTelemetryMetadata(telemetryContext, {
+        status: "succeeded",
+        attemptCount,
+        startedAt,
+        finishedAt,
+        itemCount: persisted.providerItems.length,
+        rawPayloadCount: persisted.rawPayloads.length,
+        warningCount,
+        checkpoint: persisted.checkpoint
+          ? {
+              cursor: persisted.checkpoint.cursor ?? null,
+              page: persisted.checkpoint.page ?? null,
+            }
+          : undefined,
+      }),
     });
     const updatedJob = await persistence.updateIngestJobStatus(job.id, {
       status: "succeeded",
       finishedAt,
+      attemptCount,
+      metadata: buildExecutionTelemetryMetadata(telemetryContext, {
+        status: "succeeded",
+        attemptCount,
+        startedAt,
+        finishedAt,
+      }),
     });
 
     return {
@@ -138,17 +169,33 @@ export async function executeProviderPageIngestRun(
     };
   } catch (error) {
     const finishedAt = now().toISOString();
-    const lastErrorSummary = buildErrorSummary(error);
+    const failure = classifyIngestExecutionFailure(error);
+    const lastErrorSummary = failure.summary;
 
     await persistence.updateIngestRunStatus(run.id, {
       status: "failed",
       finishedAt,
       lastErrorSummary,
+      metadata: buildExecutionTelemetryMetadata(telemetryContext, {
+        status: "failed",
+        attemptCount,
+        startedAt,
+        finishedAt,
+        failure,
+      }),
     });
     await persistence.updateIngestJobStatus(job.id, {
       status: "failed",
       finishedAt,
       lastErrorSummary,
+      attemptCount,
+      metadata: buildExecutionTelemetryMetadata(telemetryContext, {
+        status: "failed",
+        attemptCount,
+        startedAt,
+        finishedAt,
+        failure,
+      }),
     });
 
     throw error;

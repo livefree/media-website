@@ -2,6 +2,10 @@
 
 2026-03-11
 
+Media Ingest:
+- Added shared ingest execution telemetry helpers that stamp structured lifecycle metadata onto provider page ingest, scheduled source refresh, and scheduled source probe job/run records, including deterministic attempt counts, duration, checkpoint context, and stable failure classification without adding new public routes or dashboards
+- Extended offline-safe ingest job tests to verify structured success, failure, and repeated-attempt telemetry for page ingest plus refresh/probe job flows using the existing provider/job boundaries
+
 UI Shell:
 - Added operator-only `/admin/moderation` queue and `/admin/moderation/[publicId]` detail surfaces, wired through `lib/server/admin` moderation contracts with backend-backed filtering, report inspection, action history, and narrow acknowledge/resolve/dismiss controls instead of route-local workflow logic
 - Added operator-only `/admin/manual-titles` and `/admin/manual-sources` submission surfaces, including manual intake forms, backend-backed queue filters, selected-submission inspection, and narrow status-update controls that stay inside the accepted admin/review/source workflow boundaries

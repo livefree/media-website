@@ -221,11 +221,26 @@ test("executeProviderPageIngestRun persists a real jszyapi page through the inge
   assert.equal(calls.persistPagePlan.length, 1);
   assert.equal(calls.updateIngestRunStatus.at(-1)?.input.status, "succeeded");
   assert.equal(calls.updateIngestJobStatus.at(-1)?.input.status, "succeeded");
+  assert.equal(calls.updateIngestJobStatus.at(-1)?.input.attemptCount, 1);
   assert.equal(result.ingest.itemCount, 2);
   assert.equal(result.ingest.rawPayloadCount, 1);
   assert.equal(result.persisted.candidates.length, 2);
   assert.equal(result.persisted.rawPayloads.length, 1);
   assert.equal(result.persisted.checkpoint?.page, 3);
+  const successTelemetry = (
+    calls.updateIngestRunStatus.at(-1)?.input.metadata as {
+      executionTelemetry?: {
+        status?: string;
+        attemptCount?: number;
+        durationMs?: number;
+        checkpoint?: { page?: number | null; cursor?: string | null } | null;
+      };
+    }
+  )?.executionTelemetry;
+  assert.equal(successTelemetry?.status, "succeeded");
+  assert.equal(successTelemetry?.attemptCount, 1);
+  assert.equal(successTelemetry?.durationMs, 0);
+  assert.equal(successTelemetry?.checkpoint?.page, 3);
 });
 
 test("executeProviderPageIngestRun marks the run failed when provider parsing fails", async () => {
@@ -271,4 +286,23 @@ test("executeProviderPageIngestRun marks the run failed when provider parsing fa
   assert.equal(calls.persistPagePlan.length, 0);
   assert.equal(calls.updateIngestRunStatus.at(-1)?.input.status, "failed");
   assert.equal(calls.updateIngestJobStatus.at(-1)?.input.status, "failed");
+  assert.equal(calls.updateIngestJobStatus.at(-1)?.input.attemptCount, 1);
+  const failureTelemetry = (
+    calls.updateIngestRunStatus.at(-1)?.input.metadata as {
+      executionTelemetry?: {
+        status?: string;
+        attemptCount?: number;
+        failure?: {
+          category?: string;
+          code?: string;
+          retryable?: boolean;
+        } | null;
+      };
+    }
+  )?.executionTelemetry;
+  assert.equal(failureTelemetry?.status, "failed");
+  assert.equal(failureTelemetry?.attemptCount, 1);
+  assert.equal(failureTelemetry?.failure?.category, "provider_response");
+  assert.equal(failureTelemetry?.failure?.code, "provider_payload_invalid");
+  assert.equal(failureTelemetry?.failure?.retryable, false);
 });

@@ -4,6 +4,12 @@ import {
   ingestProviderSourceProbe,
   ingestProviderSourceRefresh,
 } from "./service";
+import {
+  buildExecutionTelemetryMetadata,
+  classifyIngestExecutionFailure,
+  createSourceProbeTelemetryContext,
+  createSourceRefreshTelemetryContext,
+} from "./telemetry";
 
 import type { ProviderCapability, ProviderRegistry, ProviderRuntimeContext } from "../provider";
 import type {
@@ -99,43 +105,6 @@ function deriveProviderType(capabilities: ProviderCapability[]): ProviderRegistr
   return "manual_submission";
 }
 
-function buildErrorSummary(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return "Unknown source job failure.";
-}
-
-function buildRefreshMetadata(request: IngestSourceRefreshRequest) {
-  return {
-    jobType: "scheduled_source_refresh",
-    maintenanceReason: request.reason,
-    target: {
-      sourceId: request.target.sourceId,
-      providerItemId: request.target.providerItemId,
-      sourceKind: request.target.sourceKind,
-      providerLineKey: request.target.providerLineKey ?? null,
-      urls: request.target.urls,
-    },
-  };
-}
-
-function buildProbeMetadata(request: IngestSourceProbeRequest) {
-  return {
-    jobType: "scheduled_source_probe",
-    maintenanceReason: request.reason,
-    probeKind: request.probeKind,
-    target: {
-      sourceId: request.target.sourceId,
-      providerItemId: request.target.providerItemId,
-      sourceKind: request.target.sourceKind,
-      providerLineKey: request.target.providerLineKey ?? null,
-      urls: request.target.urls,
-    },
-  };
-}
-
 async function queueSourceJob(
   persistence: SourceJobPersistenceGateway,
   provider: PersistedProviderRegistryRecord,
@@ -145,8 +114,8 @@ async function queueSourceJob(
     requestId?: string;
     actorId?: string;
     providerItemId: string;
-    metadata: Record<string, unknown>;
-    startedAt: string;
+    pendingMetadata: Record<string, unknown>;
+    buildRunningMetadata(attemptCount: number): Record<string, unknown>;
   },
 ) {
   const job = await persistence.createIngestJob({
@@ -155,7 +124,7 @@ async function queueSourceJob(
     status: "pending",
     requestId: input.requestId,
     actorId: input.actorId,
-    metadata: input.metadata,
+    metadata: input.pendingMetadata,
   });
   const run = await persistence.createIngestRun({
     ingestJobId: job.id,
@@ -166,24 +135,21 @@ async function queueSourceJob(
     requestId: input.requestId,
     actorId: input.actorId,
     providerItemId: input.providerItemId,
-    metadata: input.metadata,
+    metadata: input.pendingMetadata,
   });
+  const attemptCount = job.attemptCount + 1;
   const runningJob = await persistence.updateIngestJobStatus(job.id, {
     status: "running",
-    metadata: {
-      ...input.metadata,
-      startedAt: input.startedAt,
-    },
+    attemptCount,
+    metadata: input.buildRunningMetadata(attemptCount),
   });
   const runningRun = await persistence.updateIngestRunStatus(run.id, {
     status: "running",
-    metadata: {
-      ...input.metadata,
-      startedAt: input.startedAt,
-    },
+    metadata: input.buildRunningMetadata(attemptCount),
   });
 
   return {
+    attemptCount,
     job: runningJob,
     run: runningRun,
   };
@@ -198,7 +164,8 @@ export async function executeScheduledSourceRefreshJob(
 ): Promise<ExecuteScheduledSourceRefreshJobResult> {
   const adapter = registry.get(request.providerKey);
   const now = runtimeOverrides.now ?? (() => new Date());
-  const metadata = buildRefreshMetadata(request);
+  const startedAt = now().toISOString();
+  const telemetryContext = createSourceRefreshTelemetryContext(request);
   const provider = await persistence.upsertProviderRegistry({
     adapterKey: adapter.metadata.key,
     displayName: adapter.metadata.displayName,
@@ -207,14 +174,23 @@ export async function executeScheduledSourceRefreshJob(
     baseUrl: adapter.metadata.baseUrl,
     enabled: adapter.metadata.enabledByDefault ?? true,
   });
-  const { job, run } = await queueSourceJob(persistence, provider, {
+  const { attemptCount, job, run } = await queueSourceJob(persistence, provider, {
     mode: "incremental",
     scope: "source_refresh",
     requestId: request.requestId,
     actorId: request.actorId,
     providerItemId: request.target.providerItemId,
-    metadata,
-    startedAt: now().toISOString(),
+    pendingMetadata: buildExecutionTelemetryMetadata(telemetryContext, {
+      status: "pending",
+      attemptCount: 0,
+    }),
+    buildRunningMetadata(attemptCount) {
+      return buildExecutionTelemetryMetadata(telemetryContext, {
+        status: "running",
+        attemptCount,
+        startedAt,
+      });
+    },
   });
 
   try {
@@ -233,7 +209,15 @@ export async function executeScheduledSourceRefreshJob(
       rawPayloadCount: ingest.rawPayloadCount,
       warningCount: ingest.findingCount,
       metadata: {
-        ...metadata,
+        ...buildExecutionTelemetryMetadata(telemetryContext, {
+          status: "succeeded",
+          attemptCount,
+          startedAt,
+          finishedAt,
+          itemCount: ingest.persistence.item ? 1 : 0,
+          rawPayloadCount: ingest.rawPayloadCount,
+          warningCount: ingest.findingCount,
+        }),
         probeRunId: persistedHealth.probeRun.id,
         repairQueueCount: persistedHealth.repairQueue.length,
         observedState: persistedHealth.probeRun.observedState ?? null,
@@ -242,8 +226,14 @@ export async function executeScheduledSourceRefreshJob(
     const updatedJob = await persistence.updateIngestJobStatus(job.id, {
       status: "succeeded",
       finishedAt,
+      attemptCount,
       metadata: {
-        ...metadata,
+        ...buildExecutionTelemetryMetadata(telemetryContext, {
+          status: "succeeded",
+          attemptCount,
+          startedAt,
+          finishedAt,
+        }),
         probeRunId: persistedHealth.probeRun.id,
         repairQueueCount: persistedHealth.repairQueue.length,
       },
@@ -258,19 +248,33 @@ export async function executeScheduledSourceRefreshJob(
     };
   } catch (error) {
     const finishedAt = now().toISOString();
-    const lastErrorSummary = buildErrorSummary(error);
+    const failure = classifyIngestExecutionFailure(error);
+    const lastErrorSummary = failure.summary;
 
     await persistence.updateIngestRunStatus(run.id, {
       status: "failed",
       finishedAt,
       lastErrorSummary,
-      metadata: metadata,
+      metadata: buildExecutionTelemetryMetadata(telemetryContext, {
+        status: "failed",
+        attemptCount,
+        startedAt,
+        finishedAt,
+        failure,
+      }),
     });
     await persistence.updateIngestJobStatus(job.id, {
       status: "failed",
       finishedAt,
       lastErrorSummary,
-      metadata: metadata,
+      attemptCount,
+      metadata: buildExecutionTelemetryMetadata(telemetryContext, {
+        status: "failed",
+        attemptCount,
+        startedAt,
+        finishedAt,
+        failure,
+      }),
     });
 
     throw error;
@@ -286,7 +290,8 @@ export async function executeScheduledSourceProbeJob(
 ): Promise<ExecuteScheduledSourceProbeJobResult> {
   const adapter = registry.get(request.providerKey);
   const now = runtimeOverrides.now ?? (() => new Date());
-  const metadata = buildProbeMetadata(request);
+  const startedAt = now().toISOString();
+  const telemetryContext = createSourceProbeTelemetryContext(request);
   const provider = await persistence.upsertProviderRegistry({
     adapterKey: adapter.metadata.key,
     displayName: adapter.metadata.displayName,
@@ -295,14 +300,23 @@ export async function executeScheduledSourceProbeJob(
     baseUrl: adapter.metadata.baseUrl,
     enabled: adapter.metadata.enabledByDefault ?? true,
   });
-  const { job, run } = await queueSourceJob(persistence, provider, {
+  const { attemptCount, job, run } = await queueSourceJob(persistence, provider, {
     mode: "incremental",
     scope: "source_probe",
     requestId: request.requestId,
     actorId: request.actorId,
     providerItemId: request.target.providerItemId,
-    metadata,
-    startedAt: now().toISOString(),
+    pendingMetadata: buildExecutionTelemetryMetadata(telemetryContext, {
+      status: "pending",
+      attemptCount: 0,
+    }),
+    buildRunningMetadata(attemptCount) {
+      return buildExecutionTelemetryMetadata(telemetryContext, {
+        status: "running",
+        attemptCount,
+        startedAt,
+      });
+    },
   });
 
   try {
@@ -321,7 +335,15 @@ export async function executeScheduledSourceProbeJob(
       rawPayloadCount: ingest.rawPayloadCount,
       warningCount: ingest.findingCount,
       metadata: {
-        ...metadata,
+        ...buildExecutionTelemetryMetadata(telemetryContext, {
+          status: "succeeded",
+          attemptCount,
+          startedAt,
+          finishedAt,
+          itemCount: 1,
+          rawPayloadCount: ingest.rawPayloadCount,
+          warningCount: ingest.findingCount,
+        }),
         probeRunId: persistedHealth.probeRun.id,
         repairQueueCount: persistedHealth.repairQueue.length,
         observedState: persistedHealth.probeRun.observedState ?? null,
@@ -330,8 +352,14 @@ export async function executeScheduledSourceProbeJob(
     const updatedJob = await persistence.updateIngestJobStatus(job.id, {
       status: "succeeded",
       finishedAt,
+      attemptCount,
       metadata: {
-        ...metadata,
+        ...buildExecutionTelemetryMetadata(telemetryContext, {
+          status: "succeeded",
+          attemptCount,
+          startedAt,
+          finishedAt,
+        }),
         probeRunId: persistedHealth.probeRun.id,
         repairQueueCount: persistedHealth.repairQueue.length,
       },
@@ -346,19 +374,33 @@ export async function executeScheduledSourceProbeJob(
     };
   } catch (error) {
     const finishedAt = now().toISOString();
-    const lastErrorSummary = buildErrorSummary(error);
+    const failure = classifyIngestExecutionFailure(error);
+    const lastErrorSummary = failure.summary;
 
     await persistence.updateIngestRunStatus(run.id, {
       status: "failed",
       finishedAt,
       lastErrorSummary,
-      metadata: metadata,
+      metadata: buildExecutionTelemetryMetadata(telemetryContext, {
+        status: "failed",
+        attemptCount,
+        startedAt,
+        finishedAt,
+        failure,
+      }),
     });
     await persistence.updateIngestJobStatus(job.id, {
       status: "failed",
       finishedAt,
       lastErrorSummary,
-      metadata: metadata,
+      attemptCount,
+      metadata: buildExecutionTelemetryMetadata(telemetryContext, {
+        status: "failed",
+        attemptCount,
+        startedAt,
+        finishedAt,
+        failure,
+      }),
     });
 
     throw error;
