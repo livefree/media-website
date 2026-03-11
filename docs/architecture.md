@@ -2,270 +2,358 @@
 
 ## Current implemented state
 
-The repository is no longer just a static front-end structure mock. The current baseline already includes:
+The repository already has the public-side groundwork:
 
-- Next.js App Router application shell
-- public browse routes for:
-  - `/`
-  - `/movie`
-  - `/series`
-  - `/anime`
-  - `/search`
-  - `/media/[slug]`
-- shared browse UI primitives in `components/`
-- detail and player shell components in `components/detail/` and `components/player/`
-- mock catalog and platform data in `data/`
-- shared TypeScript contracts in `types/`
-- browse, search, and catalog helpers in `lib/`
-- a draft Prisma schema in `prisma/schema.prisma`
-- local buildable Next.js runtime via `package.json`, `next.config.mjs`, and TypeScript config
+- Next.js App Router frontend
+- browse, search, detail, and watch routes
+- player interaction groundwork
+- opaque public watch URL structure
+- shared TypeScript contracts and helpers
+- an initial Prisma schema
 
-What the current state represents:
-- a front-end demo baseline with shared mock data
-- URL-backed browse and search behavior
-- detail-page and player-shell composition
-- early data modeling for a future streaming platform
+The repository no longer has a public runtime catalog feeding real content into those surfaces. In practical terms, the frontend is now a shell waiting for a real backend.
 
-What the current state does **not** represent:
-- a real backend
-- production database integration
-- authenticated users or sessions
-- secure playback/runtime services
-- admin or content-operations tooling
-- observability, deployment, or launch readiness
+## Reframed target state
 
-## Production target state
+The next target is not “finish a self-hosted streaming stack.” The next target is a small/medium media aggregation backend that powers the existing frontend.
 
-The production target is a launchable streaming platform with:
+That backend should center on:
 
-- a public web application for browse, search, detail, and playback
-- persistent catalog, playback, and user data
-- API services for catalog, search, auth, progress, and admin actions
-- authenticated user accounts with role-aware access control
-- resilient playback and resource-delivery flows
-- admin workflows for content ingestion, metadata curation, resource updates, and moderation
-- operational coverage for deployment, monitoring, error reporting, backups, and security
+- external provider ingestion
+- staging and raw-payload retention
+- normalization into internal canonical content models
+- review and publish gates
+- playback-source and download-source management
+- source health checking and replacement
 
-In other words, the current repository is the presentation and schema baseline. The production target adds the server, data, identity, operations, and content-management layers required to ship and sustain the product.
+This target should be implemented as a monolith with modular boundaries unless there is a real operational reason to split it later.
 
-## Current vs target
+## Architectural stance
 
-### Current demo baseline
+### Monolith first
 
-- Mock-backed routes and components are present
-- Search/filter behavior exists at the UI layer
-- Detail/player page structure exists at the UI layer
-- Prisma schema exists only as a planning and modeling artifact
-- No app-owned API routes are present
-- No database client or server-side data access layer is present
-- No auth/session system is present
-- No admin surface is present
-- No production deployment or observability layer is present
+Recommended shape:
 
-### Production target
+- one deployable Next.js/Node.js application
+- PostgreSQL via Prisma
+- Redis for queueing, caching, and job coordination
+- background job runners for ingest and health checks
+- object storage for posters, screenshots, and static assets only
 
-- Real catalog and user data stored in a production database
-- App/API boundaries that separate UI from persistence and business logic
-- Authenticated user system with protected actions and admin roles
-- Playback/runtime services that manage sources, progress, and resource health
-- Content-ops/admin workflows for publishing and maintaining the catalog
-- Operational hardening for reliability, security, and launch readiness
+Why:
 
-## Missing backend and application capabilities
+- the product scope is operationally rich but not yet large enough to justify a service split
+- staging, normalization, review, publish, and healthcheck all need tight shared data access
+- premature service boundaries would increase coordination cost faster than they improve scale
 
-The following capabilities are still missing for launch:
+### Adapter-based external integrations
 
-### Platform foundation
+All external providers must enter through adapters, not directly through route handlers or catalog logic.
 
-- environment configuration strategy
-- server-only module boundaries
-- database client and migration workflow
-- shared validation and error-handling conventions
-- API response contracts
+Provider classes:
 
-### Data and persistence
+- `catalog_provider`
+- `playback_provider`
+- `download_provider`
+- `subtitle_provider`
+- `manual_submission_provider`
 
-- live database integration
-- seed/import pipeline for catalog ingestion
-- normalized read/write model for titles, seasons, episodes, and resources
-- durable storage for users, lists, history, progress, and feedback events
+The internal platform should never expose raw provider payloads as its public contract.
 
-### API layer
+## Core backend flow
 
-- catalog read APIs
-- search/filter APIs
-- detail and playback metadata APIs
-- progress, list, and feedback APIs
-- admin and moderation APIs
+Recommended backend flow:
 
-### Auth and user system
+```text
+Provider Adapter
+-> Ingest Job
+-> Raw Payload Store
+-> Staging Candidate
+-> Normalization / Match / Dedup
+-> Review Queue
+-> Publish Service
+-> Canonical Catalog
+-> Public Browse / Search / Detail / Watch
+-> Healthcheck / Repair / Refresh
+```
 
-- signup, login, logout, and session persistence
-- protected routes and server-side authorization
-- user profile, preferences, and watch-state ownership
-- role model for end users vs admins/operators
+This order is the core system design, not just an implementation preference.
 
-### Playback and runtime
+## Proposed module boundaries inside the monolith
 
-- source resolution and playback-provider abstraction
-- progress persistence and resume behavior
-- episode/source switching backed by persistent data
-- download/resource health checks and invalid-resource reporting flows
-- playback analytics and rate limiting
-
-### Admin and content operations
-
-- content ingestion and metadata editing workflows
-- source and download-resource management tools
-- moderation/report queues
-- release/publish workflow for titles and episodes
-
-### Observability, deployment, and security
-
-- environment isolation for dev/staging/prod
-- logging, metrics, tracing, and error reporting
-- database backup and migration safety
-- secret management
-- input validation, auth hardening, and abuse controls
-
-## Proposed production module boundaries
-
-The current repo organization is suitable for the demo, but a launchable platform needs clearer backend and operational boundaries.
-
-### Public application
+### `lib/server/provider/`
 
 Purpose:
-- render browse, search, detail, and playback experiences
 
-Suggested boundaries:
-- `app/` for routes and route composition
-- `components/` for shared UI
-- `styles/` for shared presentation
+- adapter contracts
+- provider-specific fetchers
+- provider normalization helpers local to each adapter
 
-### Backend/API
+Responsibilities:
 
-Purpose:
-- expose server-side read/write capabilities to the app and admin tools
+- fetch pages or detail payloads
+- map provider-specific fields into staging-safe intermediate shapes
+- isolate unstable provider formats from the rest of the codebase
 
-Suggested boundaries:
-- `app/api/` for route handlers
-- `lib/server/` for server-only orchestration
-- `lib/http/` for response helpers, validation wrappers, and auth guards
-
-### Data and persistence
+### `lib/server/ingest/`
 
 Purpose:
-- own database schema, client access, ingestion, and persistence contracts
 
-Suggested boundaries:
-- `prisma/` for schema and migrations
-- `lib/db/` for client, repositories, and transactions
-- `data/` for transitional seed data only until ingestion/admin flows replace static fixtures
-- `types/` for app-facing contracts
+- intake orchestration
+- raw payload capture
+- incremental/backfill job logic
 
-### Auth and identity
+Responsibilities:
 
-Purpose:
-- own sessions, users, roles, and protected actions
+- create and run ingest jobs
+- persist raw payloads
+- checkpoint pagination/update markers
+- retry, throttle, and rate-limit provider access
 
-Suggested boundaries:
-- `lib/auth/` for providers, sessions, and guards
-- `app/(auth)/` or equivalent auth route group for login/signup/account flows
-
-### Admin and content operations
+### `lib/server/normalize/`
 
 Purpose:
-- let operators manage titles, metadata, resources, reports, and publishing status
 
-Suggested boundaries:
-- `app/admin/`
-- `components/admin/`
-- `lib/admin/`
+- turn staged provider records into internal candidate data
 
-### Playback and resource runtime
+Responsibilities:
 
-Purpose:
-- own source resolution, episode playback metadata, progress persistence, and resource health
+- title matching
+- alias/year matching
+- season and episode resolution
+- category/region/language mapping
+- source candidate parsing
+- duplicate and merge suggestion generation
 
-Suggested boundaries:
-- `lib/playback/`
-- `lib/resources/`
-- `lib/progress/`
-- optional background jobs for validation and cleanup
-
-### Ops and observability
+### `lib/server/review/`
 
 Purpose:
-- own deployment readiness, runtime visibility, and security controls
 
-Suggested boundaries:
-- `lib/ops/` for logging, metrics, feature flags, and runtime config
-- platform configuration files for CI/CD, env management, and deployment
+- gate staged candidates before they enter the live catalog
 
-## Proposed service responsibilities
+Responsibilities:
 
-### Catalog service
+- review queue
+- approve / reject / merge actions
+- publish payload preparation
+- unpublish and replace workflow hooks
+- review audit trail
 
-- title lookup
-- category slices
-- search indexing inputs
-- detail-page metadata reads
+### `lib/server/catalog/`
 
-### Search service
+Purpose:
 
-- filter normalization
-- ranking and pagination
+- own the canonical published catalog
+
+Responsibilities:
+
+- titles, seasons, episodes, sources, downloads, subtitles
+- published-only reads for public browse/search/detail/watch
+- search and facet inputs from published data
+- stable public identity resolution
+
+### `lib/server/source/`
+
+Purpose:
+
+- manage playback, download, and subtitle sources after publish
+
+Responsibilities:
+
+- line ordering and visibility
+- source replacement
+- source grouping by provider and type
+- manual overrides and temporary disable
+
+### `lib/server/health/`
+
+Purpose:
+
+- maintain source availability and freshness
+
+Responsibilities:
+
+- source probes
+- broken-link detection
+- degraded/offline state transitions
+- repair queue creation
+- metadata refresh and episode update checks
+
+### `lib/server/search/`
+
+Purpose:
+
+- serve catalog-backed search and filtering
+
+Responsibilities:
+
+- published search documents
+- facet calculation
+- ranking inputs
 - query analytics
 
-### User service
+### `lib/server/admin/`
 
-- accounts
-- preferences
-- history
-- lists
-- watch progress ownership
+Purpose:
 
-### Playback service
+- operator-facing workflows
 
-- source selection
-- episode state
-- progress updates
-- playback/runtime events
+Responsibilities:
 
-### Resource service
+- staging review surfaces
+- publish controls
+- source inventory management
+- moderation and report handling
 
-- download resources
-- provider grouping
-- validity reports
-- resource refresh workflows
+### `lib/db/`
 
-### Admin service
+Purpose:
 
-- metadata edits
-- publishing controls
-- resource updates
-- moderation/report handling
+- Prisma client, repositories, and transactions
 
-## Delivery transition
+Responsibilities:
 
-The current implementation sequence for the demo is complete enough to serve as the production baseline:
+- keep DB access behind repository and transaction boundaries
+- prevent route handlers from embedding ad hoc data mutations
 
-1. Planner
-2. Data Catalog
-3. UI Shell
-4. Search Filter
-5. Detail Player
-6. Reviewer
+### `app/`
 
-Productionization now starts **after** that baseline. The next roadmap should assume:
+Purpose:
 
-- browse, search, and detail demo routes exist
-- shared mock contracts exist
-- Prisma modeling exists
-- backend and ops layers still need to be built
+- frontend routes and API entrypoints only
 
-## Immediate planning implications
+Responsibilities:
 
-- Do not describe the current system as if APIs, auth, or live persistence already exist
-- Treat the current app as a strong UI and schema prototype
-- The next major engineering move is platform foundation and data integration, not another browse-shell iteration
+- public UI composition
+- admin route composition
+- API handlers delegating to server modules
+
+## Data-state separation
+
+The backend should enforce five distinct states of content:
+
+1. raw provider payload
+2. staged candidate
+3. normalized candidate
+4. published canonical catalog record
+5. health-managed source state
+
+These must not collapse into one table or one generic status field.
+
+Why:
+
+- ingest retry and provider debugging need raw payload visibility
+- review requires pre-publish candidate state
+- public pages need published-only reads
+- source health changes more frequently than title metadata
+
+## Content and source decoupling
+
+The backend should treat metadata and playable sources as separate lifecycles.
+
+Canonical content:
+
+- title identity
+- title metadata
+- season and episode structure
+- genres, regions, aliases, artwork
+
+Source layer:
+
+- playback lines
+- netdisk/download links
+- subtitle tracks
+- provider provenance
+- health and availability state
+
+Why:
+
+- the same title may outlive a specific playback line
+- providers change faster than canonical metadata
+- healthcheck and repair should update sources without rewriting title identity
+
+## Database direction
+
+The current Prisma schema is a useful baseline but incomplete for the backend phase.
+
+The next schema direction should add explicit models for:
+
+- provider definitions and adapter config
+- ingest jobs and ingest checkpoints
+- raw provider payloads
+- staged candidates
+- normalization matches and dedup suggestions
+- review decisions and publish actions
+- source inventory and source health history
+- audit records
+
+The database should distinguish:
+
+- provider identity
+- provider item identity
+- canonical media identity
+- public playback identity
+
+These are not interchangeable.
+
+## Runtime expectations for the existing frontend
+
+The current frontend groundwork stays useful, but its data source changes:
+
+- browse and search should read from published catalog records
+- detail pages should read canonical metadata plus published source inventory
+- watch pages should resolve published playback sources and health-aware fallbacks
+- slug routes may remain compatibility routes, but published data should be keyed internally by stable canonical IDs and public IDs
+
+## Health and maintenance as a core subsystem
+
+Health checking is not an optional operations add-on. It is part of the product.
+
+Required behaviors:
+
+- detect broken playback lines
+- mark lines degraded or offline
+- keep operator-visible repair queues
+- refresh episodic updates from providers
+- refresh metadata selectively when provider data changes
+
+Without this layer, the platform is only an importer, not an operable aggregation backend.
+
+## Recommended backend-phase agent redistribution
+
+The current frontend-era agent boundaries are no longer ideal for the next phase.
+
+Recommended direction:
+
+- `Planner`
+  - architecture, module boundaries, round sequencing, acceptance criteria
+- `Data Catalog` -> evolve into `Catalog Backend`
+  - Prisma models, repositories, published catalog reads, search inputs, shared backend contracts
+- `Media Ingest`
+  - provider adapters, staging ingestion, raw payload persistence, checkpoints, normalization inputs
+- `Detail Player`
+  - watch/detail integration with published source inventory and health-aware playback resolution
+- `UI Shell`
+  - admin shell and operator-facing layout work when backend workflows need UI
+- `Search Filter`
+  - transition from query-only UI behavior to catalog-backed search/filter API integration and indexing behavior
+- `Reviewer`
+  - backend workflow QA, runtime validation, migration/contract review, and operator-flow acceptance
+
+Recommended additions for later if task volume demands it:
+
+- `Review Publish Ops`
+  - candidate review queue, approve/merge/reject/publish/unpublish workflows
+- `Source Health`
+  - source probes, degraded/offline transitions, repair queue
+
+These do not need to be separate agents immediately; they can remain under `Media Ingest` and `Catalog Backend` until the workload becomes too large.
+
+## Immediate engineering implications
+
+- stop organizing the next milestone around homepage/search/player polish
+- build the server modules before provider-specific feature work spreads across the repo
+- keep providers behind adapters
+- keep staging isolated from the live catalog
+- make review/publish an explicit gate before public visibility
+- make source health part of the initial backend plan, not a late rescue feature

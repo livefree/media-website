@@ -2,165 +2,241 @@
 
 ## Current baseline
 
-Completed baseline:
-- browse routes exist for `/`, `/movie`, `/series`, `/anime`
-- `/search` exists with UI-level query behavior
-- `/media/[slug]` exists with detail and player shell composition
-- shared mock catalog data and TypeScript contracts exist
-- a draft Prisma schema exists
+The frontend and player groundwork is already in place:
 
-This baseline is sufficient for a demo. It is **not** sufficient for launch.
+- browse/search/detail/watch routes exist
+- canonical public watch URLs already use opaque public IDs
+- player interaction groundwork exists
+- Prisma schema and shared contracts exist
 
-The roadmap below begins after the current UI-demo baseline.
+What changed:
 
-## Phase 1: Platform foundation
+- the public runtime catalog has been withdrawn
+- the next bottleneck is no longer front-end shell work
+- the next milestone is a backend for a small/medium media aggregation platform
 
-Goals:
-- establish the server-side architecture needed to move beyond mock-only behavior
-- create the boundary between public app code and backend/application services
-- define environment, config, and server-only module patterns
+This means the roadmap must now optimize for:
 
-Scope:
-- add server-side module boundaries for API, DB, auth, and runtime concerns
-- define environment variable strategy and secret handling expectations
-- add shared server validation, error handling, and response conventions
-- define staging vs production deployment assumptions
+- staging external data safely
+- normalizing it into internal models
+- human review and publish gates
+- source management and replacement
+- ongoing health checking
 
-Exit criteria:
-- the repo has agreed module boundaries for app, API, DB, auth, admin, playback, and ops
-- environment/config strategy is documented and reflected in the codebase structure
-- downstream agents can build server capabilities without inventing architecture ad hoc
+The target architecture should remain a monolith with modular boundaries until real scale or team structure justifies a split.
 
-## Phase 2: Data and database integration
+## Backend-phase principles
 
-Goals:
-- convert the current schema and mock-data planning work into a live persistence layer
+1. All external providers enter through adapters.
+2. External data lands in staging before it can affect the live catalog.
+3. Metadata normalization is separate from source management.
+4. Review and publish remain explicit gates.
+5. Source health and repair are first-class, not cleanup work left for later.
+6. Object storage is for posters, screenshots, and static assets; the main platform focus is aggregation and source management, not self-hosting primary video files.
 
-Scope:
-- wire Prisma into a real database workflow
-- create DB client and repository/data-access layer
-- migrate mock media contracts toward persistent catalog reads
-- define ingestion or seed path for catalog data
-- persist users, lists, progress, and feedback-related data models where required
-
-Exit criteria:
-- the application can read core catalog data from a real database
-- schema migration workflow exists and is repeatable
-- mock-only reads are no longer the only source for core catalog flows
-
-## Phase 3: API layer
+## Phase 1: Backend monolith foundation
 
 Goals:
-- introduce server APIs for public app and internal workflows
+
+- establish the code boundaries for a backend-first monolith
+- stop treating backend work as incidental route-local logic
+- define the canonical module flow:
+  - provider adapters
+  - staging ingestion
+  - normalization
+  - review/publish
+  - catalog serving
+  - healthcheck
 
 Scope:
-- catalog APIs
-- search/filter APIs
-- detail/playback metadata APIs
-- progress/list/feedback APIs
-- internal/admin-facing mutation APIs where needed
+
+- define server-only module boundaries under a monolith
+- add shared runtime config, secrets, validation, logging, and error conventions
+- define job-runner and Redis usage expectations
+- define repository and transaction boundaries for Prisma
 
 Exit criteria:
-- key app flows no longer depend on page-local data access only
-- API contracts exist for catalog, search, detail, and stateful user actions
-- server-side validation and consistent error handling are in place
 
-## Phase 4: Auth and user system
+- the repo has a documented backend module map aligned to `backend.md`
+- engineers can place new backend code without inventing ad hoc structure
+- staging, catalog, review, and health modules are treated as distinct backend responsibilities
+
+## Phase 2: Provider adapter and staging ingestion
 
 Goals:
-- add identity, session, and user-owned state
+
+- establish lawful, adapter-based intake from external providers and manual submissions
+- persist raw payloads and staged candidates without touching the live catalog
 
 Scope:
-- signup/login/logout/session persistence
-- account and preference model
-- role-aware authorization
-- protected actions for progress, lists, and admin access
+
+- provider adapter contracts for:
+  - catalog providers
+  - playback providers
+  - download providers
+  - subtitle providers
+- ingest job model and runner
+- raw payload persistence
+- incremental and backfill ingest modes
+- staging tables for provider items, payloads, and candidate records
 
 Exit criteria:
-- authenticated users can sign in and keep session state
-- user-owned data is no longer anonymous-only
-- admin or operator roles can be separated from public users
 
-## Phase 5: Playback and runtime
+- at least one provider can be ingested through an adapter
+- raw payloads and staged candidates persist independently from the live catalog
+- the system supports retries, throttling, and incremental ingest checkpoints
+
+## Phase 3: Normalization and match pipeline
 
 Goals:
-- turn the current player shell into a production-capable playback/runtime layer
+
+- convert staged provider records into normalized internal candidates
+- reduce duplicate and inconsistent title creation before human review
 
 Scope:
-- source resolution and provider abstraction
-- episode/source switching backed by persistent data
-- progress tracking and resume behavior
-- download-resource handling and invalid-resource feedback
-- playback/runtime analytics and abuse controls
+
+- canonical title resolver
+- alias and year matching
+- season and episode resolution
+- category, region, and language mapping
+- source parsing into internal candidate structures
+- duplicate-detection and merge-suggestion workflow
 
 Exit criteria:
-- playback metadata is served from real runtime-aware data
-- progress updates persist correctly for authenticated users
-- resource and playback flows are durable enough for real usage
 
-## Phase 6: Admin and content operations
+- staged items can be normalized into internal candidate records
+- probable duplicates and ambiguous matches are flagged instead of silently published
+- movies, series, anime, and variety content share one coherent normalization path
+
+## Phase 4: Review and publish workflow
 
 Goals:
-- enable operators to manage the catalog and resource lifecycle without code edits
+
+- create the operator gate between staged candidates and the live catalog
+- make publish, reject, merge, replace, and unpublish explicit workflows
 
 Scope:
-- admin UI or internal tools for titles, metadata, and release state
-- source/download resource management
-- moderation/report queue for invalid resources and content issues
-- publishing and content-update workflows
+
+- review queue
+- candidate comparison UI/API expectations
+- approve / merge / reject decisions
+- publish service
+- unpublish / reorder / replace flows
+- audit trail for review actions
 
 Exit criteria:
-- operators can update content and resources through managed workflows
-- content/resource maintenance no longer requires direct repository edits
-- moderation/report handling path exists
 
-## Phase 7: Observability, deployment, and security
+- new staged content cannot appear publicly without a review or publish action
+- operators can merge into existing titles instead of creating duplicates
+- review decisions are auditable and reversible through controlled workflows
+
+## Phase 5: Canonical catalog and public serving
 
 Goals:
-- make the platform operable, debuggable, and defensible in production
+
+- build the backend catalog that the existing frontend already expects
+- make public browse/search/detail/watch reads come from publishable backend data
 
 Scope:
-- deployment workflow for staging and production
-- structured logging, metrics, tracing, and error reporting
-- secret management and environment isolation
-- migration safety, backups, and rollback expectations
-- auth hardening, input validation, and abuse/rate-limit protections
+
+- canonical `MediaTitle`, `Season`, `Episode`, `Source`, `Download`, and subtitle serving
+- repository layer for public reads
+- search indexing inputs and filter facets from published catalog data
+- stable public watch/list identity resolution backed by database records
 
 Exit criteria:
-- the platform can be deployed and monitored outside local development
-- failures are visible through logs and monitoring
-- security and operational basics are in place for live traffic
 
-## Phase 8: Launch hardening
+- public pages can resolve published catalog data from the backend
+- unpublished or staging-only records never leak to the public site
+- canonical public URLs stay stable while the backing catalog becomes database-driven
+
+## Phase 6: Source management and healthcheck
 
 Goals:
-- verify the product is actually ready to launch
+
+- operate the platform as an aggregator rather than a one-time importer
+- detect, degrade, replace, and retire broken lines predictably
 
 Scope:
-- end-to-end QA across browse, search, detail, auth, playback, and admin flows
-- performance and reliability testing for core routes
-- analytics sanity checks
-- content quality review and operational runbooks
-- launch checklist and rollback plan
+
+- source inventory and ordering
+- multi-line playback-source management
+- availability status and manual override
+- health probes for playback and download resources
+- repair queue and replacement workflow
+- episode update checker and metadata refresh jobs
 
 Exit criteria:
-- launch-critical flows pass end-to-end validation
-- known risks are documented and accepted or fixed
-- operational owners have a clear launch and rollback procedure
 
-## Immediate priority order
+- sources can be marked healthy, degraded, broken, replaced, or offline
+- automated checks feed operator workflows instead of silently failing
+- the watch page can prefer healthy sources while preserving existing URL behavior
 
-1. Platform foundation
-2. Data and database integration
-3. API layer
-4. Auth and user system
-5. Playback and runtime
-6. Admin and content operations
-7. Observability, deployment, and security
-8. Launch hardening
+## Phase 7: Admin operations and moderation
+
+Goals:
+
+- give operators a real control plane for the aggregation backend
+
+Scope:
+
+- admin surfaces for staged candidates, review queue, published catalog, and source inventory
+- moderation/report handling
+- manual title creation and manual source submission
+- publish scheduling and visibility control
+
+Exit criteria:
+
+- key catalog and source workflows no longer require direct DB edits
+- moderators or editors can process broken-source reports and publish decisions through the product
+- operational ownership is clear between ingestion, review, and source maintenance
+
+## Phase 8: Observability, security, and launch hardening
+
+Goals:
+
+- make the backend operable in production
+
+Scope:
+
+- structured logs, metrics, alerts, and job visibility
+- queue failure monitoring
+- provider rate-limit and failure handling
+- auth hardening, RBAC, and audit coverage
+- backups, restore drills, and migration safety
+- end-to-end validation for ingest -> normalize -> review -> publish -> watch -> healthcheck
+
+Exit criteria:
+
+- failures in adapters, jobs, review flow, and source health are visible
+- privileged actions are authenticated and auditable
+- backend operations are stable enough for sustained catalog growth
+
+## Recommended downstream workflow order
+
+The next major rounds should follow this order:
+
+1. backend foundation and module boundaries
+2. provider adapter contract plus staging schema
+3. ingest job runner and raw-payload persistence
+4. normalization and dedup pipeline
+5. review queue and publish service
+6. canonical catalog read layer for public runtime
+7. source management and healthcheck jobs
+8. admin operations and moderation
+9. observability and launch hardening
+
+This order matters because:
+
+- normalization is unsafe without staging
+- publish is unsafe without normalization
+- public catalog serving is incomplete without publish state
+- source health has little value until source records and publish flow exist
 
 ## What should not happen next
 
-- Do not continue treating mock data as the long-term runtime source
-- Do not add launch-only features directly into route components without server/data boundaries
-- Do not assume playback, auth, or admin work can be deferred until the end; they are core platform phases now
+- do not jump directly into provider-specific business logic in route files
+- do not let raw provider payloads become the public catalog contract
+- do not split into microservices early; keep one monolith with clear internal modules
+- do not auto-publish fresh provider data before review/publish workflows are in place
+- do not treat health checking as a post-launch nice-to-have
