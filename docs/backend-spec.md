@@ -215,4 +215,5 @@ When `reference-assets/backend.md` and tracked docs diverge, tracked docs win. N
 
 - `docs/architecture.md`
 - `docs/roadmap.md`
+- `docs/backend-delivery-workflow.md`
 - `task.md`

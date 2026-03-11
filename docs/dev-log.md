@@ -3,6 +3,7 @@
 2026-03-10
 
 Coordinator:
+- Added `docs/backend-delivery-workflow.md` as the fixed execution guide from the accepted Round F baseline to the full `backend.md` target, documenting current completion level, remaining workstreams, and the non-ad-hoc delivery rule
 - Promoted `reference-assets/backend.md` into tracked `docs/backend-spec.md` so backend planning is no longer anchored to an untracked reference file
 - Added a README entry point for the backend spec before starting backend-phase implementation work
 - Switched the active task from Round A to Round B and aligned the next implementation sequence to `planner -> media-ingest -> data-catalog -> reviewer`

@@ -8,6 +8,8 @@ The active direction is no longer just shell replication. The next milestone is 
 
 Versioning follows the project rules in [docs/versioning.md](/Users/livefree/projects/media-website-v2/docs/versioning.md).
 
+Backend delivery and completion workflow is tracked in [docs/backend-delivery-workflow.md](/Users/livefree/projects/media-website-v2/docs/backend-delivery-workflow.md).
+
 ## Goals
 
 Reproduce the following structure:
