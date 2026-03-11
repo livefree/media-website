@@ -28,21 +28,34 @@ Data Catalog
 - Defines MediaItem type
 - Generates mock dataset
 
+Backend-phase reinterpretation:
+- Owns canonical catalog backend
+- Owns Prisma evolution, repositories, published catalog reads, shared backend contracts, and search inputs
+
 Media Ingest
 
 - Scans local media library drop folders
 - Builds deterministic staging manifests
 - Captures local technical metadata before enrichment
 
+Backend-phase reinterpretation:
+- Owns provider adapters, raw payload capture, ingest jobs, checkpoints, staging models, and normalization inputs
+
 Search Filter
 
 - Implements query parameter search
 - Filtering and pagination
 
+Backend-phase reinterpretation:
+- Owns catalog-backed search/filter API integration and indexing behavior once public catalog serving moves off seed-backed route-local logic
+
 Detail Player
 
 - Detail page
 - Player shell
+
+Backend-phase reinterpretation:
+- Owns detail/watch integration against published catalog and health-aware source state
 
 Reviewer
 
@@ -50,6 +63,9 @@ Reviewer
 - Does not change architecture
 - Validates against the active task acceptance checklist and calls out regressions before merge
 - Owns runtime validation for interaction-heavy surfaces and may use browser QA tooling to verify real behavior before merge
+
+Backend-phase reinterpretation:
+- Expands into backend workflow acceptance, including staging isolation, review/publish rules, schema/contract drift, source health fallback behavior, and admin-flow acceptance
 
 ## File Ownership
 
@@ -214,11 +230,43 @@ Coordinator integration loop:
 3. verify the integration branch is the new source for downstream work
 4. only then assign the next dependent agent task
 
+## Backend Phase Workflow
+
+The project is now in a backend-first phase. The default major-round order is:
+
+1. Round A: backend monolith foundation
+   - `planner -> data-catalog -> reviewer`
+
+2. Round B: provider adapter and staging schema
+   - `planner -> media-ingest -> data-catalog -> reviewer`
+
+3. Round C: normalization and dedup pipeline
+   - `planner -> media-ingest -> data-catalog -> reviewer`
+
+4. Round D: review and publish workflow
+   - `planner -> data-catalog -> ui-shell -> reviewer`
+   - `ui-shell` participates only when an admin/operator surface is required
+
+5. Round E: canonical catalog serving
+   - `planner -> data-catalog -> search-filter -> detail-player -> reviewer`
+
+6. Round F: source management and healthcheck
+   - `planner -> media-ingest -> data-catalog -> detail-player -> reviewer`
+
+Backend-phase workflow rules:
+
+- Every external provider must enter through an adapter owned by `media-ingest`
+- Every ingest flow must land in staging first
+- No staged candidate becomes public without explicit review/publish logic
+- Public browse/search/detail/watch must consume published catalog data only
+- Source health and degradation state must be modeled before runtime fallback logic is considered complete
+- `ui-shell` is no longer the default next step; it is pulled in only when operator/admin surfaces are required
+
 ## Versioning Rules
 
 Current project version:
 
-`0.7.0`
+`0.8.6`
 
 Versioning model:
 

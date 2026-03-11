@@ -229,6 +229,7 @@ Coordinator:
 - Expanded `README.md` with a module responsibility diagram, current runtime architecture diagram, database-layer structure diagram, and end-to-end platform flow so the repository front page now documents project structure and delivery logic directly
 - Opened `Catalog Withdrawal Round 1` to remove all currently listed titles from the runtime catalog before backend development continues
 - Promoted the accepted catalog withdrawal work to version `0.8.6` under the project semver rules as a patch-level catalog-state and documentation refinement
+- Updated `AGENTS.md` for the backend-first phase so existing specialist agents now map cleanly onto provider adapters, staging ingestion, canonical catalog backend, search integration, published-source watch integration, and backend workflow acceptance
 
 Data Catalog:
 - Added an explicit optional `episodeCountLabel` to the shared browse-card contract and builder so UI Shell can render compact series/anime episode counts directly without deriving them from the legacy stats pill structure
