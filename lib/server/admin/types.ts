@@ -1,5 +1,6 @@
 import "server-only";
 
+import type { MigrationPreflightRecord } from "../../db/migration-safety";
 import type {
   PublishedMediaStatus,
   PublishedMediaType,
@@ -70,6 +71,12 @@ export interface AdminRepairQueuePageRecord {
   appliedFilters: RepairQueueQuery;
   summary: AdminRepairQueueSummary;
   items: AdminRepairQueueItemRecord[];
+}
+
+export interface AdminMigrationSafetyPageRecord {
+  title: string;
+  description: string;
+  preflight: MigrationPreflightRecord;
 }
 
 export interface AdminQueueFailureMonitoringSummary {
@@ -292,6 +299,7 @@ export interface AdminPublishedCatalogDetailRecord {
 
 export interface AdminBackendDependencies {
   catalog: {
+    getPublishedCatalogMigrationPreflight(): Promise<MigrationPreflightRecord>;
     queryAdminPublishedCatalog(query?: AdminPublishedCatalogQuery): Promise<AdminPublishedCatalogPageRecord>;
     getAdminPublishedCatalogDetailByPublicId(publicId: string): Promise<AdminPublishedCatalogDetailRecord | null>;
   };

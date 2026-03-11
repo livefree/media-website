@@ -5,6 +5,7 @@ import {
   acknowledgeAdminModerationReport,
   createAdminManualSourceSubmission,
   createAdminManualTitleSubmission,
+  getAdminMigrationSafetyPage,
   dismissAdminModerationReport,
   getAdminManualSourceSubmissionDetailByPublicId,
   getAdminManualSourceSubmissionPage,
@@ -516,6 +517,7 @@ function createManualSourceSubmissionDetail(
 
 function createDependencies() {
   const calls = {
+    getPublishedCatalogMigrationPreflight: 0,
     queryAdminPublishedCatalog: [] as Array<Record<string, unknown> | undefined>,
     getAdminPublishedCatalogDetailByPublicId: [] as string[],
     listModerationReports: [] as Array<Record<string, unknown> | undefined>,
@@ -538,6 +540,29 @@ function createDependencies() {
 
   const dependencies: AdminBackendDependencies = {
     catalog: {
+      async getPublishedCatalogMigrationPreflight() {
+        calls.getPublishedCatalogMigrationPreflight += 1;
+        return {
+          target: "published_catalog_runtime",
+          status: "ready",
+          reasonCode: "ready",
+          summary: "Published catalog runtime is ready.",
+          expectedSchemaDigest: "digest-123",
+          checkedAt: new Date("2026-03-11T12:00:00.000Z"),
+          metadata: {
+            target: "published_catalog_runtime",
+            schemaDigest: "digest-123",
+            rolloutState: "ready",
+            summary: "Published catalog runtime is ready.",
+            updatedBy: "operator-1",
+            metadata: {
+              rolloutTicket: "ops-123",
+            },
+            createdAt: new Date("2026-03-11T10:00:00.000Z"),
+            updatedAt: new Date("2026-03-11T11:00:00.000Z"),
+          },
+        };
+      },
       async queryAdminPublishedCatalog(query) {
         calls.queryAdminPublishedCatalog.push(query);
         return {
@@ -870,6 +895,17 @@ test("getAdminPublishedCatalogManagementPage returns operator-facing published c
   assert.equal(page.summary.totalItems, 2);
   assert.equal(page.summary.titlesWithRepairs, 1);
   assert.equal(page.items[0]?.publicId, "med_public_1");
+});
+
+test("getAdminMigrationSafetyPage exposes privileged migration preflight visibility", async () => {
+  const { calls, dependencies } = createDependencies();
+  const page = await getAdminMigrationSafetyPage(dependencies);
+
+  assert.equal(calls.getPublishedCatalogMigrationPreflight, 1);
+  assert.equal(page.title, "Migration Safety");
+  assert.equal(page.preflight.status, "ready");
+  assert.equal(page.preflight.metadata?.rolloutState, "ready");
+  assert.equal(page.preflight.metadata?.metadata?.rolloutTicket, "ops-123");
 });
 
 test("getAdminPublishedCatalogManagementDetailByPublicId returns operator detail or null", async () => {
@@ -1219,4 +1255,16 @@ test("queue failure monitoring denies underprivileged viewer access before triag
   });
 
   assert.equal(calls.listAdminQueueFailures.length, 0);
+});
+
+test("migration safety visibility denies underprivileged viewer access before backend dependencies are invoked", async () => {
+  const { calls, dependencies } = createDependencies();
+
+  await withAdminAccessStub("viewer", async () => {
+    await assert.rejects(() => getAdminMigrationSafetyPage(dependencies), {
+      message: "The current identity does not have sufficient admin privileges.",
+    });
+  });
+
+  assert.equal(calls.getPublishedCatalogMigrationPreflight, 0);
 });
