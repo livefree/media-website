@@ -7,6 +7,8 @@ import type {
   PublishedSeasonRecord,
 } from "../catalog";
 import type {
+  AdminQueueFailureItemRecord,
+  AdminQueueFailureQuery,
   AdminRepairQueueItemRecord,
   RepairQueueQuery,
   RepairQueueStatus,
@@ -68,6 +70,23 @@ export interface AdminRepairQueuePageRecord {
   appliedFilters: RepairQueueQuery;
   summary: AdminRepairQueueSummary;
   items: AdminRepairQueueItemRecord[];
+}
+
+export interface AdminQueueFailureMonitoringSummary {
+  totalItems: number;
+  failedItems: number;
+  retryingItems: number;
+  providerPageIngestItems: number;
+  sourceRefreshItems: number;
+  sourceProbeItems: number;
+}
+
+export interface AdminQueueFailureMonitoringPageRecord {
+  title: string;
+  description: string;
+  appliedFilters: AdminQueueFailureQuery;
+  summary: AdminQueueFailureMonitoringSummary;
+  items: AdminQueueFailureItemRecord[];
 }
 
 export interface AdminRepairQueueActionRequest {
@@ -310,6 +329,7 @@ export interface AdminBackendDependencies {
     ): Promise<ManualSourceSubmissionDetailRecord>;
   };
   health: {
+    listAdminQueueFailures(query?: AdminQueueFailureQuery): Promise<AdminQueueFailureItemRecord[]>;
     listAdminRepairQueue(query?: RepairQueueQuery): Promise<AdminRepairQueueItemRecord[]>;
     updateRepairQueueEntryStatus(entryId: string, input: RepairQueueStatusUpdateInput): Promise<unknown>;
   };

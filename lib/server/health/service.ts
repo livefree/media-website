@@ -5,6 +5,8 @@ import { requirePrivilegedAdminAccess } from "../admin/access";
 import { createDefaultSourceHealthRepository } from "../../db/repositories/health";
 
 import type {
+  AdminQueueFailureItemRecord,
+  AdminQueueFailureQuery,
   AdminRepairQueueItemRecord,
   PersistSourceProbeHealthRequest,
   PersistSourceRefreshHealthRequest,
@@ -29,6 +31,11 @@ export async function persistSourceProbeHealth(
 
 export async function listRepairQueue(statuses?: RepairQueueStatus[]): Promise<RepairQueueEntryRecord[]> {
   return createDefaultSourceHealthRepository().listRepairQueue(statuses);
+}
+
+export async function listAdminQueueFailures(query?: AdminQueueFailureQuery): Promise<AdminQueueFailureItemRecord[]> {
+  requirePrivilegedAdminAccess("operator");
+  return createDefaultSourceHealthRepository().listAdminQueueFailures(query);
 }
 
 export async function listAdminRepairQueue(query?: RepairQueueQuery): Promise<AdminRepairQueueItemRecord[]> {
