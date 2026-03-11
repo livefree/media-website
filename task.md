@@ -40,6 +40,8 @@ Required execution order for this task:
 Scope for this round:
 - Establish the first explicit observability, security, and launch-hardening slice on top of the accepted provider, catalog, source, and admin backend foundation described in `docs/backend-spec.md`, `docs/roadmap.md`, and `docs/backend-delivery-workflow.md`
 - Implement one narrow hardening slice at a time rather than broad platform-wide changes in a single pass
+- Current hardening slice: `Workstream 4 / Slice 2: Admin Access Control And Route Hardening`
+- This slice is mapped to the `RBAC / auth hardening` deliverable under Workstream 4 in `docs/backend-delivery-workflow.md` and Phase 8 in `docs/roadmap.md`
 - Owned surfaces:
   - Planner: architecture, roadmap alignment, round-specific handoff docs
   - Data Catalog: Prisma/schema only if narrowly required, `lib/db/`, `lib/server/admin/`, `lib/server/health/`, `lib/server/catalog/`, and related shared backend support for the selected hardening slice
@@ -61,6 +63,7 @@ Acceptance criteria:
 Current user-requested improvement to implement:
 1. Continue using the fixed backend workflow without ad hoc phases
 2. Continue into the next fixed work package from `docs/backend-delivery-workflow.md`
+3. Harden admin and operator-facing surfaces with explicit access-control boundaries before broader launch hardening slices
 
 Current baseline:
 - Round A monolith foundations are present under `lib/server/` and `lib/db/`
@@ -74,4 +77,5 @@ Current baseline:
 - Workstream 2 / Slice 1 is accepted, so operator-facing source inventory and repair queue UI are now in place
 - Workstream 2 / Slice 2 is accepted, so operator-facing published catalog listing and inspection UI are now in place
 - Workstream 3 is accepted, so moderation/report handling and manual title/source submission workflows are now in place
-- The repo still lacks explicit observability, security hardening, and final launch-readiness slices
+- Workstream 4 / Slice 1 is accepted, so structured job execution telemetry and failure visibility are now in place for ingest, scheduled refresh, and source-probe flows
+- The repo still lacks explicit admin access hardening, broader hardening slices, and final launch-readiness work
