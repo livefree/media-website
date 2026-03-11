@@ -9,6 +9,7 @@ Coordinator:
 - Switched the active task from Round C to Round D and aligned the next implementation sequence to `planner -> data-catalog -> ui-shell -> reviewer`
 - Switched the active task from Round D to Round E and aligned the next implementation sequence to `planner -> data-catalog -> search-filter -> detail-player -> reviewer`
 - Recorded the first Round E reviewer rejection and expanded Round E follow-up scope to include `/lists`, `/list/[publicId]`, and homepage featured-list discovery, with the corrected execution order `planner -> data-catalog -> search-filter -> ui-shell -> detail-player -> reviewer`
+- Switched the active task from Round E to Round F and aligned the next implementation sequence to `planner -> media-ingest -> data-catalog -> detail-player -> reviewer` for source management and healthcheck
 
 Media Ingest:
 - Added the first server-only provider adapter contract, provider HTTP boundary, registry, and ingest orchestration entrypoints under `lib/server/provider/` and `lib/server/ingest/`, limiting outputs to staging-safe payloads, item fragments, and persistence plans instead of Prisma writes or canonical catalog logic
