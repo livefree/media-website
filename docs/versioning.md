@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.8.6`
+Current version: `0.9.0`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.8.6` an appropriate current milestone: the public runtime catalog has now been fully withdrawn ahead of backend work, the README documents the system structure more clearly, and the repository keeps the accepted watch/player URL model while shifting focus from demo catalog delivery to backend and ingestion preparation.
+That makes `0.9.0` an appropriate current milestone: the public browse, search, detail, watch, and list surfaces now resolve through published backend read boundaries instead of withdrawn seed-only runtime paths, while the platform still remains pre-launch because source operations, auth/session flows, health management, and broader production runtime concerns are not finished.
 
 ## Rules
 
@@ -30,9 +30,9 @@ That makes `0.8.6` an appropriate current milestone: the public runtime catalog 
 ## Practical Mapping
 
 - `0.8.x`
-  Current baseline with real public list pages, broader public-list discovery, canonical list-backed watch flows, stronger list-aware playback/queue context, and local demo-backed testing support on top of the existing prototype platform.
-- `0.9.0`
-  A later pre-launch milestone such as stronger database-backed catalog integration, authenticated user state, or admin/content operations becoming real product surfaces.
+  Baseline with public list pages, broader public-list discovery, canonical list-backed watch flows, stronger list-aware playback/queue context, and demo/runtime cleanup ahead of backend-first catalog work.
+- `0.9.x`
+  Current baseline with published-catalog-backed public browse/search/detail/watch/list serving in place, while source-health, auth, and broader production operations are still pending.
 - `1.0.0`
   First production-ready launch baseline.
 
