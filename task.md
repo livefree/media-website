@@ -40,9 +40,9 @@ Required execution order for this task:
 Scope for this round:
 - Continue the remaining provider-operationalization work packages from `docs/backend-delivery-workflow.md` on top of the accepted backend foundation
 - Implement one narrow provider-operationalization slice at a time rather than broad platform-wide changes in a single pass
-- Current operationalization slice: `Workstream 1 / Slice 3: Durable Worker Execution`
-- This slice is mapped to the remaining `Redis-backed or equivalent operational worker execution` deliverable under Workstream 1 in `docs/backend-delivery-workflow.md`
-- Current refinement status: Workstream 4 / Slice 5 is accepted and closed; this slice moves the provider pipeline closer to sustained unattended operation
+- Current operationalization slice: `Workstream 1 / Slice 4: Resumability And Checkpoint Hardening`
+- This slice is mapped to the remaining `checkpoint and resumability hardening` portion of the Workstream 1 exit gate in `docs/backend-delivery-workflow.md`
+- Current refinement status: Slice 3 is accepted and closed; this slice moves the provider pipeline from unattended execution toward resumable sustained operation
 - Owned surfaces:
   - Planner: architecture, roadmap alignment, round-specific handoff docs
   - Media Ingest: `lib/server/provider/`, `lib/server/ingest/`, job execution, worker/runtime support for the selected operationalization slice
@@ -65,6 +65,7 @@ Current user-requested improvement to implement:
 1. Continue using the fixed backend workflow without ad hoc phases
 2. Push the remaining backend multi-round tasks into `task.md`
 3. Continue auto-executing the tracked backend work packages until a real blocker occurs
+4. Continue through the remaining provider-operationalization exit-gate slices before returning to later control-plane/governance work
 
 Current baseline:
 - Round A monolith foundations are present under `lib/server/` and `lib/db/`
@@ -83,7 +84,8 @@ Current baseline:
 - Workstream 4 / Slice 3 is accepted, so operators now have a privileged queue-failure monitoring surface with deterministic UI coverage
 - Workstream 4 / Slice 4 is accepted, so published-catalog runtime now has deterministic migration preflight and fail-closed rollout guardrails
 - Workstream 4 / Slice 5 is accepted, so the repo now has one deterministic backend golden path across ingest staging, publish, published read, and watch/health contract validation
-- The repo still lacks provider operationalization exit-gate slices, later control-plane/governance completion slices, and final launch-readiness work
+- Workstream 1 / Slice 3 is accepted, so the provider pipeline now supports durable unattended worker execution for queued provider jobs
+- The repo still lacks the remaining provider operationalization exit-gate slices, later control-plane/governance completion slices, and final launch-readiness work
 
 ## Remaining Backend Auto Queue
 
