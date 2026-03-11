@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.14.0`
+Current version: `0.15.0`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.14.0` an appropriate current milestone: the platform now has the first operator-facing published catalog management UI on top of the accepted provider execution, source-health, and published-catalog backend foundation, while it still remains pre-launch because moderation workflows, broader control-plane coverage, observability, and launch hardening are not finished.
+That makes `0.15.0` an appropriate current milestone: the platform now has operator-facing moderation/report handling and manual title/source submission workflows on top of the accepted provider execution, source-health, and published-catalog backend foundation, while it still remains pre-launch because observability, security hardening, and final launch-readiness work are not finished.
 
 ## Rules
 
@@ -43,6 +43,8 @@ That makes `0.14.0` an appropriate current milestone: the platform now has the f
   Current baseline with the first operator-facing source inventory and repair queue UI layered onto the accepted provider execution and source-health backend foundation.
 - `0.14.x`
   Current baseline with operator-facing published catalog listing and inspection layered onto the accepted review/publish and published-catalog backend foundation.
+- `0.15.x`
+  Current baseline with operator-facing moderation/report handling and manual title/source submission workflows layered onto the accepted admin/review/source backend foundation.
 - `1.0.0`
   First production-ready launch baseline.
 

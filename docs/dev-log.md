@@ -287,6 +287,7 @@ Coordinator:
 - Promoted the accepted `Workstream 1 / Slice 2: Scheduled Refresh And Probe Jobs` milestone to version `0.12.0` because the platform now has durable scheduled refresh/probe execution and offline-tested job-state handling on top of the real-provider ingest path
 - Promoted the accepted `Workstream 2 / Slice 1: Admin Source Inventory And Repair Queue UI` milestone to version `0.13.0` because the platform now has the first operator-facing source inventory and repair queue surfaces backed by real backend source/admin records
 - Promoted the accepted `Workstream 2 / Slice 2: Published Catalog Management UI` milestone to version `0.14.0` because the platform now has the first operator-facing published catalog listing and inspection surfaces backed by real backend catalog/admin records
+- Promoted the accepted `Workstream 3: Moderation And Manual Submission Workflows` milestone to version `0.15.0` because the platform now has operator-facing moderation/report handling and manual title/source submission workflows backed by real backend admin/review/source records
 
 Data Catalog:
 - Added an explicit optional `episodeCountLabel` to the shared browse-card contract and builder so UI Shell can render compact series/anime episode counts directly without deriving them from the legacy stats pill structure
