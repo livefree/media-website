@@ -7,12 +7,19 @@ import { ListQueuePanel } from "../../components/detail/ListQueuePanel";
 import { DetailSynopsis } from "../../components/detail/DetailSynopsis";
 import { DownloadResources } from "../../components/detail/DownloadResources";
 import { RelatedRecommendations } from "../../components/detail/RelatedRecommendations";
+import {
+  getStringParam,
+  getTimeSeconds,
+  mapPublishedDetailRecord,
+  mapPublishedList,
+  mapPublishedQueue,
+} from "../../components/detail/publishedCatalogAdapters";
 import styles from "../../components/detail/detail-page.module.css";
 import { Navbar } from "../../components/Navbar";
 import { EpisodeSelector } from "../../components/player/EpisodeSelector";
 import { PlayerShell } from "../../components/player/PlayerShell";
-import { getMediaDetailByPublicId, resolvePublicPlayback } from "../../lib/media-catalog";
-import { buildWatchHref } from "../../lib/media-utils";
+import { buildPublishedWatchHref } from "../../lib/server/catalog/identity";
+import { getPublishedCatalogDetailByPublicId, resolvePublishedCatalogWatch } from "../../lib/server/catalog/service";
 import type { DownloadResourceOption, MediaEpisodeOption, PlaybackSourceOption, PublicMediaListItem } from "../../types/media";
 
 type SourceNavigationOption = PlaybackSourceOption & {
@@ -23,14 +30,6 @@ type SourceNavigationOption = PlaybackSourceOption & {
 type RouteProps = {
   searchParams?: Record<string, string | string[] | undefined>;
 };
-
-function getStringParam(value: string | string[] | undefined): string | undefined {
-  if (Array.isArray(value)) {
-    return value[0];
-  }
-
-  return value;
-}
 
 function buildCanonicalWatchStateHref(
   baseState: {
@@ -44,7 +43,7 @@ function buildCanonicalWatchStateHref(
     resourcePublicId?: string | null;
   },
 ) {
-  return buildWatchHref({
+  return buildPublishedWatchHref({
     mediaPublicId: baseState.mediaPublicId,
     episodePublicId: updates.episodePublicId ?? undefined,
     resourcePublicId: updates.resourcePublicId ?? undefined,
@@ -136,16 +135,6 @@ function getDownloadOptionsForEpisode(downloads: DownloadResourceOption[], episo
   return matching.length > 0 ? matching : downloads;
 }
 
-function getTimeSeconds(searchParams: Record<string, string | string[] | undefined> | undefined) {
-  const raw = getStringParam(searchParams?.t);
-  if (!raw) {
-    return undefined;
-  }
-
-  const parsed = Number(raw);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
-}
-
 function getResolvedListItem(
   items: PublicMediaListItem[] | undefined,
   mediaPublicId: string,
@@ -191,44 +180,59 @@ export async function generateMetadata({ searchParams }: RouteProps): Promise<Me
     };
   }
 
-  const detail = getMediaDetailByPublicId(mediaPublicId);
-  if (!detail) {
+  const publishedDetail = await getPublishedCatalogDetailByPublicId(mediaPublicId);
+  if (!publishedDetail) {
     return {
       title: "Media not found | Media Atlas",
     };
   }
 
   return {
-    title: `${detail.media.title} | Media Atlas`,
-    description: detail.media.synopsis,
+    title: `${publishedDetail.media.title} | Media Atlas`,
+    description: publishedDetail.media.description ?? publishedDetail.media.summary,
   };
 }
 
-export default function WatchPage({ searchParams }: RouteProps) {
+export default async function WatchPage({ searchParams }: RouteProps) {
   const mediaPublicId = getStringParam(searchParams?.v);
   if (!mediaPublicId) {
     notFound();
   }
 
-  const detail = getMediaDetailByPublicId(mediaPublicId);
-  if (!detail) {
+  const requestedListPublicId = getStringParam(searchParams?.list);
+  const requestedListItemPublicRef = getStringParam(searchParams?.li);
+  const requestedEpisodePublicId = getStringParam(searchParams?.e);
+  const requestedResourcePublicId = getStringParam(searchParams?.r);
+  const timeSeconds = getTimeSeconds(searchParams);
+
+  const [publishedDetail, publishedWatch] = await Promise.all([
+    getPublishedCatalogDetailByPublicId(mediaPublicId),
+    resolvePublishedCatalogWatch({
+      mediaPublicId,
+      episodePublicId: requestedEpisodePublicId,
+      resourcePublicId: requestedResourcePublicId,
+      listPublicId: requestedListPublicId,
+      listItemPublicRef: requestedListItemPublicRef,
+      timeSeconds,
+    }),
+  ]);
+
+  if (!publishedDetail || !publishedWatch) {
     notFound();
   }
 
-  const activeEpisodePublicId = getActiveEpisodePublicId(detail.episodes, searchParams, detail.defaultEpisodePublicId);
-  const requestedListPublicId = getStringParam(searchParams?.list);
-  const requestedListItemPublicRef = getStringParam(searchParams?.li);
-  const timeSeconds = getTimeSeconds(searchParams);
-  const resolvedPlayback = resolvePublicPlayback({
-    mediaPublicId,
-    episodePublicId: activeEpisodePublicId,
-    resourcePublicId: getStringParam(searchParams?.r),
-    listPublicId: requestedListPublicId,
-    listItemPublicRef: requestedListItemPublicRef,
-  });
-  const resolvedList = resolvedPlayback?.list;
-  const resolvedQueue = resolvedPlayback?.queue;
-  const resolvedListItem = getResolvedListItem(resolvedList?.items, detail.media.publicId, activeEpisodePublicId, requestedListItemPublicRef);
+  const detail = mapPublishedDetailRecord(publishedDetail);
+  const resolvedList = publishedWatch.list ? mapPublishedList(publishedWatch.list) : undefined;
+  const resolvedQueue = publishedWatch.queue ? mapPublishedQueue(publishedWatch.queue) : undefined;
+  const activeEpisodePublicId =
+    publishedWatch.selectedEpisode?.publicId ??
+    getActiveEpisodePublicId(detail.episodes, searchParams, detail.defaultEpisodePublicId);
+  const resolvedListItem = getResolvedListItem(
+    resolvedList?.items,
+    detail.media.publicId,
+    activeEpisodePublicId,
+    publishedWatch.listItem?.publicRef ?? requestedListItemPublicRef,
+  );
   const baseWatchState = {
     mediaPublicId: detail.media.publicId,
     listPublicId: resolvedList?.publicId,
@@ -236,8 +240,10 @@ export default function WatchPage({ searchParams }: RouteProps) {
     timeSeconds,
   };
   const activePlaybackOptions = getPlaybackOptionsForEpisode(detail.playbackSources, activeEpisodePublicId);
-  const requestedResourcePublicId = getStringParam(searchParams?.r);
-  const activeSource = resolveActiveSource(activePlaybackOptions, requestedResourcePublicId);
+  const activeSource = resolveActiveSource(
+    activePlaybackOptions,
+    requestedResourcePublicId ?? publishedWatch.selectedResource?.publicId,
+  );
 
   const visibleDownloads = getDownloadOptionsForEpisode(detail.downloads, activeEpisodePublicId);
   const requestedDownloadResource = visibleDownloads.find((resource) => resource.publicId === requestedResourcePublicId);
@@ -245,7 +251,7 @@ export default function WatchPage({ searchParams }: RouteProps) {
   const resolvedResourcePublicId =
     requestedResourcePublicId && (hasRequestedPlaybackResource || requestedDownloadResource)
       ? requestedResourcePublicId
-      : undefined;
+      : activeSource?.publicId;
   const activeDownloadProvider = requestedDownloadResource?.provider ?? visibleDownloads[0]?.provider;
   const activeDownloads = activeDownloadProvider
     ? visibleDownloads.filter((resource) => resource.provider === activeDownloadProvider)

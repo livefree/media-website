@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
-import { getMediaDetail } from "../../../lib/media-catalog";
-import { buildWatchHref } from "../../../lib/media-utils";
+import { getStringParam, getTimeSeconds, mapPublishedDetailRecord } from "../../../components/detail/publishedCatalogAdapters";
+import { buildPublishedWatchHref } from "../../../lib/server/catalog/identity";
+import { getPublishedCatalogDetailBySlug } from "../../../lib/server/catalog/service";
 import type { DownloadResourceOption, MediaEpisodeOption, PlaybackSourceOption } from "../../../types/media";
 
 type RouteProps = {
@@ -12,89 +13,76 @@ type RouteProps = {
   searchParams?: Record<string, string | string[] | undefined>;
 };
 
-function getStringParam(value: string | string[] | undefined): string | undefined {
-  if (Array.isArray(value)) {
-    return value[0];
-  }
-
-  return value;
-}
-
 function getLegacyEpisode(
   episodes: MediaEpisodeOption[],
   searchParams: Record<string, string | string[] | undefined> | undefined,
-  defaultEpisodeSlug?: string,
+  defaultEpisodePublicId?: string,
 ) {
   const requestedEpisodeSlug = getStringParam(searchParams?.episode);
-  return episodes.find((episode) => episode.slug === requestedEpisodeSlug) ?? episodes.find((episode) => episode.slug === defaultEpisodeSlug);
+  return episodes.find((episode) => episode.slug === requestedEpisodeSlug) ?? episodes.find((episode) => episode.publicId === defaultEpisodePublicId);
 }
 
-function getPlaybackOptionsForEpisode(sources: PlaybackSourceOption[], episodeSlug?: string) {
-  if (!episodeSlug) {
-    return sources.filter((source) => !source.episodeSlug);
+function getPlaybackOptionsForEpisode(sources: PlaybackSourceOption[], episodePublicId?: string) {
+  if (!episodePublicId) {
+    return sources.filter((source) => !source.episodePublicId);
   }
 
-  const matching = sources.filter((source) => source.episodeSlug === episodeSlug || !source.episodeSlug);
+  const matching = sources.filter((source) => source.episodePublicId === episodePublicId || !source.episodePublicId);
   return matching.length > 0 ? matching : sources;
 }
 
-function getDownloadOptionsForEpisode(downloads: DownloadResourceOption[], episodeSlug?: string) {
-  if (!episodeSlug) {
+function getDownloadOptionsForEpisode(downloads: DownloadResourceOption[], episodePublicId?: string) {
+  if (!episodePublicId) {
     return downloads;
   }
 
-  const matching = downloads.filter((resource) => resource.episodeSlug === episodeSlug || !resource.episodeSlug);
+  const matching = downloads.filter((resource) => resource.episodePublicId === episodePublicId || !resource.episodePublicId);
   return matching.length > 0 ? matching : downloads;
 }
 
 export async function generateMetadata({ params }: RouteProps): Promise<Metadata> {
-  const detail = getMediaDetail(params.slug);
+  const publishedDetail = await getPublishedCatalogDetailBySlug(params.slug);
 
-  if (!detail) {
+  if (!publishedDetail) {
     return {
       title: "Media not found | Media Atlas",
     };
   }
 
   return {
-    title: `${detail.media.title} | Media Atlas`,
-    description: detail.media.synopsis,
+    title: `${publishedDetail.media.title} | Media Atlas`,
+    description: publishedDetail.media.description ?? publishedDetail.media.summary,
   };
 }
 
-export default function MediaDetailCompatibilityPage({ params, searchParams }: RouteProps) {
-  const detail = getMediaDetail(params.slug);
-  if (!detail) {
+export default async function MediaDetailCompatibilityPage({ params, searchParams }: RouteProps) {
+  const publishedDetail = await getPublishedCatalogDetailBySlug(params.slug);
+  if (!publishedDetail) {
     notFound();
   }
 
-  const activeEpisode = getLegacyEpisode(detail.episodes, searchParams, detail.defaultEpisodeSlug);
-  const activePlaybackOptions = getPlaybackOptionsForEpisode(detail.playbackSources, activeEpisode?.slug);
+  const detail = mapPublishedDetailRecord(publishedDetail);
+  const activeEpisode = getLegacyEpisode(detail.episodes, searchParams, detail.defaultEpisodePublicId);
+  const activePlaybackOptions = getPlaybackOptionsForEpisode(detail.playbackSources, activeEpisode?.publicId);
   const requestedSourceId = getStringParam(searchParams?.source);
-  const requestedSource = activePlaybackOptions.find((source) => source.id === requestedSourceId);
+  const requestedSource = requestedSourceId
+    ? activePlaybackOptions.find((source) => source.id === requestedSourceId || source.publicId === requestedSourceId)
+    : undefined;
 
-  const visibleDownloads = getDownloadOptionsForEpisode(detail.downloads, activeEpisode?.slug);
+  const visibleDownloads = getDownloadOptionsForEpisode(detail.downloads, activeEpisode?.publicId);
   const requestedDownloadProvider = getStringParam(searchParams?.download);
   const requestedDownloadResource = requestedDownloadProvider
     ? visibleDownloads.find((resource) => resource.provider === requestedDownloadProvider)
     : undefined;
 
   redirect(
-    buildWatchHref({
+    buildPublishedWatchHref({
       mediaPublicId: detail.media.publicId,
       episodePublicId: activeEpisode?.publicId,
       resourcePublicId: requestedSource?.publicId ?? requestedDownloadResource?.publicId,
       listPublicId: getStringParam(searchParams?.list),
       listItemPublicRef: getStringParam(searchParams?.li),
-      timeSeconds: (() => {
-        const raw = getStringParam(searchParams?.t);
-        if (!raw) {
-          return undefined;
-        }
-
-        const parsed = Number(raw);
-        return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
-      })(),
+      timeSeconds: getTimeSeconds(searchParams),
     }),
   );
 }
