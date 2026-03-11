@@ -140,7 +140,7 @@ Mandatory execution pattern for player/detail refinements:
 
 Coordinator integration branch:
 
-`codex/coordinator-baseline`
+`main`
 
 Each agent should work in its own branch.
 
@@ -156,8 +156,8 @@ codex/review-layout
 
 Rules:
 
-- Do not commit directly to main
-- Each agent branch must start from the latest `codex/coordinator-baseline`
+- Coordinator owns integration on `main`
+- Each agent branch must start from the latest `main`
 - Each agent may run `git status`, create or switch to its own branch, stage changes, and create commits during its task
 - Each agent commits only files within its ownership scope
 - Each agent should make small, task-scoped commits with clear messages
@@ -213,7 +213,7 @@ docs(coordinator): standardize agent git workflow
 
 Suggested per-agent git loop:
 
-1. `git switch codex/coordinator-baseline`
+1. `git switch main`
 2. `git pull` if remote sync is part of the current workflow
 3. `git status`
 4. `git switch -c <agent-branch>` if the branch does not exist yet, otherwise recreate or refresh it from the latest integration branch as directed by the Coordinator
@@ -226,32 +226,27 @@ Suggested per-agent git loop:
 Coordinator integration loop:
 
 1. review the agent branch and confirm ownership boundaries were respected
-2. integrate accepted work into `codex/coordinator-baseline`
+2. integrate accepted work into `main`
 3. verify the integration branch is the new source for downstream work
 4. only then assign the next dependent agent task
 
 ## Backend Phase Workflow
 
-The project is now in a backend-first phase. The default major-round order is:
+Historical backend phases were completed as:
 
 1. Round A: backend monolith foundation
-   - `planner -> data-catalog -> reviewer`
-
 2. Round B: provider adapter and staging schema
-   - `planner -> media-ingest -> data-catalog -> reviewer`
-
 3. Round C: normalization and dedup pipeline
-   - `planner -> media-ingest -> data-catalog -> reviewer`
-
 4. Round D: review and publish workflow
-   - `planner -> data-catalog -> ui-shell -> reviewer`
-   - `ui-shell` participates only when an admin/operator surface is required
-
 5. Round E: canonical catalog serving
-   - `planner -> data-catalog -> search-filter -> detail-player -> reviewer`
-
 6. Round F: source management and healthcheck
-   - `planner -> media-ingest -> data-catalog -> detail-player -> reviewer`
+
+Active backend execution must now use only:
+
+- `Phase N` for roadmap milestones in `docs/roadmap.md`
+- `Workstream N / Slice M` for execution in `task.md`, handoffs, and reviewer acceptance
+
+Do not invent new top-level naming systems beyond those two.
 
 Backend-phase workflow rules:
 
@@ -266,7 +261,7 @@ Backend-phase workflow rules:
 
 Current project version:
 
-`0.8.6`
+`0.22.0`
 
 Versioning model:
 

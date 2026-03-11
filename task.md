@@ -95,15 +95,14 @@ The Coordinator should continue through the remaining backend work packages in t
 
 Current queued path after the active slice:
 
-1. `Workstream 4 / Slice 5: End-to-End Backend Validation Path`
-2. Remaining provider operationalization slices needed to reach the Workstream 1 exit gate:
-   - sustained worker execution
-   - resumability, throttling, retry, and checkpoint hardening
-3. Remaining operator-control slices needed to reach the Workstream 2 exit gate:
+1. Remaining provider operationalization slices needed to reach the Workstream 1 exit gate:
+   - throttling and retry hardening
+   - any remaining sustained execution / checkpoint completion work still uncovered after the active slice
+2. Remaining operator-control slices needed to reach the Workstream 2 exit gate:
    - operator mutation flows for source/catalog lifecycle where still missing
-4. Remaining governance slices needed to reach the Workstream 3 exit gate:
+3. Remaining governance slices needed to reach the Workstream 3 exit gate:
    - publish scheduling and visibility control
-5. Remaining hardening slices needed to reach the Workstream 4 exit gate:
+4. Remaining hardening slices needed to reach the Workstream 4 exit gate:
    - provider failure visibility and alert-ready signaling
    - recovery readiness, backup/restore guardrails, and final launch validation
 

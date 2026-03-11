@@ -32,7 +32,16 @@ The current accepted platform baseline includes:
 
 Current version baseline:
 
-- `0.10.0`
+- `0.22.0`
+
+## Naming Convention
+
+Use only these labels for backend execution going forward:
+
+- `Phase N` in [docs/roadmap.md](/Users/livefree/projects/media-website-v2/docs/roadmap.md)
+- `Workstream N / Slice M` in [task.md](/Users/livefree/projects/media-website-v2/task.md) and new handoff files
+
+`Round A-F` remains historical shorthand for the already completed backend baseline only. New work should not be named as new rounds.
 
 ## 2. Distance To The Backend Target
 
@@ -265,7 +274,7 @@ Exit gate:
 
 ## 8. Immediate Next Planned Sequence
 
-The next approved sequence after Round F should be:
+The next approved sequence after Round F was:
 
 1. Workstream 1, slice 1:
    real provider execution path for at least one target provider
@@ -281,6 +290,25 @@ The next approved sequence after Round F should be:
    observability, security, and launch hardening
 
 This sequence should not be reordered unless tracked docs are updated first.
+
+## 8A. Current Execution Position
+
+The accepted execution baseline now includes:
+
+- Workstream 1 / Slice 1
+- Workstream 1 / Slice 2
+- Workstream 1 / Slice 3
+- Workstream 1 / Slice 4
+- Workstream 2 / Slice 1
+- Workstream 2 / Slice 2
+- Workstream 3
+- Workstream 4 / Slice 1
+- Workstream 4 / Slice 2
+- Workstream 4 / Slice 3
+- Workstream 4 / Slice 4
+- Workstream 4 / Slice 5
+
+The currently active slice should always be read from [task.md](/Users/livefree/projects/media-website-v2/task.md), not inferred from this historical sequence.
 
 ## 9. Launch Gate
 
