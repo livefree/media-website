@@ -42,7 +42,7 @@ Scope for this round:
 - Implement one narrow operator-control slice at a time rather than broad platform-wide changes in a single pass
 - Current active slice: `Workstream 2 / Slice 3: Source And Catalog Lifecycle Mutations`
 - This slice is mapped to the remaining `reorder / replace / unpublish operations` portion of the Workstream 2 exit gate in `docs/backend-delivery-workflow.md` and `docs/roadmap.md`
-- Current refinement status: Workstream 1 exit gate is accepted and closed for one provider lane; Workstream 2 still lacks the operator mutation flows required to avoid direct DB edits for core catalog/source lifecycle management
+- Current refinement status: planner, backend, and admin UI implementation are integrated locally for this slice, and reviewer has confirmed the backend-backed reorder / replace / unpublish workflows are real; the only open follow-up is the planner-required deterministic UI coverage for the rendered operator mutation entry points and their narrow result-state wiring on `/admin/catalog/[publicId]`
 - Owned surfaces:
   - Planner: architecture, roadmap alignment, round-specific handoff docs
   - Data Catalog: `lib/db/`, `lib/server/catalog/`, `lib/server/source/`, `lib/server/admin/`, and schema support required for operator lifecycle actions in this slice
@@ -59,6 +59,7 @@ Acceptance criteria:
 - New support remains inside accepted backend boundaries and does not leak into public route logic
 - The implementation includes the necessary tests and remains buildable after this slice
 - No public route redesign, player work, or broader out-of-scope platform drift is introduced
+- The rendered operator mutation entry points for reorder / replace / unpublish have deterministic UI-level coverage, not just helper-level coverage
 
 Current user-requested improvement to implement:
 1. Continue using the fixed backend workflow without ad hoc phases
@@ -67,6 +68,7 @@ Current user-requested improvement to implement:
 4. Keep the queue fixed and advance directly to the next uncompleted work package after each accepted slice
 5. Keep documenting accepted backend milestones, testing coverage, and version bumps as the queue advances
 6. Continue through the remaining operator-control, governance, and hardening slices until the backend reaches an operator-ready state or a real blocker occurs
+7. For the current slice, close the reviewer-held gap by adding deterministic UI coverage for the actual admin mutation entry points before treating the slice as accepted
 
 Current baseline:
 - Round A monolith foundations are present under `lib/server/` and `lib/db/`
