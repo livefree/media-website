@@ -42,6 +42,7 @@ Scope for this round:
 - Implement one narrow hardening slice at a time rather than broad platform-wide changes in a single pass
 - Current hardening slice: `Workstream 4 / Slice 3: Queue Failure Monitoring And Operator Visibility`
 - This slice is mapped to the `metrics and alerts` plus `queue failure monitoring` deliverables under Workstream 4 in `docs/backend-delivery-workflow.md` and Phase 8 in `docs/roadmap.md`
+- Current refinement status: backend and privileged UI surface are implemented, but reviewer rejected acceptance pending deterministic UI coverage for `/admin/queue-failures`
 - Owned surfaces:
   - Planner: architecture, roadmap alignment, round-specific handoff docs
   - Data Catalog: Prisma/schema only if narrowly required, `lib/db/`, `lib/server/admin/`, `lib/server/health/`, `lib/server/catalog/`, and related shared backend support for the selected hardening slice
@@ -81,3 +82,4 @@ Current baseline:
 - Workstream 4 / Slice 1 is accepted, so structured job execution telemetry and failure visibility are now in place for ingest, scheduled refresh, and source-probe flows
 - Workstream 4 / Slice 2 is accepted, so existing admin/operator backend surfaces now require explicit server-side access control with correct `401`/`403` behavior
 - The repo still lacks queue failure monitoring, broader hardening slices, and final launch-readiness work
+- The active follow-up for Slice 3 is limited to the missing UI coverage required by the planner and reviewer; no backend contract redesign is authorized in this follow-up
