@@ -270,6 +270,7 @@ Coordinator:
 - Promoted the accepted `Canonical Catalog Serving Round E` milestone to version `0.9.0` because public browse/search/detail/watch/list surfaces now resolve through published backend read boundaries rather than withdrawn seed-only runtime paths
 - Promoted the accepted `Source Management And Healthcheck Round F` milestone to version `0.10.0` because the platform now has explicit source inventory, health state, repair-oriented backend flow, and health-aware watch-source resolution on top of the published-catalog backend
 - Promoted the accepted `Workstream 1 / Slice 1: Real Provider Execution Path` milestone to version `0.11.0` because the platform now has a concrete `jszyapi` provider adapter, an executable ingest path, and offline CI-safe adapter/ingest tests on top of the existing backend foundation
+- Promoted the accepted `Workstream 1 / Slice 2: Scheduled Refresh And Probe Jobs` milestone to version `0.12.0` because the platform now has durable scheduled refresh/probe execution and offline-tested job-state handling on top of the real-provider ingest path
 
 Data Catalog:
 - Added an explicit optional `episodeCountLabel` to the shared browse-card contract and builder so UI Shell can render compact series/anime episode counts directly without deriving them from the legacy stats pill structure
