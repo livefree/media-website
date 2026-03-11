@@ -1,5 +1,7 @@
 import "server-only";
 
+import { requirePrivilegedAdminAccess } from "./access";
+
 import type {
   AdminBackendDependencies,
   AdminManualSourceSubmissionPageRecord,
@@ -67,6 +69,7 @@ export async function getAdminPublishedCatalogManagementPage(
   query: AdminPublishedCatalogQuery = {},
   dependencies?: AdminBackendDependencies,
 ): Promise<AdminPublishedCatalogPageRecord> {
+  requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
   return resolvedDependencies.catalog.queryAdminPublishedCatalog(query);
 }
@@ -75,6 +78,7 @@ export async function getAdminPublishedCatalogManagementDetailByPublicId(
   publicId: string,
   dependencies?: AdminBackendDependencies,
 ): Promise<AdminPublishedCatalogDetailRecord | null> {
+  requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
   return resolvedDependencies.catalog.getAdminPublishedCatalogDetailByPublicId(publicId);
 }
@@ -129,6 +133,7 @@ export async function getAdminSourceInventoryPage(
   query: SourceInventoryQuery = {},
   dependencies?: AdminBackendDependencies,
 ): Promise<AdminSourceInventoryPageRecord> {
+  requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
   const items = await resolvedDependencies.source.listAdminSourceInventory(query);
 
@@ -145,6 +150,7 @@ export async function getAdminRepairQueuePage(
   query: RepairQueueQuery = {},
   dependencies?: AdminBackendDependencies,
 ): Promise<AdminRepairQueuePageRecord> {
+  requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
   const items = await resolvedDependencies.health.listAdminRepairQueue(query);
 
@@ -161,6 +167,7 @@ export async function getAdminModerationQueuePage(
   query: ModerationReportQuery = {},
   dependencies?: AdminBackendDependencies,
 ): Promise<AdminModerationQueuePageRecord> {
+  requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
   const items = await resolvedDependencies.review.listModerationReports(query);
 
@@ -177,6 +184,7 @@ export async function getAdminModerationReportDetailByPublicId(
   publicId: string,
   dependencies?: AdminBackendDependencies,
 ) {
+  requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
   return resolvedDependencies.review.getModerationReportDetailByPublicId(publicId);
 }
@@ -185,6 +193,7 @@ export async function acknowledgeAdminModerationReport(
   request: AdminModerationActionRequest,
   dependencies?: AdminBackendDependencies,
 ) {
+  requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
 
   return resolvedDependencies.review.updateModerationReportStatus(request.publicId, {
@@ -200,6 +209,7 @@ export async function resolveAdminModerationReport(
   request: AdminModerationActionRequest,
   dependencies?: AdminBackendDependencies,
 ) {
+  requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
 
   return resolvedDependencies.review.updateModerationReportStatus(request.publicId, {
@@ -215,6 +225,7 @@ export async function dismissAdminModerationReport(
   request: AdminModerationActionRequest,
   dependencies?: AdminBackendDependencies,
 ) {
+  requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
 
   return resolvedDependencies.review.updateModerationReportStatus(request.publicId, {
@@ -229,6 +240,7 @@ export async function getAdminManualTitleSubmissionPage(
   query: ManualTitleSubmissionQuery = {},
   dependencies?: AdminBackendDependencies,
 ): Promise<AdminManualTitleSubmissionPageRecord> {
+  requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
   const items = await resolvedDependencies.review.listManualTitleSubmissions(query);
 
@@ -245,6 +257,7 @@ export async function getAdminManualTitleSubmissionDetailByPublicId(
   publicId: string,
   dependencies?: AdminBackendDependencies,
 ) {
+  requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
   return resolvedDependencies.review.getManualTitleSubmissionDetailByPublicId(publicId);
 }
@@ -253,6 +266,7 @@ export async function createAdminManualTitleSubmission(
   input: CreateManualTitleSubmissionInput,
   dependencies?: AdminBackendDependencies,
 ) {
+  requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
   return resolvedDependencies.review.createManualTitleSubmission(input);
 }
@@ -269,6 +283,7 @@ export async function updateAdminManualTitleSubmissionStatus(
   },
   dependencies?: AdminBackendDependencies,
 ) {
+  requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
   return resolvedDependencies.review.updateManualTitleSubmissionStatus(publicId, input);
 }
@@ -277,6 +292,7 @@ export async function getAdminManualSourceSubmissionPage(
   query: ManualSourceSubmissionQuery = {},
   dependencies?: AdminBackendDependencies,
 ): Promise<AdminManualSourceSubmissionPageRecord> {
+  requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
   const items = await resolvedDependencies.source.listManualSourceSubmissions(query);
 
@@ -293,6 +309,7 @@ export async function getAdminManualSourceSubmissionDetailByPublicId(
   publicId: string,
   dependencies?: AdminBackendDependencies,
 ) {
+  requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
   return resolvedDependencies.source.getManualSourceSubmissionDetailByPublicId(publicId);
 }
@@ -301,6 +318,7 @@ export async function createAdminManualSourceSubmission(
   input: CreateManualSourceSubmissionInput,
   dependencies?: AdminBackendDependencies,
 ) {
+  requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
   return resolvedDependencies.source.createManualSourceSubmission(input);
 }
@@ -310,6 +328,7 @@ export async function updateAdminManualSourceSubmissionStatus(
   input: ManualSourceSubmissionStatusUpdateInput,
   dependencies?: AdminBackendDependencies,
 ) {
+  requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
   return resolvedDependencies.source.updateManualSourceSubmissionStatus(publicId, input);
 }
@@ -318,6 +337,7 @@ export async function acknowledgeAdminRepairQueueEntry(
   request: AdminRepairQueueActionRequest,
   dependencies?: AdminBackendDependencies,
 ) {
+  requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
 
   return resolvedDependencies.health.updateRepairQueueEntryStatus(request.entryId, {
@@ -331,6 +351,7 @@ export async function resolveAdminRepairQueueEntry(
   request: AdminRepairQueueActionRequest,
   dependencies?: AdminBackendDependencies,
 ) {
+  requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
 
   return resolvedDependencies.health.updateRepairQueueEntryStatus(request.entryId, {
@@ -344,6 +365,7 @@ export async function updateAdminSourceOrdering(
   updates: SourceOrderingUpdate[],
   dependencies?: AdminBackendDependencies,
 ) {
+  requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
 
   return resolvedDependencies.source.updateSourceOrdering(updates);

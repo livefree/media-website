@@ -9,5 +9,6 @@ export const adminModule = defineServerModule({
   dependsOn: ["config", "catalog", "review", "source", "health", "search"],
 });
 
+export * from "./access";
 export * from "./types";
 export * from "./service";

@@ -1,5 +1,7 @@
 import "server-only";
 
+import { requirePrivilegedAdminAccess } from "../admin/access";
+
 import { createDefaultPublishedCatalogRepository } from "../../db/repositories/catalog";
 import type {
   AdminPublishedCatalogDetailRecord,
@@ -24,6 +26,7 @@ export async function getPublishedCatalogPage(input: PublishedCatalogQueryInput)
 }
 
 export async function getAdminPublishedCatalogPage(input: AdminPublishedCatalogQuery = {}): Promise<AdminPublishedCatalogPageRecord> {
+  requirePrivilegedAdminAccess("operator");
   return createDefaultPublishedCatalogRepository().queryAdminPublishedCatalog(input);
 }
 
@@ -36,6 +39,7 @@ export async function getPublishedCatalogDetailByPublicId(publicId: string): Pro
 }
 
 export async function getAdminPublishedCatalogDetailByPublicId(publicId: string): Promise<AdminPublishedCatalogDetailRecord | null> {
+  requirePrivilegedAdminAccess("operator");
   return createDefaultPublishedCatalogRepository().getAdminPublishedCatalogDetailByPublicId(publicId);
 }
 

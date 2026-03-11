@@ -33,6 +33,38 @@ import type {
   AdminPublishedCatalogListItemRecord,
 } from "./types";
 
+process.env.ADMIN_ACCESS_STUB_ROLE = "operator";
+process.env.ADMIN_ACCESS_STUB_ACTOR_ID = "operator-test";
+
+async function withAdminAccessStub<T>(role: string | undefined, fn: () => Promise<T>) {
+  const previousRole = process.env.ADMIN_ACCESS_STUB_ROLE;
+  const previousActorId = process.env.ADMIN_ACCESS_STUB_ACTOR_ID;
+
+  if (role) {
+    process.env.ADMIN_ACCESS_STUB_ROLE = role;
+    process.env.ADMIN_ACCESS_STUB_ACTOR_ID = `${role}-test`;
+  } else {
+    delete process.env.ADMIN_ACCESS_STUB_ROLE;
+    delete process.env.ADMIN_ACCESS_STUB_ACTOR_ID;
+  }
+
+  try {
+    return await fn();
+  } finally {
+    if (previousRole) {
+      process.env.ADMIN_ACCESS_STUB_ROLE = previousRole;
+    } else {
+      delete process.env.ADMIN_ACCESS_STUB_ROLE;
+    }
+
+    if (previousActorId) {
+      process.env.ADMIN_ACCESS_STUB_ACTOR_ID = previousActorId;
+    } else {
+      delete process.env.ADMIN_ACCESS_STUB_ACTOR_ID;
+    }
+  }
+}
+
 function createSourceItem(overrides: Partial<AdminSourceInventoryItemRecord> = {}): AdminSourceInventoryItemRecord {
   return {
     id: "resource-1",
@@ -1017,4 +1049,28 @@ test("updateAdminSourceOrdering forwards the existing backend ordering boundary"
   );
 
   assert.equal(calls.updateSourceOrdering.length, 1);
+});
+
+test("admin service denies anonymous access before backend dependencies are invoked", async () => {
+  const { calls, dependencies } = createDependencies();
+
+  await withAdminAccessStub(undefined, async () => {
+    await assert.rejects(() => getAdminPublishedCatalogManagementPage({}, dependencies), {
+      message: "Admin access requires an authenticated operator or admin identity.",
+    });
+  });
+
+  assert.equal(calls.queryAdminPublishedCatalog.length, 0);
+});
+
+test("admin service denies underprivileged viewer access before backend dependencies are invoked", async () => {
+  const { calls, dependencies } = createDependencies();
+
+  await withAdminAccessStub("viewer", async () => {
+    await assert.rejects(() => getAdminRepairQueuePage({}, dependencies), {
+      message: "The current identity does not have sufficient admin privileges.",
+    });
+  });
+
+  assert.equal(calls.listAdminRepairQueue.length, 0);
 });

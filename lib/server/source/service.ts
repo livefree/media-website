@@ -1,5 +1,6 @@
 import "server-only";
 
+import { requirePrivilegedAdminAccess } from "../admin/access";
 import { BackendError } from "../errors";
 import { runInTransaction } from "../../db/transactions";
 import { createDefaultSourceInventoryRepository } from "../../db/repositories/source";
@@ -23,6 +24,7 @@ export async function listSourceInventory(filters?: SourceInventoryQuery): Promi
 }
 
 export async function listAdminSourceInventory(filters?: SourceInventoryQuery): Promise<AdminSourceInventoryItemRecord[]> {
+  requirePrivilegedAdminAccess("operator");
   return createDefaultSourceInventoryRepository().listAdminSourceInventory(filters);
 }
 
@@ -35,6 +37,7 @@ export async function upsertSourceInventory(input: UpsertSourceInventoryInput): 
 }
 
 export async function updateSourceOrdering(updates: SourceOrderingUpdate[]): Promise<SourceInventoryRecord[]> {
+  requirePrivilegedAdminAccess("operator");
   return createDefaultSourceInventoryRepository().updateSourceOrdering(updates);
 }
 
@@ -80,18 +83,21 @@ function manualSourceActionSummary(status: ManualSourceSubmissionStatusUpdateInp
 export async function listManualSourceSubmissions(
   query: ManualSourceSubmissionQuery = {},
 ): Promise<ManualSourceSubmissionRecord[]> {
+  requirePrivilegedAdminAccess("operator");
   return createDefaultSourceInventoryRepository().listManualSourceSubmissions(query);
 }
 
 export async function getManualSourceSubmissionDetailByPublicId(
   publicId: string,
 ): Promise<ManualSourceSubmissionDetailRecord | null> {
+  requirePrivilegedAdminAccess("operator");
   return createDefaultSourceInventoryRepository().getManualSourceSubmissionDetailByPublicId(publicId);
 }
 
 export async function createManualSourceSubmission(
   input: CreateManualSourceSubmissionInput,
 ): Promise<ManualSourceSubmissionDetailRecord> {
+  requirePrivilegedAdminAccess("operator");
   validateManualSourceSubmissionInput(input);
 
   return runInTransaction(
@@ -133,6 +139,7 @@ export async function updateManualSourceSubmissionStatus(
   publicId: string,
   input: ManualSourceSubmissionStatusUpdateInput,
 ): Promise<ManualSourceSubmissionDetailRecord> {
+  requirePrivilegedAdminAccess("operator");
   return runInTransaction(
     {
       name: "source.updateManualSourceSubmissionStatus",

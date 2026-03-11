@@ -1,5 +1,7 @@
 import "server-only";
 
+import { requirePrivilegedAdminAccess } from "../admin/access";
+
 import { createDefaultSourceHealthRepository } from "../../db/repositories/health";
 
 import type {
@@ -30,6 +32,7 @@ export async function listRepairQueue(statuses?: RepairQueueStatus[]): Promise<R
 }
 
 export async function listAdminRepairQueue(query?: RepairQueueQuery): Promise<AdminRepairQueueItemRecord[]> {
+  requirePrivilegedAdminAccess("operator");
   return createDefaultSourceHealthRepository().listAdminRepairQueue(query);
 }
 
@@ -37,5 +40,6 @@ export async function updateRepairQueueEntryStatus(
   entryId: string,
   input: RepairQueueStatusUpdateInput,
 ): Promise<RepairQueueEntryRecord> {
+  requirePrivilegedAdminAccess("operator");
   return createDefaultSourceHealthRepository().updateRepairQueueEntryStatus(entryId, input);
 }
