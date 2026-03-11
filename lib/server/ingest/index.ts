@@ -8,3 +8,6 @@ export const ingestModule = defineServerModule({
   owns: ["ingest jobs", "raw payload intake", "sync checkpoints", "retry and throttle policy"],
   dependsOn: ["config", "provider"],
 });
+
+export * from "./types";
+export * from "./service";

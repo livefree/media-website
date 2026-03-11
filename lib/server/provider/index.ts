@@ -8,3 +8,8 @@ export const providerModule = defineServerModule({
   owns: ["adapter contracts", "provider-specific fetchers", "provider normalization helpers"],
   dependsOn: ["config"],
 });
+
+export * from "./types";
+export * from "./http";
+export * from "./registry";
+export * from "./adapter";
