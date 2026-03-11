@@ -7,6 +7,7 @@ Media Ingest:
 - Extended offline-safe ingest job tests to verify structured success, failure, and repeated-attempt telemetry for page ingest plus refresh/probe job flows using the existing provider/job boundaries
 
 UI Shell:
+- Added deterministic helper-driven UI coverage for `/admin/queue-failures`, using the repo's existing lightweight admin helper-test pattern to assert populated triage rendering, empty-state rendering, and stable privileged-page shape without reopening backend scope or adding a new test platform
 - Added operator-only `/admin/moderation` queue and `/admin/moderation/[publicId]` detail surfaces, wired through `lib/server/admin` moderation contracts with backend-backed filtering, report inspection, action history, and narrow acknowledge/resolve/dismiss controls instead of route-local workflow logic
 - Added operator-only `/admin/manual-titles` and `/admin/manual-sources` submission surfaces, including manual intake forms, backend-backed queue filters, selected-submission inspection, and narrow status-update controls that stay inside the accepted admin/review/source workflow boundaries
 - Added shared Workstream 3 admin route-state helpers plus deterministic helper tests for moderation/manual-submission filter parsing, selected-item return navigation, and safe route-only redirect normalization
