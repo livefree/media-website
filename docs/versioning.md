@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.19.0`
+Current version: `0.20.0`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.19.0` an appropriate current milestone: the platform now layers accepted migration-safety preflight checks, explicit rollout-state handling, and fail-closed published-catalog guardrails on top of the operator-visible monitoring and admin access foundation, while it still remains pre-launch because broader hardening, security, and final launch-readiness work are not finished.
+That makes `0.20.0` an appropriate current milestone: the platform now layers one accepted deterministic backend golden-path validation chain on top of migration safety, operator monitoring, and the published-catalog foundation, so cross-boundary regressions are detectable without falling back to manual backend spot checks, while it still remains pre-launch because provider operationalization, recovery readiness, and final launch-hardening work are not finished.
 
 ## Rules
 
@@ -53,6 +53,8 @@ That makes `0.19.0` an appropriate current milestone: the platform now layers ac
   Current baseline with privileged queue-failure monitoring, triage-friendly ingest telemetry, and deterministic UI coverage for the narrow operator-facing queue failure surface.
 - `0.19.x`
   Current baseline with deterministic migration preflight checks, privileged migration safety visibility, and fail-closed published-catalog rollout guardrails.
+- `0.20.x`
+  Current baseline with one deterministic offline-safe backend golden path covering ingest staging through publish, published read, and watch/health contract validation.
 - `1.0.0`
   First production-ready launch baseline.
 
