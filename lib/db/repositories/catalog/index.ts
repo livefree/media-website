@@ -31,6 +31,7 @@ import type {
   PublishedListQueueItem,
   PublishedListQueueRecord,
   PublishedListRecord,
+  PublishedListSummaryRecord,
   PublishedMediaIdentityRecord,
   PublishedMediaStatus,
   PublishedMediaType,
@@ -503,7 +504,46 @@ function buildPublishedListQueue(list: PublishedListRecord, currentPublicRef?: s
   };
 }
 
-function mapPublishedList(list: PublishedListPayload): PublishedListRecord {
+function mapPublishedListSummary(list: PublishedListPayload): PublishedListSummaryRecord | null {
+  const firstPublishedItem = list.items.find((item) => item.publicRef && item.media.publishedAt);
+
+  if (!list.publicId || !firstPublishedItem) {
+    return null;
+  }
+
+  const posterUrl =
+    firstPublishedItem.media.artwork.find((art) => art.kind === "POSTER" && art.isPrimary)?.url ??
+    firstPublishedItem.media.artwork.find((art) => art.kind === "POSTER")?.url ??
+    null;
+  const backdropUrl =
+    firstPublishedItem.media.artwork.find((art) => art.kind === "BACKDROP" && art.isPrimary)?.url ??
+    firstPublishedItem.media.artwork.find((art) => art.kind === "BACKDROP")?.url ??
+    posterUrl;
+  const itemCount = list.items.filter((item) => item.publicRef && item.media.publishedAt).length;
+
+  return {
+    id: list.id,
+    publicId: list.publicId,
+    title: list.name,
+    description: list.description,
+    canonicalListHref: buildPublishedListHref(list.publicId),
+    shareHref: buildPublishedListHref(list.publicId),
+    shareTitle: list.name,
+    shareDescription: list.description ?? `A curated list with ${itemCount} published titles.`,
+    itemCount,
+    itemCountLabel: buildPublishedListCountLabel(itemCount),
+    coverPosterUrl: posterUrl,
+    coverBackdropUrl: backdropUrl,
+  };
+}
+
+function mapPublishedList(list: PublishedListPayload): PublishedListRecord | null {
+  const summary = mapPublishedListSummary(list);
+
+  if (!summary) {
+    return null;
+  }
+
   const items = list.items
     .filter((item) => item.publicRef && item.media.publishedAt)
     .map((item, index, source) => {
@@ -618,18 +658,7 @@ function mapPublishedList(list: PublishedListPayload): PublishedListRecord {
     });
 
   return {
-    id: list.id,
-    publicId: list.publicId!,
-    title: list.name,
-    description: list.description,
-    canonicalListHref: buildPublishedListHref(list.publicId!),
-    shareHref: buildPublishedListHref(list.publicId!),
-    shareTitle: list.name,
-    shareDescription: list.description ?? `A curated list with ${items.length} published titles.`,
-    itemCount: items.length,
-    itemCountLabel: buildPublishedListCountLabel(items.length),
-    coverPosterUrl: items[0]?.posterUrl ?? null,
-    coverBackdropUrl: items[0]?.posterUrl ?? null,
+    ...summary,
     items,
   };
 }
@@ -834,7 +863,9 @@ export class PublishedCatalogRepository extends BaseRepository implements Publis
       orderBy: { updatedAt: "desc" },
     });
 
-    const items = lists.map((list) => mapPublishedList(list));
+    const items = lists
+      .map((list) => mapPublishedListSummary(list))
+      .filter((list): list is PublishedListSummaryRecord => Boolean(list));
 
     return {
       title: "Public Lists",
@@ -844,6 +875,24 @@ export class PublishedCatalogRepository extends BaseRepository implements Publis
       listCountLabel: buildPublishedListCountLabel(items.length),
       items,
     };
+  }
+
+  async getPublishedFeaturedLists(limit = 3): Promise<PublishedListSummaryRecord[]> {
+    const lists = await this.db.userList.findMany({
+      where: {
+        publicId: {
+          not: null,
+        },
+        isSystem: true,
+      },
+      include: publishedListInclude,
+      orderBy: [{ updatedAt: "desc" }],
+      take: Math.max(1, Math.min(limit, 12)),
+    });
+
+    return lists
+      .map((list) => mapPublishedListSummary(list))
+      .filter((list): list is PublishedListSummaryRecord => Boolean(list));
   }
 
   private async buildDetailRecord(media: PublishedMediaPayload): Promise<PublishedDetailRecord> {
