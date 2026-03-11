@@ -14,6 +14,7 @@ export function createDefaultRepositoryContext(metadata?: { actorId?: string; re
   return createRepositoryContext(requireDb(), metadata);
 }
 
+export * from "./catalog";
 export * from "./staging";
 export * from "./normalization";
 export * from "./review";
