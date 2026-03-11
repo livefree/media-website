@@ -6,7 +6,7 @@ export * from "./types";
 
 import { createRepositoryContext } from "./types";
 
-export const repositoryNamespaces = ["catalog", "staging", "ingest", "review", "source", "health", "search"] as const;
+export const repositoryNamespaces = ["catalog", "staging", "normalization", "ingest", "review", "source", "health", "search"] as const;
 
 export type RepositoryNamespace = (typeof repositoryNamespaces)[number];
 
@@ -15,3 +15,4 @@ export function createDefaultRepositoryContext(metadata?: { actorId?: string; re
 }
 
 export * from "./staging";
+export * from "./normalization";

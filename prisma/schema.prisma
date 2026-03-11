@@ -207,6 +207,50 @@ enum StagingCandidateStatus {
   SKIPPED
 }
 
+enum NormalizedMediaType {
+  MOVIE
+  SERIES
+  ANIME
+  VARIETY
+  DOCUMENTARY
+  SPECIAL
+  UNKNOWN
+}
+
+enum NormalizedCandidateStatus {
+  NORMALIZED
+  WARNING
+  FAILED
+}
+
+enum CandidateAliasSource {
+  TITLE
+  ORIGINAL_TITLE
+  DERIVED
+}
+
+enum MatchTargetSource {
+  CANONICAL
+  NORMALIZED_CANDIDATE
+}
+
+enum MatchSuggestionKind {
+  EXACT
+  PROBABLE
+  AMBIGUOUS
+  NONE
+}
+
+enum DuplicateSignalKind {
+  CANDIDATE_CANDIDATE
+  CANDIDATE_CANONICAL
+}
+
+enum DuplicateSignalStatus {
+  ACTIVE
+  SUPERSEDED
+}
+
 model User {
   id               String            @id @default(cuid())
   email            String            @unique
@@ -281,6 +325,8 @@ model MediaTitle {
   playbackSessions      PlaybackSession[]
   listItems             UserListItem[]
   ratingSnapshots       RatingSnapshot[]
+  incomingMatchSuggestions MatchSuggestion[]
+  incomingDuplicateSignals DuplicateSignal[]
 }
 
 model MediaAlternateTitle {
@@ -600,6 +646,7 @@ model ProviderRegistry {
   rawPayloads          ProviderRawPayload[]
   providerItems        ProviderItem[]
   stagingCandidates    StagingCandidate[]
+  normalizedCandidates NormalizedCandidate[]
 }
 
 model IngestJob {
@@ -697,6 +744,7 @@ model ProviderItem {
   provider               ProviderRegistry      @relation(fields: [providerId], references: [id], onDelete: Cascade)
   rawPayloads            ProviderRawPayload[]
   stagingCandidates      StagingCandidate[]
+  normalizedCandidates   NormalizedCandidate[]
 
   @@unique([providerId, externalId])
   @@index([providerId, latestStatus, lastSeenAt])
@@ -755,9 +803,102 @@ model StagingCandidate {
   providerItem          ProviderItem           @relation(fields: [providerItemId], references: [id], onDelete: Cascade)
   ingestJob             IngestJob?             @relation(fields: [ingestJobId], references: [id], onDelete: SetNull)
   ingestRun             IngestRun?             @relation(fields: [ingestRunId], references: [id], onDelete: SetNull)
+  normalizedCandidate   NormalizedCandidate?
 
   @@index([providerId, status, updatedAt])
   @@index([providerItemId, status])
   @@index([ingestJobId])
   @@index([ingestRunId])
+}
+
+model NormalizedCandidate {
+  id                     String                    @id @default(cuid())
+  stagingCandidateId     String                    @unique
+  providerId             String
+  providerItemId         String
+  status                 NormalizedCandidateStatus @default(NORMALIZED)
+  titleDisplay           String
+  titleComparable        String
+  originalTitleDisplay   String?
+  originalTitleComparable String?
+  summary                String?
+  mediaType              NormalizedMediaType       @default(UNKNOWN)
+  releaseYear            Int?
+  region                 String?
+  language               String?
+  seasonEpisodeHints     Json?
+  sourceSummary          Json?
+  evidence               Json?
+  warnings               String[]                  @default([])
+  normalizationNotes     String[]                  @default([])
+  failureSummary         String?
+  createdAt              DateTime                  @default(now())
+  updatedAt              DateTime                  @updatedAt
+  provider               ProviderRegistry          @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  providerItem           ProviderItem              @relation(fields: [providerItemId], references: [id], onDelete: Cascade)
+  stagingCandidate       StagingCandidate          @relation(fields: [stagingCandidateId], references: [id], onDelete: Cascade)
+  aliases                CandidateAlias[]
+  matchSuggestions       MatchSuggestion[]         @relation("SourceCandidateMatchSuggestions")
+  incomingMatchSuggestions MatchSuggestion[]       @relation("TargetCandidateMatchSuggestions")
+  duplicateSignals       DuplicateSignal[]         @relation("SourceCandidateDuplicateSignals")
+  incomingDuplicateSignals DuplicateSignal[]       @relation("TargetCandidateDuplicateSignals")
+
+  @@index([providerId, status, updatedAt])
+  @@index([providerItemId, updatedAt])
+  @@index([mediaType, releaseYear])
+}
+
+model CandidateAlias {
+  id                    String               @id @default(cuid())
+  normalizedCandidateId String
+  source                CandidateAliasSource
+  displayValue          String
+  comparableValue       String
+  note                  String?
+  createdAt             DateTime             @default(now())
+  normalizedCandidate   NormalizedCandidate  @relation(fields: [normalizedCandidateId], references: [id], onDelete: Cascade)
+
+  @@unique([normalizedCandidateId, source, comparableValue])
+  @@index([comparableValue])
+}
+
+model MatchSuggestion {
+  id                        String               @id @default(cuid())
+  normalizedCandidateId     String
+  targetSource              MatchTargetSource
+  targetCanonicalMediaId    String?
+  targetNormalizedCandidateId String?
+  kind                      MatchSuggestionKind
+  confidence                Float
+  reasons                   Json
+  createdAt                 DateTime             @default(now())
+  updatedAt                 DateTime             @updatedAt
+  normalizedCandidate       NormalizedCandidate  @relation("SourceCandidateMatchSuggestions", fields: [normalizedCandidateId], references: [id], onDelete: Cascade)
+  targetCanonicalMedia      MediaTitle?          @relation(fields: [targetCanonicalMediaId], references: [id], onDelete: SetNull)
+  targetNormalizedCandidate NormalizedCandidate? @relation("TargetCandidateMatchSuggestions", fields: [targetNormalizedCandidateId], references: [id], onDelete: SetNull)
+
+  @@index([normalizedCandidateId, kind, confidence])
+  @@index([targetCanonicalMediaId])
+  @@index([targetNormalizedCandidateId])
+}
+
+model DuplicateSignal {
+  id                        String                @id @default(cuid())
+  sourceNormalizedCandidateId String
+  targetSource              MatchTargetSource
+  targetCanonicalMediaId    String?
+  targetNormalizedCandidateId String?
+  kind                      DuplicateSignalKind
+  status                    DuplicateSignalStatus @default(ACTIVE)
+  confidence                Float
+  reasons                   Json
+  createdAt                 DateTime              @default(now())
+  updatedAt                 DateTime              @updatedAt
+  sourceNormalizedCandidate NormalizedCandidate   @relation("SourceCandidateDuplicateSignals", fields: [sourceNormalizedCandidateId], references: [id], onDelete: Cascade)
+  targetCanonicalMedia      MediaTitle?           @relation(fields: [targetCanonicalMediaId], references: [id], onDelete: SetNull)
+  targetNormalizedCandidate NormalizedCandidate?  @relation("TargetCandidateDuplicateSignals", fields: [targetNormalizedCandidateId], references: [id], onDelete: SetNull)
+
+  @@index([sourceNormalizedCandidateId, kind, status, confidence])
+  @@index([targetCanonicalMediaId])
+  @@index([targetNormalizedCandidateId])
 }
