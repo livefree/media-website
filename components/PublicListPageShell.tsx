@@ -1,13 +1,19 @@
 import Link from "next/link";
 
-import { getMediaByPublicId } from "../lib/media-catalog";
-import { buildPublicListDirectoryHref } from "../lib/media-utils";
-import type { PublicMediaListPageRecord } from "../types/media";
 import { Navbar } from "./Navbar";
 import { PosterArtwork } from "./PosterArtwork";
+import {
+  getPublicListFirstItemWatchHref,
+  getPublicListItemPosterUrl,
+  getPublicListItemTitle,
+  getPublicListVisibilityLabel,
+  type PublicListPageView,
+} from "./publicListView";
 
-export function PublicListPageShell({ list }: { list: PublicMediaListPageRecord }) {
-  const directoryHref = buildPublicListDirectoryHref();
+export function PublicListPageShell({ list }: { list: PublicListPageView }) {
+  const directoryHref = "/lists";
+  const firstItemWatchHref = getPublicListFirstItemWatchHref(list);
+  const visibilityLabel = getPublicListVisibilityLabel();
 
   return (
     <main className="page-shell">
@@ -17,7 +23,7 @@ export function PublicListPageShell({ list }: { list: PublicMediaListPageRecord 
       <section className="public-list-hero">
         <div className="public-list-hero-copy">
           <div className="public-list-meta-row">
-            <span className="public-list-visibility-badge">{list.visibilityLabel}</span>
+            <span className="public-list-visibility-badge">{visibilityLabel}</span>
             <span className="public-list-item-count">{list.itemCountLabel}</span>
           </div>
           <p className="section-kicker">Public list</p>
@@ -27,8 +33,8 @@ export function PublicListPageShell({ list }: { list: PublicMediaListPageRecord 
             <Link href={list.canonicalListHref} className="featured-list-action">
               Open public list
             </Link>
-            {list.firstItemWatchHref ? (
-              <Link href={list.firstItemWatchHref} className="featured-list-secondary-action">
+            {firstItemWatchHref ? (
+              <Link href={firstItemWatchHref} className="featured-list-secondary-action">
                 Start watching
               </Link>
             ) : null}
@@ -46,8 +52,8 @@ export function PublicListPageShell({ list }: { list: PublicMediaListPageRecord 
             <Link href={directoryHref} className="featured-list-secondary-action">
               Browse more lists
             </Link>
-            {list.firstItemWatchHref ? (
-              <Link href={list.firstItemWatchHref} className="featured-list-action">
+            {firstItemWatchHref ? (
+              <Link href={firstItemWatchHref} className="featured-list-action">
                 Play this queue
               </Link>
             ) : null}
@@ -68,7 +74,7 @@ export function PublicListPageShell({ list }: { list: PublicMediaListPageRecord 
           </div>
           <div className="catalog-results-meta">
             <p className="catalog-results-count">{list.itemCountLabel}</p>
-            <p className="catalog-feed-meta">{list.visibilityLabel} share surface</p>
+            <p className="catalog-feed-meta">{visibilityLabel} share surface</p>
           </div>
         </div>
 
@@ -79,15 +85,15 @@ export function PublicListPageShell({ list }: { list: PublicMediaListPageRecord 
               <Link href={item.canonicalWatchHref} className="public-list-item-poster-link">
                 <PosterArtwork
                   className="public-list-item-poster"
-                  src={item.posterUrl}
-                  alt={`${item.title} poster`}
-                  title={item.title}
-                  variant={getMediaByPublicId(item.mediaPublicId)?.type ?? "list"}
+                  src={getPublicListItemPosterUrl(item)}
+                  alt={`${getPublicListItemTitle(item)} poster`}
+                  title={getPublicListItemTitle(item)}
+                  variant="list"
                 />
               </Link>
               <div className="public-list-item-copy">
                 <p className="public-list-item-title">
-                  <Link href={item.canonicalWatchHref}>{item.title}</Link>
+                  <Link href={item.canonicalWatchHref}>{getPublicListItemTitle(item)}</Link>
                 </p>
                 <p className="public-list-item-subtitle">{item.subtitle}</p>
               </div>

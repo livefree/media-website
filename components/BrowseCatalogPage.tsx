@@ -1,4 +1,4 @@
-import { getCategoryFeed, getPublicLists } from "../lib/media-catalog";
+import { getCategoryFeed } from "../lib/media-catalog";
 import { buildBrowsePageData } from "../lib/search-filter";
 import { getHiddenSearchFields } from "../lib/search-params";
 import type { CatalogScope } from "../types/media";
@@ -65,7 +65,7 @@ export async function BrowseCatalogPage({
   const copy = scopeCopy[scope];
   const pageData = await buildBrowsePageData(scope, searchParams);
   const feed = getCategoryFeed(scope);
-  const featuredLists = pageData.featuredLists ?? (scope === "all" ? getPublicLists().slice(0, 3) : []);
+  const featuredLists = pageData.featuredLists ?? [];
   const searchHiddenFields = getHiddenSearchFields(pageData.currentParams, ["q", "page", "type"]);
   const filterHiddenFields = getHiddenSearchFields(pageData.currentParams, ["sort", "type", "genre", "region", "year", "page"]);
 

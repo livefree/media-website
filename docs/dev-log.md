@@ -90,6 +90,7 @@ Data Catalog:
 - Added reusable catalog helpers in `lib/media-catalog.ts` and `lib/media-utils.ts` for downstream search, detail, and homepage integration
 
 Search Filter:
+- Closed the Round E homepage featured-list gap by rewiring homepage list discovery to the published-catalog featured-list contract and removing the last homepage featured-list dependency on withdrawn seed helpers
 - Rewired `/search` plus browse/category route integrations onto the published-catalog backend read boundary, mapping public-safe published cards and facets into the existing UI shell while keeping staging/review state out of public route composition
 - Marked the browse/search routes as request-time reads and added a database-unconfigured empty-catalog fallback so Round E public search/filter routes stay buildable while the published backend is still being stood up locally
 - Added URL-backed search state helpers in `lib/search-params.ts`, `lib/search-filter.ts`, and `lib/pagination.ts`
@@ -264,6 +265,9 @@ Data Catalog:
 - Added Round D review/publish persistence and service boundaries with explicit review queue, review decisions, publish operations, and durable audit records plus a server-only publish path that is now the only backend route for canonical catalog writes in this round
 - Added Round E published-catalog read boundaries under `lib/db` and `lib/server/catalog` for browse/search/detail/watch/list serving, preserving canonical public watch/list identity while keeping staging and review state out of public contracts
 - Completed the Round E list-serving follow-up by splitting published public-list summary/detail contracts, filtering directory and featured discovery to published list items only, and exposing backend featured-list discovery functions for homepage migration while preserving canonical `/list/<publicId>` and list-aware `/watch?...&list=...&li=...` identity
+
+UI Shell:
+- Reconnected `/lists` and `/list/[publicId]` to the published catalog service with request-time reads, removed list-surface seed-helper lookups from shared UI components, and kept the public directory/detail presentation limited to published list metadata plus canonical list/watch links
 
 Planner:
 - Produced `docs/handovers/planner-free-video-source-integration-round-1.md` to define the lawful free-video source onboarding plan, including source-class restrictions, rights/provenance workflow, ingest/transcode/storage/CDN architecture, playback-resource evolution, schema additions, ops/compliance controls, and the Round 2-4 implementation roadmap
