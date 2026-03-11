@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.10.0`
+Current version: `0.11.0`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.10.0` an appropriate current milestone: the platform now has explicit source inventory, health state, probe and repair-oriented backend flow, and health-aware watch-page source resolution on top of published catalog serving, while it still remains pre-launch because auth/session flows, broader operator surfaces, production observability, and full runtime hardening are not finished.
+That makes `0.11.0` an appropriate current milestone: the platform now has an accepted real provider execution path for `jszyapi` on top of the published-catalog and source-health backend foundation, with offline-testable ingest execution and adapter discipline in place, while it still remains pre-launch because broader provider operations, admin control-plane coverage, moderation, observability, and launch hardening are not finished.
 
 ## Rules
 
@@ -34,7 +34,9 @@ That makes `0.10.0` an appropriate current milestone: the platform now has expli
 - `0.9.x`
   Baseline with published-catalog-backed public browse/search/detail/watch/list serving in place, before source inventory and health/repair workflow became first-class runtime concerns.
 - `0.10.x`
-  Current baseline with explicit source inventory, source health state, repair queue, and health-aware watch-source resolution layered onto the published-catalog backend.
+  Baseline with explicit source inventory, source health state, repair queue, and health-aware watch-source resolution layered onto the published-catalog backend.
+- `0.11.x`
+  Current baseline with the first accepted real provider execution path (`jszyapi` JSON ingest) and offline-testable provider/ingest execution on top of the existing backend foundation.
 - `1.0.0`
   First production-ready launch baseline.
 
