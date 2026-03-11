@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.16.0`
+Current version: `0.17.0`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.16.0` an appropriate current milestone: the platform now layers accepted structured job execution telemetry and materially better failure visibility for ingest, scheduled refresh, and source-probe flows on top of the moderation, source-health, and published-catalog backend foundation, while it still remains pre-launch because broader hardening, security, and final launch-readiness work are not finished.
+That makes `0.17.0` an appropriate current milestone: the platform now layers accepted server-side admin/operator access hardening on top of the structured job telemetry, moderation, source-health, and published-catalog backend foundation, so privileged operator surfaces no longer rely on implicit reachability while the project still remains pre-launch because broader hardening, security, and final launch-readiness work are not finished.
 
 ## Rules
 
@@ -47,6 +47,8 @@ That makes `0.16.0` an appropriate current milestone: the platform now layers ac
   Current baseline with operator-facing moderation/report handling and manual title/source submission workflows layered onto the accepted admin/review/source backend foundation.
 - `0.16.x`
   Current baseline with structured ingest-job telemetry, stable failure classification, and stronger operator-visible failure context across ingest, scheduled refresh, and source-probe flows.
+- `0.17.x`
+  Current baseline with explicit server-side admin/operator access boundaries, role checks, and safe deny behavior across existing privileged backend and admin route surfaces.
 - `1.0.0`
   First production-ready launch baseline.
 
