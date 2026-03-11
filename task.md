@@ -23,7 +23,7 @@ PlayerShell
 
 ## Current Active Task
 
-### Workstream 1: Make Provider Intake Operational
+### Workstream 2 / Slice 3: Source And Catalog Lifecycle Mutations
 
 Coordinator-only rule:
 - Coordinator may define scope, update task docs, dispatch agents, review ownership, and merge accepted work.
@@ -31,31 +31,30 @@ Coordinator-only rule:
 
 Required execution order for this task:
 1. Coordinator aligns the work package to `docs/backend-spec.md`, `docs/roadmap.md`, and `docs/backend-delivery-workflow.md`
-2. Planner defines the implementation breakdown, ownership boundaries, testing scope, and acceptance checklist for the active provider-operationalization slice
-3. Media Ingest implements the provider/runtime support required by the chosen slice
-4. Data Catalog participates only if the planned slice requires durable backend support outside existing ingest boundaries
+2. Planner defines the implementation breakdown, ownership boundaries, testing scope, and acceptance checklist for the active operator-control slice
+3. Data Catalog implements the backend support required by the chosen operator-control slice
+4. UI Shell implements the operator-facing admin surface for the chosen slice
 5. Reviewer validates operator workflow correctness, scope discipline, and test/build coverage before merge
 6. User review remains authoritative for planning direction; rejected backend structure must not be represented as accepted
 
 Scope for this round:
-- Continue the remaining provider-operationalization work packages from `docs/backend-delivery-workflow.md` on top of the accepted backend foundation
-- Implement one narrow provider-operationalization slice at a time rather than broad platform-wide changes in a single pass
-- Current operationalization slice: `Workstream 1 / Slice 7: Unattended Provider Sync Scheduling`
-- This slice is mapped to the final `the system can continuously ingest and refresh provider data without manual scripts` portion of the Workstream 1 exit gate in `docs/backend-delivery-workflow.md`
-- Current refinement status: Slice 6 is accepted and closed; this slice moves the provider pipeline from sustained orchestration semantics to unattended repeatable execution
+- Continue the fixed backend auto queue from `docs/backend-delivery-workflow.md` on top of the accepted backend foundation
+- Implement one narrow operator-control slice at a time rather than broad platform-wide changes in a single pass
+- Current active slice: `Workstream 2 / Slice 3: Source And Catalog Lifecycle Mutations`
+- This slice is mapped to the remaining `reorder / replace / unpublish operations` portion of the Workstream 2 exit gate in `docs/backend-delivery-workflow.md` and `docs/roadmap.md`
+- Current refinement status: Workstream 1 exit gate is accepted and closed for one provider lane; Workstream 2 still lacks the operator mutation flows required to avoid direct DB edits for core catalog/source lifecycle management
 - Owned surfaces:
   - Planner: architecture, roadmap alignment, round-specific handoff docs
-  - Media Ingest: `lib/server/provider/`, `lib/server/ingest/`, job execution, worker/runtime support for the selected operationalization slice
-  - Data Catalog: only where the selected slice requires durable state or backend support outside existing ingest boundaries
-  - UI Shell: not expected unless a later planner handoff explicitly requires a minimal operator surface
+  - Data Catalog: `lib/db/`, `lib/server/catalog/`, `lib/server/source/`, `lib/server/admin/`, and schema support required for operator lifecycle actions in this slice
+  - UI Shell: admin/operator surfaces required to expose the accepted lifecycle actions in this slice
   - Reviewer: acceptance and findings docs only
 - No public route redesign
 - No player work
 - No broad auth/session product expansion
-- No broad admin suite expansion unless the planned slice explicitly requires it
+- No broad admin suite expansion beyond the minimal source/catalog lifecycle actions required by this slice
 
 Acceptance criteria:
-- The chosen operationalization slice measurably improves unattended backend provider execution
+- The chosen operator-control slice measurably reduces direct-DB dependence for source/catalog lifecycle management
 - The slice remains narrow, testable, and grounded in tracked backend docs rather than ad hoc changes
 - New support remains inside accepted backend boundaries and does not leak into public route logic
 - The implementation includes the necessary tests and remains buildable after this slice
@@ -65,10 +64,9 @@ Current user-requested improvement to implement:
 1. Continue using the fixed backend workflow without ad hoc phases
 2. Push the remaining backend multi-round tasks into `task.md`
 3. Continue auto-executing the tracked backend work packages until a real blocker occurs
-4. Continue through the remaining provider-operationalization exit-gate slices before returning to later control-plane/governance work
-5. Continue into retry/throttling hardening for queued provider execution
-6. Continue into incremental/backfill sync orchestration for provider intake
-7. Continue into unattended provider sync scheduling until the Workstream 1 exit gate is met
+4. Keep the queue fixed and advance directly to the next uncompleted work package after each accepted slice
+5. Keep documenting accepted backend milestones, testing coverage, and version bumps as the queue advances
+6. Continue through the remaining operator-control, governance, and hardening slices until the backend reaches an operator-ready state or a real blocker occurs
 
 Current baseline:
 - Round A monolith foundations are present under `lib/server/` and `lib/db/`
@@ -91,7 +89,9 @@ Current baseline:
 - Workstream 1 / Slice 4 is accepted, so provider page jobs now have restart-safe continuation and durable checkpoint recovery
 - Workstream 1 / Slice 5 is accepted, so queued provider page jobs now have bounded retry semantics, provider-aware throttling, and durable backoff timing
 - Workstream 1 / Slice 6 is accepted, so one provider lane now supports deterministic backfill and incremental sync orchestration
-- The repo still lacks the remaining provider operationalization exit-gate slices, later control-plane/governance completion slices, and final launch-readiness work
+- Workstream 1 / Slice 7 is accepted, so one provider lane now supports unattended repeatable sync scheduling with durable next-run state and restart-safe restoration
+- The Workstream 1 exit gate is now met for one provider lane
+- The repo still lacks the remaining operator-control completion slices, governance completion slices, and final launch-readiness work
 
 ## Remaining Backend Auto Queue
 
@@ -99,16 +99,16 @@ The Coordinator should continue through the remaining backend work packages in t
 
 Current queued path after the active slice:
 
-1. Remaining provider operationalization slices needed to reach the Workstream 1 exit gate:
-   - throttling and retry hardening
-   - any remaining sustained execution / checkpoint completion work still uncovered after the active slice
-2. Remaining operator-control slices needed to reach the Workstream 2 exit gate:
-   - operator mutation flows for source/catalog lifecycle where still missing
-3. Remaining governance slices needed to reach the Workstream 3 exit gate:
-   - publish scheduling and visibility control
-4. Remaining hardening slices needed to reach the Workstream 4 exit gate:
-   - provider failure visibility and alert-ready signaling
-   - recovery readiness, backup/restore guardrails, and final launch validation
+1. Active next slice for the Workstream 2 exit gate:
+   - `Workstream 2 / Slice 3: Source And Catalog Lifecycle Mutations`
+2. Remaining governance slice needed to fully close the Workstream 3 exit gate:
+   - `Workstream 3 / Slice 2: Publish Scheduling And Visibility Control`
+3. Remaining hardening slices needed to reach the Workstream 4 exit gate:
+   - provider failure visibility and alert-ready signaling follow-up where reviewer/planner still identify coverage gaps
+   - recovery readiness, backup/restore guardrails, and final launch validation follow-up beyond the accepted migration/e2e slices
+4. Final backend readiness sweep:
+   - reconcile accepted slices against `docs/backend-spec.md`
+   - confirm operator-ready exit gate and launch-readiness gaps in tracked docs before any post-backend program starts
 
 Each queued item still requires:
 

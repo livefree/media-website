@@ -29,10 +29,11 @@ The current accepted platform baseline includes:
 - source inventory, source ordering, source health state, probe runs, and repair queue persistence
 - health-aware watch-page source resolution
 - a minimal admin review surface
+- a completed one-provider intake-operationalization lane with durable unattended execution, resumability, bounded retry/throttle behavior, deterministic backfill/incremental orchestration, and unattended sync scheduling
 
 Current version baseline:
 
-- `0.22.0`
+- `0.25.0`
 
 ## Naming Convention
 
@@ -68,21 +69,19 @@ The easiest way to think about the gap is:
 
 - provider integration
   - contracts and ingest boundaries exist
-  - real provider execution, scheduling, throttling, retry strategy, and sustained operations are not yet complete
+  - one provider lane is now operational, but broader provider coverage and production worker deployment remain incomplete
 - admin operations
-  - review UI exists
-  - broader source, catalog, moderation, and operator control surfaces do not
+  - review UI, published catalog UI, source inventory UI, repair queue UI, and moderation/manual-submission flows now exist
+  - lifecycle mutations and some operator-control completions still remain
 - source maintenance
   - health state and repair queue exist in backend form
-  - full operator workflows around them are still missing
+  - full operator workflows around replacement and retirement still remain
 
 ### Not complete
 
 - full admin control plane
-- moderation and report handling
-- manual title creation and manual source submission flow
 - publish scheduling and visibility control
-- Redis-backed job execution as an operational system
+- broader provider coverage and production worker deployment model
 - observability, metrics, alerts, and queue visibility
 - RBAC / auth hardening for admin operations
 - backup, restore, migration safety, and production readiness
@@ -101,10 +100,10 @@ The project is now past the "prototype backend" stage, but not yet at the "opera
 
 The remaining work is concentrated in:
 
-1. operational provider execution
-2. operator/admin control plane
-3. moderation and manual workflows
-4. observability, security, and launch hardening
+1. operator/admin control plane completion
+2. governance completion
+3. observability, security, and launch hardening
+4. broader provider coverage beyond the first operational lane
 
 ## 4. Non-Ad-Hoc Delivery Rule
 
@@ -299,6 +298,9 @@ The accepted execution baseline now includes:
 - Workstream 1 / Slice 2
 - Workstream 1 / Slice 3
 - Workstream 1 / Slice 4
+- Workstream 1 / Slice 5
+- Workstream 1 / Slice 6
+- Workstream 1 / Slice 7
 - Workstream 2 / Slice 1
 - Workstream 2 / Slice 2
 - Workstream 3
@@ -309,6 +311,19 @@ The accepted execution baseline now includes:
 - Workstream 4 / Slice 5
 
 The currently active slice should always be read from [task.md](/Users/livefree/projects/media-website-v2/task.md), not inferred from this historical sequence.
+
+## 8B. Current Queue After Workstream 1 Exit Gate
+
+With Workstream 1 now accepted for one provider lane, the fixed remaining queue is:
+
+1. Workstream 2 / Slice 3
+   source and catalog lifecycle mutations required to avoid direct DB edits for replace / reorder / unpublish workflows
+2. Workstream 3 / Slice 2
+   publish scheduling and visibility control needed to complete the governance exit gate
+3. Workstream 4 follow-up slices
+   any remaining alert-ready provider failure visibility, recovery readiness, backup/restore, and launch-validation work that reviewer acceptance still leaves open
+
+No new backend work packages should skip ahead of this queue unless tracked docs are updated first.
 
 ## 9. Launch Gate
 

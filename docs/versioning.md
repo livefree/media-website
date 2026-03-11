@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.24.0`
+Current version: `0.25.0`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.24.0` an appropriate current milestone: the platform now layers accepted one-provider incremental and backfill sync orchestration on top of retry/throttle-safe queued execution, moving provider intake materially closer to continuous unattended operation while it still remains pre-launch because the remaining provider exit gate, control-plane completion, and launch-readiness work are not finished.
+That makes `0.25.0` an appropriate current milestone: the platform now completes the first provider-operationalization exit gate with unattended one-provider sync execution, durable restart-safe recovery, bounded retry/throttle behavior, and deterministic orchestration, while it still remains pre-launch because the remaining operator control-plane, governance, and launch-readiness work are not finished.
 
 ## Rules
 
@@ -63,6 +63,8 @@ That makes `0.24.0` an appropriate current milestone: the platform now layers ac
   Current baseline with bounded retry semantics, provider-aware throttling, and durable backoff timing for queued provider page jobs.
 - `0.24.x`
   Current baseline with deterministic one-provider backfill/incremental sync orchestration and durable promotion order across restarts.
+- `0.25.x`
+  Current baseline with the Workstream 1 provider-intake exit gate met for one provider lane: unattended sync scheduling, durable orchestration, resumability, and bounded retry/throttle execution.
 - `1.0.0`
   First production-ready launch baseline.
 
