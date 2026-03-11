@@ -275,3 +275,4 @@ Planner:
 
 Reviewer:
 - Accepted Review And Publish Workflow Round D on code/build review: review queue, decision, publish operation, and audit persistence are explicit, canonical catalog writes remain gated through `lib/server/review` -> `lib/server/catalog/publish`, the operator UI is isolated under `/admin/review`, and `npm run build` passed without public-route rewiring
+- Rejected Canonical Catalog Serving Round E on code/build review because browse/search/detail/watch moved to the published-catalog backend, but homepage featured-list discovery plus `/lists` and `/list/[publicId]` still read through `lib/media-catalog` seed helpers instead of the canonical published-catalog service
