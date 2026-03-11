@@ -139,6 +139,18 @@ function toDate(value?: string | null): Date | undefined {
   return new Date(value);
 }
 
+function toDateUpdate(value: string | null | undefined, fallback: Date | null = null): Date | null {
+  if (value === undefined) {
+    return fallback;
+  }
+
+  if (value === null) {
+    return null;
+  }
+
+  return new Date(value);
+}
+
 function toJsonValue(value: unknown): Prisma.InputJsonValue | undefined {
   if (value === undefined) {
     return undefined;
@@ -642,6 +654,9 @@ function buildClaimedQueuedProviderPageJob(
     requestId: record.requestId ?? undefined,
     actorId: record.actorId ?? undefined,
     attemptCount: record.attemptCount + 1,
+    retryCount: record.retryCount,
+    lastAttemptedAt: record.lastAttemptedAt?.toISOString() ?? null,
+    nextAttemptAt: record.nextAttemptAt?.toISOString() ?? null,
     enqueuedAt: record.createdAt.toISOString(),
     lease: {
       workerId: input.workerId,
@@ -880,6 +895,7 @@ export class StagingPersistenceRepository
   }
 
   async claimNextQueuedProviderPageJob(input: ClaimQueuedProviderPageJobInput): Promise<ClaimedQueuedProviderPageJob | null> {
+    const claimedAt = toDate(input.claimedAt) ?? new Date();
     const candidates = await this.db.ingestJob.findMany({
       where: {
         status: "PENDING",
@@ -896,6 +912,10 @@ export class StagingPersistenceRepository
     });
 
     for (const candidate of candidates) {
+      if (candidate.nextAttemptAt && candidate.nextAttemptAt.getTime() > claimedAt.getTime()) {
+        continue;
+      }
+
       const leaseId = randomUUID();
       const claimedJob = buildClaimedQueuedProviderPageJob(candidate, input, leaseId);
 
@@ -903,7 +923,6 @@ export class StagingPersistenceRepository
         continue;
       }
 
-      const claimedAt = toDate(input.claimedAt) ?? new Date();
       const leaseExpiresAt = new Date(claimedAt.getTime() + input.leaseMs);
       const result = await this.db.ingestJob.updateMany({
         where: {
@@ -969,6 +988,9 @@ export class StagingPersistenceRepository
       },
       select: {
         metadata: true,
+        retryCount: true,
+        lastAttemptedAt: true,
+        nextAttemptAt: true,
       },
     });
 
@@ -996,6 +1018,9 @@ export class StagingPersistenceRepository
         status: "PENDING",
         finishedAt: toDate(input.requeuedAt),
         metadata: toJsonValue(nextMetadata),
+        retryCount: input.retryCount ?? existing.retryCount,
+        lastAttemptedAt: toDateUpdate(input.lastAttemptedAt, existing.lastAttemptedAt),
+        nextAttemptAt: toDateUpdate(input.nextAttemptAt, existing.nextAttemptAt),
         leaseWorkerId: null,
         leaseId: null,
         leaseClaimedAt: null,

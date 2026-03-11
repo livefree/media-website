@@ -21,6 +21,9 @@ interface PageWorkerTestJobRecord {
   startedAt?: Date | null;
   finishedAt?: Date | null;
   attemptCount: number;
+  retryCount: number;
+  lastAttemptedAt?: Date | null;
+  nextAttemptAt?: Date | null;
   leaseWorkerId?: string | null;
   leaseId?: string | null;
   leaseClaimedAt?: Date | null;
@@ -44,6 +47,9 @@ function createQueuedPageJob(overrides: Partial<PageWorkerTestJobRecord> = {}): 
     startedAt: overrides.startedAt ?? null,
     finishedAt: overrides.finishedAt ?? null,
     attemptCount: overrides.attemptCount ?? 0,
+    retryCount: overrides.retryCount ?? 0,
+    lastAttemptedAt: overrides.lastAttemptedAt ?? null,
+    nextAttemptAt: overrides.nextAttemptAt ?? null,
     leaseWorkerId: overrides.leaseWorkerId ?? null,
     leaseId: overrides.leaseId ?? null,
     leaseClaimedAt: overrides.leaseClaimedAt ?? null,
@@ -144,6 +150,15 @@ function createRepository(seedJobs: PageWorkerTestJobRecord[]) {
         if ("lastErrorSummary" in input.data) {
           job.lastErrorSummary = input.data.lastErrorSummary as string | null;
         }
+        if ("retryCount" in input.data) {
+          job.retryCount = input.data.retryCount as number;
+        }
+        if ("lastAttemptedAt" in input.data) {
+          job.lastAttemptedAt = input.data.lastAttemptedAt as Date | null;
+        }
+        if ("nextAttemptAt" in input.data) {
+          job.nextAttemptAt = input.data.nextAttemptAt as Date | null;
+        }
         if ("metadata" in input.data) {
           job.metadata = input.data.metadata as Record<string, unknown> | null;
         }
@@ -175,11 +190,45 @@ test("claimNextQueuedProviderPageJob reconstructs the queued request and durable
   assert.equal(claimed.checkpoint?.page, 3);
   assert.equal(claimed.checkpoint?.cursor, "cursor-3");
   assert.equal(claimed.attemptCount, 1);
+  assert.equal(claimed.retryCount, 0);
+  assert.equal(claimed.lastAttemptedAt, null);
+  assert.equal(claimed.nextAttemptAt, null);
 
   const persisted = jobs[0];
   assert.equal(persisted?.status, "RUNNING");
   assert.equal(persisted?.leaseWorkerId, "worker-page-a");
   assert.ok(persisted?.leaseId);
+});
+
+test("claimNextQueuedProviderPageJob skips throttled jobs until nextAttemptAt is due", async () => {
+  const { repository } = createRepository([
+    createQueuedPageJob({
+      id: "page-job-throttled",
+      nextAttemptAt: new Date("2026-03-13T08:06:00.000Z"),
+      retryCount: 1,
+      lastAttemptedAt: new Date("2026-03-13T08:04:00.000Z"),
+      createdAt: new Date("2026-03-13T08:00:00.000Z"),
+    }),
+    createQueuedPageJob({
+      id: "page-job-due",
+      nextAttemptAt: new Date("2026-03-13T08:05:00.000Z"),
+      retryCount: 2,
+      lastAttemptedAt: new Date("2026-03-13T08:03:00.000Z"),
+      createdAt: new Date("2026-03-13T08:01:00.000Z"),
+    }),
+  ]);
+
+  const claimed = await repository.claimNextQueuedProviderPageJob({
+    workerId: "worker-page-throttle",
+    claimedAt: "2026-03-13T08:05:30.000Z",
+    leaseMs: 60_000,
+  });
+
+  assert.ok(claimed);
+  assert.equal(claimed.queueJobId, "page-job-due");
+  assert.equal(claimed.retryCount, 2);
+  assert.equal(claimed.lastAttemptedAt, "2026-03-13T08:03:00.000Z");
+  assert.equal(claimed.nextAttemptAt, "2026-03-13T08:05:00.000Z");
 });
 
 test("requeueQueuedProviderPageJob serializes checkpoint state and clears the active lease", async () => {
@@ -204,6 +253,9 @@ test("requeueQueuedProviderPageJob serializes checkpoint state and clears the ac
       updatedBefore: null,
       providerUpdatedAt: "2026-03-12T00:00:00.000Z",
     },
+    retryCount: 1,
+    lastAttemptedAt: "2026-03-13T08:10:15.000Z",
+    nextAttemptAt: "2026-03-13T08:10:45.000Z",
     metadata: {
       workerExecution: {
         outcome: "requeued",
@@ -215,6 +267,9 @@ test("requeueQueuedProviderPageJob serializes checkpoint state and clears the ac
   assert.equal(persisted?.status, "PENDING");
   assert.equal(persisted?.leaseWorkerId, null);
   assert.equal(persisted?.leaseId, null);
+  assert.equal(persisted?.retryCount, 1);
+  assert.equal(persisted?.lastAttemptedAt?.toISOString(), "2026-03-13T08:10:15.000Z");
+  assert.equal(persisted?.nextAttemptAt?.toISOString(), "2026-03-13T08:10:45.000Z");
   assert.equal((persisted?.metadata as { resumeCheckpoint?: { page?: number }; workerExecution?: { outcome?: string } })?.resumeCheckpoint?.page, 4);
   assert.equal((persisted?.metadata as { workerExecution?: { outcome?: string } })?.workerExecution?.outcome, "requeued");
 });
