@@ -24,9 +24,18 @@ import type { IngestPageRequest } from "../../../server/ingest";
 import type {
   CompleteQueuedProviderPageJobInput,
   FailQueuedProviderPageJobInput,
+  QueuedProviderPageJob,
   ProviderPageWorkerCheckpoint,
   RequeueQueuedProviderPageJobInput,
 } from "../../../server/ingest/page-worker";
+import type {
+  ActiveProviderSync,
+  ProviderSyncExecutionState,
+  ProviderSyncMode,
+  ProviderSyncState,
+  QueueProviderSyncPageJobInput,
+  QueuedProviderSyncRequest,
+} from "../../../server/ingest/sync-orchestration";
 import type {
   ProviderCapability,
   ProviderContentTypeHint,
@@ -52,6 +61,7 @@ import type {
   PersistedRawPayloadRecord,
   PersistedStagingCandidateRecord,
   DurableProviderPageWorkerPersistenceGateway,
+  DurableProviderSyncOrchestrationPersistenceGateway,
   ProviderItemLifecycleStatus,
   ProviderRegistryType,
   ProviderRegistryUpsertInput,
@@ -129,6 +139,12 @@ const stagingCandidateStatusMap = {
   ready_for_normalization: "READY_FOR_NORMALIZATION",
   parse_failed: "PARSE_FAILED",
   skipped: "SKIPPED",
+} as const;
+
+const providerSyncExecutionStateMap = {
+  scheduled: "SCHEDULED",
+  waiting_retry: "WAITING_RETRY",
+  waiting_throttle: "WAITING_THROTTLE",
 } as const;
 
 function toDate(value?: string | null): Date | undefined {
@@ -248,6 +264,10 @@ function mapCandidateStatus(value: StagingCandidatePersistenceStatus) {
   return stagingCandidateStatusMap[value];
 }
 
+function mapProviderSyncExecutionState(value: ProviderSyncExecutionState) {
+  return providerSyncExecutionStateMap[value];
+}
+
 function unmapProviderRegistryType(value: string): ProviderRegistryType {
   switch (value) {
     case "CATALOG_PROVIDER":
@@ -282,6 +302,19 @@ function unmapProviderCapabilities(values: readonly string[]): ProviderCapabilit
 
     throw new Error(`Unsupported provider capability: ${value}`);
   });
+}
+
+function unmapProviderSyncExecutionState(value: string): ProviderSyncExecutionState {
+  switch (value) {
+    case "SCHEDULED":
+      return "scheduled";
+    case "WAITING_RETRY":
+      return "waiting_retry";
+    case "WAITING_THROTTLE":
+      return "waiting_throttle";
+    default:
+      throw new Error(`Unsupported provider sync execution state: ${value}`);
+  }
 }
 
 function unmapPayloadFormat(value: string): PersistedRawPayloadRecord["payloadFormat"] {
@@ -502,6 +535,95 @@ function parseQueuedPageCheckpoint(record: QueuedIngestJobPayload): ProviderPage
 
   const executionTelemetry = isRecord(record.metadata.executionTelemetry) ? record.metadata.executionTelemetry : null;
   return parsePageWorkerCheckpoint(executionTelemetry?.checkpoint);
+}
+
+function parseSyncRequest(value: unknown, providerKey: string, mode: ProviderSyncMode): IngestPageRequest {
+  const request = isRecord(value) ? value : {};
+
+  return {
+    providerKey,
+    mode,
+    page: typeof request.page === "number" && Number.isFinite(request.page) ? request.page : undefined,
+    pageSize: typeof request.pageSize === "number" && Number.isFinite(request.pageSize) ? request.pageSize : undefined,
+    cursor: toStringOrNull(request.cursor) ?? undefined,
+    updatedAfter: toStringOrNull(request.updatedAfter) ?? undefined,
+    updatedBefore: toStringOrNull(request.updatedBefore) ?? undefined,
+    requestId: toStringOrNull(request.requestId) ?? undefined,
+    actorId: toStringOrNull(request.actorId) ?? undefined,
+  };
+}
+
+function mapSyncRequest(input: QueuedProviderSyncRequest | null): {
+  request: Prisma.InputJsonValue | undefined;
+  requestedAt: Date | null;
+} {
+  if (!input) {
+    return {
+      request: undefined,
+      requestedAt: null,
+    };
+  }
+
+  return {
+    request: toJsonValue(input.request),
+    requestedAt: toDateUpdate(input.requestedAt, null),
+  };
+}
+
+function parseQueuedSyncRequest(
+  providerKey: string,
+  mode: ProviderSyncMode,
+  request: Prisma.JsonValue | null,
+  requestedAt: Date | null,
+): QueuedProviderSyncRequest | null {
+  if (!request || !requestedAt) {
+    return null;
+  }
+
+  return {
+    mode,
+    request: parseSyncRequest(request, providerKey, mode),
+    requestedAt: requestedAt.toISOString(),
+  };
+}
+
+function parseActiveProviderSync(
+  record: Prisma.ProviderSyncLaneStateGetPayload<Record<string, never>>,
+): ActiveProviderSync | null {
+  if (!record.activeMode || !record.activeQueueJobId || !record.activeRequestedAt || !record.activeExecutionState) {
+    return null;
+  }
+
+  return {
+    mode: unmapIngestMode(record.activeMode) as ProviderSyncMode,
+    queueJobId: record.activeQueueJobId,
+    requestedAt: record.activeRequestedAt.toISOString(),
+    checkpoint: parsePageWorkerCheckpoint(record.activeCheckpoint),
+    executionState: unmapProviderSyncExecutionState(record.activeExecutionState),
+    retryCount: record.activeRetryCount,
+    nextAttemptAt: record.activeNextAttemptAt?.toISOString() ?? null,
+  };
+}
+
+function mapProviderSyncStateRecord(
+  record: Prisma.ProviderSyncLaneStateGetPayload<Record<string, never>>,
+): ProviderSyncState {
+  return {
+    providerKey: record.providerKey,
+    activeSync: parseActiveProviderSync(record),
+    pendingBackfill: parseQueuedSyncRequest(
+      record.providerKey,
+      "backfill",
+      record.pendingBackfillRequest,
+      record.pendingBackfillRequestedAt,
+    ),
+    pendingIncremental: parseQueuedSyncRequest(
+      record.providerKey,
+      "incremental",
+      record.pendingIncrementalRequest,
+      record.pendingIncrementalRequestedAt,
+    ),
+  };
 }
 
 function parseQueuedJobKind(record: QueuedIngestJobPayload): ClaimedQueuedProviderJob["kind"] | null {
@@ -778,10 +900,145 @@ async function createRawPayloadRecord(
 
 export class StagingPersistenceRepository
   extends BaseRepository
-  implements DurableProviderWorkerPersistenceGateway, DurableProviderPageWorkerPersistenceGateway
+  implements
+    DurableProviderWorkerPersistenceGateway,
+    DurableProviderPageWorkerPersistenceGateway,
+    DurableProviderSyncOrchestrationPersistenceGateway
 {
   public constructor(context: RepositoryContext) {
     super(context);
+  }
+
+  async loadProviderSyncState(providerKey: string): Promise<ProviderSyncState> {
+    const record = await this.db.providerSyncLaneState.findUnique({
+      where: {
+        providerKey,
+      },
+    });
+
+    if (!record) {
+      return {
+        providerKey,
+        activeSync: null,
+        pendingBackfill: null,
+        pendingIncremental: null,
+      };
+    }
+
+    return mapProviderSyncStateRecord(record);
+  }
+
+  async saveProviderSyncState(state: ProviderSyncState): Promise<ProviderSyncState> {
+    const pendingBackfill = mapSyncRequest(state.pendingBackfill);
+    const pendingIncremental = mapSyncRequest(state.pendingIncremental);
+
+    const record = await this.db.providerSyncLaneState.upsert({
+      where: {
+        providerKey: state.providerKey,
+      },
+      create: {
+        providerKey: state.providerKey,
+        activeMode: state.activeSync ? mapIngestMode(state.activeSync.mode) : undefined,
+        activeQueueJobId: state.activeSync?.queueJobId,
+        activeRequestedAt: toDateUpdate(state.activeSync?.requestedAt, null) ?? undefined,
+        activeCheckpoint: state.activeSync ? toJsonValue(state.activeSync.checkpoint) : undefined,
+        activeExecutionState: state.activeSync ? mapProviderSyncExecutionState(state.activeSync.executionState) : undefined,
+        activeRetryCount: state.activeSync?.retryCount ?? 0,
+        activeNextAttemptAt: toDateUpdate(state.activeSync?.nextAttemptAt, null) ?? undefined,
+        pendingBackfillRequest: pendingBackfill.request,
+        pendingBackfillRequestedAt: pendingBackfill.requestedAt ?? undefined,
+        pendingIncrementalRequest: pendingIncremental.request,
+        pendingIncrementalRequestedAt: pendingIncremental.requestedAt ?? undefined,
+      },
+      update: {
+        activeMode: state.activeSync ? mapIngestMode(state.activeSync.mode) : null,
+        activeQueueJobId: state.activeSync?.queueJobId ?? null,
+        activeRequestedAt: toDateUpdate(state.activeSync?.requestedAt, null),
+        activeCheckpoint: state.activeSync
+          ? toJsonValue(state.activeSync.checkpoint)
+          : (null as unknown as Prisma.InputJsonValue),
+        activeExecutionState: state.activeSync ? mapProviderSyncExecutionState(state.activeSync.executionState) : null,
+        activeRetryCount: state.activeSync?.retryCount ?? 0,
+        activeNextAttemptAt: toDateUpdate(state.activeSync?.nextAttemptAt, null),
+        pendingBackfillRequest: pendingBackfill.request ?? (null as unknown as Prisma.InputJsonValue),
+        pendingBackfillRequestedAt: pendingBackfill.requestedAt,
+        pendingIncrementalRequest: pendingIncremental.request ?? (null as unknown as Prisma.InputJsonValue),
+        pendingIncrementalRequestedAt: pendingIncremental.requestedAt,
+      },
+    });
+
+    return mapProviderSyncStateRecord(record);
+  }
+
+  async enqueueQueuedProviderPageSyncJob(input: QueueProviderSyncPageJobInput): Promise<QueuedProviderPageJob> {
+    const provider = await this.db.providerRegistry.findUnique({
+      where: {
+        adapterKey: input.providerKey,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!provider) {
+      throw new BackendError(`Provider '${input.providerKey}' is not registered for sync orchestration.`, {
+        status: 404,
+        code: "provider_not_found",
+      });
+    }
+
+    const record = await this.db.ingestJob.create({
+      data: {
+        providerId: provider.id,
+        mode: mapIngestMode(input.mode),
+        status: "PENDING",
+        requestId: input.request.requestId,
+        actorId: input.request.actorId,
+        retryCount: 0,
+        lastAttemptedAt: null,
+        nextAttemptAt: null,
+        metadata: toJsonValue({
+          jobType: "provider_page_ingest",
+          orchestration: {
+            providerKey: input.providerKey,
+            requestedAt: input.requestedAt,
+            mode: input.mode,
+          },
+          executionTelemetry: {
+            providerKey: input.providerKey,
+            request: input.request,
+          },
+        }),
+      },
+      include: {
+        provider: {
+          select: {
+            adapterKey: true,
+          },
+        },
+      },
+    });
+
+    const request = parseQueuedPageRequest(record) ?? {
+      ...input.request,
+      providerKey: input.providerKey,
+      mode: input.mode,
+    };
+
+    return {
+      queueJobId: record.id,
+      providerKey: input.providerKey,
+      mode: input.mode,
+      request,
+      checkpoint: parseQueuedPageCheckpoint(record),
+      requestId: record.requestId ?? undefined,
+      actorId: record.actorId ?? undefined,
+      attemptCount: record.attemptCount,
+      retryCount: record.retryCount,
+      lastAttemptedAt: record.lastAttemptedAt?.toISOString() ?? null,
+      nextAttemptAt: record.nextAttemptAt?.toISOString() ?? null,
+      enqueuedAt: record.createdAt.toISOString(),
+    };
   }
 
   async upsertProviderRegistry(input: ProviderRegistryUpsertInput): Promise<PersistedProviderRegistryRecord> {
