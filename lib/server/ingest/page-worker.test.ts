@@ -41,6 +41,9 @@ function createQueuedPageJob(checkpoint?: ProviderPageWorkerCheckpoint | null): 
     requestId: "req-page-1",
     actorId: "worker-test",
     attemptCount: 1,
+    retryCount: 0,
+    lastAttemptedAt: null,
+    nextAttemptAt: null,
     enqueuedAt: "2026-03-11T21:00:00.000Z",
   };
 }
@@ -92,6 +95,9 @@ function createQueueDouble(seedJob: QueuedProviderPageJob) {
         ...state.job,
         attemptCount: state.job.attemptCount + 1,
         checkpoint: input.checkpoint,
+        retryCount: input.retryCount ?? state.job.retryCount ?? 0,
+        lastAttemptedAt: input.lastAttemptedAt ?? state.job.lastAttemptedAt ?? null,
+        nextAttemptAt: input.nextAttemptAt ?? state.job.nextAttemptAt ?? null,
       };
     },
     async completeQueuedProviderPageJob(input) {
@@ -261,10 +267,12 @@ test("runNextResumableProviderPageJob advances checkpoint only after a successfu
 
   assert.equal(result.status, "continued");
   assert.equal(result.checkpoint.page, 3);
+  assert.equal(result.nextAttemptAt, null);
   assert.equal(calls.requeue.length, 1);
   assert.equal(calls.complete.length, 0);
   assert.equal(calls.fail.length, 0);
   assert.equal(state.job.checkpoint?.page, 3);
+  assert.equal(state.job.retryCount, 0);
   assert.equal(runner.requests[0]?.page, 2);
 });
 
@@ -322,6 +330,7 @@ test("runNextResumableProviderPageJob preserves the last durable checkpoint when
       workerId: "worker-c",
       now: () => new Date("2026-03-11T21:08:00.000Z"),
       leaseMs: 30_000,
+      retryLimit: 0,
     },
   );
 
@@ -331,4 +340,138 @@ test("runNextResumableProviderPageJob preserves the last durable checkpoint when
   assert.equal(calls.complete.length, 0);
   assert.equal(calls.fail.length, 1);
   assert.equal(state.job.checkpoint?.page, 3);
+});
+
+test("runNextResumableProviderPageJob schedules a bounded retry with deterministic backoff after failure", async () => {
+  const { queue, calls, state } = createQueueDouble(
+    createQueuedPageJob({
+      page: 3,
+      cursor: null,
+    }),
+  );
+
+  const result = await runNextResumableProviderPageJob(
+    queue,
+    {
+      async runProviderPageJob() {
+        throw new Error("Provider page request timed out.");
+      },
+    },
+    {
+      workerId: "worker-retry",
+      now: () => new Date("2026-03-11T21:10:00.000Z"),
+      leaseMs: 30_000,
+      retryLimit: 2,
+      retryBaseMs: 10_000,
+      retryMaxMs: 60_000,
+    },
+  );
+
+  assert.equal(result.status, "retry_scheduled");
+  assert.equal(result.retryCount, 1);
+  assert.equal(result.lastErrorSummary, "Provider page request timed out.");
+  assert.equal(result.nextAttemptAt, "2026-03-11T21:10:10.000Z");
+  assert.equal(calls.requeue.length, 1);
+  assert.equal(calls.fail.length, 0);
+  assert.equal(state.job.checkpoint?.page, 3);
+  assert.equal(state.job.retryCount, 1);
+  assert.equal(state.job.lastAttemptedAt, "2026-03-11T21:10:00.000Z");
+  assert.equal(state.job.nextAttemptAt, "2026-03-11T21:10:10.000Z");
+});
+
+test("runNextResumableProviderPageJob fails terminally once the retry bound is reached", async () => {
+  const { queue, calls, state } = createQueueDouble(
+    {
+      ...createQueuedPageJob({
+        page: 3,
+        cursor: null,
+      }),
+      retryCount: 2,
+      lastAttemptedAt: "2026-03-11T21:09:00.000Z",
+      nextAttemptAt: "2026-03-11T21:09:20.000Z",
+    },
+  );
+
+  const result = await runNextResumableProviderPageJob(
+    queue,
+    {
+      async runProviderPageJob() {
+        throw new Error("Provider page request still failing.");
+      },
+    },
+    {
+      workerId: "worker-terminal",
+      now: () => new Date("2026-03-11T21:11:00.000Z"),
+      leaseMs: 30_000,
+      retryLimit: 2,
+      retryBaseMs: 10_000,
+      retryMaxMs: 60_000,
+    },
+  );
+
+  assert.equal(result.status, "failed");
+  assert.equal(result.lastErrorSummary, "Provider page request still failing.");
+  assert.equal(calls.requeue.length, 0);
+  assert.equal(calls.fail.length, 1);
+  assert.equal(state.job.retryCount, 2);
+});
+
+test("runNextResumableProviderPageJob enforces provider-aware throttle windows before issuing another request", async () => {
+  const fixture = await loadFixture();
+  const { queue, calls, state } = createQueueDouble(
+    {
+      ...createQueuedPageJob({
+        page: 3,
+        cursor: null,
+      }),
+      lastAttemptedAt: "2026-03-11T21:12:00.000Z",
+    },
+  );
+  const runner = createFixtureBackedPageRunner(fixture);
+
+  const result = await runNextResumableProviderPageJob(
+    queue,
+    runner,
+    {
+      workerId: "worker-throttle",
+      now: () => new Date("2026-03-11T21:12:20.000Z"),
+      leaseMs: 30_000,
+      providerThrottleMs: {
+        jszyapi_vod_json: 60_000,
+      },
+    },
+  );
+
+  assert.equal(result.status, "throttled");
+  assert.equal(result.nextAttemptAt, "2026-03-11T21:13:00.000Z");
+  assert.equal(runner.requests.length, 0);
+  assert.equal(calls.requeue.length, 1);
+  assert.equal(calls.fail.length, 0);
+  assert.equal(state.job.lastAttemptedAt, "2026-03-11T21:12:00.000Z");
+  assert.equal(state.job.nextAttemptAt, "2026-03-11T21:13:00.000Z");
+});
+
+test("runNextResumableProviderPageJob schedules the next checkpoint under provider throttle after a successful page boundary", async () => {
+  const fixture = await loadFixture();
+  const { queue, state } = createQueueDouble(createQueuedPageJob());
+  const runner = createFixtureBackedPageRunner(fixture);
+
+  const result = await runNextResumableProviderPageJob(
+    queue,
+    runner,
+    {
+      workerId: "worker-progress-throttle",
+      now: () => new Date("2026-03-11T21:14:00.000Z"),
+      leaseMs: 30_000,
+      providerThrottleMs: {
+        jszyapi_vod_json: 45_000,
+      },
+    },
+  );
+
+  assert.equal(result.status, "continued");
+  assert.equal(result.nextAttemptAt, "2026-03-11T21:14:45.000Z");
+  assert.equal(state.job.lastAttemptedAt, "2026-03-11T21:14:00.000Z");
+  assert.equal(state.job.nextAttemptAt, "2026-03-11T21:14:45.000Z");
+  assert.equal(state.job.retryCount, 0);
 });
