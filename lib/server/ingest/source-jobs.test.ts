@@ -36,7 +36,7 @@ function createTarget() {
   };
 }
 
-function createSourceJobDouble() {
+function createSourceJobDouble(options?: { attemptCount?: number }) {
   const calls = {
     upsertProviderRegistry: [] as Array<Record<string, unknown>>,
     createIngestJob: [] as IngestJobCreateInput[],
@@ -65,7 +65,7 @@ function createSourceJobDouble() {
     status: "pending",
     requestId: "req-source-job",
     actorId: "codex",
-    attemptCount: 0,
+    attemptCount: options?.attemptCount ?? 0,
     startedAt: null,
     finishedAt: null,
     lastErrorSummary: null,
@@ -219,6 +219,7 @@ test("executeScheduledSourceRefreshJob uses durable queued/running/succeeded sta
   assert.equal(calls.createIngestRun[0]?.status, "pending");
   assert.equal(calls.updateIngestJobStatus[0]?.input.status, "running");
   assert.equal(calls.updateIngestRunStatus[0]?.input.status, "running");
+  assert.equal(calls.updateIngestJobStatus[0]?.input.attemptCount, 1);
   assert.equal(calls.updateIngestJobStatus.at(-1)?.input.status, "succeeded");
   assert.equal(calls.updateIngestRunStatus.at(-1)?.input.status, "succeeded");
   assert.equal(calls.recordSourceRefreshHealth.length, 1);
@@ -228,6 +229,18 @@ test("executeScheduledSourceRefreshJob uses durable queued/running/succeeded sta
     (calls.createIngestJob[0]?.metadata as { jobType?: string })?.jobType,
     "scheduled_source_refresh",
   );
+  const refreshTelemetry = (
+    calls.updateIngestRunStatus.at(-1)?.input.metadata as {
+      executionTelemetry?: {
+        status?: string;
+        attemptCount?: number;
+        warningCount?: number;
+      };
+    }
+  )?.executionTelemetry;
+  assert.equal(refreshTelemetry?.status, "succeeded");
+  assert.equal(refreshTelemetry?.attemptCount, 1);
+  assert.equal(refreshTelemetry?.warningCount, 1);
 });
 
 test("executeScheduledSourceProbeJob persists health and durable state", async () => {
@@ -263,6 +276,7 @@ test("executeScheduledSourceProbeJob persists health and durable state", async (
   assert.equal(calls.recordSourceProbeHealth.length, 1);
   assert.equal(calls.updateIngestJobStatus[0]?.input.status, "running");
   assert.equal(calls.updateIngestRunStatus[0]?.input.status, "running");
+  assert.equal(calls.updateIngestJobStatus[0]?.input.attemptCount, 1);
   assert.equal(calls.updateIngestJobStatus.at(-1)?.input.status, "succeeded");
   assert.equal(calls.updateIngestRunStatus.at(-1)?.input.status, "succeeded");
   assert.equal(result.ingest.probeKind, "manifest");
@@ -317,4 +331,62 @@ test("executeScheduledSourceProbeJob marks durable failure state when probing th
   assert.equal(calls.recordSourceProbeHealth.length, 0);
   assert.equal(calls.updateIngestJobStatus.at(-1)?.input.status, "failed");
   assert.equal(calls.updateIngestRunStatus.at(-1)?.input.status, "failed");
+  assert.equal(calls.updateIngestJobStatus.at(-1)?.input.attemptCount, 1);
+  const failureTelemetry = (
+    calls.updateIngestRunStatus.at(-1)?.input.metadata as {
+      executionTelemetry?: {
+        status?: string;
+        attemptCount?: number;
+        failure?: {
+          category?: string;
+          code?: string;
+          retryable?: boolean;
+        } | null;
+      };
+    }
+  )?.executionTelemetry;
+  assert.equal(failureTelemetry?.status, "failed");
+  assert.equal(failureTelemetry?.attemptCount, 1);
+  assert.equal(failureTelemetry?.failure?.category, "provider_request");
+  assert.equal(failureTelemetry?.failure?.code, "provider_request_failed");
+  assert.equal(failureTelemetry?.failure?.retryable, true);
+});
+
+test("executeScheduledSourceRefreshJob increments attempt telemetry on repeated execution", async () => {
+  const payload = await loadFixture();
+  const registry = createDefaultProviderRegistry();
+  const { calls, persistence, health } = createSourceJobDouble({ attemptCount: 2 });
+  const http: ProviderHttpClient = {
+    async fetchJson() {
+      return payload;
+    },
+    async fetchText() {
+      throw new Error("refresh job should not call fetchText.");
+    },
+  };
+
+  await executeScheduledSourceRefreshJob(
+    persistence,
+    health,
+    registry,
+    {
+      providerKey: "jszyapi_vod_json",
+      reason: "scheduled",
+      requestId: "req-source-job",
+      actorId: "codex",
+      target: createTarget(),
+    },
+    {
+      http,
+      now: () => new Date("2026-03-11T08:00:00.000Z"),
+    },
+  );
+
+  assert.equal(calls.updateIngestJobStatus[0]?.input.attemptCount, 3);
+  const runningTelemetry = (
+    calls.updateIngestRunStatus[0]?.input.metadata as {
+      executionTelemetry?: { attemptCount?: number };
+    }
+  )?.executionTelemetry;
+  assert.equal(runningTelemetry?.attemptCount, 3);
 });
