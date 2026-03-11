@@ -20,6 +20,7 @@ import { EpisodeSelector } from "../../components/player/EpisodeSelector";
 import { PlayerShell } from "../../components/player/PlayerShell";
 import { buildPublishedWatchHref } from "../../lib/server/catalog/identity";
 import { getPublishedCatalogDetailByPublicId, resolvePublishedCatalogWatch } from "../../lib/server/catalog/service";
+import type { PublishedPlaybackResourceRecord } from "../../lib/server/catalog/types";
 import type { DownloadResourceOption, MediaEpisodeOption, PlaybackSourceOption, PublicMediaListItem } from "../../types/media";
 
 type SourceNavigationOption = PlaybackSourceOption & {
@@ -62,49 +63,76 @@ function getActiveEpisodePublicId(
   return episodes.find((episode) => episode.publicId === requestedEpisodePublicId)?.publicId ?? defaultEpisodePublicId;
 }
 
-function getPlaybackOptionsForEpisode(sources: PlaybackSourceOption[], episodePublicId?: string) {
+function getResourceOptionsForEpisode<Resource extends { episodePublicId?: string }>(
+  resources: Resource[],
+  episodePublicId?: string,
+) {
   if (!episodePublicId) {
-    return sources.filter((source) => !source.episodePublicId);
+    return resources.filter((resource) => !resource.episodePublicId);
   }
 
-  const matching = sources.filter((source) => source.episodePublicId === episodePublicId || !source.episodePublicId);
-  return matching.length > 0 ? matching : sources;
+  const matching = resources.filter((resource) => resource.episodePublicId === episodePublicId || !resource.episodePublicId);
+  return matching.length > 0 ? matching : resources;
 }
 
-function isPlayableSource(source: PlaybackSourceOption) {
-  return source.url.trim().length > 0 && source.status !== "offline" && source.status !== "reported";
+function mapPlaybackSourceOptions(
+  resources: PublishedPlaybackResourceRecord[],
+  sourceByPublicId: Map<string, PlaybackSourceOption>,
+) {
+  return resources
+    .map((resource) => sourceByPublicId.get(resource.publicId))
+    .filter((resource): resource is PlaybackSourceOption => Boolean(resource));
 }
 
-function resolveActiveSource(sources: PlaybackSourceOption[], requestedResourcePublicId?: string) {
-  const playableSources = sources.filter(isPlayableSource);
+function mapDownloadResourceOptions(
+  resources: PublishedPlaybackResourceRecord[],
+  sourceByPublicId: Map<string, DownloadResourceOption>,
+) {
+  return resources
+    .map((resource) => sourceByPublicId.get(resource.publicId))
+    .filter((resource): resource is DownloadResourceOption => Boolean(resource));
+}
+
+function matchesSourcePreference(source: PlaybackSourceOption, preferredSource: PlaybackSourceOption) {
+  return (
+    source.provider === preferredSource.provider &&
+    source.format === preferredSource.format &&
+    source.label === preferredSource.label &&
+    source.quality === preferredSource.quality
+  );
+}
+
+function resolveActivePlaybackSource(
+  resources: PublishedPlaybackResourceRecord[],
+  sourceByPublicId: Map<string, PlaybackSourceOption>,
+  requestedResourcePublicId?: string,
+) {
+  const usableSources = resources.filter((resource) => resource.isUsable);
+  const mappedUsableSources = mapPlaybackSourceOptions(usableSources, sourceByPublicId);
 
   return (
-    playableSources.find((source) => source.publicId === requestedResourcePublicId) ??
-    playableSources[0] ??
-    sources.find((source) => source.publicId === requestedResourcePublicId) ??
-    sources[0] ??
+    mappedUsableSources.find((source) => source.publicId === requestedResourcePublicId) ??
+    mappedUsableSources[0] ??
     null
   );
 }
 
 function resolveSourcePreferenceForEpisode(
-  sources: PlaybackSourceOption[],
+  resources: PublishedPlaybackResourceRecord[],
+  sourceByPublicId: Map<string, PlaybackSourceOption>,
   episodePublicId: string | undefined,
   preferredSource: PlaybackSourceOption | null,
 ) {
-  const episodeSources = getPlaybackOptionsForEpisode(sources, episodePublicId);
+  const episodeSources = mapPlaybackSourceOptions(
+    getResourceOptionsForEpisode(resources, episodePublicId).filter((resource) => resource.isUsable),
+    sourceByPublicId,
+  );
   if (!preferredSource) {
-    return resolveActiveSource(episodeSources);
+    return episodeSources[0] ?? null;
   }
 
   return (
-    episodeSources.find(
-      (option) =>
-        isPlayableSource(option) &&
-        option.provider === preferredSource.provider &&
-        option.format === preferredSource.format &&
-        option.label === preferredSource.label,
-    ) ?? resolveActiveSource(episodeSources)
+    episodeSources.find((option) => matchesSourcePreference(option, preferredSource)) ?? episodeSources[0] ?? null
   );
 }
 
@@ -115,24 +143,16 @@ function buildEpisodeWatchHref(
     listItemPublicRef?: string;
     timeSeconds?: number;
   },
-  sources: PlaybackSourceOption[],
+  resources: PublishedPlaybackResourceRecord[],
+  sourceByPublicId: Map<string, PlaybackSourceOption>,
   episodePublicId: string | undefined,
   preferredSource: PlaybackSourceOption | null,
 ) {
-  const matchedSource = resolveSourcePreferenceForEpisode(sources, episodePublicId, preferredSource);
+  const matchedSource = resolveSourcePreferenceForEpisode(resources, sourceByPublicId, episodePublicId, preferredSource);
   return buildCanonicalWatchStateHref(baseState, {
     episodePublicId: episodePublicId ?? null,
     resourcePublicId: matchedSource?.publicId ?? null,
   });
-}
-
-function getDownloadOptionsForEpisode(downloads: DownloadResourceOption[], episodePublicId?: string) {
-  if (!episodePublicId) {
-    return downloads;
-  }
-
-  const matching = downloads.filter((resource) => resource.episodePublicId === episodePublicId || !resource.episodePublicId);
-  return matching.length > 0 ? matching : downloads;
 }
 
 function getResolvedListItem(
@@ -222,6 +242,8 @@ export default async function WatchPage({ searchParams }: RouteProps) {
   }
 
   const detail = mapPublishedDetailRecord(publishedDetail);
+  const playbackSourceByPublicId = new Map(detail.playbackSources.map((source) => [source.publicId, source] as const));
+  const downloadSourceByPublicId = new Map(detail.downloads.map((resource) => [resource.publicId, resource] as const));
   const resolvedList = publishedWatch.list ? mapPublishedList(publishedWatch.list) : undefined;
   const resolvedQueue = publishedWatch.queue ? mapPublishedQueue(publishedWatch.queue) : undefined;
   const activeEpisodePublicId =
@@ -239,20 +261,22 @@ export default async function WatchPage({ searchParams }: RouteProps) {
     listItemPublicRef: resolvedListItem?.publicRef,
     timeSeconds,
   };
-  const activePlaybackOptions = getPlaybackOptionsForEpisode(detail.playbackSources, activeEpisodePublicId);
-  const activeSource = resolveActiveSource(
-    activePlaybackOptions,
-    requestedResourcePublicId ?? publishedWatch.selectedResource?.publicId,
+  const activePlaybackOptions = mapPlaybackSourceOptions(
+    publishedWatch.streamResources.filter((resource) => resource.isUsable),
+    playbackSourceByPublicId,
+  );
+  const activeSource = resolveActivePlaybackSource(
+    publishedWatch.streamResources,
+    playbackSourceByPublicId,
+    publishedWatch.selectedResource?.kind === "stream" ? publishedWatch.selectedResource.publicId : undefined,
   );
 
-  const visibleDownloads = getDownloadOptionsForEpisode(detail.downloads, activeEpisodePublicId);
-  const requestedDownloadResource = visibleDownloads.find((resource) => resource.publicId === requestedResourcePublicId);
-  const hasRequestedPlaybackResource = activePlaybackOptions.some((source) => source.publicId === requestedResourcePublicId);
-  const resolvedResourcePublicId =
-    requestedResourcePublicId && (hasRequestedPlaybackResource || requestedDownloadResource)
-      ? requestedResourcePublicId
-      : activeSource?.publicId;
-  const activeDownloadProvider = requestedDownloadResource?.provider ?? visibleDownloads[0]?.provider;
+  const visibleDownloads = mapDownloadResourceOptions(publishedWatch.downloadResources, downloadSourceByPublicId);
+  const activeDownloadResource =
+    publishedWatch.selectedResource?.kind === "download"
+      ? downloadSourceByPublicId.get(publishedWatch.selectedResource.publicId)
+      : undefined;
+  const activeDownloadProvider = activeDownloadResource?.provider ?? visibleDownloads[0]?.provider;
   const activeDownloads = activeDownloadProvider
     ? visibleDownloads.filter((resource) => resource.provider === activeDownloadProvider)
     : visibleDownloads;
@@ -260,12 +284,11 @@ export default async function WatchPage({ searchParams }: RouteProps) {
 
   const episodeOptions = detail.episodes.map((episode) => ({
     ...episode,
-    href: buildEpisodeWatchHref(baseWatchState, detail.playbackSources, episode.publicId, activeSource),
+    href: buildEpisodeWatchHref(baseWatchState, publishedDetail.streamResources, playbackSourceByPublicId, episode.publicId, activeSource),
     isActive: episode.publicId === activeEpisodePublicId,
   }));
 
   const sourceOptions: SourceNavigationOption[] = activePlaybackOptions
-    .filter(isPlayableSource)
     .map((playbackSource) => ({
       ...playbackSource,
       href: buildCanonicalWatchStateHref(baseWatchState, {
@@ -277,7 +300,9 @@ export default async function WatchPage({ searchParams }: RouteProps) {
 
   const providerTabs = [...new Map(visibleDownloads.map((item) => [item.provider, item.providerLabel])).entries()].map(
     ([provider, providerLabel]) => {
-      const providerResource = visibleDownloads.find((resource) => resource.provider === provider);
+      const providerResource =
+        publishedWatch.downloadResources.find((resource) => resource.isUsable && downloadSourceByPublicId.get(resource.publicId)?.provider === provider) ??
+        publishedWatch.downloadResources.find((resource) => downloadSourceByPublicId.get(resource.publicId)?.provider === provider);
       return {
         id: provider,
         label: providerLabel,
@@ -293,12 +318,9 @@ export default async function WatchPage({ searchParams }: RouteProps) {
   const nextEpisodeIndex = activeEpisode ? detail.episodes.findIndex((episode) => episode.publicId === activeEpisode.publicId) + 1 : -1;
   const nextEpisode = nextEpisodeIndex > 0 ? detail.episodes[nextEpisodeIndex] : undefined;
   const nextEpisodeHref = nextEpisode
-    ? buildEpisodeWatchHref(baseWatchState, detail.playbackSources, nextEpisode.publicId, activeSource)
+    ? buildEpisodeWatchHref(baseWatchState, publishedDetail.streamResources, playbackSourceByPublicId, nextEpisode.publicId, activeSource)
     : undefined;
-  const canonicalWatchHref = buildCanonicalWatchStateHref(baseWatchState, {
-    episodePublicId: activeEpisodePublicId ?? null,
-    resourcePublicId: resolvedResourcePublicId ?? null,
-  });
+  const canonicalWatchHref = publishedWatch.canonicalWatchHref;
   const playbackTitle = getPlaybackTitle(detail.media.title, activeEpisode?.episodeNumber);
 
   return (
