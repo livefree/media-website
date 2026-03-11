@@ -193,6 +193,12 @@ enum IngestRunStatus {
   PARTIAL
 }
 
+enum ProviderSyncExecutionState {
+  SCHEDULED
+  WAITING_RETRY
+  WAITING_THROTTLE
+}
+
 enum ProviderItemStatus {
   DISCOVERED
   DETAIL_FETCHED
@@ -924,6 +930,26 @@ model IngestJob {
   @@index([status, leaseExpiresAt, createdAt])
   @@index([status, nextAttemptAt, createdAt])
   @@index([requestId])
+}
+
+model ProviderSyncLaneState {
+  id                         String                     @id @default(cuid())
+  providerKey                String                     @unique
+  activeMode                 IngestMode?
+  activeQueueJobId           String?
+  activeRequestedAt          DateTime?
+  activeCheckpoint           Json?
+  activeExecutionState       ProviderSyncExecutionState?
+  activeRetryCount           Int                        @default(0)
+  activeNextAttemptAt        DateTime?
+  pendingBackfillRequest     Json?
+  pendingBackfillRequestedAt DateTime?
+  pendingIncrementalRequest  Json?
+  pendingIncrementalRequestedAt DateTime?
+  createdAt                  DateTime                   @default(now())
+  updatedAt                  DateTime                   @updatedAt
+
+  @@index([providerKey, updatedAt])
 }
 
 model IngestRun {
