@@ -23,7 +23,7 @@ PlayerShell
 
 ## Current Active Task
 
-### Workstream 3: Moderation And Manual Submission Workflows
+### Workstream 4: Observability, Security, And Launch Hardening
 
 Coordinator-only rule:
 - Coordinator may define scope, update task docs, dispatch agents, review ownership, and merge accepted work.
@@ -31,32 +31,32 @@ Coordinator-only rule:
 
 Required execution order for this task:
 1. Coordinator aligns the work package to `docs/backend-spec.md`, `docs/roadmap.md`, and `docs/backend-delivery-workflow.md`
-2. Planner defines the implementation breakdown, ownership boundaries, testing scope, and acceptance checklist for moderation and manual submission workflows
-3. Data Catalog implements the repository, contract, and backend workflow support required for moderation and manual submission
-4. UI Shell implements the admin moderation and manual submission surfaces
+2. Planner defines the implementation breakdown, ownership boundaries, testing scope, and acceptance checklist for observability, security, and launch hardening work
+3. Data Catalog and Media Ingest implement the backend/runtime support required by the chosen hardening slice
+4. UI Shell only participates if an operator-facing observability surface is explicitly required by the planned slice
 5. Reviewer validates operator workflow correctness, scope discipline, and test/build coverage before merge
 6. User review remains authoritative for planning direction; rejected backend structure must not be represented as accepted
 
 Scope for this round:
-- Establish the first operator-facing moderation and manual submission workflows on top of the accepted review/publish, published catalog, and source-management backend foundation described in `docs/backend-spec.md`, `docs/roadmap.md`, and `docs/backend-delivery-workflow.md`
-- Implement narrow moderation and manual submission workflows backed by existing backend modules
+- Establish the first explicit observability, security, and launch-hardening slice on top of the accepted provider, catalog, source, and admin backend foundation described in `docs/backend-spec.md`, `docs/roadmap.md`, and `docs/backend-delivery-workflow.md`
+- Implement one narrow hardening slice at a time rather than broad platform-wide changes in a single pass
 - Owned surfaces:
   - Planner: architecture, roadmap alignment, round-specific handoff docs
-  - Data Catalog: Prisma/schema only if narrowly required, `lib/db/`, `lib/server/review/`, `lib/server/source/`, `lib/server/admin/`, and related shared backend support for moderation and manual submission workflows
-  - UI Shell: admin pages, components, and styling for moderation and manual submission surfaces
+  - Data Catalog: Prisma/schema only if narrowly required, `lib/db/`, `lib/server/admin/`, `lib/server/health/`, `lib/server/catalog/`, and related shared backend support for the selected hardening slice
+  - Media Ingest: `lib/server/provider/`, `lib/server/ingest/`, job execution, and provider/runtime support for the selected hardening slice
+  - UI Shell: only if the planned hardening slice explicitly requires an operator-facing admin surface
   - Reviewer: acceptance and findings docs only
 - No public route redesign
 - No player work
-- No auth/session work
-- No broad admin suite expansion beyond moderation and manual submission workflows
+- No broad auth/session product expansion beyond hardening needs
+- No broad admin suite expansion unless the planned slice explicitly requires it
 
 Acceptance criteria:
-- Moderation workflows for broken-source reports or equivalent operator report handling exist without direct DB edits
-- Manual submission workflows for title/source intake exist in operator-facing form without bypassing backend boundaries
-- The new surfaces are backed by backend review/source/admin boundaries rather than seed helpers or ad hoc route-local logic
-- Actions remain narrow, auditable, and scoped to this workflow slice
+- The chosen hardening slice improves backend operability, safety, or observability in a measurable way
+- The slice remains narrow, testable, and grounded in tracked backend docs rather than ad hoc hardening changes
+- New support remains inside accepted backend boundaries and does not leak into public route logic
 - The implementation includes the necessary tests and remains buildable after this slice
-- No public route redesign, player work, auth expansion, or broader admin/control-plane drift is introduced
+- No public route redesign, player work, or broader out-of-scope platform drift is introduced
 
 Current user-requested improvement to implement:
 1. Continue using the fixed backend workflow without ad hoc phases
@@ -73,4 +73,5 @@ Current baseline:
 - Workstream 1 / Slice 2 is accepted, so scheduled refresh/probe jobs and durable job state are now in place
 - Workstream 2 / Slice 1 is accepted, so operator-facing source inventory and repair queue UI are now in place
 - Workstream 2 / Slice 2 is accepted, so operator-facing published catalog listing and inspection UI are now in place
-- The repo still lacks moderation workflows and manual submission workflows in operator-facing form
+- Workstream 3 is accepted, so moderation/report handling and manual title/source submission workflows are now in place
+- The repo still lacks explicit observability, security hardening, and final launch-readiness slices

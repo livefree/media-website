@@ -18,6 +18,7 @@ Coordinator:
 - Switched the active task from accepted `Workstream 1 / Slice 2` into `Workstream 2 / Slice 1: Admin Source Inventory And Repair Queue UI`, keeping the fixed workflow and constraining the slice to operator source/repair surfaces only
 - Switched the active task from accepted `Workstream 2 / Slice 1` into `Workstream 2 / Slice 2: Published Catalog Management UI`, keeping the fixed workflow and constraining the slice to operator catalog surfaces only
 - Switched the active task from accepted `Workstream 2 / Slice 2` into `Workstream 3: Moderation And Manual Submission Workflows`, keeping the fixed workflow and constraining the slice to operator moderation/report handling and manual submission only
+- Switched the active task from accepted `Workstream 3` into `Workstream 4: Observability, Security, And Launch Hardening`, keeping the fixed workflow and requiring future hardening work to stay in narrow tracked slices
 - Promoted `reference-assets/backend.md` into tracked `docs/backend-spec.md` so backend planning is no longer anchored to an untracked reference file
 - Added a README entry point for the backend spec before starting backend-phase implementation work
 - Switched the active task from Round A to Round B and aligned the next implementation sequence to `planner -> media-ingest -> data-catalog -> reviewer`
