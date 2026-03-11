@@ -115,7 +115,7 @@ async function queueSourceJob(
     actorId?: string;
     providerItemId: string;
     pendingMetadata: Record<string, unknown>;
-    buildRunningMetadata(attemptCount: number): Record<string, unknown>;
+    buildRunningMetadata(attemptCount: number, lastErrorSummary: string | null): Record<string, unknown>;
   },
 ) {
   const job = await persistence.createIngestJob({
@@ -141,11 +141,11 @@ async function queueSourceJob(
   const runningJob = await persistence.updateIngestJobStatus(job.id, {
     status: "running",
     attemptCount,
-    metadata: input.buildRunningMetadata(attemptCount),
+    metadata: input.buildRunningMetadata(attemptCount, job.lastErrorSummary ?? null),
   });
   const runningRun = await persistence.updateIngestRunStatus(run.id, {
     status: "running",
-    metadata: input.buildRunningMetadata(attemptCount),
+    metadata: input.buildRunningMetadata(attemptCount, job.lastErrorSummary ?? null),
   });
 
   return {
@@ -184,11 +184,12 @@ export async function executeScheduledSourceRefreshJob(
       status: "pending",
       attemptCount: 0,
     }),
-    buildRunningMetadata(attemptCount) {
+    buildRunningMetadata(attemptCount, lastErrorSummary) {
       return buildExecutionTelemetryMetadata(telemetryContext, {
         status: "running",
         attemptCount,
         startedAt,
+        lastErrorSummary,
       });
     },
   });
@@ -261,6 +262,7 @@ export async function executeScheduledSourceRefreshJob(
         startedAt,
         finishedAt,
         failure,
+        lastErrorSummary,
       }),
     });
     await persistence.updateIngestJobStatus(job.id, {
@@ -274,6 +276,7 @@ export async function executeScheduledSourceRefreshJob(
         startedAt,
         finishedAt,
         failure,
+        lastErrorSummary,
       }),
     });
 
@@ -310,11 +313,12 @@ export async function executeScheduledSourceProbeJob(
       status: "pending",
       attemptCount: 0,
     }),
-    buildRunningMetadata(attemptCount) {
+    buildRunningMetadata(attemptCount, lastErrorSummary) {
       return buildExecutionTelemetryMetadata(telemetryContext, {
         status: "running",
         attemptCount,
         startedAt,
+        lastErrorSummary,
       });
     },
   });
@@ -387,6 +391,7 @@ export async function executeScheduledSourceProbeJob(
         startedAt,
         finishedAt,
         failure,
+        lastErrorSummary,
       }),
     });
     await persistence.updateIngestJobStatus(job.id, {
@@ -400,6 +405,7 @@ export async function executeScheduledSourceProbeJob(
         startedAt,
         finishedAt,
         failure,
+        lastErrorSummary,
       }),
     });
 

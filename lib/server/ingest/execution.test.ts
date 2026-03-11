@@ -24,7 +24,7 @@ async function loadFixture() {
   return JSON.parse(await readFile(fixtureUrl, "utf8")) as Record<string, unknown>;
 }
 
-function createPersistenceDouble() {
+function createPersistenceDouble(options?: { attemptCount?: number; lastErrorSummary?: string | null }) {
   const calls = {
     upsertProviderRegistry: [] as Array<Record<string, unknown>>,
     createIngestJob: [] as IngestJobCreateInput[],
@@ -52,10 +52,10 @@ function createPersistenceDouble() {
     status: "running",
     requestId: "req-1",
     actorId: "codex",
-    attemptCount: 0,
+    attemptCount: options?.attemptCount ?? 0,
     startedAt: new Date("2026-03-10T12:00:00.000Z"),
     finishedAt: null,
-    lastErrorSummary: null,
+    lastErrorSummary: options?.lastErrorSummary ?? null,
   };
 
   const run: PersistedIngestRunRecord = {
@@ -73,7 +73,7 @@ function createPersistenceDouble() {
     warningCount: 0,
     startedAt: new Date("2026-03-10T12:00:00.000Z"),
     finishedAt: null,
-    lastErrorSummary: null,
+    lastErrorSummary: options?.lastErrorSummary ?? null,
   };
 
   const persistence = {
@@ -302,6 +302,8 @@ test("executeProviderPageIngestRun marks the run failed when provider parsing fa
   )?.executionTelemetry;
   assert.equal(failureTelemetry?.status, "failed");
   assert.equal(failureTelemetry?.attemptCount, 1);
+  assert.equal(failureTelemetry?.retryState, "terminal_failure");
+  assert.equal(failureTelemetry?.lastErrorSummary, "Provider response 'msg' indicated an error: provider failed.");
   assert.equal(failureTelemetry?.failure?.category, "provider_response");
   assert.equal(failureTelemetry?.failure?.code, "provider_payload_invalid");
   assert.equal(failureTelemetry?.failure?.retryable, false);
