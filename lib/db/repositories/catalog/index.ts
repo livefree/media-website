@@ -53,14 +53,30 @@ const publishedMediaInclude = {
     include: {
       episodes: {
         include: {
-          resources: true,
+          resources: {
+            include: {
+              replacementResource: {
+                select: {
+                  publicId: true,
+                },
+              },
+            },
+          },
         },
         orderBy: [{ episodeNumber: "asc" }, { title: "asc" }],
       },
     },
     orderBy: { seasonNumber: "asc" },
   },
-  resources: true,
+  resources: {
+    include: {
+      replacementResource: {
+        select: {
+          publicId: true,
+        },
+      },
+    },
+  },
 } satisfies Prisma.MediaTitleInclude;
 
 type PublishedMediaPayload = Prisma.MediaTitleGetPayload<{ include: typeof publishedMediaInclude }>;
@@ -184,6 +200,23 @@ function mapResourceStatus(value: string): PublishedResourceStatus {
   throw new Error(`Unsupported resource status: ${value}`);
 }
 
+function mapPublishedSourceHealthState(value: string): PublishedPlaybackResourceRecord["healthState"] {
+  switch (value) {
+    case "HEALTHY":
+      return "healthy";
+    case "DEGRADED":
+      return "degraded";
+    case "BROKEN":
+      return "broken";
+    case "REPLACED":
+      return "replaced";
+    case "OFFLINE":
+      return "offline";
+  }
+
+  throw new Error(`Unsupported source health state: ${value}`);
+}
+
 function getPrimaryArtwork(
   artwork: PublishedMediaPayload["artwork"],
   kind: "POSTER" | "BACKDROP",
@@ -201,14 +234,111 @@ function getAllPublishedResources(media: PublishedMediaPayload) {
   ];
 }
 
-function buildAvailabilityLabel(media: PublishedMediaPayload): string {
-  const allResources = getAllPublishedResources(media);
-  const onlineStreams = allResources.filter(({ resource }) => resource.kind === "STREAM" && resource.status === "ONLINE").length;
-  const degradedStreams = allResources.filter(({ resource }) => resource.kind === "STREAM" && resource.status === "DEGRADED").length;
-  const downloads = allResources.filter(({ resource }) => resource.kind === "DOWNLOAD").length;
+type PublishedResourceEntity =
+  | PublishedMediaPayload["resources"][number]
+  | PublishedMediaPayload["seasons"][number]["episodes"][number]["resources"][number];
 
-  if (onlineStreams > 0) {
-    return `${onlineStreams} streams live`;
+function isPublicResource(resource: PublishedResourceEntity) {
+  return resource.isPublic && resource.isActive;
+}
+
+function rankHealthState(value: string): number {
+  switch (value) {
+    case "HEALTHY":
+      return 0;
+    case "DEGRADED":
+      return 1;
+    case "BROKEN":
+      return 2;
+    case "REPLACED":
+      return 3;
+    case "OFFLINE":
+      return 4;
+  }
+
+  return 5;
+}
+
+function rankResourceStatus(value: string): number {
+  switch (value) {
+    case "ONLINE":
+      return 0;
+    case "DEGRADED":
+      return 1;
+    case "PENDING":
+      return 2;
+    case "REPORTED":
+      return 3;
+    case "OFFLINE":
+      return 4;
+  }
+
+  return 5;
+}
+
+function isUsableResource(resource: PublishedResourceEntity) {
+  if (!isPublicResource(resource)) {
+    return false;
+  }
+
+  const statusUsable = resource.status === "ONLINE" || resource.status === "DEGRADED";
+  const healthUsable = resource.healthState === "HEALTHY" || resource.healthState === "DEGRADED";
+
+  return statusUsable && healthUsable;
+}
+
+function comparePublishedResources(
+  left: PublishedResourceEntity,
+  right: PublishedResourceEntity,
+) {
+  const leftUsable = isUsableResource(left);
+  const rightUsable = isUsableResource(right);
+
+  if (leftUsable !== rightUsable) {
+    return leftUsable ? -1 : 1;
+  }
+
+  if (left.isPreferred !== right.isPreferred) {
+    return left.isPreferred ? -1 : 1;
+  }
+
+  if (left.priority !== right.priority) {
+    return right.priority - left.priority;
+  }
+
+  const healthRank = rankHealthState(left.healthState) - rankHealthState(right.healthState);
+
+  if (healthRank !== 0) {
+    return healthRank;
+  }
+
+  const statusRank = rankResourceStatus(left.status) - rankResourceStatus(right.status);
+
+  if (statusRank !== 0) {
+    return statusRank;
+  }
+
+  if (left.mirrorOrder !== right.mirrorOrder) {
+    return left.mirrorOrder - right.mirrorOrder;
+  }
+
+  return left.createdAt.getTime() - right.createdAt.getTime();
+}
+
+function buildAvailabilityLabel(media: PublishedMediaPayload): string {
+  const allResources = getAllPublishedResources(media).filter(({ resource }) => isPublicResource(resource));
+  const healthyStreams = allResources.filter(
+    ({ resource }) => resource.kind === "STREAM" && resource.healthState === "HEALTHY" && resource.status === "ONLINE",
+  ).length;
+  const degradedStreams = allResources.filter(
+    ({ resource }) =>
+      resource.kind === "STREAM" &&
+      (resource.healthState === "DEGRADED" || resource.status === "DEGRADED"),
+  ).length;
+  const downloads = allResources.filter(({ resource }) => resource.kind === "DOWNLOAD" && isUsableResource(resource)).length;
+
+  if (healthyStreams > 0) {
+    return `${healthyStreams} healthy streams`;
   }
 
   if (degradedStreams > 0) {
@@ -269,7 +399,7 @@ function mapPublishedMediaIdentity(media: PublishedMediaPayload): PublishedMedia
 
 function mapPublishedResource(
   media: PublishedMediaPayload,
-  resource: PublishedMediaPayload["resources"][number],
+  resource: PublishedResourceEntity,
   episode?: PublishedMediaPayload["seasons"][number]["episodes"][number] | null,
   listPublicId?: string,
   listItemPublicRef?: string,
@@ -295,6 +425,13 @@ function mapPublishedResource(
     label: resource.label,
     quality: resource.quality,
     status: mapResourceStatus(resource.status),
+    healthState: mapPublishedSourceHealthState(resource.healthState),
+    healthSummary: resource.healthSummary,
+    priority: resource.priority,
+    mirrorOrder: resource.mirrorOrder,
+    isPreferred: resource.isPreferred,
+    isUsable: isUsableResource(resource),
+    replacementPublicId: resource.replacementResource?.publicId ?? null,
     url: resource.url,
     maskedUrl: resource.maskedUrl,
     accessCode: resource.accessCode,
@@ -501,6 +638,75 @@ function buildPublishedListQueue(list: PublishedListRecord, currentPublicRef?: s
     nextItem: currentIndex >= 0 && currentIndex < items.length - 1 ? items[currentIndex + 1] : undefined,
     items,
     upcomingItems: items.slice(Math.max(currentIndex + 1, 0)),
+  };
+}
+
+function mapPublishedResourceCollection(
+  media: PublishedMediaPayload,
+  resources: Array<{
+    resource: PublishedResourceEntity;
+    episode: PublishedMediaPayload["seasons"][number]["episodes"][number] | null;
+  }>,
+  kind: PublishedResourceKind,
+  listPublicId?: string,
+  listItemPublicRef?: string,
+) {
+  return resources
+    .filter(({ resource }) => mapResourceKind(resource.kind) === kind && isPublicResource(resource))
+    .sort((left, right) => comparePublishedResources(left.resource, right.resource))
+    .map(({ resource, episode }) => mapPublishedResource(media, resource, episode, listPublicId, listItemPublicRef));
+}
+
+function resolveSelectedResource(
+  query: PublishedWatchQuery,
+  streamResources: PublishedPlaybackResourceRecord[],
+  downloadResources: PublishedPlaybackResourceRecord[],
+  subtitleResources: PublishedPlaybackResourceRecord[],
+) {
+  const combined = [...streamResources, ...downloadResources, ...subtitleResources];
+  const requested = query.resourcePublicId ? combined.find((resource) => resource.publicId === query.resourcePublicId) : undefined;
+
+  if (requested?.isUsable) {
+    return {
+      selectedResource: requested,
+      sourceResolutionReason: "explicit" as const,
+    };
+  }
+
+  if (query.resourcePublicId && requested) {
+    const sameKindFallback = combined.find(
+      (resource) => resource.kind === requested.kind && resource.isUsable && resource.publicId !== requested.publicId,
+    );
+
+    if (sameKindFallback) {
+      return {
+        selectedResource: sameKindFallback,
+        sourceResolutionReason: "fallback_unusable" as const,
+      };
+    }
+  }
+
+  const preferredStream = streamResources.find((resource) => resource.isUsable && resource.healthState === "healthy");
+
+  if (preferredStream) {
+    return {
+      selectedResource: preferredStream,
+      sourceResolutionReason: query.resourcePublicId ? ("fallback_missing" as const) : ("preferred_healthy" as const),
+    };
+  }
+
+  const degradedStream = streamResources.find((resource) => resource.isUsable);
+
+  if (degradedStream) {
+    return {
+      selectedResource: degradedStream,
+      sourceResolutionReason: query.resourcePublicId ? ("fallback_unusable" as const) : ("preferred_degraded" as const),
+    };
+  }
+
+  return {
+    selectedResource: undefined,
+    sourceResolutionReason: "no_usable_source" as const,
   };
 }
 
@@ -749,39 +955,49 @@ export class PublishedCatalogRepository extends BaseRepository implements Publis
       (query.episodePublicId ? allEpisodes.find((episode) => episode.publicId === query.episodePublicId) : undefined) ??
       allEpisodes[0];
 
-    const streamResources = [
-      ...media.resources.filter((resource) => resource.kind === "STREAM").map((resource) => mapPublishedResource(media, resource, null, query.listPublicId, query.listItemPublicRef)),
-      ...(selectedEpisodeEntity
-        ? selectedEpisodeEntity.resources
-            .filter((resource) => resource.kind === "STREAM")
-            .map((resource) => mapPublishedResource(media, resource, selectedEpisodeEntity, query.listPublicId, query.listItemPublicRef))
-        : []),
-    ];
-    const downloadResources = [
-      ...media.resources
-        .filter((resource) => resource.kind === "DOWNLOAD")
-        .map((resource) => mapPublishedResource(media, resource, null, query.listPublicId, query.listItemPublicRef)),
-      ...(selectedEpisodeEntity
-        ? selectedEpisodeEntity.resources
-            .filter((resource) => resource.kind === "DOWNLOAD")
-            .map((resource) => mapPublishedResource(media, resource, selectedEpisodeEntity, query.listPublicId, query.listItemPublicRef))
-        : []),
-    ];
-    const subtitleResources = [
-      ...media.resources
-        .filter((resource) => resource.kind === "SUBTITLE")
-        .map((resource) => mapPublishedResource(media, resource, null, query.listPublicId, query.listItemPublicRef)),
-      ...(selectedEpisodeEntity
-        ? selectedEpisodeEntity.resources
-            .filter((resource) => resource.kind === "SUBTITLE")
-            .map((resource) => mapPublishedResource(media, resource, selectedEpisodeEntity, query.listPublicId, query.listItemPublicRef))
-        : []),
-    ];
+    const streamResources = mapPublishedResourceCollection(
+      media,
+      [
+        ...media.resources.map((resource) => ({ resource, episode: null as PublishedMediaPayload["seasons"][number]["episodes"][number] | null })),
+        ...(selectedEpisodeEntity
+          ? selectedEpisodeEntity.resources.map((resource) => ({ resource, episode: selectedEpisodeEntity }))
+          : []),
+      ],
+      "stream",
+      query.listPublicId,
+      query.listItemPublicRef,
+    );
+    const downloadResources = mapPublishedResourceCollection(
+      media,
+      [
+        ...media.resources.map((resource) => ({ resource, episode: null as PublishedMediaPayload["seasons"][number]["episodes"][number] | null })),
+        ...(selectedEpisodeEntity
+          ? selectedEpisodeEntity.resources.map((resource) => ({ resource, episode: selectedEpisodeEntity }))
+          : []),
+      ],
+      "download",
+      query.listPublicId,
+      query.listItemPublicRef,
+    );
+    const subtitleResources = mapPublishedResourceCollection(
+      media,
+      [
+        ...media.resources.map((resource) => ({ resource, episode: null as PublishedMediaPayload["seasons"][number]["episodes"][number] | null })),
+        ...(selectedEpisodeEntity
+          ? selectedEpisodeEntity.resources.map((resource) => ({ resource, episode: selectedEpisodeEntity }))
+          : []),
+      ],
+      "subtitle",
+      query.listPublicId,
+      query.listItemPublicRef,
+    );
 
-    const selectedResource =
-      (query.resourcePublicId
-        ? [...streamResources, ...downloadResources, ...subtitleResources].find((resource) => resource.publicId === query.resourcePublicId)
-        : undefined) ?? streamResources[0];
+    const { selectedResource, sourceResolutionReason } = resolveSelectedResource(
+      query,
+      streamResources,
+      downloadResources,
+      subtitleResources,
+    );
 
     const selectedEpisode = selectedEpisodeEntity
       ? mapPublishedEpisode(
@@ -817,6 +1033,9 @@ export class PublishedCatalogRepository extends BaseRepository implements Publis
       media: identity,
       selectedEpisode,
       selectedResource,
+      requestedResourcePublicId: query.resourcePublicId,
+      resolvedResourcePublicId: selectedResource?.publicId,
+      sourceResolutionReason,
       streamResources,
       downloadResources,
       subtitleResources,
@@ -900,15 +1119,6 @@ export class PublishedCatalogRepository extends BaseRepository implements Publis
     const seasons = media.seasons.map((season) => mapPublishedSeason(media, season));
     const episodes = seasons.flatMap((season) => season.episodes);
     const allResources = getAllPublishedResources(media);
-    const streamResources = allResources
-      .filter(({ resource }) => resource.kind === "STREAM")
-      .map(({ resource, episode }) => mapPublishedResource(media, resource, episode));
-    const downloadResources = allResources
-      .filter(({ resource }) => resource.kind === "DOWNLOAD")
-      .map(({ resource, episode }) => mapPublishedResource(media, resource, episode));
-    const subtitleResources = allResources
-      .filter(({ resource }) => resource.kind === "SUBTITLE")
-      .map(({ resource, episode }) => mapPublishedResource(media, resource, episode));
 
     const related = await this.db.mediaTitle.findMany({
       where: {
@@ -942,9 +1152,9 @@ export class PublishedCatalogRepository extends BaseRepository implements Publis
       media: identity,
       seasons,
       episodes,
-      streamResources,
-      downloadResources,
-      subtitleResources,
+      streamResources: mapPublishedResourceCollection(media, allResources, "stream"),
+      downloadResources: mapPublishedResourceCollection(media, allResources, "download"),
+      subtitleResources: mapPublishedResourceCollection(media, allResources, "subtitle"),
       defaultEpisodePublicId: episodes[0]?.publicId,
       related: related.map((item) => mapPublishedCatalogCard(item)),
     };

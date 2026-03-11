@@ -8,3 +8,6 @@ export const healthModule = defineServerModule({
   owns: ["health probes", "availability transitions", "repair queue signals", "refresh scheduling hooks"],
   dependsOn: ["config", "source"],
 });
+
+export * from "./types";
+export * from "./service";
