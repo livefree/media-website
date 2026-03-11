@@ -3,6 +3,9 @@
 2026-03-11
 
 UI Shell:
+- Added operator-only `/admin/moderation` queue and `/admin/moderation/[publicId]` detail surfaces, wired through `lib/server/admin` moderation contracts with backend-backed filtering, report inspection, action history, and narrow acknowledge/resolve/dismiss controls instead of route-local workflow logic
+- Added operator-only `/admin/manual-titles` and `/admin/manual-sources` submission surfaces, including manual intake forms, backend-backed queue filters, selected-submission inspection, and narrow status-update controls that stay inside the accepted admin/review/source workflow boundaries
+- Added shared Workstream 3 admin route-state helpers plus deterministic helper tests for moderation/manual-submission filter parsing, selected-item return navigation, and safe route-only redirect normalization
 - Added operator-facing `/admin/catalog` list and `/admin/catalog/[publicId]` detail surfaces for published catalog management, wired only through `lib/server/admin`, with backend-backed filters, pagination, repair/review drill-ins, and published resource/episode/audit inspection instead of route-local helpers
 - Added deterministic helper coverage for published-catalog admin search parsing, pagination href building, and safe catalog-only return navigation used by the new admin catalog UI
 
