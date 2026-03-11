@@ -14,5 +14,6 @@ export * from "./types";
 export * from "./service";
 export * from "./execution";
 export * from "./page-worker";
+export * from "./sync-orchestration";
 export * from "./source-jobs";
 export * from "./worker";
