@@ -40,9 +40,9 @@ Required execution order for this task:
 Scope for this round:
 - Establish the first explicit observability, security, and launch-hardening slice on top of the accepted provider, catalog, source, and admin backend foundation described in `docs/backend-spec.md`, `docs/roadmap.md`, and `docs/backend-delivery-workflow.md`
 - Implement one narrow hardening slice at a time rather than broad platform-wide changes in a single pass
-- Current hardening slice: `Workstream 4 / Slice 4: Migration Safety And Rollout Guardrails`
-- This slice is mapped to the `migration safety` deliverable under Workstream 4 in `docs/backend-delivery-workflow.md` and Phase 8 in `docs/roadmap.md`
-- Current refinement status: Slice 3 is accepted and closed; Slice 4 will focus on safe migration and rollout controls without reopening observability or admin monitoring scope
+- Current hardening slice: `Workstream 4 / Slice 5: End-to-End Backend Validation Path`
+- This slice is mapped to the `end-to-end validation across ingest -> normalize -> review -> publish -> watch -> healthcheck` deliverable under Workstream 4 in `docs/backend-delivery-workflow.md` and Phase 8 in `docs/roadmap.md`
+- Current refinement status: Slice 4 is accepted and closed; Slice 5 will focus on a narrow, deterministic validation path across the accepted backend foundation without reopening observability or migration-safety scope
 - Owned surfaces:
   - Planner: architecture, roadmap alignment, round-specific handoff docs
   - Data Catalog: Prisma/schema only if narrowly required, `lib/db/`, `lib/server/admin/`, `lib/server/health/`, `lib/server/catalog/`, and related shared backend support for the selected hardening slice
@@ -67,6 +67,7 @@ Current user-requested improvement to implement:
 3. Harden admin and operator-facing surfaces with explicit access-control boundaries before broader launch hardening slices
 4. Continue by exposing queue/job failure visibility to operators on top of the accepted telemetry baseline
 5. Continue into migration-safety hardening without ad hoc scope expansion
+6. Continue into a deterministic end-to-end backend validation slice
 
 Current baseline:
 - Round A monolith foundations are present under `lib/server/` and `lib/db/`
@@ -83,4 +84,5 @@ Current baseline:
 - Workstream 4 / Slice 1 is accepted, so structured job execution telemetry and failure visibility are now in place for ingest, scheduled refresh, and source-probe flows
 - Workstream 4 / Slice 2 is accepted, so existing admin/operator backend surfaces now require explicit server-side access control with correct `401`/`403` behavior
 - Workstream 4 / Slice 3 is accepted, so operators now have a privileged queue-failure monitoring surface with deterministic UI coverage
-- The repo still lacks migration safety, broader hardening slices, and final launch-readiness work
+- Workstream 4 / Slice 4 is accepted, so published-catalog runtime now has deterministic migration preflight and fail-closed rollout guardrails
+- The repo still lacks end-to-end validation, broader hardening slices, and final launch-readiness work
