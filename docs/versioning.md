@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.20.0`
+Current version: `0.21.0`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.20.0` an appropriate current milestone: the platform now layers one accepted deterministic backend golden-path validation chain on top of migration safety, operator monitoring, and the published-catalog foundation, so cross-boundary regressions are detectable without falling back to manual backend spot checks, while it still remains pre-launch because provider operationalization, recovery readiness, and final launch-hardening work are not finished.
+That makes `0.21.0` an appropriate current milestone: the platform now layers accepted durable unattended worker execution for queued provider jobs on top of the deterministic backend validation chain and previous hardening foundation, moving provider intake materially closer to sustained operation while it still remains pre-launch because resumability, broader recovery readiness, and final launch-hardening work are not finished.
 
 ## Rules
 
@@ -55,6 +55,8 @@ That makes `0.20.0` an appropriate current milestone: the platform now layers on
   Current baseline with deterministic migration preflight checks, privileged migration safety visibility, and fail-closed published-catalog rollout guardrails.
 - `0.20.x`
   Current baseline with one deterministic offline-safe backend golden path covering ingest staging through publish, published read, and watch/health contract validation.
+- `0.21.x`
+  Current baseline with durable in-repo worker execution, queue claim/lease safety, and offline-tested unattended provider job processing layered onto the accepted backend foundation.
 - `1.0.0`
   First production-ready launch baseline.
 
