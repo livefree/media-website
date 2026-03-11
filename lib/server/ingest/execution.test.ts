@@ -243,6 +243,122 @@ test("executeProviderPageIngestRun persists a real jszyapi page through the inge
   assert.equal(successTelemetry?.checkpoint?.page, 3);
 });
 
+test("executeProviderPageIngestRun exposes a deterministic staged handoff contract for downstream steps", async () => {
+  const payload = await loadFixture();
+  const registry = createDefaultProviderRegistry();
+  const { calls, persistence } = createPersistenceDouble();
+  const http: ProviderHttpClient = {
+    async fetchJson() {
+      return payload;
+    },
+    async fetchText() {
+      throw new Error("fetchText should not be called in json ingest tests.");
+    },
+  };
+
+  const result = await executeProviderPageIngestRun(
+    persistence,
+    registry,
+    {
+      providerKey: "jszyapi_vod_json",
+      mode: "backfill",
+      page: 2,
+      requestId: "req-golden",
+      actorId: "codex",
+    },
+    {
+      http,
+      now: () => new Date("2026-03-10T12:00:00.000Z"),
+    },
+  );
+
+  const stagedPlan = calls.persistPagePlan[0];
+  assert.ok(stagedPlan, "expected a persisted page plan for the golden fixture");
+  assert.equal(stagedPlan.plan.items.length, 2);
+  assert.equal(stagedPlan.plan.payloads.length, 1);
+  assert.equal(stagedPlan.plan.checkpoint?.page, 3);
+
+  const [movieItem, episodicItem] = stagedPlan.plan.items;
+  assert.equal(movieItem?.providerItemId, "1001");
+  assert.equal(movieItem?.title, "潜行者");
+  assert.equal(movieItem?.typeHint, "movie");
+  assert.equal(movieItem?.sourceFragments.length, 3);
+  assert.equal(movieItem?.warnings.length, 0);
+
+  assert.equal(episodicItem?.providerItemId, "1002");
+  assert.equal(episodicItem?.title, "星域行者");
+  assert.equal(episodicItem?.typeHint, "anime");
+  assert.equal(episodicItem?.rawEpisodeText, "更新至第3集");
+  assert.equal(episodicItem?.sourceFragments.length, 3);
+  assert.equal(episodicItem?.warnings.length, 0);
+
+  assert.deepEqual(
+    result.persisted.providerItems.map((item) => ({
+      externalId: item.externalId,
+      titleSnapshot: item.titleSnapshot,
+      typeHint: item.typeHint,
+    })),
+    [
+      {
+        externalId: "1001",
+        titleSnapshot: "潜行者",
+        typeHint: "movie",
+      },
+      {
+        externalId: "1002",
+        titleSnapshot: "星域行者",
+        typeHint: "anime",
+      },
+    ],
+  );
+
+  assert.deepEqual(
+    result.persisted.candidates.map((candidate) => ({
+      providerItemId: candidate.providerItemId,
+      title: candidate.title,
+      typeHint: candidate.typeHint,
+      status: candidate.status,
+      warningCount: candidate.warningCount,
+    })),
+    [
+      {
+        providerItemId: "provider-item-1",
+        title: "潜行者",
+        typeHint: "movie",
+        status: "ready_for_normalization",
+        warningCount: 0,
+      },
+      {
+        providerItemId: "provider-item-2",
+        title: "星域行者",
+        typeHint: "anime",
+        status: "ready_for_normalization",
+        warningCount: 0,
+      },
+    ],
+  );
+
+  assert.deepEqual(
+    result.persisted.rawPayloads.map((payload) => ({
+      scope: payload.scope,
+      payloadFormat: payload.payloadFormat,
+      externalItemId: payload.externalItemId,
+      providerItemId: payload.providerItemId,
+    })),
+    [
+      {
+        scope: "page",
+        payloadFormat: "json",
+        externalItemId: null,
+        providerItemId: null,
+      },
+    ],
+  );
+
+  assert.equal(result.persisted.checkpoint?.page, 3);
+  assert.equal(result.persisted.checkpoint?.cursor, null);
+});
+
 test("executeProviderPageIngestRun marks the run failed when provider parsing fails", async () => {
   const registry = createDefaultProviderRegistry();
   const { calls, persistence } = createPersistenceDouble();
