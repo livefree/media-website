@@ -1,5 +1,11 @@
 # Development Log
 
+2026-03-11
+
+UI Shell:
+- Added operator-facing `/admin/catalog` list and `/admin/catalog/[publicId]` detail surfaces for published catalog management, wired only through `lib/server/admin`, with backend-backed filters, pagination, repair/review drill-ins, and published resource/episode/audit inspection instead of route-local helpers
+- Added deterministic helper coverage for published-catalog admin search parsing, pagination href building, and safe catalog-only return navigation used by the new admin catalog UI
+
 2026-03-10
 
 Coordinator:

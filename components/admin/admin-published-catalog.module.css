@@ -1,0 +1,359 @@
+.catalogPage {
+  min-height: 100vh;
+  padding: 32px 24px 72px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 151, 88, 0.16), transparent 28%),
+    radial-gradient(circle at top right, rgba(63, 156, 148, 0.15), transparent 34%),
+    linear-gradient(180deg, #08101a 0%, #05070d 100%);
+  color: #edf3fb;
+}
+
+.catalogShell {
+  width: min(1380px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 24px;
+}
+
+.heroCard,
+.panel,
+.catalogCard,
+.resourceCard,
+.structureCard,
+.paginationPanel,
+.timelineItem {
+  border: 1px solid rgba(173, 194, 219, 0.14);
+  border-radius: 28px;
+  background: rgba(8, 13, 23, 0.88);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.24);
+}
+
+.heroCard {
+  padding: 28px;
+  display: grid;
+  gap: 24px;
+}
+
+.heroSplit,
+.heroIdentity {
+  display: grid;
+  gap: 20px;
+}
+
+.heroSplit {
+  grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.72fr);
+  align-items: start;
+}
+
+.heroIdentity {
+  grid-template-columns: 148px minmax(0, 1fr);
+  align-items: start;
+}
+
+.heroCopy {
+  display: grid;
+  gap: 12px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #ffb77c;
+  font-size: 0.77rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.pageTitle {
+  margin: 0;
+  font-size: clamp(2.3rem, 5vw, 4.4rem);
+  line-height: 0.94;
+  letter-spacing: -0.05em;
+}
+
+.pageSubtitle,
+.cardMeta,
+.longformCopy {
+  margin: 0;
+  color: rgba(228, 236, 247, 0.74);
+  line-height: 1.6;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.metricCard,
+.detailTile,
+.statTile {
+  padding: 16px 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(173, 194, 219, 0.12);
+  background: linear-gradient(180deg, rgba(16, 25, 39, 0.92), rgba(10, 16, 27, 0.88));
+}
+
+.metricValue,
+.statValue {
+  display: block;
+  font-size: 1.62rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.metricLabel,
+.statLabel,
+.detailLabel {
+  display: block;
+  margin-top: 8px;
+  color: rgba(217, 228, 244, 0.66);
+  font-size: 0.84rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.panel,
+.paginationPanel {
+  padding: 24px;
+}
+
+.panelHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: 1.18rem;
+  letter-spacing: -0.02em;
+}
+
+.panelSubtitle {
+  margin: 8px 0 0;
+  color: rgba(228, 236, 247, 0.68);
+  line-height: 1.55;
+}
+
+.filterForm {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.fieldLabel {
+  display: grid;
+  gap: 8px;
+  color: rgba(236, 243, 251, 0.88);
+  font-size: 0.94rem;
+}
+
+.fieldInput {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(173, 194, 219, 0.14);
+  background: rgba(9, 14, 24, 0.86);
+  color: #eef4fb;
+}
+
+.filterActions,
+.linkRow,
+.badgeRow,
+.pillRow,
+.resourceHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.primaryButton,
+.primaryLink,
+.secondaryLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 11px 16px;
+  font-weight: 600;
+}
+
+.primaryButton,
+.primaryLink {
+  border: 0;
+  background: linear-gradient(135deg, #ffaf66, #ff7348);
+  color: #220f06;
+}
+
+.secondaryLink {
+  border: 1px solid rgba(173, 194, 219, 0.16);
+  background: rgba(23, 34, 50, 0.7);
+  color: #eef4fb;
+}
+
+.emptyState,
+.warningState {
+  padding: 18px 20px;
+  border-radius: 20px;
+}
+
+.emptyState {
+  border: 1px dashed rgba(173, 194, 219, 0.2);
+  background: rgba(13, 20, 32, 0.72);
+  color: rgba(228, 236, 247, 0.72);
+}
+
+.warningState {
+  border: 1px solid rgba(255, 170, 112, 0.32);
+  background: rgba(63, 29, 12, 0.42);
+  color: #ffd8b4;
+}
+
+.cardList,
+.resourceList,
+.structureList,
+.timelineList {
+  display: grid;
+  gap: 14px;
+}
+
+.catalogCard {
+  padding: 20px;
+  display: grid;
+  gap: 18px;
+}
+
+.cardIdentity {
+  display: grid;
+  grid-template-columns: 108px minmax(0, 1fr);
+  gap: 18px;
+}
+
+.identityCopy,
+.sidebar {
+  display: grid;
+  gap: 16px;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 1.14rem;
+  letter-spacing: -0.02em;
+}
+
+.poster,
+.detailPoster,
+.posterFallback,
+.detailPosterFallback {
+  width: 100%;
+  border-radius: 22px;
+  object-fit: cover;
+  background: linear-gradient(180deg, rgba(34, 48, 73, 0.9), rgba(14, 18, 28, 0.96));
+}
+
+.poster {
+  aspect-ratio: 2 / 3;
+}
+
+.detailPoster,
+.detailPosterFallback {
+  min-height: 220px;
+}
+
+.posterFallback,
+.detailPosterFallback {
+  display: grid;
+  place-items: center;
+  color: rgba(228, 236, 247, 0.6);
+  font-size: 0.9rem;
+}
+
+.metricPill,
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(173, 194, 219, 0.14);
+  background: rgba(24, 37, 56, 0.82);
+  color: rgba(240, 245, 252, 0.9);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cardStats,
+.detailGrid,
+.detailLayout {
+  display: grid;
+  gap: 14px;
+}
+
+.cardStats,
+.detailGrid {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.detailLayout {
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.75fr);
+  align-items: start;
+}
+
+.detailValue,
+.pageMeta {
+  color: rgba(240, 245, 252, 0.92);
+  line-height: 1.55;
+}
+
+.resourceCard,
+.structureCard,
+.timelineItem {
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+}
+
+.paginationPanel {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+
+@media (max-width: 960px) {
+  .heroSplit,
+  .detailLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .catalogPage {
+    padding-inline: 16px;
+  }
+
+  .heroIdentity,
+  .cardIdentity {
+    grid-template-columns: 1fr;
+  }
+
+  .detailPoster,
+  .detailPosterFallback,
+  .poster,
+  .posterFallback {
+    max-width: 220px;
+  }
+
+  .paginationPanel {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
