@@ -1,12 +1,23 @@
 import "server-only";
 
-import { Prisma } from "@prisma/client";
+import { randomUUID } from "node:crypto";
+
+import type { Prisma } from "@prisma/client";
 
 import type { RepositoryContext } from "../types";
 import { BaseRepository, createRepositoryContext } from "../types";
-import { requireDb } from "../../client";
+import { BackendError } from "../../../server/errors";
 
-import type { IngestDetailPersistencePlan, IngestMode } from "../../../server/ingest";
+import type {
+  ClaimedQueuedProviderJob,
+  ClaimQueuedProviderJobInput,
+  CompleteQueuedProviderJobInput,
+  FailQueuedProviderJobInput,
+  IngestDetailPersistencePlan,
+  IngestMode,
+  IngestSourceProbeRequest,
+  IngestSourceRefreshRequest,
+} from "../../../server/ingest";
 import type {
   ProviderCapability,
   ProviderContentTypeHint,
@@ -35,6 +46,7 @@ import type {
   ProviderRegistryType,
   ProviderRegistryUpsertInput,
   StagingCandidatePersistenceStatus,
+  DurableProviderWorkerPersistenceGateway,
 } from "./types";
 
 const providerTypeMap = {
@@ -123,6 +135,29 @@ function toJsonValue(value: unknown): Prisma.InputJsonValue | undefined {
   }
 
   return value as Prisma.InputJsonValue;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function toStringOrNull(value: unknown): string | null {
+  return typeof value === "string" && value.trim().length > 0 ? value : null;
+}
+
+function toStringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : [];
+}
+
+function parseWorkerSourceKind(value: unknown): "stream" | "download" | "subtitle" | null {
+  switch (value) {
+    case "stream":
+    case "download":
+    case "subtitle":
+      return value;
+    default:
+      return null;
+  }
 }
 
 function mapProviderRegistryType(value: ProviderRegistryType) {
@@ -348,6 +383,163 @@ function mapIngestJobRecord(record: Prisma.IngestJobGetPayload<Record<string, ne
   };
 }
 
+type QueuedIngestJobPayload = Prisma.IngestJobGetPayload<{
+  include: {
+    provider: {
+      select: {
+        adapterKey: true;
+      };
+    };
+  };
+}>;
+
+function parseQueuedSourceTarget(metadata: Prisma.JsonValue | null) {
+  if (!isRecord(metadata) || !isRecord(metadata.target)) {
+    return null;
+  }
+
+  return {
+    sourceId: toStringOrNull(metadata.target.sourceId),
+    providerItemId: toStringOrNull(metadata.target.providerItemId),
+    sourceKind: parseWorkerSourceKind(metadata.target.sourceKind),
+    providerLineKey: toStringOrNull(metadata.target.providerLineKey),
+    urls: toStringArray(metadata.target.urls),
+  };
+}
+
+function parseQueuedProviderKey(record: QueuedIngestJobPayload): string | null {
+  if (isRecord(record.metadata) && isRecord(record.metadata.executionTelemetry)) {
+    return toStringOrNull(record.metadata.executionTelemetry.providerKey) ?? record.provider.adapterKey;
+  }
+
+  return record.provider.adapterKey;
+}
+
+function parseQueuedJobKind(record: QueuedIngestJobPayload): ClaimedQueuedProviderJob["kind"] | null {
+  if (!isRecord(record.metadata)) {
+    return null;
+  }
+
+  switch (record.metadata.jobType) {
+    case "scheduled_source_refresh":
+      return "source_refresh";
+    case "scheduled_source_probe":
+      return "source_probe";
+    default:
+      return null;
+  }
+}
+
+function buildQueuedSourceRefreshRequest(record: QueuedIngestJobPayload): IngestSourceRefreshRequest | null {
+  const target = parseQueuedSourceTarget(record.metadata);
+  const providerKey = parseQueuedProviderKey(record);
+
+  if (!target?.sourceId || !target.providerItemId || !target.sourceKind || target.urls.length === 0 || !providerKey) {
+    return null;
+  }
+
+  return {
+    providerKey,
+    reason:
+      (isRecord(record.metadata) ? toStringOrNull(record.metadata.maintenanceReason) : null) as IngestSourceRefreshRequest["reason"] ??
+      "scheduled",
+    requestId: record.requestId ?? undefined,
+    actorId: record.actorId ?? undefined,
+    target: {
+      sourceId: target.sourceId,
+      providerItemId: target.providerItemId,
+      sourceKind: target.sourceKind,
+      providerLineKey: target.providerLineKey ?? undefined,
+      urls: target.urls,
+    },
+  };
+}
+
+function buildQueuedSourceProbeRequest(record: QueuedIngestJobPayload): IngestSourceProbeRequest | null {
+  const target = parseQueuedSourceTarget(record.metadata);
+  const providerKey = parseQueuedProviderKey(record);
+  const probeKind = isRecord(record.metadata) ? toStringOrNull(record.metadata.probeKind) : null;
+
+  if (!target?.sourceId || !target.providerItemId || !target.sourceKind || target.urls.length === 0 || !providerKey || !probeKind) {
+    return null;
+  }
+
+  return {
+    providerKey,
+    probeKind: probeKind as IngestSourceProbeRequest["probeKind"],
+    reason:
+      (isRecord(record.metadata) ? toStringOrNull(record.metadata.maintenanceReason) : null) as IngestSourceProbeRequest["reason"] ??
+      "scheduled",
+    requestId: record.requestId ?? undefined,
+    actorId: record.actorId ?? undefined,
+    target: {
+      sourceId: target.sourceId,
+      providerItemId: target.providerItemId,
+      sourceKind: target.sourceKind,
+      providerLineKey: target.providerLineKey ?? undefined,
+      urls: target.urls,
+    },
+  };
+}
+
+function buildClaimedQueuedProviderJob(
+  record: QueuedIngestJobPayload,
+  input: ClaimQueuedProviderJobInput,
+  leaseId: string,
+): ClaimedQueuedProviderJob | null {
+  const kind = parseQueuedJobKind(record);
+  const providerKey = parseQueuedProviderKey(record);
+
+  if (!kind || !providerKey) {
+    return null;
+  }
+
+  const lease = {
+    workerId: input.workerId,
+    leaseId,
+    claimedAt: input.claimedAt,
+    leaseExpiresAt: new Date(Date.parse(input.claimedAt) + input.leaseMs).toISOString(),
+  };
+
+  if (kind === "source_refresh") {
+    const request = buildQueuedSourceRefreshRequest(record);
+
+    if (!request) {
+      return null;
+    }
+
+    return {
+      queueJobId: record.id,
+      kind: "source_refresh",
+      providerKey,
+      requestId: record.requestId ?? undefined,
+      actorId: record.actorId ?? undefined,
+      attemptCount: record.attemptCount + 1,
+      enqueuedAt: record.createdAt.toISOString(),
+      request,
+      lease,
+    };
+  }
+
+  const request = buildQueuedSourceProbeRequest(record);
+
+  if (!request) {
+    return null;
+  }
+
+  return {
+    queueJobId: record.id,
+    kind: "source_probe",
+    providerKey,
+    requestId: record.requestId ?? undefined,
+    actorId: record.actorId ?? undefined,
+    attemptCount: record.attemptCount + 1,
+    enqueuedAt: record.createdAt.toISOString(),
+    request,
+    lease,
+  };
+}
+
 function mapIngestRunRecord(record: Prisma.IngestRunGetPayload<Record<string, never>>): PersistedIngestRunRecord {
   return {
     id: record.id,
@@ -451,13 +643,13 @@ async function createRawPayloadRecord(
       requestMethod: input.payload.request.method,
       requestCursor: input.payload.request.cursor,
       requestPage: input.payload.request.page,
-      body: toJsonValue(input.payload.body) ?? Prisma.JsonNull,
+      body: toJsonValue(input.payload.body) ?? (null as unknown as Prisma.InputJsonValue),
       fetchedAt: toDate(input.payload.fetchedAt) ?? new Date(),
     },
   });
 }
 
-export class StagingPersistenceRepository extends BaseRepository {
+export class StagingPersistenceRepository extends BaseRepository implements DurableProviderWorkerPersistenceGateway {
   public constructor(context: RepositoryContext) {
     super(context);
   }
@@ -518,6 +710,114 @@ export class StagingPersistenceRepository extends BaseRepository {
     });
 
     return mapIngestJobRecord(record);
+  }
+
+  async claimNextQueuedProviderJob(input: ClaimQueuedProviderJobInput): Promise<ClaimedQueuedProviderJob | null> {
+    const candidates = await this.db.ingestJob.findMany({
+      where: {
+        status: "PENDING",
+      },
+      include: {
+        provider: {
+          select: {
+            adapterKey: true,
+          },
+        },
+      },
+      orderBy: [{ createdAt: "asc" }],
+      take: 20,
+    });
+
+    for (const candidate of candidates) {
+      const leaseId = randomUUID();
+      const claimedJob = buildClaimedQueuedProviderJob(candidate, input, leaseId);
+
+      if (!claimedJob) {
+        continue;
+      }
+
+      const claimedAt = toDate(input.claimedAt) ?? new Date();
+      const leaseExpiresAt = new Date(claimedAt.getTime() + input.leaseMs);
+      const result = await this.db.ingestJob.updateMany({
+        where: {
+          id: candidate.id,
+          status: "PENDING",
+        },
+        data: {
+          status: "RUNNING",
+          startedAt: claimedAt,
+          attemptCount: {
+            increment: 1,
+          },
+          leaseWorkerId: input.workerId,
+          leaseId,
+          leaseClaimedAt: claimedAt,
+          leaseExpiresAt,
+        },
+      });
+
+      if (result.count === 1) {
+        return claimedJob;
+      }
+    }
+
+    return null;
+  }
+
+  async completeQueuedProviderJob(input: CompleteQueuedProviderJobInput): Promise<void> {
+    const result = await this.db.ingestJob.updateMany({
+      where: {
+        id: input.queueJobId,
+        status: "RUNNING",
+        leaseWorkerId: input.workerId,
+        leaseId: input.leaseId,
+      },
+      data: {
+        status: "SUCCEEDED",
+        finishedAt: toDate(input.finishedAt),
+        lastErrorSummary: null,
+        metadata: toJsonValue(input.metadata),
+        leaseWorkerId: null,
+        leaseId: null,
+        leaseClaimedAt: null,
+        leaseExpiresAt: null,
+      },
+    });
+
+    if (result.count !== 1) {
+      throw new BackendError(`Lease validation failed while completing queued job '${input.queueJobId}'.`, {
+        status: 409,
+        code: "ingest_job_lease_conflict",
+      });
+    }
+  }
+
+  async failQueuedProviderJob(input: FailQueuedProviderJobInput): Promise<void> {
+    const result = await this.db.ingestJob.updateMany({
+      where: {
+        id: input.queueJobId,
+        status: "RUNNING",
+        leaseWorkerId: input.workerId,
+        leaseId: input.leaseId,
+      },
+      data: {
+        status: "FAILED",
+        finishedAt: toDate(input.finishedAt),
+        lastErrorSummary: input.lastErrorSummary,
+        metadata: toJsonValue(input.metadata),
+        leaseWorkerId: null,
+        leaseId: null,
+        leaseClaimedAt: null,
+        leaseExpiresAt: null,
+      },
+    });
+
+    if (result.count !== 1) {
+      throw new BackendError(`Lease validation failed while failing queued job '${input.queueJobId}'.`, {
+        status: 409,
+        code: "ingest_job_lease_conflict",
+      });
+    }
   }
 
   async createIngestRun(input: IngestRunCreateInput): Promise<PersistedIngestRunRecord> {
@@ -753,6 +1053,7 @@ export function createStagingPersistenceRepository(context: RepositoryContext) {
   return new StagingPersistenceRepository(context);
 }
 
-export function createDefaultStagingPersistenceRepository() {
+export async function createDefaultStagingPersistenceRepository() {
+  const { requireDb } = await import("../../client");
   return createStagingPersistenceRepository(createRepositoryContext(requireDb()));
 }

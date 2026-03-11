@@ -1,6 +1,12 @@
 import "server-only";
 
 import type { IngestDetailPersistencePlan, IngestMode, IngestPagePersistencePlan } from "../../../server/ingest";
+import type {
+  ClaimedQueuedProviderJob,
+  ClaimQueuedProviderJobInput,
+  CompleteQueuedProviderJobInput,
+  FailQueuedProviderJobInput,
+} from "../../../server/ingest";
 import type { ProviderCapability, ProviderContentTypeHint } from "../../../server/provider";
 
 export const providerRegistryTypes = ["catalog", "playback", "download", "subtitle", "manual_submission"] as const;
@@ -192,4 +198,10 @@ export interface PersistIngestPlanResult {
   rawPayloads: PersistedRawPayloadRecord[];
   candidates: PersistedStagingCandidateRecord[];
   checkpoint?: PersistedCheckpointRecord;
+}
+
+export interface DurableProviderWorkerPersistenceGateway {
+  claimNextQueuedProviderJob(input: ClaimQueuedProviderJobInput): Promise<ClaimedQueuedProviderJob | null>;
+  completeQueuedProviderJob(input: CompleteQueuedProviderJobInput): Promise<void>;
+  failQueuedProviderJob(input: FailQueuedProviderJobInput): Promise<void>;
 }

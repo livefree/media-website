@@ -903,6 +903,10 @@ model IngestJob {
   startedAt        DateTime?
   finishedAt       DateTime?
   attemptCount     Int               @default(0)
+  leaseWorkerId    String?
+  leaseId          String?
+  leaseClaimedAt   DateTime?
+  leaseExpiresAt   DateTime?
   lastErrorSummary String?
   metadata         Json?
   createdAt        DateTime          @default(now())
@@ -914,6 +918,7 @@ model IngestJob {
   stagingCandidates StagingCandidate[]
 
   @@index([providerId, status, mode])
+  @@index([status, leaseExpiresAt, createdAt])
   @@index([requestId])
 }
 
