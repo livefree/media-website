@@ -21,6 +21,8 @@ Media Ingest:
 - Extended the provider and ingest boundaries for Round F with typed source refresh and source probe entrypoints, staging-safe refresh/probe persistence plans, and repair-intake signal generation so degraded or broken findings can feed downstream source/health workflow instead of disappearing into logs
 - Added the first concrete real-provider adapter for `jszyapi` base VOD JSON under `lib/server/provider/`, including bounded page/detail request assembly, fixture-backed response parsing into staging-safe items, raw-payload separation, and a default provider registry entry instead of route-local fetch logic
 - Added an executable provider-ingest path for `jszyapi` via `lib/server/ingest/execution.ts` and `scripts/provider-ingest-jszyapi.ts`, with an offline-safe Node test harness, a dry-run CLI that resolves through provider/ingest boundaries into a staging persistence plan, and an injected persistence gateway helper for repository-backed execution
+- Added scheduled refresh/probe job execution under `lib/server/ingest/source-jobs.ts`, using explicit queued -> running -> succeeded/failed ingest job/run state plus existing health persistence boundaries so source maintenance is durable and inspectable instead of helper-only
+- Extended the concrete `jszyapi` adapter with refresh/probe hooks and offline-safe tests for scheduled refresh success/failure, manifest probe success/mismatch handling, and durable job lifecycle transitions without requiring live network access in CI
 
 Detail Player:
 - Updated `app/watch/page.tsx` to consume Round F health-aware published watch resolution for active playback, canonical watch hrefs, episode/source switching, and download-provider fallback while keeping list-aware watch context intact

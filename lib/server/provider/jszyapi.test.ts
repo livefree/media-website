@@ -105,3 +105,121 @@ test("jszyapi page fetch rejects malformed payloads predictably", async () => {
     },
   );
 });
+
+test("jszyapi scheduled refresh confirms an existing source line", async () => {
+  const payload = await loadFixture();
+  const http: ProviderHttpClient = {
+    async fetchJson() {
+      return payload;
+    },
+    async fetchText() {
+      throw new Error("refresh should not call fetchText.");
+    },
+  };
+
+  const result = await jszyapiVodJsonProviderAdapter.refreshSource!(
+    {
+      reason: "scheduled",
+      target: {
+        sourceId: "src_123",
+        providerItemId: "1001",
+        sourceKind: "stream",
+        providerLineKey: "jsm3u8",
+        urls: ["https://cdn.example.com/qianxingzhe/master.m3u8"],
+      },
+    },
+    createContext(http, new Date("2026-03-10T12:00:00.000Z")),
+  );
+
+  assert.equal(result.findings[0]?.observedState, "healthy");
+  assert.equal(result.rawPayloads[0]?.scope, "source_refresh");
+  assert.equal(result.repairSignals.length, 0);
+});
+
+test("jszyapi scheduled refresh reports missing provider lines durably", async () => {
+  const payload = await loadFixture();
+  const http: ProviderHttpClient = {
+    async fetchJson() {
+      return payload;
+    },
+    async fetchText() {
+      throw new Error("refresh should not call fetchText.");
+    },
+  };
+
+  const result = await jszyapiVodJsonProviderAdapter.refreshSource!(
+    {
+      reason: "scheduled",
+      target: {
+        sourceId: "src_123",
+        providerItemId: "1001",
+        sourceKind: "stream",
+        providerLineKey: "missing-line",
+        urls: ["https://cdn.example.com/qianxingzhe/master.m3u8"],
+      },
+    },
+    createContext(http, new Date("2026-03-10T12:00:00.000Z")),
+  );
+
+  assert.equal(result.findings[0]?.code, "provider_line_missing");
+  assert.equal(result.findings[0]?.observedState, "broken");
+  assert.equal(result.repairSignals[0]?.trigger, "provider_line_missing");
+});
+
+test("jszyapi scheduled probe accepts a valid HLS manifest", async () => {
+  const http: ProviderHttpClient = {
+    async fetchJson() {
+      throw new Error("probe should not call fetchJson.");
+    },
+    async fetchText() {
+      return "#EXTM3U\n#EXT-X-VERSION:3";
+    },
+  };
+
+  const result = await jszyapiVodJsonProviderAdapter.probeSource!(
+    {
+      reason: "scheduled",
+      probeKind: "manifest",
+      target: {
+        sourceId: "src_123",
+        providerItemId: "1001",
+        sourceKind: "stream",
+        providerLineKey: "jsm3u8",
+        urls: ["https://cdn.example.com/qianxingzhe/master.m3u8"],
+      },
+    },
+    createContext(http, new Date("2026-03-10T12:00:00.000Z")),
+  );
+
+  assert.equal(result.findings[0]?.observedState, "healthy");
+  assert.equal(result.rawPayloads[0]?.scope, "source_probe");
+});
+
+test("jszyapi scheduled probe reports malformed manifests", async () => {
+  const http: ProviderHttpClient = {
+    async fetchJson() {
+      throw new Error("probe should not call fetchJson.");
+    },
+    async fetchText() {
+      return "<html>not a manifest</html>";
+    },
+  };
+
+  const result = await jszyapiVodJsonProviderAdapter.probeSource!(
+    {
+      reason: "scheduled",
+      probeKind: "manifest",
+      target: {
+        sourceId: "src_123",
+        providerItemId: "1001",
+        sourceKind: "stream",
+        providerLineKey: "jsm3u8",
+        urls: ["https://cdn.example.com/qianxingzhe/master.m3u8"],
+      },
+    },
+    createContext(http, new Date("2026-03-10T12:00:00.000Z")),
+  );
+
+  assert.equal(result.findings[0]?.observedState, "degraded");
+  assert.equal(result.repairSignals[0]?.trigger, "provider_payload_mismatch");
+});
