@@ -86,3 +86,29 @@ Current baseline:
 - Workstream 4 / Slice 3 is accepted, so operators now have a privileged queue-failure monitoring surface with deterministic UI coverage
 - Workstream 4 / Slice 4 is accepted, so published-catalog runtime now has deterministic migration preflight and fail-closed rollout guardrails
 - The repo still lacks end-to-end validation, broader hardening slices, and final launch-readiness work
+
+## Remaining Backend Auto Queue
+
+The Coordinator should continue through the remaining backend work packages in tracked order, without introducing ad hoc phases, until the backend reaches an operator-ready state or a real blocker occurs.
+
+Current queued path after the active slice:
+
+1. `Workstream 4 / Slice 5: End-to-End Backend Validation Path`
+2. Remaining provider operationalization slices needed to reach the Workstream 1 exit gate:
+   - sustained worker execution
+   - resumability, throttling, retry, and checkpoint hardening
+3. Remaining operator-control slices needed to reach the Workstream 2 exit gate:
+   - operator mutation flows for source/catalog lifecycle where still missing
+4. Remaining governance slices needed to reach the Workstream 3 exit gate:
+   - publish scheduling and visibility control
+5. Remaining hardening slices needed to reach the Workstream 4 exit gate:
+   - provider failure visibility and alert-ready signaling
+   - recovery readiness, backup/restore guardrails, and final launch validation
+
+Each queued item still requires:
+
+1. task alignment in this file
+2. planner handoff
+3. specialist implementation in owned scope
+4. reviewer acceptance
+5. coordinator merge, versioning if warranted, and push
