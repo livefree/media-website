@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import styles from "./admin-review.module.css";
+import { AdminOperatorNav } from "./AdminOperatorNav";
 
 import type { ReviewQueueListItemRecord } from "../../lib/db/repositories/review";
 
@@ -42,6 +43,8 @@ export function AdminReviewQueuePage({
   return (
     <main className={styles.adminPage}>
       <div className={styles.adminShell}>
+        <AdminOperatorNav activeSection="review" />
+
         <header className={styles.adminHeader}>
           <div>
             <p className={styles.eyebrow}>Admin Workflow</p>
