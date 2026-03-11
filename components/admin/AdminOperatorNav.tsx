@@ -19,6 +19,11 @@ const sections = [
     label: "Repair queue",
   },
   {
+    href: "/admin/queue-failures",
+    id: "queue-failures",
+    label: "Queue failures",
+  },
+  {
     href: "/admin/review",
     id: "review",
     label: "Review queue",
@@ -43,7 +48,15 @@ const sections = [
 export function AdminOperatorNav({
   activeSection,
 }: {
-  activeSection: "catalog" | "sources" | "repair" | "review" | "moderation" | "manual-titles" | "manual-sources";
+  activeSection:
+    | "catalog"
+    | "sources"
+    | "repair"
+    | "queue-failures"
+    | "review"
+    | "moderation"
+    | "manual-titles"
+    | "manual-sources";
 }) {
   return (
     <nav aria-label="Admin workflow sections" className={styles.workflowNav}>

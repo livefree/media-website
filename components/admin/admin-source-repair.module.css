@@ -357,6 +357,16 @@
   color: #baf5d5;
 }
 
+.statusFailed {
+  border-color: rgba(255, 126, 126, 0.34);
+  color: #ffb0b0;
+}
+
+.statusRetrying {
+  border-color: rgba(160, 180, 255, 0.34);
+  color: #cdd8ff;
+}
+
 .statusDismissed {
   border-color: rgba(184, 197, 217, 0.24);
   color: #d9e1ee;
