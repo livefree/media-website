@@ -55,7 +55,7 @@ function getResultsHeadline(scope: CatalogScope) {
   return "Latest additions across movies, series, and anime.";
 }
 
-export function BrowseCatalogPage({
+export async function BrowseCatalogPage({
   scope,
   searchParams,
 }: {
@@ -63,9 +63,9 @@ export function BrowseCatalogPage({
   searchParams?: Record<string, string | string[] | undefined>;
 }) {
   const copy = scopeCopy[scope];
-  const pageData = buildBrowsePageData(scope, searchParams);
+  const pageData = await buildBrowsePageData(scope, searchParams);
   const feed = getCategoryFeed(scope);
-  const featuredLists = scope === "all" ? getPublicLists().slice(0, 3) : [];
+  const featuredLists = pageData.featuredLists ?? (scope === "all" ? getPublicLists().slice(0, 3) : []);
   const searchHiddenFields = getHiddenSearchFields(pageData.currentParams, ["q", "page", "type"]);
   const filterHiddenFields = getHiddenSearchFields(pageData.currentParams, ["sort", "type", "genre", "region", "year", "page"]);
 
