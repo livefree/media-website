@@ -8,3 +8,6 @@ export const catalogModule = defineServerModule({
   owns: ["published catalog reads", "public identity resolution", "catalog read contracts", "catalog write boundaries"],
   dependsOn: ["config"],
 });
+
+export * from "./types";
+export * from "./publish";

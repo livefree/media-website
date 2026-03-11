@@ -8,3 +8,6 @@ export const reviewModule = defineServerModule({
   owns: ["review queue", "approve reject merge decisions", "publish preparation", "review audit trail"],
   dependsOn: ["config", "normalize", "catalog"],
 });
+
+export * from "./types";
+export * from "./service";
