@@ -11,6 +11,11 @@ const repoRoot = path.resolve(__dirname, "..");
 
 const DEFAULT_INPUT_PATH = path.join(repoRoot, "import-data", "media-import-seed.json");
 const DEFAULT_OUTPUT_PATH = path.join(repoRoot, "import-data", "media-prisma-payload.json");
+const LEGACY_FLAG = "--legacy-direct-import";
+
+function getPositionArgs() {
+  return process.argv.slice(2).filter((value) => !value.startsWith("--"));
+}
 
 function toPosix(value) {
   return value.split(path.sep).join("/");
@@ -32,6 +37,19 @@ function readJsonWithHash(filePath) {
     data: JSON.parse(content),
     sha256: createHash("sha256").update(content).digest("hex"),
   };
+}
+
+function requireLegacyDirectImportFlag() {
+  if (!process.argv.includes(LEGACY_FLAG)) {
+    console.error(
+      [
+        "This script is a legacy direct-import helper.",
+        "It is not part of the active Round B provider/staging ingest workflow.",
+        `Run it only via an explicit legacy path using ${LEGACY_FLAG}.`,
+      ].join(" "),
+    );
+    process.exit(1);
+  }
 }
 
 function mapMediaType(type) {
@@ -253,8 +271,11 @@ function buildMediaTitle(entry) {
 }
 
 function main() {
-  const inputPath = path.resolve(process.argv[2] ?? DEFAULT_INPUT_PATH);
-  const outputPath = path.resolve(process.argv[3] ?? DEFAULT_OUTPUT_PATH);
+  requireLegacyDirectImportFlag();
+
+  const [inputArg, outputArg] = getPositionArgs();
+  const inputPath = path.resolve(inputArg ?? DEFAULT_INPUT_PATH);
+  const outputPath = path.resolve(outputArg ?? DEFAULT_OUTPUT_PATH);
 
   const { data: seed, sha256 } = readJsonWithHash(inputPath);
   const importableEntries = seed.entries.filter((entry) => entry.importStatus === "ready");
