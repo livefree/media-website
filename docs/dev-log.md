@@ -78,6 +78,7 @@ UI Shell update:
 - Tightened the top browse hierarchy again so the navbar is calmer, intro copy is shorter, hot searches are inline beneath the intro, and the filter block matches the screenshot-style quick-chip plus labeled-select layout more closely
 - Rebuilt the shared browse shell with fidelity-first priority against `reference-assets/main.html`, flattening the navbar, simplifying the intro/results header structure, and shifting poster cards toward the reference page's lighter border-box density
 - Tightened the fidelity pass further by restoring the MA badge and two-line brand block, sharpening the search/filter/header geometry, and pushing browse cards closer to the target screenshot's spacing and badge rhythm
+- Added a minimal operator-only review surface under `app/admin/review`, with separated admin queue/detail shells, server-action affordances for review/publish workflows, and dedicated admin styling that does not mix with public browse/watch routes
 
 Data Catalog:
 - Rebuilt `skills/data-catalog/` into a reusable skill for streaming-platform schema design, mock catalog generation, and browse/watch analytics modeling
