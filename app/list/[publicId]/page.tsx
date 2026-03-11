@@ -2,14 +2,29 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { PublicListPageShell } from "../../../components/PublicListPageShell";
-import { getPublicListPageRecord } from "../../../lib/media-catalog";
+import { getPublishedCatalogListByPublicId } from "../../../lib/server/catalog/service";
+import { isBackendError } from "../../../lib/server/errors";
 
-export function generateMetadata({
+export const dynamic = "force-dynamic";
+
+async function getPublishedListRecord(publicId: string) {
+  try {
+    return await getPublishedCatalogListByPublicId(publicId);
+  } catch (error) {
+    if (isBackendError(error) && error.code === "database_not_configured") {
+      return null;
+    }
+
+    throw error;
+  }
+}
+
+export async function generateMetadata({
   params,
 }: {
   params: { publicId: string };
-}): Metadata {
-  const list = getPublicListPageRecord(params.publicId);
+}): Promise<Metadata> {
+  const list = await getPublishedListRecord(params.publicId);
 
   if (!list) {
     return {
@@ -31,12 +46,12 @@ export function generateMetadata({
   };
 }
 
-export default function PublicListPage({
+export default async function PublicListPage({
   params,
 }: {
   params: { publicId: string };
 }) {
-  const list = getPublicListPageRecord(params.publicId);
+  const list = await getPublishedListRecord(params.publicId);
 
   if (!list) {
     notFound();

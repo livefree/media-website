@@ -1,15 +1,20 @@
 import Link from "next/link";
 
-import { buildPublicListDirectoryHref } from "../lib/media-utils";
-import type { PublicMediaList } from "../types/media";
 import { PosterArtwork } from "./PosterArtwork";
+import {
+  getPublicListCoverPosterUrl,
+  getPublicListFirstItemWatchHref,
+  getPublicListVisibilityLabel,
+  type PublicListSummaryView,
+} from "./publicListView";
 
-export function FeaturedListsSection({ lists }: { lists: PublicMediaList[] }) {
+export function FeaturedListsSection({ lists }: { lists: PublicListSummaryView[] }) {
   if (lists.length === 0) {
     return null;
   }
 
-  const directoryHref = buildPublicListDirectoryHref();
+  const directoryHref = "/lists";
+  const visibilityLabel = getPublicListVisibilityLabel();
 
   return (
     <section className="featured-lists-section" aria-labelledby="featured-lists-title">
@@ -31,40 +36,44 @@ export function FeaturedListsSection({ lists }: { lists: PublicMediaList[] }) {
       </div>
 
       <div className="featured-lists-grid">
-        {lists.map((list) => (
-          <article key={list.publicId} className="featured-list-card">
-            <Link href={list.canonicalListHref} className="featured-list-cover-link">
-              <PosterArtwork
-                className="featured-list-cover"
-                src={list.coverPosterUrl}
-                alt={`${list.title} cover`}
-                title={list.shareTitle}
-                variant="list"
-              />
-            </Link>
+        {lists.map((list) => {
+          const firstItemWatchHref = getPublicListFirstItemWatchHref(list);
 
-            <div className="featured-list-copy">
-              <div className="featured-list-meta">
-                <span className="featured-list-visibility">{list.visibilityLabel}</span>
-                <span className="featured-list-count">{list.itemCountLabel}</span>
-              </div>
-              <h3 className="featured-list-title">
-                <Link href={list.canonicalListHref}>{list.shareTitle}</Link>
-              </h3>
-              <p className="featured-list-description">{list.shareDescription}</p>
-              <div className="featured-list-actions">
-                <Link href={list.canonicalListHref} className="featured-list-action">
-                  Open list
-                </Link>
-                {list.firstItemWatchHref ? (
-                  <Link href={list.firstItemWatchHref} className="featured-list-secondary-action">
-                    Play first item
+          return (
+            <article key={list.publicId} className="featured-list-card">
+              <Link href={list.canonicalListHref} className="featured-list-cover-link">
+                <PosterArtwork
+                  className="featured-list-cover"
+                  src={getPublicListCoverPosterUrl(list)}
+                  alt={`${list.title} cover`}
+                  title={list.shareTitle}
+                  variant="list"
+                />
+              </Link>
+
+              <div className="featured-list-copy">
+                <div className="featured-list-meta">
+                  <span className="featured-list-visibility">{visibilityLabel}</span>
+                  <span className="featured-list-count">{list.itemCountLabel}</span>
+                </div>
+                <h3 className="featured-list-title">
+                  <Link href={list.canonicalListHref}>{list.shareTitle}</Link>
+                </h3>
+                <p className="featured-list-description">{list.shareDescription}</p>
+                <div className="featured-list-actions">
+                  <Link href={list.canonicalListHref} className="featured-list-action">
+                    Open list
                   </Link>
-                ) : null}
+                  {firstItemWatchHref ? (
+                    <Link href={firstItemWatchHref} className="featured-list-secondary-action">
+                      Play first item
+                    </Link>
+                  ) : null}
+                </div>
               </div>
-            </div>
-          </article>
-        ))}
+            </article>
+          );
+        })}
       </div>
     </section>
   );
