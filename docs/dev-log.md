@@ -7,6 +7,7 @@ Coordinator:
 - Added a README entry point for the backend spec before starting backend-phase implementation work
 - Switched the active task from Round A to Round B and aligned the next implementation sequence to `planner -> media-ingest -> data-catalog -> reviewer`
 - Switched the active task from Round C to Round D and aligned the next implementation sequence to `planner -> data-catalog -> ui-shell -> reviewer`
+- Switched the active task from Round D to Round E and aligned the next implementation sequence to `planner -> data-catalog -> search-filter -> detail-player -> reviewer`
 
 Media Ingest:
 - Added the first server-only provider adapter contract, provider HTTP boundary, registry, and ingest orchestration entrypoints under `lib/server/provider/` and `lib/server/ingest/`, limiting outputs to staging-safe payloads, item fragments, and persistence plans instead of Prisma writes or canonical catalog logic
