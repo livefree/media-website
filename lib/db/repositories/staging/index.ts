@@ -10,7 +10,9 @@ import { BackendError } from "../../../server/errors";
 
 import type {
   ClaimedQueuedProviderJob,
+  ClaimedQueuedProviderPageJob,
   ClaimQueuedProviderJobInput,
+  ClaimQueuedProviderPageJobInput,
   CompleteQueuedProviderJobInput,
   FailQueuedProviderJobInput,
   IngestDetailPersistencePlan,
@@ -18,6 +20,13 @@ import type {
   IngestSourceProbeRequest,
   IngestSourceRefreshRequest,
 } from "../../../server/ingest";
+import type { IngestPageRequest } from "../../../server/ingest";
+import type {
+  CompleteQueuedProviderPageJobInput,
+  FailQueuedProviderPageJobInput,
+  ProviderPageWorkerCheckpoint,
+  RequeueQueuedProviderPageJobInput,
+} from "../../../server/ingest/page-worker";
 import type {
   ProviderCapability,
   ProviderContentTypeHint,
@@ -42,6 +51,7 @@ import type {
   PersistedProviderRegistryRecord,
   PersistedRawPayloadRecord,
   PersistedStagingCandidateRecord,
+  DurableProviderPageWorkerPersistenceGateway,
   ProviderItemLifecycleStatus,
   ProviderRegistryType,
   ProviderRegistryUpsertInput,
@@ -158,6 +168,32 @@ function parseWorkerSourceKind(value: unknown): "stream" | "download" | "subtitl
     default:
       return null;
   }
+}
+
+function parsePageWorkerCheckpoint(value: unknown): ProviderPageWorkerCheckpoint | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const checkpoint: ProviderPageWorkerCheckpoint = {
+    cursor: toStringOrNull(value.cursor),
+    page: typeof value.page === "number" && Number.isFinite(value.page) ? value.page : null,
+    updatedAfter: toStringOrNull(value.updatedAfter),
+    updatedBefore: toStringOrNull(value.updatedBefore),
+    providerUpdatedAt: toStringOrNull(value.providerUpdatedAt),
+  };
+
+  if (
+    checkpoint.cursor == null &&
+    checkpoint.page == null &&
+    checkpoint.updatedAfter == null &&
+    checkpoint.updatedBefore == null &&
+    checkpoint.providerUpdatedAt == null
+  ) {
+    return null;
+  }
+
+  return checkpoint;
 }
 
 function mapProviderRegistryType(value: ProviderRegistryType) {
@@ -415,6 +451,47 @@ function parseQueuedProviderKey(record: QueuedIngestJobPayload): string | null {
   return record.provider.adapterKey;
 }
 
+function parseQueuedPageRequest(record: QueuedIngestJobPayload): IngestPageRequest | null {
+  if (!isRecord(record.metadata) || !isRecord(record.metadata.executionTelemetry)) {
+    return null;
+  }
+
+  const request = isRecord(record.metadata.executionTelemetry.request) ? record.metadata.executionTelemetry.request : null;
+  const providerKey = parseQueuedProviderKey(record);
+  const mode = unmapIngestMode(record.mode);
+
+  if (!providerKey || !request) {
+    return null;
+  }
+
+  return {
+    providerKey,
+    mode,
+    page: typeof request.page === "number" && Number.isFinite(request.page) ? request.page : undefined,
+    pageSize: typeof request.pageSize === "number" && Number.isFinite(request.pageSize) ? request.pageSize : undefined,
+    cursor: toStringOrNull(request.cursor) ?? undefined,
+    updatedAfter: toStringOrNull(request.updatedAfter) ?? undefined,
+    updatedBefore: toStringOrNull(request.updatedBefore) ?? undefined,
+    requestId: record.requestId ?? undefined,
+    actorId: record.actorId ?? undefined,
+  };
+}
+
+function parseQueuedPageCheckpoint(record: QueuedIngestJobPayload): ProviderPageWorkerCheckpoint | null {
+  if (!isRecord(record.metadata)) {
+    return null;
+  }
+
+  const explicitCheckpoint = parsePageWorkerCheckpoint(record.metadata.resumeCheckpoint);
+
+  if (explicitCheckpoint) {
+    return explicitCheckpoint;
+  }
+
+  const executionTelemetry = isRecord(record.metadata.executionTelemetry) ? record.metadata.executionTelemetry : null;
+  return parsePageWorkerCheckpoint(executionTelemetry?.checkpoint);
+}
+
 function parseQueuedJobKind(record: QueuedIngestJobPayload): ClaimedQueuedProviderJob["kind"] | null {
   if (!isRecord(record.metadata)) {
     return null;
@@ -540,6 +617,41 @@ function buildClaimedQueuedProviderJob(
   };
 }
 
+function buildClaimedQueuedProviderPageJob(
+  record: QueuedIngestJobPayload,
+  input: ClaimQueuedProviderPageJobInput,
+  leaseId: string,
+): ClaimedQueuedProviderPageJob | null {
+  if (!isRecord(record.metadata) || record.metadata.jobType !== "provider_page_ingest") {
+    return null;
+  }
+
+  const providerKey = parseQueuedProviderKey(record);
+  const request = parseQueuedPageRequest(record);
+
+  if (!providerKey || !request) {
+    return null;
+  }
+
+  return {
+    queueJobId: record.id,
+    providerKey,
+    mode: request.mode,
+    request,
+    checkpoint: parseQueuedPageCheckpoint(record),
+    requestId: record.requestId ?? undefined,
+    actorId: record.actorId ?? undefined,
+    attemptCount: record.attemptCount + 1,
+    enqueuedAt: record.createdAt.toISOString(),
+    lease: {
+      workerId: input.workerId,
+      leaseId,
+      claimedAt: input.claimedAt,
+      leaseExpiresAt: new Date(Date.parse(input.claimedAt) + input.leaseMs).toISOString(),
+    },
+  };
+}
+
 function mapIngestRunRecord(record: Prisma.IngestRunGetPayload<Record<string, never>>): PersistedIngestRunRecord {
   return {
     id: record.id,
@@ -649,7 +761,10 @@ async function createRawPayloadRecord(
   });
 }
 
-export class StagingPersistenceRepository extends BaseRepository implements DurableProviderWorkerPersistenceGateway {
+export class StagingPersistenceRepository
+  extends BaseRepository
+  implements DurableProviderWorkerPersistenceGateway, DurableProviderPageWorkerPersistenceGateway
+{
   public constructor(context: RepositoryContext) {
     super(context);
   }
@@ -764,6 +879,58 @@ export class StagingPersistenceRepository extends BaseRepository implements Dura
     return null;
   }
 
+  async claimNextQueuedProviderPageJob(input: ClaimQueuedProviderPageJobInput): Promise<ClaimedQueuedProviderPageJob | null> {
+    const candidates = await this.db.ingestJob.findMany({
+      where: {
+        status: "PENDING",
+      },
+      include: {
+        provider: {
+          select: {
+            adapterKey: true,
+          },
+        },
+      },
+      orderBy: [{ createdAt: "asc" }],
+      take: 20,
+    });
+
+    for (const candidate of candidates) {
+      const leaseId = randomUUID();
+      const claimedJob = buildClaimedQueuedProviderPageJob(candidate, input, leaseId);
+
+      if (!claimedJob) {
+        continue;
+      }
+
+      const claimedAt = toDate(input.claimedAt) ?? new Date();
+      const leaseExpiresAt = new Date(claimedAt.getTime() + input.leaseMs);
+      const result = await this.db.ingestJob.updateMany({
+        where: {
+          id: candidate.id,
+          status: "PENDING",
+        },
+        data: {
+          status: "RUNNING",
+          startedAt: claimedAt,
+          attemptCount: {
+            increment: 1,
+          },
+          leaseWorkerId: input.workerId,
+          leaseId,
+          leaseClaimedAt: claimedAt,
+          leaseExpiresAt,
+        },
+      });
+
+      if (result.count === 1) {
+        return claimedJob;
+      }
+    }
+
+    return null;
+  }
+
   async completeQueuedProviderJob(input: CompleteQueuedProviderJobInput): Promise<void> {
     const result = await this.db.ingestJob.updateMany({
       where: {
@@ -792,6 +959,86 @@ export class StagingPersistenceRepository extends BaseRepository implements Dura
     }
   }
 
+  async requeueQueuedProviderPageJob(input: RequeueQueuedProviderPageJobInput): Promise<void> {
+    const existing = await this.db.ingestJob.findFirst({
+      where: {
+        id: input.queueJobId,
+        status: "RUNNING",
+        leaseWorkerId: input.workerId,
+        leaseId: input.leaseId,
+      },
+      select: {
+        metadata: true,
+      },
+    });
+
+    if (!existing) {
+      throw new BackendError(`Lease validation failed while requeueing page job '${input.queueJobId}'.`, {
+        status: 409,
+        code: "ingest_job_lease_conflict",
+      });
+    }
+
+    const nextMetadata = {
+      ...(isRecord(existing.metadata) ? existing.metadata : {}),
+      ...(input.metadata ?? {}),
+      resumeCheckpoint: input.checkpoint,
+    };
+
+    const result = await this.db.ingestJob.updateMany({
+      where: {
+        id: input.queueJobId,
+        status: "RUNNING",
+        leaseWorkerId: input.workerId,
+        leaseId: input.leaseId,
+      },
+      data: {
+        status: "PENDING",
+        finishedAt: toDate(input.requeuedAt),
+        metadata: toJsonValue(nextMetadata),
+        leaseWorkerId: null,
+        leaseId: null,
+        leaseClaimedAt: null,
+        leaseExpiresAt: null,
+      },
+    });
+
+    if (result.count !== 1) {
+      throw new BackendError(`Lease validation failed while requeueing page job '${input.queueJobId}'.`, {
+        status: 409,
+        code: "ingest_job_lease_conflict",
+      });
+    }
+  }
+
+  async completeQueuedProviderPageJob(input: CompleteQueuedProviderPageJobInput): Promise<void> {
+    const result = await this.db.ingestJob.updateMany({
+      where: {
+        id: input.queueJobId,
+        status: "RUNNING",
+        leaseWorkerId: input.workerId,
+        leaseId: input.leaseId,
+      },
+      data: {
+        status: "SUCCEEDED",
+        finishedAt: toDate(input.finishedAt),
+        lastErrorSummary: null,
+        metadata: toJsonValue(input.metadata),
+        leaseWorkerId: null,
+        leaseId: null,
+        leaseClaimedAt: null,
+        leaseExpiresAt: null,
+      },
+    });
+
+    if (result.count !== 1) {
+      throw new BackendError(`Lease validation failed while completing page job '${input.queueJobId}'.`, {
+        status: 409,
+        code: "ingest_job_lease_conflict",
+      });
+    }
+  }
+
   async failQueuedProviderJob(input: FailQueuedProviderJobInput): Promise<void> {
     const result = await this.db.ingestJob.updateMany({
       where: {
@@ -814,6 +1061,34 @@ export class StagingPersistenceRepository extends BaseRepository implements Dura
 
     if (result.count !== 1) {
       throw new BackendError(`Lease validation failed while failing queued job '${input.queueJobId}'.`, {
+        status: 409,
+        code: "ingest_job_lease_conflict",
+      });
+    }
+  }
+
+  async failQueuedProviderPageJob(input: FailQueuedProviderPageJobInput): Promise<void> {
+    const result = await this.db.ingestJob.updateMany({
+      where: {
+        id: input.queueJobId,
+        status: "RUNNING",
+        leaseWorkerId: input.workerId,
+        leaseId: input.leaseId,
+      },
+      data: {
+        status: "FAILED",
+        finishedAt: toDate(input.finishedAt),
+        lastErrorSummary: input.lastErrorSummary,
+        metadata: toJsonValue(input.metadata),
+        leaseWorkerId: null,
+        leaseId: null,
+        leaseClaimedAt: null,
+        leaseExpiresAt: null,
+      },
+    });
+
+    if (result.count !== 1) {
+      throw new BackendError(`Lease validation failed while failing page job '${input.queueJobId}'.`, {
         status: 409,
         code: "ingest_job_lease_conflict",
       });
