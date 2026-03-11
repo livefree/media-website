@@ -7,6 +7,7 @@ Coordinator:
 - Switched the active task from accepted Round F into the next fixed work package, `Workstream 1 / Slice 1: Real Provider Execution Path`, and made executable testing part of the required acceptance gate for this slice
 - Switched the active task from accepted `Workstream 1 / Slice 1` into `Workstream 1 / Slice 2: Scheduled Refresh And Probe Jobs`, keeping the same fixed workflow and making durable job state plus offline-safe tests part of the acceptance gate
 - Switched the active task from accepted `Workstream 1 / Slice 2` into `Workstream 2 / Slice 1: Admin Source Inventory And Repair Queue UI`, keeping the fixed workflow and constraining the slice to operator source/repair surfaces only
+- Switched the active task from accepted `Workstream 2 / Slice 1` into `Workstream 2 / Slice 2: Published Catalog Management UI`, keeping the fixed workflow and constraining the slice to operator catalog surfaces only
 - Promoted `reference-assets/backend.md` into tracked `docs/backend-spec.md` so backend planning is no longer anchored to an untracked reference file
 - Added a README entry point for the backend spec before starting backend-phase implementation work
 - Switched the active task from Round A to Round B and aligned the next implementation sequence to `planner -> media-ingest -> data-catalog -> reviewer`

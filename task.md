@@ -23,7 +23,7 @@ PlayerShell
 
 ## Current Active Task
 
-### Workstream 2 Slice 1: Admin Source Inventory And Repair Queue UI
+### Workstream 2 Slice 2: Published Catalog Management UI
 
 Coordinator-only rule:
 - Coordinator may define scope, update task docs, dispatch agents, review ownership, and merge accepted work.
@@ -31,30 +31,30 @@ Coordinator-only rule:
 
 Required execution order for this task:
 1. Coordinator aligns the work package to `docs/backend-spec.md`, `docs/roadmap.md`, and `docs/backend-delivery-workflow.md`
-2. Planner defines the implementation breakdown, ownership boundaries, testing scope, and acceptance checklist for admin source inventory and repair queue UI
-3. Data Catalog implements any repository, contract, and backend read/update support required by operator source inventory and repair-queue management
-4. UI Shell implements the admin source inventory and repair queue surfaces
+2. Planner defines the implementation breakdown, ownership boundaries, testing scope, and acceptance checklist for published catalog management UI
+3. Data Catalog implements any repository, contract, and backend read/update support required by operator catalog management
+4. UI Shell implements the admin published catalog management surfaces
 5. Reviewer validates operator workflow correctness, scope discipline, and test/build coverage before merge
 6. User review remains authoritative for planning direction; rejected backend structure must not be represented as accepted
 
 Scope for this round:
-- Establish the first operator-facing source management surface on top of the accepted source inventory, health, and repair queue backend foundation described in `docs/backend-spec.md`, `docs/roadmap.md`, and `docs/backend-delivery-workflow.md`
-- Implement admin source inventory and repair queue UI backed by existing backend modules
+- Establish the first operator-facing published catalog management surface on top of the accepted review/publish and published-catalog backend foundation described in `docs/backend-spec.md`, `docs/roadmap.md`, and `docs/backend-delivery-workflow.md`
+- Implement admin published catalog management UI backed by existing backend modules
 - Owned surfaces:
   - Planner: architecture, roadmap alignment, round-specific handoff docs
-  - Data Catalog: Prisma/schema only if narrowly required, `lib/db/`, `lib/server/source/`, `lib/server/health/`, `lib/server/admin/`, and related shared backend support for operator source and repair workflows
-  - UI Shell: admin pages, components, and styling for source inventory and repair queue surfaces
+  - Data Catalog: Prisma/schema only if narrowly required, `lib/db/`, `lib/server/catalog/`, `lib/server/review/`, `lib/server/admin/`, and related shared backend support for operator catalog workflows
+  - UI Shell: admin pages, components, and styling for published catalog management surfaces
   - Reviewer: acceptance and findings docs only
 - No public route redesign
 - No player work
 - No auth/session work
 - No auto-publish behavior
-- No moderation workflow expansion beyond repair/source operator handling
+- No moderation workflow expansion beyond catalog operator handling
 
 Acceptance criteria:
-- Operators can inspect source inventory and repair queue state without direct DB access
-- Source inventory surfaces are backed by backend source/health/repair boundaries rather than seed helpers or ad hoc route-local logic
-- Repair queue state is visible, filterable, and connected to durable backend records
+- Operators can inspect and manage published catalog records without direct DB access
+- Published catalog surfaces are backed by backend catalog/review/admin boundaries rather than seed helpers or ad hoc route-local logic
+- Catalog management actions are visible and constrained to the published/admin scope required by this slice
 - The implementation includes the necessary tests and remains buildable after this slice
 - No public route redesign, player work, or broader admin/control-plane drift is introduced
 
@@ -71,4 +71,5 @@ Current baseline:
 - Round F source management and healthcheck is accepted, so source inventory, health state, repair queue flow, and health-aware watch-source resolution are now in place
 - Workstream 1 / Slice 1 is accepted, so the repo now has a concrete `jszyapi` adapter and executable real-provider ingest path with offline-safe tests
 - Workstream 1 / Slice 2 is accepted, so scheduled refresh/probe jobs and durable job state are now in place
-- The repo still lacks operator-facing source inventory and repair queue UI
+- Workstream 2 / Slice 1 is accepted, so operator-facing source inventory and repair queue UI are now in place
+- The repo still lacks operator-facing published catalog management UI
