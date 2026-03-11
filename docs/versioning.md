@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.12.0`
+Current version: `0.13.0`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.12.0` an appropriate current milestone: the platform now has scheduled refresh/probe job execution with durable job state on top of the accepted real-provider path and source-health backend foundation, while it still remains pre-launch because broader provider operations, admin control-plane coverage, moderation, observability, and launch hardening are not finished.
+That makes `0.13.0` an appropriate current milestone: the platform now has the first real operator-facing source inventory and repair queue UI on top of the accepted provider execution, source-health, and published-catalog backend foundation, while it still remains pre-launch because broader catalog operations, moderation, observability, and launch hardening are not finished.
 
 ## Rules
 
@@ -39,6 +39,8 @@ That makes `0.12.0` an appropriate current milestone: the platform now has sched
   Current baseline with the first accepted real provider execution path (`jszyapi` JSON ingest) and offline-testable provider/ingest execution on top of the existing backend foundation.
 - `0.12.x`
   Current baseline with scheduled refresh/probe jobs and durable ingest-job state layered onto the accepted real-provider path.
+- `0.13.x`
+  Current baseline with the first operator-facing source inventory and repair queue UI layered onto the accepted provider execution and source-health backend foundation.
 - `1.0.0`
   First production-ready launch baseline.
 
