@@ -1,13 +1,16 @@
 import "server-only";
 
-import type { SourceInventoryRecord, SourceOrderingUpdate, UpsertSourceInventoryInput } from "../../../server/source";
+import type {
+  AdminSourceInventoryItemRecord,
+  SourceInventoryQuery,
+  SourceInventoryRecord,
+  SourceOrderingUpdate,
+  UpsertSourceInventoryInput,
+} from "../../../server/source";
 
 export interface SourceInventoryRepository {
-  listSourceInventory(filters?: {
-    mediaId?: string;
-    episodeId?: string;
-    kind?: SourceInventoryRecord["kind"];
-  }): Promise<SourceInventoryRecord[]>;
+  listSourceInventory(filters?: SourceInventoryQuery): Promise<SourceInventoryRecord[]>;
+  listAdminSourceInventory(filters?: SourceInventoryQuery): Promise<AdminSourceInventoryItemRecord[]>;
   getSourceInventoryByPublicId(publicId: string): Promise<SourceInventoryRecord | null>;
   upsertSourceInventory(input: UpsertSourceInventoryInput): Promise<SourceInventoryRecord>;
   updateSourceOrdering(updates: SourceOrderingUpdate[]): Promise<SourceInventoryRecord[]>;

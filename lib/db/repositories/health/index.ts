@@ -17,9 +17,12 @@ import type {
   SourceProbeKind,
 } from "../../../server/provider";
 import type {
+  AdminRepairQueueItemRecord,
   PersistSourceProbeHealthRequest,
   PersistSourceRefreshHealthRequest,
+  RepairQueueQuery,
   RepairQueueEntryRecord,
+  RepairQueueStatusUpdateInput,
   RepairQueueStatus,
   SourceProbeRunRecord,
   SourceProbeStatus,
@@ -324,6 +327,160 @@ function mapRepairQueueEntryRecord(record: Prisma.RepairQueueEntryGetPayload<Rec
   };
 }
 
+function buildEpisodeLabel(record: {
+  resource: {
+    episode?: {
+      episodeNumber: number | null;
+      title: string;
+    } | null;
+  };
+}) {
+  if (!record.resource.episode) {
+    return null;
+  }
+
+  if (record.resource.episode.episodeNumber) {
+    return `E${String(record.resource.episode.episodeNumber).padStart(2, "0")} · ${record.resource.episode.title}`;
+  }
+
+  return record.resource.episode.title;
+}
+
+function buildRepairQueueWhere(query?: RepairQueueQuery): Prisma.RepairQueueEntryWhereInput {
+  const search = query?.search?.trim();
+
+  return {
+    providerId: query?.providerId,
+    status: query?.statuses?.length
+      ? {
+          in: query.statuses.map((status) => mapRepairQueueStatus(status)),
+        }
+      : undefined,
+    severity: query?.severities?.length
+      ? {
+          in: query.severities.map((severity) => mapRepairSignalSeverity(severity)),
+        }
+      : undefined,
+    currentHealthState: query?.healthStates?.length
+      ? {
+          in: query.healthStates.map((state) => mapSourceHealthState(state)),
+        }
+      : undefined,
+    OR: search
+      ? [
+          {
+            summary: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+          {
+            resource: {
+              label: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+          },
+          {
+            resource: {
+              media: {
+                OR: [
+                  {
+                    title: {
+                      contains: search,
+                      mode: "insensitive",
+                    },
+                  },
+                  {
+                    originalTitle: {
+                      contains: search,
+                      mode: "insensitive",
+                    },
+                  },
+                ],
+              },
+            },
+          },
+          {
+            resource: {
+              episode: {
+                title: {
+                  contains: search,
+                  mode: "insensitive",
+                },
+              },
+            },
+          },
+          {
+            providerRegistry: {
+              displayName: {
+                contains: search,
+                mode: "insensitive",
+              },
+            },
+          },
+        ]
+      : undefined,
+  };
+}
+
+function mapAdminRepairQueueItemRecord(
+  record: Prisma.RepairQueueEntryGetPayload<{
+    include: {
+      resource: {
+        include: {
+          media: {
+            select: {
+              publicId: true;
+              title: true;
+              slug: true;
+            };
+          };
+          episode: {
+            select: {
+              publicId: true;
+              title: true;
+              episodeNumber: true;
+            };
+          };
+        };
+      };
+      providerRegistry: {
+        select: {
+          adapterKey: true;
+          displayName: true;
+        };
+      };
+      probeRun: {
+        select: {
+          probeKind: true;
+          summary: true;
+        };
+      };
+    };
+  }>,
+): AdminRepairQueueItemRecord {
+  const base = mapRepairQueueEntryRecord(record);
+
+  return {
+    ...base,
+    resourcePublicId: record.resource.publicId,
+    resourceKind: record.resource.kind.toLowerCase() as AdminRepairQueueItemRecord["resourceKind"],
+    resourceLabel: record.resource.label,
+    mediaPublicId: record.resource.media.publicId,
+    mediaTitle: record.resource.media.title,
+    mediaSlug: record.resource.media.slug,
+    episodePublicId: record.resource.episode?.publicId ?? null,
+    episodeTitle: record.resource.episode?.title ?? null,
+    episodeLabel: buildEpisodeLabel(record),
+    providerAdapterKey: record.providerRegistry?.adapterKey ?? null,
+    providerDisplayName: record.providerRegistry?.displayName ?? null,
+    probeKind: record.probeRun ? unmapSourceProbeKind(record.probeRun.probeKind) : null,
+    probeSummary: record.probeRun?.summary ?? null,
+  };
+}
+
 function rankHealthState(value: SourceHealthState): number {
   switch (value) {
     case "healthy":
@@ -450,6 +607,69 @@ export class SourceHealthRepository extends BaseRepository implements SourceHeal
     });
 
     return records.map((record) => mapRepairQueueEntryRecord(record));
+  }
+
+  async listAdminRepairQueue(query?: RepairQueueQuery): Promise<AdminRepairQueueItemRecord[]> {
+    const records = await this.db.repairQueueEntry.findMany({
+      where: buildRepairQueueWhere(query),
+      include: {
+        resource: {
+          include: {
+            media: {
+              select: {
+                publicId: true,
+                title: true,
+                slug: true,
+              },
+            },
+            episode: {
+              select: {
+                publicId: true,
+                title: true,
+                episodeNumber: true,
+              },
+            },
+          },
+        },
+        providerRegistry: {
+          select: {
+            adapterKey: true,
+            displayName: true,
+          },
+        },
+        probeRun: {
+          select: {
+            probeKind: true,
+            summary: true,
+          },
+        },
+      },
+      orderBy: [{ severity: "desc" }, { lastObservedAt: "desc" }, { createdAt: "desc" }],
+    });
+
+    return records.map((record) => mapAdminRepairQueueItemRecord(record));
+  }
+
+  async updateRepairQueueEntryStatus(entryId: string, input: RepairQueueStatusUpdateInput): Promise<RepairQueueEntryRecord> {
+    const resolvedAt =
+      input.status === "resolved" || input.status === "dismissed"
+        ? toDate(input.resolvedAt) ?? new Date()
+        : input.status === "open" || input.status === "in_progress" || input.status === "waiting_provider"
+          ? null
+          : undefined;
+
+    const record = await this.db.repairQueueEntry.update({
+      where: {
+        id: entryId,
+      },
+      data: {
+        status: mapRepairQueueStatus(input.status),
+        resolvedAt,
+        lastObservedAt: new Date(),
+      },
+    });
+
+    return mapRepairQueueEntryRecord(record);
   }
 
   private async persistSourceHealth(input: {
