@@ -2428,4 +2428,9 @@ function enrichMediaIdentity(media: MediaSeed): MediaItem {
   };
 }
 
-export const mediaCatalog: MediaItem[] = mediaCatalogSeed.map(expandEpisodicCoverage).map(normalizeRuntimePlaybackSources).map(enrichMediaIdentity);
+export const preparedMediaCatalog: MediaItem[] = mediaCatalogSeed
+  .map(expandEpisodicCoverage)
+  .map(normalizeRuntimePlaybackSources)
+  .map(enrichMediaIdentity);
+
+export const mediaCatalog: MediaItem[] = [];
