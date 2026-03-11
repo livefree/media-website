@@ -1,4 +1,4 @@
-import type { AdminPublishedCatalogQuery, AdminPublishedCatalogSort } from "../../lib/server/admin";
+import type { AdminPublishedCatalogQuery, AdminPublishedCatalogSort, AdminPublishedResourceRecord } from "../../lib/server/admin";
 import type { PublishedMediaStatus, PublishedMediaType } from "../../lib/server/catalog";
 
 type RouteSearchParams = Record<string, string | string[] | undefined>;
@@ -11,6 +11,17 @@ export interface AdminPublishedCatalogSearchState {
   region: string;
   sort: AdminPublishedCatalogSort;
   page: number;
+  flashMessage?: string;
+}
+
+export interface AdminPublishedCatalogDetailSearchState {
+  backHref: string;
+  flashMessage?: string;
+}
+
+export interface PublishedSourceReplacementOption {
+  value: string;
+  label: string;
 }
 
 const catalogTypeOptions = ["all", "movie", "series", "anime", "variety", "documentary", "special"] as const satisfies Array<
@@ -54,6 +65,7 @@ export function parseAdminPublishedCatalogSearch(searchParams?: RouteSearchParam
   const region = getStringParam(searchParams?.region);
   const sort = getStringParam(searchParams?.sort);
   const page = getPositiveInteger(searchParams?.page) ?? 1;
+  const flashMessage = getStringParam(searchParams?.flash) || undefined;
 
   const query: AdminPublishedCatalogQuery = {
     page,
@@ -92,6 +104,7 @@ export function parseAdminPublishedCatalogSearch(searchParams?: RouteSearchParam
     region,
     sort: query.sort ?? "published_at",
     page,
+    flashMessage,
   };
 
   return {
@@ -142,6 +155,53 @@ export function normalizeAdminCatalogReturnTo(returnTo?: string) {
   }
 
   return returnTo;
+}
+
+export function parseAdminPublishedCatalogDetailSearch(searchParams?: RouteSearchParams): AdminPublishedCatalogDetailSearchState {
+  return {
+    backHref: normalizeAdminCatalogReturnTo(getStringParam(searchParams?.from)),
+    flashMessage: getStringParam(searchParams?.flash) || undefined,
+  };
+}
+
+export function buildAdminCatalogDetailPath(
+  publicId: string,
+  options?: {
+    returnTo?: string;
+    flashMessage?: string;
+  },
+) {
+  const params = new URLSearchParams();
+  const returnTo = normalizeAdminCatalogReturnTo(options?.returnTo);
+
+  if (returnTo !== "/admin/catalog") {
+    params.set("from", returnTo);
+  }
+
+  if (options?.flashMessage) {
+    params.set("flash", options.flashMessage);
+  }
+
+  const serialized = params.toString();
+  return serialized ? `/admin/catalog/${publicId}?${serialized}` : `/admin/catalog/${publicId}`;
+}
+
+export function buildPublishedSourceReplacementOptions(
+  resources: AdminPublishedResourceRecord[],
+  currentPublicId: string,
+): PublishedSourceReplacementOption[] {
+  return resources
+    .filter((resource) => resource.publicId !== currentPublicId)
+    .map((resource) => ({
+      value: resource.publicId,
+      label: [
+        resource.label,
+        resource.providerDisplayName ?? resource.provider,
+        resource.quality ?? resource.format,
+      ]
+        .filter(Boolean)
+        .join(" · "),
+    }));
 }
 
 export function formatAdminCatalogLabel(value: string) {

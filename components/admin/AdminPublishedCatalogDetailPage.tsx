@@ -1,8 +1,16 @@
 import Link from "next/link";
 
+import {
+  submitPublishedCatalogUnpublishAction,
+  submitPublishedSourceReorderAction,
+  submitPublishedSourceReplaceAction,
+} from "../../app/admin/catalog/actions";
 import styles from "./admin-published-catalog.module.css";
 import { AdminOperatorNav } from "./AdminOperatorNav";
-import { formatAdminCatalogLabel } from "./admin-published-catalog.helpers";
+import {
+  buildPublishedSourceReplacementOptions,
+  formatAdminCatalogLabel,
+} from "./admin-published-catalog.helpers";
 
 import type { AdminPublishedCatalogDetailRecord, AdminPublishedResourceRecord } from "../../lib/server/admin";
 
@@ -93,15 +101,173 @@ function renderResourceSection(title: string, resources: AdminPublishedResourceR
   );
 }
 
+function renderStreamResourceSection(
+  mediaPublicId: string,
+  backHref: string,
+  resources: AdminPublishedResourceRecord[],
+  emptyMessage: string,
+) {
+  return (
+    <section className={styles.panel}>
+      <div className={styles.panelHeader}>
+        <div>
+          <h2 className={styles.panelTitle}>Stream Resources</h2>
+          <p className={styles.panelSubtitle}>Published stream lines plus the narrow reorder and replacement controls backed by lifecycle mutations.</p>
+        </div>
+        <span className={styles.metricPill}>{resources.length} resources</span>
+      </div>
+
+      {resources.length === 0 ? (
+        <div className={styles.emptyState}>{emptyMessage}</div>
+      ) : (
+        <div className={styles.resourceList}>
+          {resources.map((resource) => {
+            const replacementOptions = buildPublishedSourceReplacementOptions(resources, resource.publicId);
+
+            return (
+              <article className={styles.resourceCard} key={resource.id}>
+                <div className={styles.resourceHeader}>
+                  <div>
+                    <h3 className={styles.cardTitle}>{resource.label}</h3>
+                    <p className={styles.cardMeta}>
+                      {resource.providerDisplayName ?? resource.provider} · {resource.format}
+                      {resource.quality ? ` · ${resource.quality}` : ""}
+                    </p>
+                  </div>
+
+                  <div className={styles.badgeRow}>
+                    <span className={styles.badge}>{resource.status}</span>
+                    <span className={styles.badge}>{resource.healthState}</span>
+                    <span className={styles.badge}>{resource.isPreferred ? "preferred" : "alternate"}</span>
+                  </div>
+                </div>
+
+                <div className={styles.detailGrid}>
+                  <div className={styles.detailTile}>
+                    <span className={styles.detailLabel}>Location</span>
+                    <span className={styles.detailValue}>{getResourceLocation(resource)}</span>
+                  </div>
+                  <div className={styles.detailTile}>
+                    <span className={styles.detailLabel}>Priority</span>
+                    <span className={styles.detailValue}>
+                      {resource.priority} · mirror {resource.mirrorOrder}
+                    </span>
+                  </div>
+                  <div className={styles.detailTile}>
+                    <span className={styles.detailLabel}>Episode</span>
+                    <span className={styles.detailValue}>{resource.episodePublicId ?? "Title-level resource"}</span>
+                  </div>
+                  <div className={styles.detailTile}>
+                    <span className={styles.detailLabel}>Repair coverage</span>
+                    <span className={styles.detailValue}>{resource.openRepairCount} open repair entries</span>
+                  </div>
+                </div>
+
+                <div className={styles.mutationGrid}>
+                  <form action={submitPublishedSourceReorderAction} className={styles.mutationForm}>
+                    <input name="mediaPublicId" type="hidden" value={mediaPublicId} />
+                    <input name="resourceId" type="hidden" value={resource.id} />
+                    <input name="returnTo" type="hidden" value={backHref} />
+
+                    <div className={styles.mutationHeadingRow}>
+                      <div>
+                        <h4 className={styles.mutationTitle}>Reorder source</h4>
+                        <p className={styles.cardMeta}>Adjust priority, mirror order, and preference through the published-source ordering boundary.</p>
+                      </div>
+                    </div>
+
+                    <div className={styles.mutationFieldGrid}>
+                      <label className={styles.fieldLabel}>
+                        Priority
+                        <input className={styles.fieldInput} defaultValue={resource.priority} name="priority" type="number" />
+                      </label>
+                      <label className={styles.fieldLabel}>
+                        Mirror
+                        <input className={styles.fieldInput} defaultValue={resource.mirrorOrder} name="mirrorOrder" type="number" />
+                      </label>
+                    </div>
+
+                    <label className={styles.toggleLabel}>
+                      <input defaultChecked={resource.isPreferred} name="isPreferred" type="checkbox" value="1" />
+                      Preferred source
+                    </label>
+
+                    <label className={styles.fieldLabel}>
+                      Notes
+                      <input className={styles.fieldInput} name="notes" placeholder="Promote backup line ahead of the current default." />
+                    </label>
+
+                    <div className={styles.linkRow}>
+                      <button className={styles.primaryButton} type="submit">
+                        Save ordering
+                      </button>
+                    </div>
+                  </form>
+
+                  <form action={submitPublishedSourceReplaceAction} className={styles.mutationForm}>
+                    <input name="mediaPublicId" type="hidden" value={mediaPublicId} />
+                    <input name="sourcePublicId" type="hidden" value={resource.publicId} />
+                    <input name="returnTo" type="hidden" value={backHref} />
+
+                    <div className={styles.mutationHeadingRow}>
+                      <div>
+                        <h4 className={styles.mutationTitle}>Replace source</h4>
+                        <p className={styles.cardMeta}>Mark this published line as replaced by another published stream resource.</p>
+                      </div>
+                    </div>
+
+                    <label className={styles.fieldLabel}>
+                      Replacement target
+                      <select className={styles.fieldInput} defaultValue={resource.replacementPublicId ?? ""} name="replacementPublicId">
+                        <option value="" disabled>
+                          Select replacement line
+                        </option>
+                        {replacementOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className={styles.fieldLabel}>
+                      Notes
+                      <input className={styles.fieldInput} name="notes" placeholder="Switch to the validated backup line." />
+                    </label>
+
+                    <div className={styles.linkRow}>
+                      <button className={styles.secondaryLink} disabled={replacementOptions.length === 0} type="submit">
+                        Replace source
+                      </button>
+                    </div>
+                  </form>
+                </div>
+
+                <div className={styles.linkRow}>
+                  <Link className={styles.secondaryLink} href={resource.canonicalWatchHref}>
+                    Open watch route
+                  </Link>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
+}
+
 export function AdminPublishedCatalogDetailPage({
   backHref,
   detail,
   errorMessage,
+  flashMessage,
   publicId,
 }: {
   backHref: string;
   detail?: AdminPublishedCatalogDetailRecord;
   errorMessage?: string;
+  flashMessage?: string;
   publicId?: string;
 }) {
   if (!detail) {
@@ -123,6 +289,7 @@ export function AdminPublishedCatalogDetailPage({
             </div>
           </header>
 
+          {flashMessage ? <div className={styles.warningState}>{flashMessage}</div> : null}
           <div className={styles.warningState}>{errorMessage ?? `Published catalog record '${publicId ?? "unknown"}' is unavailable.`}</div>
         </div>
       </main>
@@ -192,6 +359,7 @@ export function AdminPublishedCatalogDetailPage({
         </header>
 
         {errorMessage ? <div className={styles.warningState}>{errorMessage}</div> : null}
+        {flashMessage ? <div className={styles.warningState}>{flashMessage}</div> : null}
 
         <div className={styles.detailLayout}>
           <section className={styles.panel}>
@@ -279,6 +447,31 @@ export function AdminPublishedCatalogDetailPage({
             </section>
 
             <section className={styles.panel}>
+              <div className={styles.panelHeader}>
+                <div>
+                  <h2 className={styles.panelTitle}>Lifecycle Mutations</h2>
+                  <p className={styles.panelSubtitle}>Narrow catalog withdrawal control backed by the published catalog admin boundary.</p>
+                </div>
+              </div>
+
+              <form action={submitPublishedCatalogUnpublishAction} className={styles.mutationForm}>
+                <input name="mediaPublicId" type="hidden" value={media.publicId} />
+                <input name="returnTo" type="hidden" value={backHref} />
+
+                <label className={styles.fieldLabel}>
+                  Withdrawal notes
+                  <input className={styles.fieldInput} name="notes" placeholder="Withdraw until source integrity review completes." />
+                </label>
+
+                <div className={styles.linkRow}>
+                  <button className={styles.dangerButton} type="submit">
+                    Unpublish record
+                  </button>
+                </div>
+              </form>
+            </section>
+
+            <section className={styles.panel}>
               <h2 className={styles.panelTitle}>Review Context</h2>
               {reviewContext ? (
                 <div className={styles.timelineList}>
@@ -362,7 +555,7 @@ export function AdminPublishedCatalogDetailPage({
           )}
         </section>
 
-        {renderResourceSection("Stream Resources", detail.streamResources, "No published stream resources are available for this record.")}
+        {renderStreamResourceSection(media.publicId, backHref, detail.streamResources, "No published stream resources are available for this record.")}
         {renderResourceSection("Download Resources", detail.downloadResources, "No published download resources are available for this record.")}
         {renderResourceSection("Subtitle Resources", detail.subtitleResources, "No published subtitle resources are available for this record.")}
 

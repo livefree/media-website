@@ -36,11 +36,13 @@ function getSummary(page?: AdminPublishedCatalogPageRecord) {
 export function AdminPublishedCatalogPage({
   page,
   errorMessage,
+  flashMessage,
   returnTo,
   searchState,
 }: {
   page?: AdminPublishedCatalogPageRecord;
   errorMessage?: string;
+  flashMessage?: string;
   returnTo: string;
   searchState: AdminPublishedCatalogSearchState;
 }) {
@@ -149,6 +151,7 @@ export function AdminPublishedCatalogPage({
           </form>
         </section>
 
+        {flashMessage ? <div className={styles.warningState}>{flashMessage}</div> : null}
         {errorMessage ? <div className={styles.warningState}>{errorMessage}</div> : null}
 
         {!errorMessage && items.length === 0 ? (

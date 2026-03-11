@@ -202,6 +202,9 @@ export function AdminSourceInventoryPage({
                     <Link className={styles.secondaryLink} href={`/media/${item.mediaSlug}`}>
                       View title
                     </Link>
+                    <Link className={styles.secondaryLink} href={`/admin/catalog/${item.mediaPublicId}`}>
+                      Manage lifecycle
+                    </Link>
                     <span className={styles.inlineText}>{item.mediaPublicId}</span>
                   </div>
                 </div>

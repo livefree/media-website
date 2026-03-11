@@ -173,6 +173,8 @@
 }
 
 .primaryButton,
+.dangerButton,
+.secondaryButton,
 .primaryLink,
 .secondaryLink {
   display: inline-flex;
@@ -190,10 +192,17 @@
   color: #220f06;
 }
 
+.secondaryButton,
 .secondaryLink {
   border: 1px solid rgba(173, 194, 219, 0.16);
   background: rgba(23, 34, 50, 0.7);
   color: #eef4fb;
+}
+
+.dangerButton {
+  border: 1px solid rgba(255, 128, 128, 0.28);
+  background: linear-gradient(135deg, rgba(125, 28, 28, 0.96), rgba(93, 19, 19, 0.92));
+  color: #fff0f0;
 }
 
 .emptyState,
@@ -320,6 +329,41 @@
   gap: 14px;
 }
 
+.mutationGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.mutationForm {
+  display: grid;
+  gap: 12px;
+  padding: 16px 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(173, 194, 219, 0.12);
+  background: rgba(13, 20, 33, 0.74);
+}
+
+.mutationHeadingRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.mutationTitle {
+  margin: 0;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.mutationFieldGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
 .paginationPanel {
   display: flex;
   flex-wrap: wrap;
@@ -355,5 +399,9 @@
   .paginationPanel {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .mutationFieldGrid {
+    grid-template-columns: 1fr;
   }
 }
