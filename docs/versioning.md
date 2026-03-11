@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.9.0`
+Current version: `0.10.0`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.9.0` an appropriate current milestone: the public browse, search, detail, watch, and list surfaces now resolve through published backend read boundaries instead of withdrawn seed-only runtime paths, while the platform still remains pre-launch because source operations, auth/session flows, health management, and broader production runtime concerns are not finished.
+That makes `0.10.0` an appropriate current milestone: the platform now has explicit source inventory, health state, probe and repair-oriented backend flow, and health-aware watch-page source resolution on top of published catalog serving, while it still remains pre-launch because auth/session flows, broader operator surfaces, production observability, and full runtime hardening are not finished.
 
 ## Rules
 
@@ -32,7 +32,9 @@ That makes `0.9.0` an appropriate current milestone: the public browse, search, 
 - `0.8.x`
   Baseline with public list pages, broader public-list discovery, canonical list-backed watch flows, stronger list-aware playback/queue context, and demo/runtime cleanup ahead of backend-first catalog work.
 - `0.9.x`
-  Current baseline with published-catalog-backed public browse/search/detail/watch/list serving in place, while source-health, auth, and broader production operations are still pending.
+  Baseline with published-catalog-backed public browse/search/detail/watch/list serving in place, before source inventory and health/repair workflow became first-class runtime concerns.
+- `0.10.x`
+  Current baseline with explicit source inventory, source health state, repair queue, and health-aware watch-source resolution layered onto the published-catalog backend.
 - `1.0.0`
   First production-ready launch baseline.
 
