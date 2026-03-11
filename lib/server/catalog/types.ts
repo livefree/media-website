@@ -277,6 +277,22 @@ export interface PublishedWatchRecord {
   queue?: PublishedListQueueRecord;
 }
 
+export interface UnpublishPublishedCatalogInput {
+  mediaPublicId: string;
+  actorId?: string;
+  requestId?: string;
+  notes?: string;
+}
+
+export interface UnpublishPublishedCatalogResult {
+  auditId: string;
+  summary: string;
+  recordedAt: string;
+  mediaId: string;
+  mediaPublicId: string;
+  status: PublishedMediaStatus;
+}
+
 export interface PublishedFeaturedListDiscoveryRecord {
   title: string;
   description: string;

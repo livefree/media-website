@@ -8,6 +8,10 @@ import type {
   ManualSourceSubmissionQuery,
   ManualSourceSubmissionRecord,
   ManualSourceSubmissionStatusUpdateInput,
+  ReorderPublishedSourcesInput,
+  ReorderPublishedSourcesResult,
+  ReplacePublishedSourceInput,
+  ReplacePublishedSourceResult,
   SourceInventoryQuery,
   SourceInventoryRecord,
   SourceOrderingUpdate,
@@ -32,6 +36,8 @@ export interface SourceInventoryRepository {
   getSourceInventoryByPublicId(publicId: string): Promise<SourceInventoryRecord | null>;
   upsertSourceInventory(input: UpsertSourceInventoryInput): Promise<SourceInventoryRecord>;
   updateSourceOrdering(updates: SourceOrderingUpdate[]): Promise<SourceInventoryRecord[]>;
+  reorderPublishedSources(input: ReorderPublishedSourcesInput): Promise<ReorderPublishedSourcesResult>;
+  replacePublishedSource(input: ReplacePublishedSourceInput): Promise<ReplacePublishedSourceResult>;
   createManualSourceSubmission(input: CreateManualSourceSubmissionInput): Promise<ManualSourceSubmissionRecord>;
   updateManualSourceSubmissionStatus(
     publicId: string,

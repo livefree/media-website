@@ -1,20 +1,25 @@
 import "server-only";
 
+import { createRequire } from "node:module";
+
 import type { PrismaClient as PrismaClientType } from "@prisma/client";
-import prismaClientPackage from "@prisma/client";
 
 import { getServerRuntimeConfig, isDatabaseConfigured } from "../server/config";
 import { requireDatabaseUrl } from "../server/config";
 import { BackendError } from "../server/errors";
 import { logger } from "../server/logging";
 
-const { PrismaClient } = prismaClientPackage;
-
 declare global {
   var __mediaAtlasPrisma__: PrismaClientType | undefined;
 }
 
+const require = createRequire(import.meta.url);
 const dbLogger = logger.child({ subsystem: "db.client" });
+
+function getPrismaClientConstructor() {
+  const prismaClientPackage = require("@prisma/client") as typeof import("@prisma/client");
+  return prismaClientPackage.PrismaClient;
+}
 
 function createPrismaClient(): PrismaClientType {
   const config = getServerRuntimeConfig();
@@ -24,6 +29,8 @@ function createPrismaClient(): PrismaClientType {
     nodeEnv: config.nodeEnv,
     databaseConfigured: true,
   });
+
+  const PrismaClient = getPrismaClientConstructor();
 
   return new PrismaClient({
     log: config.nodeEnv === "development" ? ["warn", "error"] : ["error"],

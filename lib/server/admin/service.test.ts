@@ -19,8 +19,11 @@ import {
   getAdminQueueFailureMonitoringPage,
   getAdminRepairQueuePage,
   getAdminSourceInventoryPage,
+  reorderAdminPublishedSources,
+  replaceAdminPublishedSource,
   resolveAdminModerationReport,
   resolveAdminRepairQueueEntry,
+  unpublishAdminPublishedCatalogRecord,
   updateAdminManualSourceSubmissionStatus,
   updateAdminManualTitleSubmissionStatus,
   updateAdminSourceOrdering,
@@ -520,6 +523,7 @@ function createDependencies() {
     getPublishedCatalogMigrationPreflight: 0,
     queryAdminPublishedCatalog: [] as Array<Record<string, unknown> | undefined>,
     getAdminPublishedCatalogDetailByPublicId: [] as string[],
+    unpublishPublishedCatalogRecord: [] as Array<Record<string, unknown>>,
     listModerationReports: [] as Array<Record<string, unknown> | undefined>,
     getModerationReportDetailByPublicId: [] as string[],
     updateModerationReportStatus: [] as Array<{ publicId: string; input: Record<string, unknown> }>,
@@ -529,6 +533,8 @@ function createDependencies() {
     updateManualTitleSubmissionStatus: [] as Array<{ publicId: string; input: Record<string, unknown> }>,
     listAdminSourceInventory: [] as Array<Record<string, unknown> | undefined>,
     updateSourceOrdering: [] as Array<Record<string, unknown>>,
+    reorderPublishedSources: [] as Array<Record<string, unknown>>,
+    replacePublishedSource: [] as Array<Record<string, unknown>>,
     listManualSourceSubmissions: [] as Array<Record<string, unknown> | undefined>,
     getManualSourceSubmissionDetailByPublicId: [] as string[],
     createManualSourceSubmission: [] as Array<Record<string, unknown>>,
@@ -599,6 +605,17 @@ function createDependencies() {
       async getAdminPublishedCatalogDetailByPublicId(publicId) {
         calls.getAdminPublishedCatalogDetailByPublicId.push(publicId);
         return publicId === "missing" ? null : createPublishedCatalogDetail();
+      },
+      async unpublishPublishedCatalogRecord(input) {
+        calls.unpublishPublishedCatalogRecord.push(input as Record<string, unknown>);
+        return {
+          auditId: "audit-unpublish-1",
+          summary: "Unpublished catalog record 'Northline Station'.",
+          recordedAt: "2026-03-11T12:30:00.000Z",
+          mediaId: "media-1",
+          mediaPublicId: input.mediaPublicId,
+          status: "archived",
+        };
       },
     },
     review: {
@@ -730,6 +747,59 @@ function createDependencies() {
       async updateSourceOrdering(updates) {
         calls.updateSourceOrdering.push({ updates });
         return updates;
+      },
+      async reorderPublishedSources(input) {
+        calls.reorderPublishedSources.push(input as Record<string, unknown>);
+        return {
+          auditId: "audit-reorder-1",
+          summary: "Reordered 2 published sources.",
+          recordedAt: "2026-03-11T12:15:00.000Z",
+          resources: [
+            createSourceItem({
+              id: "resource-2",
+              publicId: "src_public_2",
+              label: "Backup line",
+              priority: 20,
+              mirrorOrder: 0,
+              isPreferred: true,
+              orderingOrigin: "manual",
+            }),
+            createSourceItem({
+              id: "resource-1",
+              publicId: "src_public_1",
+              label: "Main line",
+              priority: 10,
+              mirrorOrder: 1,
+              isPreferred: false,
+              orderingOrigin: "manual",
+            }),
+          ],
+        };
+      },
+      async replacePublishedSource(input) {
+        calls.replacePublishedSource.push(input as Record<string, unknown>);
+        return {
+          auditId: "audit-replace-1",
+          summary: "Replaced published source 'src_public_1'.",
+          recordedAt: "2026-03-11T12:20:00.000Z",
+          replacedSource: createSourceItem({
+            publicId: input.sourcePublicId,
+            status: "offline",
+            healthState: "replaced",
+            isPreferred: false,
+            isActive: false,
+            isPublic: false,
+            replacementPublicId: input.replacementPublicId,
+          }),
+          replacementSource: createSourceItem({
+            id: "resource-9",
+            publicId: input.replacementPublicId,
+            label: "Operator replacement line",
+            isPreferred: true,
+            isActive: true,
+            isPublic: true,
+          }),
+        };
       },
       async listManualSourceSubmissions(query) {
         calls.listManualSourceSubmissions.push(query);
@@ -1207,6 +1277,77 @@ test("updateAdminSourceOrdering forwards the existing backend ordering boundary"
   );
 
   assert.equal(calls.updateSourceOrdering.length, 1);
+});
+
+test("reorderAdminPublishedSources forwards the bounded published-source reorder workflow", async () => {
+  const { calls, dependencies } = createDependencies();
+
+  const result = await reorderAdminPublishedSources(
+    {
+      actorId: "operator-ui",
+      requestId: "reorder-1",
+      notes: "Promote backup line ahead of the primary line.",
+      updates: [
+        {
+          resourceId: "resource-2",
+          priority: 20,
+          mirrorOrder: 0,
+          isPreferred: true,
+          orderingOrigin: "manual",
+        },
+        {
+          resourceId: "resource-1",
+          priority: 10,
+          mirrorOrder: 1,
+          isPreferred: false,
+          orderingOrigin: "manual",
+        },
+      ],
+    },
+    dependencies,
+  );
+
+  assert.equal(calls.reorderPublishedSources.length, 1);
+  assert.equal(result.auditId, "audit-reorder-1");
+  assert.equal(result.resources[0]?.publicId, "src_public_2");
+});
+
+test("replaceAdminPublishedSource forwards the bounded replacement workflow", async () => {
+  const { calls, dependencies } = createDependencies();
+
+  const result = await replaceAdminPublishedSource(
+    {
+      sourcePublicId: "src_public_1",
+      replacementPublicId: "src_public_9",
+      actorId: "operator-ui",
+      requestId: "replace-1",
+      notes: "Switch to the validated backup line.",
+    },
+    dependencies,
+  );
+
+  assert.equal(calls.replacePublishedSource.length, 1);
+  assert.equal(result.replacedSource.publicId, "src_public_1");
+  assert.equal(result.replacementSource.publicId, "src_public_9");
+  assert.equal(result.replacementSource.isPublic, true);
+});
+
+test("unpublishAdminPublishedCatalogRecord forwards the bounded catalog withdrawal workflow", async () => {
+  const { calls, dependencies } = createDependencies();
+
+  const result = await unpublishAdminPublishedCatalogRecord(
+    {
+      mediaPublicId: "med_public_1",
+      actorId: "operator-ui",
+      requestId: "unpublish-1",
+      notes: "Withdraw until source integrity review completes.",
+    },
+    dependencies,
+  );
+
+  assert.equal(calls.unpublishPublishedCatalogRecord.length, 1);
+  assert.equal(result.mediaPublicId, "med_public_1");
+  assert.equal(result.status, "archived");
 });
 
 test("admin service denies anonymous access before backend dependencies are invoked", async () => {

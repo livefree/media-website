@@ -21,9 +21,13 @@ import type {
   PublishedListDirectoryRecord,
   PublishedListRecord,
   PublishedListSummaryRecord,
+  UnpublishPublishedCatalogInput,
+  UnpublishPublishedCatalogResult,
   PublishedWatchQuery,
   PublishedWatchRecord,
 } from "./types";
+import { runInTransaction } from "../../db/transactions";
+import { createPublishedCatalogRepository } from "../../db/repositories/catalog";
 
 interface PublishedCatalogServiceDependencies {
   repository: {
@@ -36,6 +40,7 @@ interface PublishedCatalogServiceDependencies {
     getPublishedListByPublicId(publicId: string): Promise<PublishedListRecord | null>;
     getPublishedListDirectory(): Promise<PublishedListDirectoryRecord>;
     getPublishedFeaturedLists(limit?: number): Promise<PublishedListSummaryRecord[]>;
+    unpublishPublishedCatalogRecord(input: UnpublishPublishedCatalogInput): Promise<UnpublishPublishedCatalogResult>;
   };
   migration: {
     assertPublishedCatalogRuntimeReady(): Promise<MigrationPreflightRecord>;
@@ -157,4 +162,26 @@ export async function getPublishedCatalogFeaturedListDiscovery(
     description: "Public featured list discovery backed by published canonical catalog records.",
     items: await resolvedDependencies.repository.getPublishedFeaturedLists(limit),
   };
+}
+
+export async function unpublishPublishedCatalogRecord(
+  input: UnpublishPublishedCatalogInput,
+  dependencies?: PublishedCatalogServiceDependencies,
+): Promise<UnpublishPublishedCatalogResult> {
+  requirePrivilegedAdminAccess("operator");
+
+  if (dependencies) {
+    return dependencies.repository.unpublishPublishedCatalogRecord(input);
+  }
+
+  return runInTransaction(
+    {
+      name: "catalog.unpublishPublishedCatalogRecord",
+    },
+    async (context) => createPublishedCatalogRepository(context).unpublishPublishedCatalogRecord(input),
+    {
+      actorId: input.actorId,
+      requestId: input.requestId,
+    },
+  );
 }

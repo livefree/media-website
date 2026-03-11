@@ -6,6 +6,8 @@ import type {
   PublishedMediaType,
   PublishedPlaybackResourceRecord,
   PublishedSeasonRecord,
+  UnpublishPublishedCatalogInput,
+  UnpublishPublishedCatalogResult,
 } from "../catalog";
 import type {
   AdminQueueFailureItemRecord,
@@ -34,6 +36,10 @@ import type {
   ManualSourceSubmissionQuery,
   ManualSourceSubmissionRecord,
   ManualSourceSubmissionStatusUpdateInput,
+  ReorderPublishedSourcesInput,
+  ReorderPublishedSourcesResult,
+  ReplacePublishedSourceInput,
+  ReplacePublishedSourceResult,
   SourceInventoryQuery,
   SourceOrderingUpdate,
 } from "../source";
@@ -302,6 +308,7 @@ export interface AdminBackendDependencies {
     getPublishedCatalogMigrationPreflight(): Promise<MigrationPreflightRecord>;
     queryAdminPublishedCatalog(query?: AdminPublishedCatalogQuery): Promise<AdminPublishedCatalogPageRecord>;
     getAdminPublishedCatalogDetailByPublicId(publicId: string): Promise<AdminPublishedCatalogDetailRecord | null>;
+    unpublishPublishedCatalogRecord(input: UnpublishPublishedCatalogInput): Promise<UnpublishPublishedCatalogResult>;
   };
   review: {
     listModerationReports(query?: ModerationReportQuery): Promise<ModerationReportRecord[]>;
@@ -328,6 +335,8 @@ export interface AdminBackendDependencies {
   source: {
     listAdminSourceInventory(query?: SourceInventoryQuery): Promise<AdminSourceInventoryItemRecord[]>;
     updateSourceOrdering(updates: SourceOrderingUpdate[]): Promise<unknown>;
+    reorderPublishedSources(input: ReorderPublishedSourcesInput): Promise<ReorderPublishedSourcesResult>;
+    replacePublishedSource(input: ReplacePublishedSourceInput): Promise<ReplacePublishedSourceResult>;
     listManualSourceSubmissions(query?: ManualSourceSubmissionQuery): Promise<ManualSourceSubmissionRecord[]>;
     getManualSourceSubmissionDetailByPublicId(publicId: string): Promise<ManualSourceSubmissionDetailRecord | null>;
     createManualSourceSubmission(input: CreateManualSourceSubmissionInput): Promise<ManualSourceSubmissionDetailRecord>;
