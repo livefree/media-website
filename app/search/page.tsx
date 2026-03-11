@@ -6,12 +6,14 @@ import { SearchBox } from "../../components/SearchBox";
 import { buildSearchPageData } from "../../lib/search-filter";
 import { buildSearchHref, getHiddenSearchFields } from "../../lib/search-params";
 
-export default function SearchPage({
+export const dynamic = "force-dynamic";
+
+export default async function SearchPage({
   searchParams,
 }: {
   searchParams?: Record<string, string | string[] | undefined>;
 }) {
-  const pageData = buildSearchPageData(searchParams);
+  const pageData = await buildSearchPageData(searchParams);
 
   return (
     <main className="page-shell">
@@ -27,7 +29,6 @@ export default function SearchPage({
           title={pageData.searchTitle}
           summary={pageData.searchSummary}
           hotSearches={pageData.hotSearches}
-          trendingItems={pageData.trendingItems}
         />
         <FilterBar
           action="/search"

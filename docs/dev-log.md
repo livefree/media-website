@@ -89,6 +89,8 @@ Data Catalog:
 - Added reusable catalog helpers in `lib/media-catalog.ts` and `lib/media-utils.ts` for downstream search, detail, and homepage integration
 
 Search Filter:
+- Rewired `/search` plus browse/category route integrations onto the published-catalog backend read boundary, mapping public-safe published cards and facets into the existing UI shell while keeping staging/review state out of public route composition
+- Marked the browse/search routes as request-time reads and added a database-unconfigured empty-catalog fallback so Round E public search/filter routes stay buildable while the published backend is still being stood up locally
 - Added URL-backed search state helpers in `lib/search-params.ts`, `lib/search-filter.ts`, and `lib/pagination.ts`
 - Built `app/search/page.tsx` to reuse the shared browse shell with query, type, sort, genre, region, year, and page state reflected in the URL
 - Narrowly upgraded shared shell components so the search box, filters, navbar search action, and pagination can submit or link into the real search route
@@ -221,6 +223,7 @@ Reviewer:
 - Accepted integrated `Normalization And Dedup Pipeline Round C` on `main` after verifying normalization input is derived from staged records, normalized candidates plus alias/match/duplicate persistence remain isolated from canonical catalog writes, dedup outputs stay suggestion-only and pre-review, public routes remain untouched, and `npm run build` passes
 
 Detail Player:
+- Reconnected `/watch` and `/media/[slug]` compatibility serving to the published catalog backend, adding local published-to-view-model adapters so detail/player surfaces now read published-only media, episode, resource, and list data without leaking staging or review-state records while preserving canonical `/watch?...` identity
 - Upgraded `/watch` list playback from a simple previous/next context card into a read-only queue panel that shows the active list item, nearby queue entries, and upcoming clickable items from shared canonical queue data while preserving `list` / `li` through in-scope watch transitions
 - Removed the visible watch-page source chooser, kept playback on the first internally resolved playable source, and switched detail-owned poster surfaces to the shared fallback poster treatment so broken artwork no longer renders raw in the hero, related cards, or queue context
 - Tightened player resume rules so only middle-window progress persists at snapped 5-second boundaries, first-30s and end-of-video exits no longer keep resumable state, and watch-page startup now restores valid resume positions while staying paused
