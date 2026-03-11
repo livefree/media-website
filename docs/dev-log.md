@@ -266,6 +266,7 @@ Planner:
 - Produced `docs/handovers/planner-provider-adapter-staging-round-b.md` to define Round B adapter-contract scope, staging-schema scope, the ownership split between `media-ingest` and `data-catalog`, and reviewer acceptance criteria before provider intake begins
 - Produced `docs/handovers/planner-normalization-dedup-round-c.md` to define Round C normalization scope, dedup scope, the split between normalization input and persisted pre-review state, the ownership boundary between `media-ingest` and `data-catalog`, and reviewer acceptance criteria with explicit no-publish/no-canonical-write guards
 - Produced `docs/handovers/planner-review-publish-round-d.md` to define Round D review-queue scope, publish-gate scope, the ownership split between `data-catalog` and `ui-shell`, the only allowed canonical-write path, and reviewer acceptance criteria with explicit no-public-rewiring guards
+- Produced `docs/handovers/planner-canonical-catalog-serving-round-e.md` to define Round E published-catalog read-model scope, the split between `data-catalog`, `search-filter`, and `detail-player`, public-route reconnection rules, and reviewer acceptance criteria with explicit no-source-health guards
 - Produced `docs/handovers/planner-backend-monolith-foundation-round-a.md` to translate Round A into a concrete monolith-foundation checklist for Data Catalog and Reviewer, focused on `lib/server/`, `lib/db/`, shared backend conventions, and strict avoidance of premature provider or staging business logic
 
 Reviewer:
