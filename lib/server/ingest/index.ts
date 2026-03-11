@@ -4,8 +4,9 @@ import { defineServerModule } from "../module";
 
 export const ingestModule = defineServerModule({
   id: "ingest",
-  description: "Ingest orchestration boundary for backfill, incremental sync, raw payload capture, retries, and checkpoints.",
-  owns: ["ingest jobs", "raw payload intake", "sync checkpoints", "retry and throttle policy"],
+  description:
+    "Ingest orchestration boundary for backfill, incremental sync, source refresh/probe intake, raw payload capture, retries, and checkpoints.",
+  owns: ["ingest jobs", "raw payload intake", "sync checkpoints", "source refresh intake", "repair-intake handoff", "retry and throttle policy"],
   dependsOn: ["config", "provider"],
 });
 
