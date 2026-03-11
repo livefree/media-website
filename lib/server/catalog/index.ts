@@ -10,4 +10,6 @@ export const catalogModule = defineServerModule({
 });
 
 export * from "./types";
+export * from "./identity";
+export * from "./service";
 export * from "./publish";
