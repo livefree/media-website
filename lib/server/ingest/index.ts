@@ -13,3 +13,4 @@ export const ingestModule = defineServerModule({
 export * from "./types";
 export * from "./service";
 export * from "./execution";
+export * from "./source-jobs";

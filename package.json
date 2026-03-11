@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test:provider-ingest": "node --import ./scripts/register-server-only-loader.mjs --experimental-strip-types --test lib/server/provider/jszyapi.test.ts lib/server/ingest/execution.test.ts",
+    "test:provider-ingest": "node --import ./scripts/register-server-only-loader.mjs --experimental-strip-types --test lib/server/provider/jszyapi.test.ts lib/server/ingest/execution.test.ts lib/server/ingest/source-jobs.test.ts",
     "typecheck": "tsc --noEmit",
     "ingest:scan": "node scripts/media-ingest-scan.mjs",
     "ingest:enrich": "node scripts/media-enrich-candidates.mjs",

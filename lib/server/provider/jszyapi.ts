@@ -11,12 +11,17 @@ import type {
   ProviderFetchByIdParams,
   ProviderFetchPageParams,
   ProviderPageResult,
+  ProviderRefreshSourceParams,
   ProviderRawPayloadRecord,
   ProviderRequestMetadata,
   ProviderRuntimeContext,
+  ProviderSourceProbeResult,
+  ProviderSourceRefreshResult,
+  RepairIntakeSignal,
   StagingFragmentKind,
   StagingProviderItem,
   StagingSourceFragment,
+  SourceHealthFinding,
 } from "./types";
 
 const JSZYAPI_VOD_JSON_BASE_URL = "https://jszyapi.com/api.php/provide/vod/at/json";
@@ -237,6 +242,10 @@ function buildWarnings(item: JszyapiListItem, sourceFragments: StagingSourceFrag
   return warnings;
 }
 
+function normalizeUrl(url: string): string {
+  return url.trim();
+}
+
 function parseItem(item: JszyapiListItem): StagingProviderItem {
   const streamSources = parseSourceFragments("stream", item.vod_play_from, item.vod_play_url);
   const downloadSources = parseSourceFragments("download", item.vod_down_from, item.vod_down_url);
@@ -262,6 +271,68 @@ function parseItem(item: JszyapiListItem): StagingProviderItem {
     sourceFragments,
     warnings: [...new Set(warnings)],
   };
+}
+
+function createSourceHealthFinding(input: {
+  target: ProviderRefreshSourceParams["target"];
+  observedAt: string;
+  observedState: SourceHealthFinding["observedState"];
+  probeKind: SourceHealthFinding["probeKind"];
+  summary: string;
+  code?: string;
+  evidence?: Record<string, unknown>;
+}): SourceHealthFinding {
+  return {
+    sourceId: input.target.sourceId,
+    observedAt: input.observedAt,
+    observedState: input.observedState,
+    probeKind: input.probeKind,
+    summary: input.summary,
+    code: input.code,
+    providerItemId: input.target.providerItemId,
+    providerLineKey: input.target.providerLineKey,
+    evidence: input.evidence,
+  };
+}
+
+function createRepairSignal(input: {
+  target: ProviderRefreshSourceParams["target"];
+  createdAt: string;
+  trigger: RepairIntakeSignal["trigger"];
+  severity: RepairIntakeSignal["severity"];
+  summary: string;
+  evidence?: Record<string, unknown>;
+}): RepairIntakeSignal {
+  return {
+    sourceId: input.target.sourceId,
+    createdAt: input.createdAt,
+    healthState: "broken",
+    trigger: input.trigger,
+    severity: input.severity,
+    summary: input.summary,
+    providerItemId: input.target.providerItemId,
+    providerLineKey: input.target.providerLineKey,
+    evidence: input.evidence,
+  };
+}
+
+function matchesTargetFragment(item: StagingProviderItem, target: ProviderRefreshSourceParams["target"]): StagingSourceFragment | undefined {
+  const normalizedTargetUrls = new Set(target.urls.map((url) => normalizeUrl(url)).filter(Boolean));
+  const sameKind = item.sourceFragments.filter((fragment) => fragment.kind === target.sourceKind);
+  const lineMatches =
+    target.providerLineKey !== undefined
+      ? sameKind.filter((fragment) => fragment.providerLineKey === target.providerLineKey)
+      : sameKind;
+
+  if (lineMatches.length === 0) {
+    return undefined;
+  }
+
+  if (normalizedTargetUrls.size === 0) {
+    return lineMatches[0];
+  }
+
+  return lineMatches.find((fragment) => fragment.urls.some((url) => normalizedTargetUrls.has(normalizeUrl(url)))) ?? lineMatches[0];
 }
 
 function parseSuccessCode(payload: JszyapiPagePayload): boolean {
@@ -437,6 +508,46 @@ function parseDetailResult(
   };
 }
 
+function reScopeRawPayloads(
+  payloads: ProviderRawPayloadRecord[],
+  scope: ProviderRawPayloadRecord["scope"],
+  providerItemId: string,
+): ProviderRawPayloadRecord[] {
+  return payloads.map((payload) => ({
+    ...payload,
+    providerItemId,
+    scope,
+  }));
+}
+
+async function fetchJszyapiDetail(
+  runtime: ProviderRuntimeContext,
+  providerItemId: string,
+): Promise<{
+  fetchedAt: string;
+  request: ProviderRequestMetadata;
+  item?: StagingProviderItem;
+  rawPayloads: ProviderRawPayloadRecord[];
+}> {
+  const fetchedAt = runtime.now().toISOString();
+  const { url, payload } = await fetchJszyapiPayload(runtime, {
+    providerItemId,
+  });
+  const request = {
+    requestUrl: url,
+    method: "GET" as const,
+  };
+  const parsed = parsePageResult(payload, request, fetchedAt, 1);
+  const item = parsed.items.find((candidate) => candidate.providerItemId === providerItemId) ?? parsed.items[0];
+
+  return {
+    fetchedAt,
+    request,
+    item,
+    rawPayloads: reScopeRawPayloads(parsed.rawPayloads, "detail", providerItemId),
+  };
+}
+
 async function fetchJszyapiPayload(
   runtime: ProviderRuntimeContext,
   params: JszyapiVodRequestParams,
@@ -470,19 +581,205 @@ export const jszyapiVodJsonProviderAdapter = defineProviderAdapter({
     return parsePageResult(payload, buildRequestMetadata(url, { page }), fetchedAt, page);
   },
   async fetchById(params: ProviderFetchByIdParams, context) {
-    const fetchedAt = context.now().toISOString();
-    const { url, payload } = await fetchJszyapiPayload(context, {
-      providerItemId: params.providerItemId,
-    });
+    const detail = await fetchJszyapiDetail(context, params.providerItemId);
 
-    return parseDetailResult(
-      payload,
+    if (!detail.item) {
+      throw new BackendError("jszyapi detail request returned no items.", {
+        status: 404,
+        code: "provider_item_not_found",
+        details: {
+          providerItemId: params.providerItemId,
+        },
+      });
+    }
+
+    return parseDetailResult(detail.rawPayloads[0]?.body, detail.request, detail.fetchedAt, params.providerItemId);
+  },
+  async refreshSource(params, context): Promise<ProviderSourceRefreshResult> {
+    const detail = await fetchJszyapiDetail(context, params.target.providerItemId);
+    const rawPayloads = reScopeRawPayloads(detail.rawPayloads, "source_refresh", params.target.providerItemId);
+
+    if (!detail.item) {
+      const summary = `Provider item '${params.target.providerItemId}' was not returned during scheduled refresh.`;
+
+      return {
+        providerKey: "jszyapi_vod_json",
+        fetchedAt: detail.fetchedAt,
+        request: detail.request,
+        target: params.target,
+        rawPayloads,
+        findings: [
+          createSourceHealthFinding({
+            target: params.target,
+            observedAt: detail.fetchedAt,
+            observedState: "broken",
+            probeKind: "metadata_refresh",
+            summary,
+            code: "provider_item_missing",
+          }),
+        ],
+        repairSignals: [
+          createRepairSignal({
+            target: params.target,
+            createdAt: detail.fetchedAt,
+            trigger: "provider_item_missing",
+            severity: "high",
+            summary,
+          }),
+        ],
+      };
+    }
+
+    const matchedFragment = matchesTargetFragment(detail.item, params.target);
+
+    if (!matchedFragment) {
+      const summary = `Provider line '${params.target.providerLineKey ?? "unknown"}' was not returned during scheduled refresh.`;
+
+      return {
+        providerKey: "jszyapi_vod_json",
+        fetchedAt: detail.fetchedAt,
+        request: detail.request,
+        target: params.target,
+        item: detail.item,
+        rawPayloads,
+        findings: [
+          createSourceHealthFinding({
+            target: params.target,
+            observedAt: detail.fetchedAt,
+            observedState: "broken",
+            probeKind: "metadata_refresh",
+            summary,
+            code: "provider_line_missing",
+            evidence: {
+              availableLineKeys: [...new Set(detail.item.sourceFragments.map((fragment) => fragment.providerLineKey).filter(Boolean))],
+            },
+          }),
+        ],
+        repairSignals: [
+          createRepairSignal({
+            target: params.target,
+            createdAt: detail.fetchedAt,
+            trigger: "provider_line_missing",
+            severity: "high",
+            summary,
+            evidence: {
+              availableLineKeys: [...new Set(detail.item.sourceFragments.map((fragment) => fragment.providerLineKey).filter(Boolean))],
+            },
+          }),
+        ],
+      };
+    }
+
+    return {
+      providerKey: "jszyapi_vod_json",
+      fetchedAt: detail.fetchedAt,
+      request: detail.request,
+      target: params.target,
+      item: detail.item,
+      rawPayloads,
+      findings: [
+        createSourceHealthFinding({
+          target: params.target,
+          observedAt: detail.fetchedAt,
+          observedState: "healthy",
+          probeKind: "metadata_refresh",
+          summary: `Scheduled refresh confirmed provider line '${matchedFragment.providerLineKey ?? matchedFragment.label ?? "unknown"}'.`,
+          evidence: {
+            matchedUrls: matchedFragment.urls,
+            providerUpdatedAt: detail.item.providerUpdatedAt ?? null,
+          },
+        }),
+      ],
+      repairSignals: [],
+    };
+  },
+  async probeSource(params, context): Promise<ProviderSourceProbeResult> {
+    const url = params.target.urls[0];
+
+    if (!url) {
+      throw new BackendError("Source probe target did not include a URL.", {
+        status: 400,
+        code: "provider_probe_target_missing_url",
+      });
+    }
+
+    const probedAt = context.now().toISOString();
+    const body = await context.http.fetchText(url);
+    const request: ProviderRequestMetadata = {
+      requestUrl: url,
+      method: "GET",
+    };
+    const rawPayloads: ProviderRawPayloadRecord[] = [
       {
-        requestUrl: url,
-        method: "GET",
+        providerKey: "jszyapi_vod_json",
+        providerItemId: params.target.providerItemId,
+        payloadFormat: "text",
+        scope: "source_probe",
+        body,
+        fetchedAt: probedAt,
+        request,
       },
-      fetchedAt,
-      params.providerItemId,
-    );
+    ];
+    const isManifestProbe = params.probeKind === "manifest" || params.probeKind === "playback";
+
+    if (isManifestProbe && !body.includes("#EXTM3U")) {
+      return {
+        providerKey: "jszyapi_vod_json",
+        probedAt,
+        request,
+        target: params.target,
+        rawPayloads,
+        findings: [
+          createSourceHealthFinding({
+            target: params.target,
+            observedAt: probedAt,
+            observedState: "degraded",
+            probeKind: params.probeKind,
+            summary: `Scheduled probe returned a non-HLS payload for '${params.target.providerLineKey ?? params.target.sourceId}'.`,
+            code: "provider_payload_mismatch",
+            evidence: {
+              bodyPreview: body.slice(0, 120),
+            },
+          }),
+        ],
+        repairSignals: [
+          {
+            sourceId: params.target.sourceId,
+            createdAt: probedAt,
+            healthState: "degraded",
+            trigger: "provider_payload_mismatch",
+            severity: "medium",
+            summary: `Scheduled probe returned an unexpected manifest payload for '${params.target.providerLineKey ?? params.target.sourceId}'.`,
+            probeKind: params.probeKind,
+            providerItemId: params.target.providerItemId,
+            providerLineKey: params.target.providerLineKey,
+            evidence: {
+              bodyPreview: body.slice(0, 120),
+            },
+          },
+        ],
+      };
+    }
+
+    return {
+      providerKey: "jszyapi_vod_json",
+      probedAt,
+      request,
+      target: params.target,
+      rawPayloads,
+      findings: [
+        createSourceHealthFinding({
+          target: params.target,
+          observedAt: probedAt,
+          observedState: "healthy",
+          probeKind: params.probeKind,
+          summary: `Scheduled probe fetched '${url}' successfully.`,
+          evidence: {
+            bodyPreview: body.slice(0, 120),
+          },
+        }),
+      ],
+      repairSignals: [],
+    };
   },
 });
