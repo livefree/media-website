@@ -5,6 +5,11 @@ import type { Prisma } from "@prisma/client";
 import type { RepositoryContext } from "../types";
 import { BaseRepository, createRepositoryContext } from "../types";
 import { requireDb } from "../../client";
+import {
+  buildRecoveryReadinessRecord,
+  type RecoveryBackupArtifactRecord,
+  type RestoreRehearsalRecord,
+} from "../../recovery-readiness";
 
 import type {
   ProviderMaintenanceReason,
@@ -24,6 +29,7 @@ import type {
   AdminRepairQueueItemRecord,
   PersistSourceProbeHealthRequest,
   PersistSourceRefreshHealthRequest,
+  RecoveryReadinessRecord,
   RepairQueueQuery,
   RepairQueueEntryRecord,
   RepairQueueStatusUpdateInput,
@@ -233,6 +239,19 @@ function unmapSourceProbeStatus(value: string): SourceProbeStatus {
   }
 
   throw new Error(`Unsupported source probe status: ${value}`);
+}
+
+function unmapRestoreRehearsalStatus(value: string): RestoreRehearsalRecord["status"] {
+  switch (value) {
+    case "SUCCEEDED":
+      return "succeeded";
+    case "PARTIAL":
+      return "partial";
+    case "FAILED":
+      return "failed";
+  }
+
+  throw new Error(`Unsupported restore rehearsal status: ${value}`);
 }
 
 function unmapRepairSignalTrigger(value: string): RepairSignalTrigger {
@@ -862,6 +881,37 @@ function mapAdminRepairQueueItemRecord(
   };
 }
 
+function mapRecoveryBackupArtifactRecord(
+  record: Prisma.RecoveryBackupArtifactGetPayload<Record<string, never>>,
+): RecoveryBackupArtifactRecord {
+  return {
+    id: record.id,
+    artifactKey: record.artifactKey,
+    summary: record.summary,
+    artifactRef: record.artifactRef,
+    coverageScope: record.coverageScope,
+    completedAt: record.completedAt,
+    expiresAt: record.expiresAt,
+    metadata: fromJsonValue<Record<string, unknown>>(record.metadata),
+  };
+}
+
+function mapRestoreRehearsalRecord(
+  record: Prisma.RestoreRehearsalGetPayload<Record<string, never>>,
+): RestoreRehearsalRecord {
+  return {
+    id: record.id,
+    backupArtifactId: record.backupArtifactId,
+    status: unmapRestoreRehearsalStatus(record.status),
+    summary: record.summary,
+    notes: record.notes,
+    actorId: record.actorId,
+    requestId: record.requestId,
+    rehearsedAt: record.rehearsedAt,
+    metadata: fromJsonValue<Record<string, unknown>>(record.metadata),
+  };
+}
+
 function rankHealthState(value: SourceHealthState): number {
   switch (value) {
     case "healthy":
@@ -972,6 +1022,36 @@ export class SourceHealthRepository extends BaseRepository implements SourceHeal
       payloads: request.persistence.payloads,
       findings: request.persistence.findings,
       repairSignals: request.persistence.repair.signals,
+    });
+  }
+
+  async getRecoveryReadiness(): Promise<RecoveryReadinessRecord> {
+    const [backupArtifact, latestRestoreRehearsal] = await Promise.all([
+      this.db.recoveryBackupArtifact.findFirst({
+        orderBy: [
+          {
+            completedAt: "desc",
+          },
+          {
+            createdAt: "desc",
+          },
+        ],
+      }),
+      this.db.restoreRehearsal.findFirst({
+        orderBy: [
+          {
+            rehearsedAt: "desc",
+          },
+          {
+            createdAt: "desc",
+          },
+        ],
+      }),
+    ]);
+
+    return buildRecoveryReadinessRecord({
+      backupArtifact: backupArtifact ? mapRecoveryBackupArtifactRecord(backupArtifact) : null,
+      latestRestoreRehearsal: latestRestoreRehearsal ? mapRestoreRehearsalRecord(latestRestoreRehearsal) : null,
     });
   }
 

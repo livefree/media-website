@@ -423,6 +423,12 @@ enum RuntimeMigrationRolloutState {
   BLOCKED
 }
 
+enum RestoreRehearsalStatus {
+  SUCCEEDED
+  PARTIAL
+  FAILED
+}
+
 model User {
   id               String            @id @default(cuid())
   email            String            @unique
@@ -1489,4 +1495,40 @@ model RuntimeMigrationState {
   updatedAt    DateTime                     @updatedAt
 
   @@index([rolloutState, updatedAt])
+}
+
+model RecoveryBackupArtifact {
+  id            String   @id @default(cuid())
+  artifactKey   String   @unique
+  summary       String
+  artifactRef   String?
+  coverageScope String?
+  completedAt   DateTime
+  expiresAt     DateTime?
+  metadata      Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  restoreRehearsals RestoreRehearsal[]
+
+  @@index([completedAt])
+  @@index([expiresAt])
+}
+
+model RestoreRehearsal {
+  id               String                @id @default(cuid())
+  backupArtifactId String?
+  status           RestoreRehearsalStatus
+  summary          String
+  notes            String?
+  actorId          String?
+  requestId        String?
+  rehearsedAt      DateTime
+  metadata         Json?
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  backupArtifact   RecoveryBackupArtifact? @relation(fields: [backupArtifactId], references: [id], onDelete: SetNull)
+
+  @@index([rehearsedAt])
+  @@index([status, rehearsedAt])
+  @@index([backupArtifactId])
 }

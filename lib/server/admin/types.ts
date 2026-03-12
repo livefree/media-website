@@ -18,6 +18,7 @@ import type {
   AdminQueueFailureItemRecord,
   AdminQueueFailureQuery,
   AdminRepairQueueItemRecord,
+  RecoveryReadinessRecord,
   RepairQueueQuery,
   RepairQueueStatus,
   RepairQueueStatusUpdateInput,
@@ -105,6 +106,12 @@ export interface AdminQueueFailureMonitoringPageRecord {
   appliedFilters: AdminQueueFailureQuery;
   summary: AdminQueueFailureMonitoringSummary;
   items: AdminQueueFailureItemRecord[];
+}
+
+export interface AdminRecoveryReadinessPageRecord {
+  title: string;
+  description: string;
+  readiness: RecoveryReadinessRecord;
 }
 
 export interface AdminRepairQueueActionRequest {
@@ -369,6 +376,7 @@ export interface AdminBackendDependencies {
     ): Promise<ManualSourceSubmissionDetailRecord>;
   };
   health: {
+    getRecoveryReadiness(): Promise<RecoveryReadinessRecord>;
     listAdminQueueFailures(query?: AdminQueueFailureQuery): Promise<AdminQueueFailureItemRecord[]>;
     listAdminRepairQueue(query?: RepairQueueQuery): Promise<AdminRepairQueueItemRecord[]>;
     updateRepairQueueEntryStatus(entryId: string, input: RepairQueueStatusUpdateInput): Promise<unknown>;

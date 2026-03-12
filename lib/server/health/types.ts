@@ -5,6 +5,14 @@ import type {
   IngestSourceRefreshPersistencePlan,
 } from "../ingest";
 import type {
+  RecoveryBackupArtifactRecord,
+  RecoveryReadinessPolicy,
+  RecoveryReadinessReasonCode,
+  RecoveryReadinessState,
+  RecoveryReadinessRecord,
+  RestoreRehearsalRecord,
+} from "../../db/recovery-readiness";
+import type {
   ProviderMaintenanceReason,
   RepairSignalSeverity,
   RepairSignalTrigger,
@@ -74,6 +82,15 @@ export interface QueueFailureSummary {
   retryable: boolean;
   errorName: string;
 }
+
+export type {
+  RecoveryBackupArtifactRecord,
+  RecoveryReadinessPolicy,
+  RecoveryReadinessReasonCode,
+  RecoveryReadinessState,
+  RecoveryReadinessRecord,
+  RestoreRehearsalRecord,
+};
 
 export interface AdminQueueFailureItemRecord {
   jobId: string;
