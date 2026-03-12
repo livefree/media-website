@@ -1,7 +1,13 @@
 import Link from "next/link";
 
 import styles from "./admin-review.module.css";
-import { publishDecisionAction, startReviewAction, submitDecisionAction } from "../../app/admin/review/actions";
+import {
+  clearScheduledPublicationAction,
+  publishDecisionAction,
+  schedulePublicationAction,
+  startReviewAction,
+  submitDecisionAction,
+} from "../../app/admin/review/actions";
 import { AdminOperatorNav } from "./AdminOperatorNav";
 
 import type { ReviewQueueDetailRecord } from "../../lib/db/repositories/review";
@@ -257,6 +263,57 @@ export function AdminReviewDetailPage({
                   </button>
                 </div>
               </form>
+
+              {(queueEntry.status === "approved_for_publish" || queueEntry.status === "published") ? (
+                <section className={styles.scheduleSection}>
+                  <div className={styles.scheduleHeader}>
+                    <div>
+                      <h3 className={styles.timelineHeading}>Publish scheduling</h3>
+                      <p className={styles.timelineMeta}>
+                        Schedule a future publish window or clear it without leaving the review boundary.
+                      </p>
+                    </div>
+                    <span className={styles.microPill}>
+                      {queueEntry.scheduledPublishAt ? `Scheduled ${formatDate(queueEntry.scheduledPublishAt)}` : "No schedule"}
+                    </span>
+                  </div>
+
+                  <form action={schedulePublicationAction} className={styles.form}>
+                    <input name="queueEntryId" type="hidden" value={queueEntry.id} />
+
+                    <label className={styles.formLabel}>
+                      Publish at
+                      <input
+                        className={styles.formField}
+                        defaultValue={queueEntry.scheduledPublishAt ? queueEntry.scheduledPublishAt.toISOString().slice(0, 16) : ""}
+                        name="publishAt"
+                        type="datetime-local"
+                      />
+                    </label>
+
+                    <label className={styles.formLabel}>
+                      Scheduling notes
+                      <input className={styles.formField} name="notes" placeholder="Delay public visibility until the release window opens." />
+                    </label>
+
+                    <div className={styles.buttonRow}>
+                      <button className={styles.primaryButton} type="submit">
+                        {queueEntry.scheduledPublishAt ? "Reschedule publication" : "Schedule publication"}
+                      </button>
+                    </div>
+                  </form>
+
+                  {queueEntry.scheduledPublishAt ? (
+                    <form action={clearScheduledPublicationAction} className={styles.inlineActionRow}>
+                      <input name="queueEntryId" type="hidden" value={queueEntry.id} />
+                      <input name="notes" type="hidden" value="Cleared scheduled publication from the review surface." />
+                      <button className={styles.secondaryButton} type="submit">
+                        Clear scheduled publish
+                      </button>
+                    </form>
+                  ) : null}
+                </section>
+              ) : null}
             </section>
 
             <section className={styles.panel}>

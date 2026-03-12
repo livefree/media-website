@@ -4,7 +4,13 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { isBackendError } from "../../../lib/server/errors";
-import { publishReviewDecision, startReview, submitReviewDecision } from "../../../lib/server/review";
+import {
+  clearScheduledReviewPublication,
+  publishReviewDecision,
+  scheduleReviewPublication,
+  startReview,
+  submitReviewDecision,
+} from "../../../lib/server/review";
 
 function buildReviewPath(queueEntryId: string, message?: string) {
   const path = `/admin/review/${queueEntryId}`;
@@ -105,6 +111,44 @@ export async function publishDecisionAction(formData: FormData) {
     revalidatePath("/admin/review");
     revalidatePath(`/admin/review/${queueEntryId}`);
     redirect(buildReviewPath(queueEntryId, "Publish operation completed."));
+  } catch (error) {
+    redirect(buildReviewPath(queueEntryId, getErrorMessage(error)));
+  }
+}
+
+export async function schedulePublicationAction(formData: FormData) {
+  const queueEntryId = getRequiredField(formData, "queueEntryId");
+  const publishAt = getRequiredField(formData, "publishAt");
+
+  try {
+    await scheduleReviewPublication({
+      queueEntryId,
+      publishAt,
+      actorId: "operator-ui",
+      requestId: `admin-review-schedule-${queueEntryId}`,
+      notes: getOptionalField(formData, "notes"),
+    });
+    revalidatePath("/admin/review");
+    revalidatePath(`/admin/review/${queueEntryId}`);
+    redirect(buildReviewPath(queueEntryId, "Publication scheduled."));
+  } catch (error) {
+    redirect(buildReviewPath(queueEntryId, getErrorMessage(error)));
+  }
+}
+
+export async function clearScheduledPublicationAction(formData: FormData) {
+  const queueEntryId = getRequiredField(formData, "queueEntryId");
+
+  try {
+    await clearScheduledReviewPublication({
+      queueEntryId,
+      actorId: "operator-ui",
+      requestId: `admin-review-clear-schedule-${queueEntryId}`,
+      notes: getOptionalField(formData, "notes"),
+    });
+    revalidatePath("/admin/review");
+    revalidatePath(`/admin/review/${queueEntryId}`);
+    redirect(buildReviewPath(queueEntryId, "Scheduled publication cleared."));
   } catch (error) {
     redirect(buildReviewPath(queueEntryId, getErrorMessage(error)));
   }

@@ -4,7 +4,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import {
+  hideAdminPublishedCatalogRecord,
   reorderAdminPublishedSources,
+  restoreAdminPublishedCatalogVisibility,
   replaceAdminPublishedSource,
   unpublishAdminPublishedCatalogRecord,
 } from "../../../lib/server/admin";
@@ -135,5 +137,45 @@ export async function submitPublishedCatalogUnpublishAction(formData: FormData) 
     redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}flash=${encodeURIComponent("Published record withdrawn from serving.")}`);
   } catch (error) {
     redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}flash=${encodeURIComponent(getErrorMessage(error))}`);
+  }
+}
+
+export async function submitPublishedCatalogHideAction(formData: FormData) {
+  const mediaPublicId = getRequiredField(formData, "mediaPublicId");
+  const returnTo = normalizeAdminCatalogReturnTo(getOptionalField(formData, "returnTo"));
+
+  try {
+    await hideAdminPublishedCatalogRecord({
+      mediaPublicId,
+      actorId: "operator-ui",
+      requestId: `admin-catalog-hide-${mediaPublicId}`,
+      notes: getOptionalField(formData, "notes"),
+    });
+
+    revalidatePath("/admin/catalog");
+    revalidatePath(`/admin/catalog/${mediaPublicId}`);
+    redirect(buildAdminCatalogDetailPath(mediaPublicId, { returnTo, flashMessage: "Published visibility hidden." }));
+  } catch (error) {
+    redirect(buildAdminCatalogDetailPath(mediaPublicId, { returnTo, flashMessage: getErrorMessage(error) }));
+  }
+}
+
+export async function submitPublishedCatalogRestoreVisibilityAction(formData: FormData) {
+  const mediaPublicId = getRequiredField(formData, "mediaPublicId");
+  const returnTo = normalizeAdminCatalogReturnTo(getOptionalField(formData, "returnTo"));
+
+  try {
+    await restoreAdminPublishedCatalogVisibility({
+      mediaPublicId,
+      actorId: "operator-ui",
+      requestId: `admin-catalog-restore-${mediaPublicId}`,
+      notes: getOptionalField(formData, "notes"),
+    });
+
+    revalidatePath("/admin/catalog");
+    revalidatePath(`/admin/catalog/${mediaPublicId}`);
+    redirect(buildAdminCatalogDetailPath(mediaPublicId, { returnTo, flashMessage: "Published visibility restored." }));
+  } catch (error) {
+    redirect(buildAdminCatalogDetailPath(mediaPublicId, { returnTo, flashMessage: getErrorMessage(error) }));
   }
 }

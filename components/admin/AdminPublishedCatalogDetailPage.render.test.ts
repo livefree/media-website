@@ -17,6 +17,8 @@ const linkStubSource = `
   }
 `;
 const actionsStubSource = `
+  export async function submitPublishedCatalogHideAction() {}
+  export async function submitPublishedCatalogRestoreVisibilityAction() {}
   export async function submitPublishedCatalogUnpublishAction() {}
   export async function submitPublishedSourceReorderAction() {}
   export async function submitPublishedSourceReplaceAction() {}
@@ -117,6 +119,7 @@ function createPublishedCatalogDetailRecord(): AdminPublishedCatalogDetailRecord
       episodeRuntimeMinutes: 24,
       seasonCount: 1,
       episodeCount: 12,
+      visibilityState: "visible",
       posterUrl: null,
       backdropUrl: null,
       canonicalWatchHref: "/watch?v=med_public_1",
@@ -195,6 +198,7 @@ function createPublishedCatalogDetailRecord(): AdminPublishedCatalogDetailRecord
       status: "published",
       latestDecisionType: "approve",
       latestDecisionSummary: "Approved for release.",
+      scheduledPublishAt: "2026-03-12T15:00:00.000Z",
       updatedAt: "2026-03-11T11:00:00.000Z",
     },
   };
@@ -230,10 +234,28 @@ test("AdminPublishedCatalogDetailPage renders reorder, replace, and unpublish co
   assert.equal(countOccurrences(markup, "Replacement target"), 2);
   assert.equal(countOccurrences(markup, "Save ordering"), 2);
   assert.equal(countOccurrences(markup, "Unpublish record"), 1);
+  assert.equal(countOccurrences(markup, "Hide visibility"), 1);
+  assert.ok(markup.includes("visible"));
   assert.ok(markup.includes("Withdrawal notes"));
   assert.equal(countOccurrences(markup, "Select replacement line"), 2);
+  assert.ok(markup.includes("Scheduled publish"));
   assert.ok(markup.includes("Published source ordering updated."));
   assert.ok(markup.includes("Published source replacement failed."));
+});
+
+test("AdminPublishedCatalogDetailPage renders restore visibility controls for hidden published records", async () => {
+  const detail = createPublishedCatalogDetailRecord();
+  detail.media.visibilityState = "hidden";
+  const markup = await renderAdminPublishedCatalogDetailPage({
+    backHref: "/admin/catalog",
+    detail,
+    flashMessage: "Published visibility restored.",
+  });
+
+  assert.equal(countOccurrences(markup, "Restore visibility"), 1);
+  assert.equal(countOccurrences(markup, "Hide visibility"), 0);
+  assert.ok(markup.includes("Published visibility restored."));
+  assert.ok(markup.includes("hidden"));
 });
 
 test("AdminPublishedCatalogDetailPage renders unavailable-state feedback on the visible surface", async () => {
