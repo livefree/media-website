@@ -5,7 +5,7 @@ import { BackendError } from "../errors";
 import type { IngestExecutionStatus, IngestRunScope } from "../../db/repositories/staging/types";
 import type { IngestMode, IngestPageRequest, IngestSourceProbeRequest, IngestSourceRefreshRequest } from "./types";
 
-export const ingestJobTelemetryVersion = 1;
+export const ingestJobTelemetryVersion = 2;
 
 export const ingestFailureCategories = [
   "provider_request",
@@ -22,6 +22,23 @@ export type IngestFailureCategory = (typeof ingestFailureCategories)[number];
 export type IngestJobKind = "provider_page_ingest" | "scheduled_source_refresh" | "scheduled_source_probe";
 export type IngestRetryState = "none" | "retrying" | "retryable_failure" | "terminal_failure";
 
+export const ingestFailureSeverities = [
+  "retrying_noise",
+  "degraded_attention",
+  "operator_action_required",
+] as const;
+
+export type IngestFailureSeverity = (typeof ingestFailureSeverities)[number];
+
+export const ingestFailureEscalationReasons = [
+  "none",
+  "first_retryable_failure",
+  "repeated_retryable_failure",
+  "terminal_failure",
+] as const;
+
+export type IngestFailureEscalationReason = (typeof ingestFailureEscalationReasons)[number];
+
 interface JobExecutionTargetSnapshot {
   sourceId: string;
   providerItemId: string;
@@ -37,6 +54,12 @@ export interface IngestExecutionFailureSummary {
   retryable: boolean;
   summary: string;
   errorName: string;
+}
+
+export interface IngestFailureSignal {
+  severity: IngestFailureSeverity;
+  alertReady: boolean;
+  escalationReason: IngestFailureEscalationReason;
 }
 
 interface IngestExecutionContext {
@@ -170,6 +193,41 @@ function deriveRetryState(input: BuildExecutionTelemetryMetadataInput): IngestRe
   return "none";
 }
 
+function deriveFailureSignal(input: BuildExecutionTelemetryMetadataInput): IngestFailureSignal | null {
+  const retryState = deriveRetryState(input);
+
+  switch (retryState) {
+    case "retrying":
+      return {
+        severity: "retrying_noise",
+        alertReady: false,
+        escalationReason: "none",
+      };
+    case "retryable_failure":
+      if (input.attemptCount > 1) {
+        return {
+          severity: "operator_action_required",
+          alertReady: true,
+          escalationReason: "repeated_retryable_failure",
+        };
+      }
+
+      return {
+        severity: "degraded_attention",
+        alertReady: false,
+        escalationReason: "first_retryable_failure",
+      };
+    case "terminal_failure":
+      return {
+        severity: "operator_action_required",
+        alertReady: true,
+        escalationReason: "terminal_failure",
+      };
+    default:
+      return null;
+  }
+}
+
 export function classifyIngestExecutionFailure(error: unknown): IngestExecutionFailureSummary {
   if (error instanceof BackendError) {
     return {
@@ -259,6 +317,8 @@ export function buildExecutionTelemetryMetadata(
   input: BuildExecutionTelemetryMetadataInput,
 ): Record<string, unknown> {
   const lastErrorSummary = input.lastErrorSummary ?? input.failure?.summary ?? null;
+  const retryState = deriveRetryState(input);
+  const failureSignal = deriveFailureSignal(input);
 
   return {
     jobType: context.jobType,
@@ -279,11 +339,12 @@ export function buildExecutionTelemetryMetadata(
       target: context.target,
       request: context.request,
       attemptCount: input.attemptCount,
-      retryState: deriveRetryState(input),
+      retryState,
       startedAt: input.startedAt ?? null,
       finishedAt: input.finishedAt ?? null,
       durationMs: computeDurationMs(input.startedAt, input.finishedAt),
       lastErrorSummary,
+      failureSignal,
       itemCount: input.itemCount ?? null,
       rawPayloadCount: input.rawPayloadCount ?? null,
       warningCount: input.warningCount ?? null,

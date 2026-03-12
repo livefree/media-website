@@ -6,6 +6,8 @@ Reviewer:
 - Accepted Workstream 3 / Slice 2 on code/test/build review: bounded future publish scheduling, schedule clearing, hidden/restored published visibility, and visibility-gated public serving now flow through tracked review/catalog/admin boundaries with deterministic rendered admin coverage on `/admin/review/[queueEntryId]` and `/admin/catalog/[publicId]`
 
 Media Ingest:
+- Added bounded ingest-side alert-ready failure signaling for `Workstream 4 / Slice 6`, so page ingest plus scheduled source refresh/probe execution telemetry now emits explicit severity and escalation reasons instead of leaving repeated versus terminal failures implicit in retry state alone
+- Extended offline-safe ingest tests to prove first retryable failures stay degraded-only, repeated retryable failures escalate to operator-action-required, terminal failures escalate immediately, and retrying executions remain visible as noise rather than silent state
 - Added shared ingest execution telemetry helpers that stamp structured lifecycle metadata onto provider page ingest, scheduled source refresh, and scheduled source probe job/run records, including deterministic attempt counts, duration, checkpoint context, and stable failure classification without adding new public routes or dashboards
 - Extended offline-safe ingest job tests to verify structured success, failure, and repeated-attempt telemetry for page ingest plus refresh/probe job flows using the existing provider/job boundaries
 

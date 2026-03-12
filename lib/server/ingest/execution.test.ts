@@ -408,6 +408,11 @@ test("executeProviderPageIngestRun marks the run failed when provider parsing fa
       executionTelemetry?: {
         status?: string;
         attemptCount?: number;
+        failureSignal?: {
+          severity?: string;
+          alertReady?: boolean;
+          escalationReason?: string;
+        } | null;
         failure?: {
           category?: string;
           code?: string;
@@ -420,6 +425,9 @@ test("executeProviderPageIngestRun marks the run failed when provider parsing fa
   assert.equal(failureTelemetry?.attemptCount, 1);
   assert.equal(failureTelemetry?.retryState, "terminal_failure");
   assert.equal(failureTelemetry?.lastErrorSummary, "Provider response 'msg' indicated an error: provider failed.");
+  assert.equal(failureTelemetry?.failureSignal?.severity, "operator_action_required");
+  assert.equal(failureTelemetry?.failureSignal?.alertReady, true);
+  assert.equal(failureTelemetry?.failureSignal?.escalationReason, "terminal_failure");
   assert.equal(failureTelemetry?.failure?.category, "provider_response");
   assert.equal(failureTelemetry?.failure?.code, "provider_payload_invalid");
   assert.equal(failureTelemetry?.failure?.retryable, false);
