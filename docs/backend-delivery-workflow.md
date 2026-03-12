@@ -33,7 +33,7 @@ The current accepted platform baseline includes:
 
 Current version baseline:
 
-- `0.25.0`
+- `0.27.0`
 
 ## Naming Convention
 
@@ -80,7 +80,6 @@ The easiest way to think about the gap is:
 ### Not complete
 
 - full admin control plane
-- publish scheduling and visibility control
 - broader provider coverage and production worker deployment model
 - observability, metrics, alerts, and queue visibility
 - RBAC / auth hardening for admin operations
@@ -309,19 +308,21 @@ The accepted execution baseline now includes:
 - Workstream 4 / Slice 3
 - Workstream 4 / Slice 4
 - Workstream 4 / Slice 5
+- Workstream 2 / Slice 3
+- Workstream 3 / Slice 2
 
 The currently active slice should always be read from [task.md](/Users/livefree/projects/media-website-v2/task.md), not inferred from this historical sequence.
 
 ## 8B. Current Queue After Workstream 1 Exit Gate
 
-With Workstream 1 now accepted for one provider lane, the fixed remaining queue is:
+With Workstreams 1, 2, and 3 now accepted, the fixed remaining queue is:
 
-1. Workstream 2 / Slice 3
-   source and catalog lifecycle mutations required to avoid direct DB edits for replace / reorder / unpublish workflows
-2. Workstream 3 / Slice 2
-   publish scheduling and visibility control needed to complete the governance exit gate
-3. Workstream 4 follow-up slices
-   any remaining alert-ready provider failure visibility, recovery readiness, backup/restore, and launch-validation work that reviewer acceptance still leaves open
+1. Workstream 4 / Slice 6
+   provider failure visibility and alert-ready signaling needed to convert accepted queue-failure monitoring into operator-actionable alert posture
+2. Workstream 4 / Slice 7
+   recovery readiness and backup/restore guardrails needed to close the operational hardening gap beyond migration safety
+3. Workstream 4 / Slice 8
+   final launch-validation follow-up needed to confirm the backend can be operated end to end without direct DB intervention
 
 No new backend work packages should skip ahead of this queue unless tracked docs are updated first.
 

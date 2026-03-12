@@ -23,7 +23,7 @@ PlayerShell
 
 ## Current Active Task
 
-### Workstream 3 / Slice 2: Publish Scheduling And Visibility Control
+### Workstream 4 / Slice 6: Provider Failure Visibility And Alert-Ready Signaling
 
 Coordinator-only rule:
 - Coordinator may define scope, update task docs, dispatch agents, review ownership, and merge accepted work.
@@ -31,35 +31,37 @@ Coordinator-only rule:
 
 Required execution order for this task:
 1. Coordinator aligns the work package to `docs/backend-spec.md`, `docs/roadmap.md`, and `docs/backend-delivery-workflow.md`
-2. Planner defines the implementation breakdown, ownership boundaries, testing scope, and acceptance checklist for the active governance slice
-3. Data Catalog implements the backend support required by the chosen governance slice
-4. UI Shell implements the operator-facing admin surface for the chosen slice when a new operator page or mutation surface is required
-5. Reviewer validates operator workflow correctness, scope discipline, and test/build coverage before merge
-6. User review remains authoritative for planning direction; rejected backend structure must not be represented as accepted
+2. Planner defines the implementation breakdown, ownership boundaries, testing scope, and acceptance checklist for the active hardening slice
+3. Media Ingest implements job/provider telemetry or failure-state support when the slice touches ingest execution
+4. Data Catalog implements the backend support required by the chosen hardening slice
+5. UI Shell implements the operator-facing admin surface for the chosen slice only when new operator visibility or alert-state presentation is required
+6. Reviewer validates operator workflow correctness, scope discipline, and test/build coverage before merge
+7. User review remains authoritative for planning direction; rejected backend structure must not be represented as accepted
 
 Scope for this round:
 - Continue the fixed backend auto queue from `docs/backend-delivery-workflow.md` on top of the accepted backend foundation
-- Implement one narrow governance slice at a time rather than broad platform-wide changes in a single pass
-- Current active slice: `Workstream 3 / Slice 2: Publish Scheduling And Visibility Control`
-- This slice is mapped to the remaining publish scheduling / visibility control portion of the Workstream 3 governance exit gate in `docs/backend-delivery-workflow.md` and `docs/roadmap.md`
-- Current refinement status: Workstream 2 is now accepted, including deterministic rendered-surface coverage for reorder / replace / unpublish controls on `/admin/catalog/[publicId]`; the next open backend queue item is governance completion for scheduled publish timing and bounded visibility control
+- Implement one narrow hardening slice at a time rather than broad platform-wide changes in a single pass
+- Current active slice: `Workstream 4 / Slice 6: Provider Failure Visibility And Alert-Ready Signaling`
+- This slice is mapped to the next remaining Workstream 4 hardening queue item in `docs/backend-delivery-workflow.md` and `docs/roadmap.md`
+- Current refinement status: Workstreams 1, 2, and 3 are now accepted; the next open backend queue item is converting provider/job failure visibility into an alert-ready operator workflow with bounded admin presentation and deterministic coverage
 - Owned surfaces:
   - Planner: architecture, roadmap alignment, round-specific handoff docs
-  - Data Catalog: `lib/db/`, `lib/server/review/`, `lib/server/catalog/`, `lib/server/admin/`, and schema support required for bounded publish scheduling and visibility actions in this slice
-  - UI Shell: admin/operator surfaces required to expose the accepted lifecycle actions in this slice
+  - Media Ingest: ingest/provider telemetry or failure-state shaping required by this slice
+  - Data Catalog: `lib/db/`, `lib/server/health/`, `lib/server/admin/`, and schema/support required for bounded alert-ready failure visibility in this slice
+  - UI Shell: admin/operator surfaces required to expose the accepted alert-ready failure visibility actions in this slice
   - Reviewer: acceptance and findings docs only
 - No public route redesign
 - No player work
 - No broad auth/session product expansion
-- No broad admin suite expansion beyond the minimal scheduling / visibility control actions required by this slice
+- No broad admin suite expansion beyond the minimal alert-ready failure visibility actions required by this slice
 
 Acceptance criteria:
-- The chosen governance slice measurably reduces direct-DB dependence for publish scheduling and visibility control
+- The chosen hardening slice measurably reduces reliance on logs or manual DB inspection for provider/job failure triage
 - The slice remains narrow, testable, and grounded in tracked backend docs rather than ad hoc changes
 - New support remains inside accepted backend boundaries and does not leak into public route logic
 - The implementation includes the necessary tests and remains buildable after this slice
 - No public route redesign, player work, or broader out-of-scope platform drift is introduced
-- The bounded publish scheduling and visibility controls are expressed through tracked backend and admin boundaries rather than direct DB edits
+- Alert-ready provider/job failure visibility is expressed through tracked ingest/backend/admin boundaries rather than raw logs or manual DB inspection
 
 Current user-requested improvement to implement:
 1. Continue using the fixed backend workflow without ad hoc phases
@@ -68,7 +70,7 @@ Current user-requested improvement to implement:
 4. Keep the queue fixed and advance directly to the next uncompleted work package after each accepted slice
 5. Keep documenting accepted backend milestones, testing coverage, and version bumps as the queue advances
 6. Continue through the remaining operator-control, governance, and hardening slices until the backend reaches an operator-ready state or a real blocker occurs
-7. Continue the fixed backend queue into the remaining Workstream 3 governance slice without reopening completed Workstream 2 mutation scope
+7. Continue the fixed backend queue into the remaining Workstream 4 hardening slices without reopening completed Workstream 1-3 scopes
 
 Current baseline:
 - Round A monolith foundations are present under `lib/server/` and `lib/db/`
@@ -94,6 +96,7 @@ Current baseline:
 - Workstream 1 / Slice 7 is accepted, so one provider lane now supports unattended repeatable sync scheduling with durable next-run state and restart-safe restoration
 - The Workstream 1 exit gate is now met for one provider lane
 - Workstream 2 / Slice 3 is accepted, so audited reorder / replace / unpublish lifecycle mutations are now exposed through deterministic rendered admin coverage and the Workstream 2 operator control-plane exit gate is met
+- Workstream 3 / Slice 2 is accepted, so future publish scheduling, schedule clearing/rescheduling, and published visibility hide/restore now flow through bounded review/catalog/admin workflows and the Workstream 3 governance exit gate is met
 - The repo still lacks the remaining operator-control completion slices, governance completion slices, and final launch-readiness work
 
 ## Remaining Backend Auto Queue
@@ -102,11 +105,11 @@ The Coordinator should continue through the remaining backend work packages in t
 
 Current queued path after the active slice:
 
-1. Active next slice for the Workstream 3 exit gate:
-   - `Workstream 3 / Slice 2: Publish Scheduling And Visibility Control`
+1. Active next slice for the Workstream 4 exit gate:
+   - `Workstream 4 / Slice 6: Provider Failure Visibility And Alert-Ready Signaling`
 2. Remaining hardening slices needed to reach the Workstream 4 exit gate:
-   - provider failure visibility and alert-ready signaling follow-up where reviewer/planner still identify coverage gaps
-   - recovery readiness, backup/restore guardrails, and final launch validation follow-up beyond the accepted migration/e2e slices
+   - `Workstream 4 / Slice 7: Recovery Readiness And Backup-Restore Guardrails`
+   - `Workstream 4 / Slice 8: Final Launch Validation`
 3. Final backend readiness sweep:
    - reconcile accepted slices against `docs/backend-spec.md`
    - confirm operator-ready exit gate and launch-readiness gaps in tracked docs before any post-backend program starts
