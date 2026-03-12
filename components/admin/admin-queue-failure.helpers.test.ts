@@ -37,6 +37,11 @@ function createPage(
         providerItemId: "vod-001",
         attemptCount: 2,
         retryState: "terminal_failure",
+        failureSignal: {
+          severity: "operator_action_required",
+          alertReady: true,
+          escalationReason: "terminal_failure",
+        },
         startedAt: new Date("2026-03-11T10:00:00.000Z"),
         finishedAt: new Date("2026-03-11T10:00:04.000Z"),
         durationMs: 4000,
@@ -88,6 +93,11 @@ function createPage(
         providerItemId: "vod-002",
         attemptCount: 3,
         retryState: "retrying",
+        failureSignal: {
+          severity: "degraded_attention",
+          alertReady: false,
+          escalationReason: "repeated_retryable_failure",
+        },
         startedAt: new Date("2026-03-11T10:05:00.000Z"),
         finishedAt: null,
         durationMs: null,
@@ -140,12 +150,18 @@ test("buildQueueFailureMonitoringViewModel keeps populated failed and retrying j
   assert.equal(viewModel.summaryMetrics[1]?.value, 1);
   assert.equal(viewModel.summaryMetrics[2]?.value, 1);
   assert.equal(viewModel.items.length, 2);
-  assert.deepEqual(viewModel.items[0]?.badges, ["failed", "terminal failure", "provider page ingest", "page"]);
+  assert.deepEqual(viewModel.items[0]?.badges, ["failed", "terminal failure", "operator action required", "alert ready", "provider page ingest", "page"]);
   assert.equal(viewModel.items[0]?.summary, "Provider response 'msg' indicated an error: provider failed.");
+  assert.equal(viewModel.items[0]?.alertSignal?.severityLabel, "operator action required");
+  assert.equal(viewModel.items[0]?.alertSignal?.alertReadyLabel, "Alert-ready");
+  assert.equal(viewModel.items[0]?.alertSignal?.escalationReasonLabel, "terminal failure");
+  assert.equal(viewModel.items[0]?.alertSignal?.actionSummary, "Operator action required");
+  assert.equal(viewModel.items[0]?.triage.find((item) => item.label === "Alert signal")?.value, "operator action required · terminal failure");
   assert.equal(viewModel.items[0]?.triage.find((item) => item.label === "Failure class")?.value, "provider_response · provider_payload_invalid");
   assert.equal(viewModel.items[0]?.triage.find((item) => item.label === "Attempts")?.value, "2");
   assert.match(viewModel.items[0]?.triage.find((item) => item.label === "Started")?.value ?? "", /2026/);
   assert.equal(viewModel.items[1]?.triage.find((item) => item.label === "HTTP / retryable")?.value, "HTTP 504 · retryable");
+  assert.equal(viewModel.items[1]?.alertSignal?.alertReadyLabel, "Monitoring only");
 });
 
 test("buildQueueFailureMonitoringViewModel emits a stable empty state when no actionable jobs exist", () => {
@@ -197,5 +213,5 @@ test("buildQueueFailureMonitoringViewModel keeps a stable page shape for the pri
     ["q:text", "visibility:select", "provider:text", "jobType:select"],
   );
   assert.deepEqual(viewModel.items[0]?.links.map((link) => link.label), ["Open repair queue", "Open inventory"]);
-  assert.equal(viewModel.items[0]?.triage.length, 12);
+  assert.equal(viewModel.items[0]?.triage.length, 13);
 });

@@ -33,6 +33,12 @@ export interface QueueFailureMonitoringViewModel {
     title: string;
     meta: string;
     badges: string[];
+    alertSignal?: {
+      severityLabel: string;
+      alertReadyLabel: string;
+      escalationReasonLabel: string;
+      actionSummary: string;
+    } | null;
     summary: string;
     links: Array<{
       label: string;
@@ -67,6 +73,29 @@ function formatDate(value?: Date | null) {
 
 function formatLabel(value: string) {
   return value.replaceAll("_", " ");
+}
+
+function buildAlertActionSummary({
+  alertReady,
+  escalationReason,
+}: {
+  alertReady: boolean;
+  escalationReason: string;
+}) {
+  if (!alertReady) {
+    return "Monitoring only";
+  }
+
+  switch (escalationReason) {
+    case "terminal failure":
+      return "Operator action required";
+    case "repeated retryable failure":
+      return "Escalated after repeated retries";
+    case "first retryable failure":
+      return "Needs attention if retries continue";
+    default:
+      return "Alert-ready operator follow-up";
+  }
 }
 
 export function getQueueFailureMonitoringSummary(summary?: AdminQueueFailureMonitoringSummary) {
@@ -123,9 +152,22 @@ export function buildQueueFailureMonitoringViewModel({
       badges: [
         formatLabel(item.visibilityState),
         formatLabel(item.retryState),
+        item.failureSignal?.severity ? formatLabel(item.failureSignal.severity) : null,
+        item.failureSignal?.alertReady ? "alert ready" : null,
         formatLabel(item.jobType),
         formatLabel(item.scope),
-      ],
+      ].filter((badge): badge is string => Boolean(badge)),
+      alertSignal: item.failureSignal
+        ? {
+            severityLabel: formatLabel(item.failureSignal.severity),
+            alertReadyLabel: item.failureSignal.alertReady ? "Alert-ready" : "Monitoring only",
+            escalationReasonLabel: formatLabel(item.failureSignal.escalationReason),
+            actionSummary: buildAlertActionSummary({
+              alertReady: item.failureSignal.alertReady,
+              escalationReason: formatLabel(item.failureSignal.escalationReason),
+            }),
+          }
+        : null,
       summary: item.lastErrorSummary ?? item.failure?.code ?? "No failure summary stored.",
       links: [
         {
@@ -138,6 +180,12 @@ export function buildQueueFailureMonitoringViewModel({
         },
       ],
       triage: [
+        {
+          label: "Alert signal",
+          value: item.failureSignal
+            ? `${formatLabel(item.failureSignal.severity)} · ${formatLabel(item.failureSignal.escalationReason)}`
+            : "Signal unavailable",
+        },
         {
           label: "Failure class",
           value: item.failure ? `${item.failure.category} · ${item.failure.code}` : "Retry state only",

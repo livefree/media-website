@@ -18,6 +18,12 @@ const retryStateClassNames: Record<string, string> = {
   terminal_failure: styles.statusFailed,
 };
 
+const alertSeverityClassNames: Record<string, string> = {
+  retrying_noise: styles.alertRetryingNoise,
+  degraded_attention: styles.alertDegradedAttention,
+  operator_action_required: styles.alertOperatorActionRequired,
+};
+
 export function AdminQueueFailureMonitoringPage({
   page,
   errorMessage,
@@ -150,6 +156,22 @@ export function AdminQueueFailureMonitoringPage({
                 </div>
 
                 <p className={styles.cardSummary}>{item.summary}</p>
+
+                {item.alertSignal ? (
+                  <div className={styles.alertSignalPanel}>
+                    <div className={styles.badgeRow}>
+                      <span className={`${styles.badge} ${alertSeverityClassNames[item.alertSignal.severityLabel.replaceAll(" ", "_")] ?? ""}`}>
+                        {item.alertSignal.severityLabel}
+                      </span>
+                      <span className={`${styles.badge} ${item.alertSignal.alertReadyLabel === "Alert-ready" ? styles.alertReady : styles.alertMonitoringOnly}`}>
+                        {item.alertSignal.alertReadyLabel}
+                      </span>
+                    </div>
+
+                    <p className={styles.alertSignalSummary}>{item.alertSignal.actionSummary}</p>
+                    <p className={styles.alertSignalMeta}>Escalation reason: {item.alertSignal.escalationReasonLabel}</p>
+                  </div>
+                ) : null}
 
                 <div className={styles.dataGrid}>
                   {item.triage.map((entry) => (
