@@ -2,7 +2,11 @@
 
 2026-03-12
 
+Coordinator:
+- Reconstructed the execution workflow into a two-layer model by adding [docs/project-frame.md](/Users/livefree/projects/media-website-v2/docs/project-frame.md), shrinking [task.md](/Users/livefree/projects/media-website-v2/task.md) to the active-slice contract only, tightening the stop/ask-user rule in [AGENTS.md](/Users/livefree/projects/media-website-v2/AGENTS.md), and updating execution/versioning docs so persistent program state no longer drifts across multiple files
+
 Reviewer:
+- Accepted `Execution Framework Reconstruction / Slice 1` in [docs/handovers/reviewer-execution-framework-reconstruction-slice1-acceptance.md](/Users/livefree/projects/media-website-v2/docs/handovers/reviewer-execution-framework-reconstruction-slice1-acceptance.md), confirming the dual-layer Project Frame + active-slice model, tightened stop/ask rules, checklist enforcement, and coordinator-scope constraints without touching backend architecture or runtime surfaces
 - Accepted the `Final Backend Readiness Sweep` in [docs/handovers/reviewer-final-backend-readiness-sweep-acceptance.md](/Users/livefree/projects/media-website-v2/docs/handovers/reviewer-final-backend-readiness-sweep-acceptance.md), reconciling accepted `Rounds A-F`, `Workstreams 1-4`, and the tracked backend authority docs to conclude the backend is operator-ready under tracked scope, with only explicitly out-of-scope residual follow-up remaining
 
 Planner:
