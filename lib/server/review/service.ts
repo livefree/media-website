@@ -6,8 +6,10 @@ import { logger } from "../logging";
 import { applyCatalogPublication } from "../catalog/publish";
 import { runInTransaction } from "../../db/transactions";
 import { createDefaultReviewWorkflowRepository, createReviewWorkflowRepository } from "../../db/repositories/review";
+import { requireFuturePublishAt } from "./scheduling";
 
 import type {
+  ClearScheduledReviewPublicationRequest,
   CreateManualTitleSubmissionInput,
   CreateModerationReportInput,
   ManualTitleSubmissionRecord,
@@ -21,6 +23,7 @@ import type {
   ModerationReportStatusUpdateInput,
   PublishReviewDecisionRequest,
   QueueNormalizedCandidateRequest,
+  ScheduleReviewPublicationRequest,
   StartReviewRequest,
   SubmitReviewDecisionRequest,
 } from "./types";
@@ -29,9 +32,20 @@ import type {
   ReviewDecisionDetailRecord,
   ReviewQueueDetailRecord,
   ReviewQueueListItemRecord,
+  ReviewWorkflowRepository,
 } from "../../db/repositories/review";
 
 const reviewLogger = logger.child({ subsystem: "review.service" });
+
+type ReviewPublicationSchedulingRepository = Pick<
+  ReviewWorkflowRepository,
+  "getReviewQueueDetail" | "updateReviewQueueEntry" | "createPublishAudit"
+>;
+
+interface ReviewPublicationSchedulingDependencies {
+  repository: ReviewPublicationSchedulingRepository;
+  now?: () => Date;
+}
 
 function requirePublishTarget(decisionType: ReviewDecisionType, targetCanonicalMediaId?: string) {
   if ((decisionType === "merge" || decisionType === "replace" || decisionType === "unpublish") && !targetCanonicalMediaId) {
@@ -620,6 +634,7 @@ export async function publishReviewDecision(request: PublishReviewDecisionReques
         const queueEntry = await repository.updateReviewQueueEntry(detail.queueEntry.id, {
           status: finalQueueStatus(publishDecisionType),
           canonicalMediaId: catalogResult.mediaId,
+          scheduledPublishAt: null,
         });
 
         await repository.createPublishAudit({
@@ -697,4 +712,154 @@ export async function publishReviewDecision(request: PublishReviewDecisionReques
 
     throw error;
   }
+}
+
+async function schedulePublicationWithRepository(
+  repository: ReviewPublicationSchedulingRepository,
+  request: ScheduleReviewPublicationRequest,
+  scheduledPublishAt: string,
+  now: () => Date,
+) {
+  const detail = await repository.getReviewQueueDetail(request.queueEntryId);
+
+  if (!detail) {
+    throw new BackendError(`Review queue entry '${request.queueEntryId}' was not found.`, {
+      status: 404,
+      code: "review_queue_entry_not_found",
+    });
+  }
+
+  if (detail.queueEntry.status !== "approved_for_publish") {
+    throw new BackendError(`Queue entry '${request.queueEntryId}' is not approved for publish scheduling.`, {
+      status: 409,
+      code: "review_queue_not_ready_for_schedule",
+    });
+  }
+
+  const queueEntry = await repository.updateReviewQueueEntry(request.queueEntryId, {
+    status: detail.queueEntry.status,
+    canonicalMediaId: detail.queueEntry.canonicalMediaId ?? undefined,
+    scheduledPublishAt,
+  });
+
+  await repository.createPublishAudit({
+    queueEntryId: queueEntry.id,
+    normalizedCandidateId: queueEntry.normalizedCandidateId,
+    actorId: request.actorId,
+    action: "publish_scheduled",
+    actionSummary: `Scheduled publication for ${scheduledPublishAt}.`,
+    targetCanonicalMediaId: queueEntry.canonicalMediaId ?? undefined,
+    metadata: {
+      scheduledPublishAt,
+      notes: request.notes ?? null,
+    },
+    createdAt: now().toISOString(),
+  });
+
+  return queueEntry;
+}
+
+export async function scheduleReviewPublication(
+  request: ScheduleReviewPublicationRequest,
+  dependencies?: ReviewPublicationSchedulingDependencies,
+) {
+  requirePrivilegedAdminAccess("operator");
+  const scheduledPublishAt = requireFuturePublishAt(request.publishAt);
+
+  if (dependencies) {
+    return schedulePublicationWithRepository(
+      dependencies.repository,
+      request,
+      scheduledPublishAt,
+      dependencies.now ?? (() => new Date()),
+    );
+  }
+
+  return runInTransaction(
+    {
+      name: "review.schedulePublication",
+    },
+    async (context) =>
+      schedulePublicationWithRepository(
+        createReviewWorkflowRepository(context),
+        request,
+        scheduledPublishAt,
+        () => new Date(),
+      ),
+    {
+      actorId: request.actorId,
+      requestId: request.requestId,
+    },
+  );
+}
+
+async function clearScheduledPublicationWithRepository(
+  repository: ReviewPublicationSchedulingRepository,
+  request: ClearScheduledReviewPublicationRequest,
+  now: () => Date,
+) {
+  const detail = await repository.getReviewQueueDetail(request.queueEntryId);
+
+  if (!detail) {
+    throw new BackendError(`Review queue entry '${request.queueEntryId}' was not found.`, {
+      status: 404,
+      code: "review_queue_entry_not_found",
+    });
+  }
+
+  if (!detail.queueEntry.scheduledPublishAt) {
+    throw new BackendError(`Queue entry '${request.queueEntryId}' does not have a scheduled publish time.`, {
+      status: 409,
+      code: "review_queue_schedule_missing",
+    });
+  }
+
+  const queueEntry = await repository.updateReviewQueueEntry(request.queueEntryId, {
+    status: detail.queueEntry.status,
+    canonicalMediaId: detail.queueEntry.canonicalMediaId ?? undefined,
+    scheduledPublishAt: null,
+  });
+
+  await repository.createPublishAudit({
+    queueEntryId: queueEntry.id,
+    normalizedCandidateId: queueEntry.normalizedCandidateId,
+    actorId: request.actorId,
+    action: "publish_schedule_cleared",
+    actionSummary: "Cleared scheduled publication.",
+    targetCanonicalMediaId: queueEntry.canonicalMediaId ?? undefined,
+    metadata: {
+      previousScheduledPublishAt: detail.queueEntry.scheduledPublishAt.toISOString(),
+      notes: request.notes ?? null,
+    },
+    createdAt: now().toISOString(),
+  });
+
+  return queueEntry;
+}
+
+export async function clearScheduledReviewPublication(
+  request: ClearScheduledReviewPublicationRequest,
+  dependencies?: ReviewPublicationSchedulingDependencies,
+) {
+  requirePrivilegedAdminAccess("operator");
+
+  if (dependencies) {
+    return clearScheduledPublicationWithRepository(
+      dependencies.repository,
+      request,
+      dependencies.now ?? (() => new Date()),
+    );
+  }
+
+  return runInTransaction(
+    {
+      name: "review.clearScheduledPublication",
+    },
+    async (context) =>
+      clearScheduledPublicationWithRepository(createReviewWorkflowRepository(context), request, () => new Date()),
+    {
+      actorId: request.actorId,
+      requestId: request.requestId,
+    },
+  );
 }

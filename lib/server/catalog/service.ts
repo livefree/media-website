@@ -21,6 +21,10 @@ import type {
   PublishedListDirectoryRecord,
   PublishedListRecord,
   PublishedListSummaryRecord,
+  HidePublishedCatalogInput,
+  HidePublishedCatalogResult,
+  RestorePublishedCatalogVisibilityInput,
+  RestorePublishedCatalogVisibilityResult,
   UnpublishPublishedCatalogInput,
   UnpublishPublishedCatalogResult,
   PublishedWatchQuery,
@@ -40,6 +44,10 @@ interface PublishedCatalogServiceDependencies {
     getPublishedListByPublicId(publicId: string): Promise<PublishedListRecord | null>;
     getPublishedListDirectory(): Promise<PublishedListDirectoryRecord>;
     getPublishedFeaturedLists(limit?: number): Promise<PublishedListSummaryRecord[]>;
+    hidePublishedCatalogRecord(input: HidePublishedCatalogInput): Promise<HidePublishedCatalogResult>;
+    restorePublishedCatalogVisibility(
+      input: RestorePublishedCatalogVisibilityInput,
+    ): Promise<RestorePublishedCatalogVisibilityResult>;
     unpublishPublishedCatalogRecord(input: UnpublishPublishedCatalogInput): Promise<UnpublishPublishedCatalogResult>;
   };
   migration: {
@@ -179,6 +187,50 @@ export async function unpublishPublishedCatalogRecord(
       name: "catalog.unpublishPublishedCatalogRecord",
     },
     async (context) => createPublishedCatalogRepository(context).unpublishPublishedCatalogRecord(input),
+    {
+      actorId: input.actorId,
+      requestId: input.requestId,
+    },
+  );
+}
+
+export async function hidePublishedCatalogRecord(
+  input: HidePublishedCatalogInput,
+  dependencies?: PublishedCatalogServiceDependencies,
+): Promise<HidePublishedCatalogResult> {
+  requirePrivilegedAdminAccess("operator");
+
+  if (dependencies) {
+    return dependencies.repository.hidePublishedCatalogRecord(input);
+  }
+
+  return runInTransaction(
+    {
+      name: "catalog.hidePublishedCatalogRecord",
+    },
+    async (context) => createPublishedCatalogRepository(context).hidePublishedCatalogRecord(input),
+    {
+      actorId: input.actorId,
+      requestId: input.requestId,
+    },
+  );
+}
+
+export async function restorePublishedCatalogVisibility(
+  input: RestorePublishedCatalogVisibilityInput,
+  dependencies?: PublishedCatalogServiceDependencies,
+): Promise<RestorePublishedCatalogVisibilityResult> {
+  requirePrivilegedAdminAccess("operator");
+
+  if (dependencies) {
+    return dependencies.repository.restorePublishedCatalogVisibility(input);
+  }
+
+  return runInTransaction(
+    {
+      name: "catalog.restorePublishedCatalogVisibility",
+    },
+    async (context) => createPublishedCatalogRepository(context).restorePublishedCatalogVisibility(input),
     {
       actorId: input.actorId,
       requestId: input.requestId,

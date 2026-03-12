@@ -132,9 +132,13 @@ const publishAuditActionMap = {
   queued: "QUEUED",
   review_started: "REVIEW_STARTED",
   review_decision_recorded: "REVIEW_DECISION_RECORDED",
+  publish_scheduled: "PUBLISH_SCHEDULED",
+  publish_schedule_cleared: "PUBLISH_SCHEDULE_CLEARED",
   publish_started: "PUBLISH_STARTED",
   publish_succeeded: "PUBLISH_SUCCEEDED",
   publish_failed: "PUBLISH_FAILED",
+  visibility_hidden: "VISIBILITY_HIDDEN",
+  visibility_restored: "VISIBILITY_RESTORED",
 } as const;
 
 const moderationReportKindMap = {
@@ -371,12 +375,20 @@ function unmapPublishAuditAction(value: string): PublishAuditAction {
       return "review_started";
     case "REVIEW_DECISION_RECORDED":
       return "review_decision_recorded";
+    case "PUBLISH_SCHEDULED":
+      return "publish_scheduled";
+    case "PUBLISH_SCHEDULE_CLEARED":
+      return "publish_schedule_cleared";
     case "PUBLISH_STARTED":
       return "publish_started";
     case "PUBLISH_SUCCEEDED":
       return "publish_succeeded";
     case "PUBLISH_FAILED":
       return "publish_failed";
+    case "VISIBILITY_HIDDEN":
+      return "visibility_hidden";
+    case "VISIBILITY_RESTORED":
+      return "visibility_restored";
   }
 
   throw new Error(`Unsupported publish audit action: ${value}`);
@@ -619,6 +631,7 @@ function mapQueueEntryRecord(
     assignedReviewerId: record.assignedReviewerId,
     latestDecisionType: record.latestDecisionType ? unmapReviewDecisionType(record.latestDecisionType) : null,
     latestDecisionSummary: record.latestDecisionSummary,
+    scheduledPublishAt: record.scheduledPublishAt,
     queuedAt: record.queuedAt,
     startedAt: record.startedAt,
     reviewedAt: record.reviewedAt,
@@ -976,6 +989,12 @@ export class ReviewWorkflowRepository extends BaseRepository implements ReviewWo
         latestDecisionType: input.latestDecisionType ? mapReviewDecisionType(input.latestDecisionType) : undefined,
         latestDecisionSummary: input.latestDecisionSummary,
         canonicalMediaId: input.canonicalMediaId,
+        scheduledPublishAt:
+          input.scheduledPublishAt === undefined
+            ? undefined
+            : input.scheduledPublishAt === null
+              ? null
+              : toDate(input.scheduledPublishAt),
       },
     });
 

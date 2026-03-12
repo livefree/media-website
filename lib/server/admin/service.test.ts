@@ -5,6 +5,8 @@ import {
   acknowledgeAdminModerationReport,
   createAdminManualSourceSubmission,
   createAdminManualTitleSubmission,
+  clearAdminScheduledReviewPublication,
+  hideAdminPublishedCatalogRecord,
   getAdminMigrationSafetyPage,
   dismissAdminModerationReport,
   getAdminManualSourceSubmissionDetailByPublicId,
@@ -21,8 +23,10 @@ import {
   getAdminSourceInventoryPage,
   reorderAdminPublishedSources,
   replaceAdminPublishedSource,
+  restoreAdminPublishedCatalogVisibility,
   resolveAdminModerationReport,
   resolveAdminRepairQueueEntry,
+  scheduleAdminReviewPublication,
   unpublishAdminPublishedCatalogRecord,
   updateAdminManualSourceSubmissionStatus,
   updateAdminManualTitleSubmissionStatus,
@@ -225,6 +229,7 @@ function createPublishedCatalogListItem(
     backdropUrl: "https://images.example.com/northline-backdrop.jpg",
     seasonCount: 1,
     episodeCount: 12,
+    visibilityState: "visible",
     publishedAt: "2026-03-11T10:00:00.000Z",
     updatedAt: "2026-03-11T11:00:00.000Z",
     streamCount: 3,
@@ -262,6 +267,7 @@ function createPublishedCatalogDetail(
       episodeRuntimeMinutes: 24,
       seasonCount: 1,
       episodeCount: 12,
+      visibilityState: "visible",
       posterUrl: "https://images.example.com/northline-poster.jpg",
       backdropUrl: "https://images.example.com/northline-backdrop.jpg",
       canonicalWatchHref: "/watch?v=med_public_1",
@@ -345,6 +351,7 @@ function createPublishedCatalogDetail(
       status: "published",
       latestDecisionType: "approve",
       latestDecisionSummary: "Approved for publish.",
+      scheduledPublishAt: null,
       updatedAt: "2026-03-11T10:00:00.000Z",
     },
     ...overrides,
@@ -524,6 +531,8 @@ function createDependencies() {
     queryAdminPublishedCatalog: [] as Array<Record<string, unknown> | undefined>,
     getAdminPublishedCatalogDetailByPublicId: [] as string[],
     unpublishPublishedCatalogRecord: [] as Array<Record<string, unknown>>,
+    hidePublishedCatalogRecord: [] as Array<Record<string, unknown>>,
+    restorePublishedCatalogVisibility: [] as Array<Record<string, unknown>>,
     listModerationReports: [] as Array<Record<string, unknown> | undefined>,
     getModerationReportDetailByPublicId: [] as string[],
     updateModerationReportStatus: [] as Array<{ publicId: string; input: Record<string, unknown> }>,
@@ -531,6 +540,8 @@ function createDependencies() {
     getManualTitleSubmissionDetailByPublicId: [] as string[],
     createManualTitleSubmission: [] as Array<Record<string, unknown>>,
     updateManualTitleSubmissionStatus: [] as Array<{ publicId: string; input: Record<string, unknown> }>,
+    scheduleReviewPublication: [] as Array<Record<string, unknown>>,
+    clearScheduledReviewPublication: [] as Array<Record<string, unknown>>,
     listAdminSourceInventory: [] as Array<Record<string, unknown> | undefined>,
     updateSourceOrdering: [] as Array<Record<string, unknown>>,
     reorderPublishedSources: [] as Array<Record<string, unknown>>,
@@ -615,6 +626,28 @@ function createDependencies() {
           mediaId: "media-1",
           mediaPublicId: input.mediaPublicId,
           status: "archived",
+        };
+      },
+      async hidePublishedCatalogRecord(input) {
+        calls.hidePublishedCatalogRecord.push(input as Record<string, unknown>);
+        return {
+          auditId: "audit-hide-1",
+          summary: "Hidden catalog record 'Northline Station'.",
+          recordedAt: "2026-03-11T12:35:00.000Z",
+          mediaId: "media-1",
+          mediaPublicId: input.mediaPublicId,
+          visibilityState: "hidden",
+        };
+      },
+      async restorePublishedCatalogVisibility(input) {
+        calls.restorePublishedCatalogVisibility.push(input as Record<string, unknown>);
+        return {
+          auditId: "audit-restore-1",
+          summary: "Restored catalog record 'Northline Station'.",
+          recordedAt: "2026-03-11T12:40:00.000Z",
+          mediaId: "media-1",
+          mediaPublicId: input.mediaPublicId,
+          visibilityState: "visible",
         };
       },
     },
@@ -712,6 +745,40 @@ function createDependencies() {
             reviewQueueEntryId: input.reviewQueueEntryId ?? null,
           }),
         });
+      },
+      async scheduleReviewPublication(input) {
+        calls.scheduleReviewPublication.push(input as Record<string, unknown>);
+        return {
+          id: input.queueEntryId,
+          normalizedCandidateId: "normalized-1",
+          canonicalMediaId: "media-1",
+          status: "approved_for_publish",
+          latestDecisionType: "approve",
+          latestDecisionSummary: "Approved for publish.",
+          scheduledPublishAt: new Date(input.publishAt),
+          queuedAt: new Date("2026-03-11T09:00:00.000Z"),
+          startedAt: new Date("2026-03-11T09:10:00.000Z"),
+          reviewedAt: new Date("2026-03-11T09:30:00.000Z"),
+          createdAt: new Date("2026-03-11T09:00:00.000Z"),
+          updatedAt: new Date("2026-03-11T12:00:00.000Z"),
+        };
+      },
+      async clearScheduledReviewPublication(input) {
+        calls.clearScheduledReviewPublication.push(input as Record<string, unknown>);
+        return {
+          id: input.queueEntryId,
+          normalizedCandidateId: "normalized-1",
+          canonicalMediaId: "media-1",
+          status: "approved_for_publish",
+          latestDecisionType: "approve",
+          latestDecisionSummary: "Approved for publish.",
+          scheduledPublishAt: null,
+          queuedAt: new Date("2026-03-11T09:00:00.000Z"),
+          startedAt: new Date("2026-03-11T09:10:00.000Z"),
+          reviewedAt: new Date("2026-03-11T09:30:00.000Z"),
+          createdAt: new Date("2026-03-11T09:00:00.000Z"),
+          updatedAt: new Date("2026-03-11T12:05:00.000Z"),
+        };
       },
     },
     source: {
@@ -1348,6 +1415,79 @@ test("unpublishAdminPublishedCatalogRecord forwards the bounded catalog withdraw
   assert.equal(calls.unpublishPublishedCatalogRecord.length, 1);
   assert.equal(result.mediaPublicId, "med_public_1");
   assert.equal(result.status, "archived");
+});
+
+test("hideAdminPublishedCatalogRecord forwards bounded visibility-hiding control", async () => {
+  const { calls, dependencies } = createDependencies();
+
+  const result = await hideAdminPublishedCatalogRecord(
+    {
+      mediaPublicId: "med_public_1",
+      actorId: "operator-ui",
+      requestId: "hide-1",
+      notes: "Hold visibility while downstream review completes.",
+    },
+    dependencies,
+  );
+
+  assert.equal(calls.hidePublishedCatalogRecord.length, 1);
+  assert.equal(result.mediaPublicId, "med_public_1");
+  assert.equal(result.visibilityState, "hidden");
+});
+
+test("restoreAdminPublishedCatalogVisibility forwards bounded visibility-restore control", async () => {
+  const { calls, dependencies } = createDependencies();
+
+  const result = await restoreAdminPublishedCatalogVisibility(
+    {
+      mediaPublicId: "med_public_1",
+      actorId: "operator-ui",
+      requestId: "restore-1",
+      notes: "Return title to public serving.",
+    },
+    dependencies,
+  );
+
+  assert.equal(calls.restorePublishedCatalogVisibility.length, 1);
+  assert.equal(result.mediaPublicId, "med_public_1");
+  assert.equal(result.visibilityState, "visible");
+});
+
+test("scheduleAdminReviewPublication forwards publish scheduling control", async () => {
+  const { calls, dependencies } = createDependencies();
+
+  const result = await scheduleAdminReviewPublication(
+    {
+      queueEntryId: "queue-1",
+      publishAt: "2026-03-12T15:00:00.000Z",
+      actorId: "operator-ui",
+      requestId: "schedule-1",
+      notes: "Delay publish until launch window.",
+    },
+    dependencies,
+  );
+
+  assert.equal(calls.scheduleReviewPublication.length, 1);
+  assert.equal(result.id, "queue-1");
+  assert.equal(result.scheduledPublishAt?.toISOString(), "2026-03-12T15:00:00.000Z");
+});
+
+test("clearAdminScheduledReviewPublication forwards schedule clearing control", async () => {
+  const { calls, dependencies } = createDependencies();
+
+  const result = await clearAdminScheduledReviewPublication(
+    {
+      queueEntryId: "queue-1",
+      actorId: "operator-ui",
+      requestId: "clear-schedule-1",
+      notes: "Publish immediately after final check.",
+    },
+    dependencies,
+  );
+
+  assert.equal(calls.clearScheduledReviewPublication.length, 1);
+  assert.equal(result.id, "queue-1");
+  assert.equal(result.scheduledPublishAt, null);
 });
 
 test("admin service denies anonymous access before backend dependencies are invoked", async () => {
