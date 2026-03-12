@@ -367,6 +367,32 @@
   color: #cdd8ff;
 }
 
+.alertRetryingNoise {
+  border-color: rgba(160, 180, 255, 0.34);
+  color: #cdd8ff;
+}
+
+.alertDegradedAttention {
+  border-color: rgba(255, 205, 120, 0.32);
+  color: #ffdba1;
+}
+
+.alertOperatorActionRequired {
+  border-color: rgba(255, 120, 120, 0.36);
+  color: #ffb2b2;
+}
+
+.alertReady {
+  border-color: rgba(255, 120, 120, 0.3);
+  background: rgba(74, 16, 24, 0.72);
+  color: #ffd1d1;
+}
+
+.alertMonitoringOnly {
+  border-color: rgba(110, 189, 255, 0.28);
+  color: #c8e7ff;
+}
+
 .statusDismissed {
   border-color: rgba(184, 197, 217, 0.24);
   color: #d9e1ee;
@@ -414,6 +440,26 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
+}
+
+.alertSignalPanel {
+  margin-bottom: 14px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(176, 198, 224, 0.1);
+  background: rgba(14, 23, 36, 0.92);
+}
+
+.alertSignalSummary {
+  margin: 10px 0 4px;
+  color: rgba(239, 244, 251, 0.94);
+  font-weight: 600;
+}
+
+.alertSignalMeta {
+  margin: 0;
+  color: rgba(180, 196, 220, 0.78);
+  font-size: 0.92rem;
 }
 
 .dataTile {
