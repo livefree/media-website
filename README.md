@@ -1,6 +1,6 @@
 # Media Catalog Demo (Codex Multi-Agent Project)
 
-Current project version: `0.25.0`
+Current project version: `0.26.0`
 
 This project started as a front-end information-architecture recreation of a media catalog website and is now moving into a backend-first aggregation phase using Codex with a multi-agent workflow.
 
@@ -155,9 +155,9 @@ flowchart TD
 1. Read `task.md`
 2. Update `docs/roadmap.md`
 3. Assign tasks to sub-agents inside the Coordinator thread
-4. Require each agent to branch from the latest `codex/coordinator-baseline`
+4. Require each agent to branch from the latest `main`
 5. Let each agent commit within its ownership scope
-6. Integrate accepted work back into `codex/coordinator-baseline`
+6. Integrate accepted work back into `main`
 7. Use the refreshed integration branch as the base for the next dependent agent
 
 ## Current Maturity Notes
@@ -173,7 +173,7 @@ flowchart TD
 
 Agents are expected to use git during execution, not only at the end.
 
-- `codex/coordinator-baseline` is the integration branch for downstream work
+- `main` is the integration branch for downstream work
 - Planner, UI Shell, Data Catalog, Media Ingest, Search Filter, Detail Player, and Reviewer are expected to run as Coordinator-managed sub-agents
 - Each agent should work on its own `codex/*` branch
 - Each agent branch should start from the latest integration branch state
