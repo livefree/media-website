@@ -2,6 +2,9 @@
 
 2026-03-11
 
+UI Shell:
+- Added a bounded `/admin/final-launch-validation` operator surface that renders the existing `getAdminFinalLaunchValidationPage` contract directly, exposes launch state plus per-domain outcomes and supporting evidence, adds the admin nav entry, and includes deterministic render coverage without broadening the admin suite
+
 Planner:
 - Added the `Workstream 4 / Slice 8: Final Launch Validation` handoff in `docs/handovers/planner-workstream4-slice8-final-launch-validation.md`, defining scope, non-goals, exact agent order, required test commands, acceptance checks, and that `ui-shell` is optional unless bounded operator launch-validation presentation is required
 - Added a bounded ingest-side launch-validation evidence model under `lib/server/ingest/launch-validation.ts`, giving downstream backend aggregation one deterministic contract for accepted provider-lane freshness, scheduled execution freshness, queue-failure severity, and refresh/probe plus repair-backlog evidence without direct table inspection
