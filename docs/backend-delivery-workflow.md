@@ -33,7 +33,7 @@ The current accepted platform baseline includes:
 
 Current version baseline:
 
-- `0.27.0`
+- `0.28.0`
 
 ## Naming Convention
 
@@ -317,12 +317,12 @@ The currently active slice should always be read from [task.md](/Users/livefree/
 
 With Workstreams 1, 2, and 3 now accepted, the fixed remaining queue is:
 
-1. Workstream 4 / Slice 6
-   provider failure visibility and alert-ready signaling needed to convert accepted queue-failure monitoring into operator-actionable alert posture
-2. Workstream 4 / Slice 7
+1. Workstream 4 / Slice 7
    recovery readiness and backup/restore guardrails needed to close the operational hardening gap beyond migration safety
-3. Workstream 4 / Slice 8
+2. Workstream 4 / Slice 8
    final launch-validation follow-up needed to confirm the backend can be operated end to end without direct DB intervention
+3. Final backend readiness sweep
+   reconcile accepted slices against `docs/backend-spec.md` and confirm the operator-ready exit gate
 
 No new backend work packages should skip ahead of this queue unless tracked docs are updated first.
 

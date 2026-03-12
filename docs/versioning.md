@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.27.0`
+Current version: `0.28.0`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.27.0` an appropriate current milestone: the platform now completes the remaining Workstream 3 governance slice as well, with future publish scheduling, schedule clearing/rescheduling, and published visibility hide/restore all expressed through bounded review/catalog/admin workflows and deterministic rendered admin coverage, while final production hardening and launch-readiness work still remain unfinished.
+That makes `0.28.0` an appropriate current milestone: the platform now converts queue-failure telemetry into an alert-ready operator signal, with explicit severity, escalation reason, privileged queue-failure presentation, and deterministic render coverage in place, while recovery-readiness and final launch-validation hardening still remain unfinished.
 
 ## Rules
 
@@ -68,7 +68,9 @@ That makes `0.27.0` an appropriate current milestone: the platform now completes
 - `0.26.x`
   Current baseline with the Workstream 2 operator control-plane exit gate closed: source inventory, repair queue, published catalog inspection, and source/catalog lifecycle mutations are all now exposed through bounded admin workflows with deterministic rendered-surface coverage.
 - `0.27.x`
-  Current baseline with the Workstream 3 governance exit gate closed: moderation/manual-submission workflows plus publish scheduling and visibility control are now executable through bounded admin and review/catalog workflows without direct database edits.
+  Baseline with the Workstream 3 governance exit gate closed: moderation/manual-submission workflows plus publish scheduling and visibility control are now executable through bounded admin and review/catalog workflows without direct database edits.
+- `0.28.x`
+  Current baseline with alert-ready provider/job failure signaling in place: operators can now distinguish retrying noise from degraded or operator-action-required failures through bounded ingest/health/admin contracts and deterministic `/admin/queue-failures` coverage.
 - `1.0.0`
   First production-ready launch baseline.
 

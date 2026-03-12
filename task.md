@@ -23,7 +23,7 @@ PlayerShell
 
 ## Current Active Task
 
-### Workstream 4 / Slice 6: Provider Failure Visibility And Alert-Ready Signaling
+### Workstream 4 / Slice 7: Recovery Readiness And Backup-Restore Guardrails
 
 Coordinator-only rule:
 - Coordinator may define scope, update task docs, dispatch agents, review ownership, and merge accepted work.
@@ -34,34 +34,34 @@ Required execution order for this task:
 2. Planner defines the implementation breakdown, ownership boundaries, testing scope, and acceptance checklist for the active hardening slice
 3. Media Ingest implements job/provider telemetry or failure-state support when the slice touches ingest execution
 4. Data Catalog implements the backend support required by the chosen hardening slice
-5. UI Shell implements the operator-facing admin surface for the chosen slice only when new operator visibility or alert-state presentation is required
+5. UI Shell implements operator-facing admin surface changes only if the slice requires new bounded recovery/backup visibility or result-state presentation
 6. Reviewer validates operator workflow correctness, scope discipline, and test/build coverage before merge
 7. User review remains authoritative for planning direction; rejected backend structure must not be represented as accepted
 
 Scope for this round:
 - Continue the fixed backend auto queue from `docs/backend-delivery-workflow.md` on top of the accepted backend foundation
 - Implement one narrow hardening slice at a time rather than broad platform-wide changes in a single pass
-- Current active slice: `Workstream 4 / Slice 6: Provider Failure Visibility And Alert-Ready Signaling`
+- Current active slice: `Workstream 4 / Slice 7: Recovery Readiness And Backup-Restore Guardrails`
 - This slice is mapped to the next remaining Workstream 4 hardening queue item in `docs/backend-delivery-workflow.md` and `docs/roadmap.md`
-- Current refinement status: Workstreams 1, 2, and 3 are now accepted; the next open backend queue item is converting provider/job failure visibility into an alert-ready operator workflow with bounded admin presentation and deterministic coverage
+- Current refinement status: Workstreams 1, 2, and 3 are accepted, and Workstream 4 / Slice 6 is now accepted; the next open backend queue item is recovery readiness and bounded backup-restore guardrails
 - Owned surfaces:
   - Planner: architecture, roadmap alignment, round-specific handoff docs
-  - Media Ingest: ingest/provider telemetry or failure-state shaping required by this slice
-  - Data Catalog: `lib/db/`, `lib/server/health/`, `lib/server/admin/`, and schema/support required for bounded alert-ready failure visibility in this slice
-  - UI Shell: admin/operator surfaces required to expose the accepted alert-ready failure visibility actions in this slice
+  - Media Ingest: recovery-readiness job, restore rehearsal, or backup signal support required by this slice
+  - Data Catalog: `lib/db/`, `lib/server/health/`, `lib/server/admin/`, and schema/support required for bounded recovery-readiness and backup/restore visibility in this slice
+  - UI Shell: admin/operator surfaces required to expose accepted recovery-readiness or backup/restore state in this slice
   - Reviewer: acceptance and findings docs only
 - No public route redesign
 - No player work
 - No broad auth/session product expansion
-- No broad admin suite expansion beyond the minimal alert-ready failure visibility actions required by this slice
+- No broad admin suite expansion beyond the minimal recovery-readiness actions or visibility required by this slice
 
 Acceptance criteria:
-- The chosen hardening slice measurably reduces reliance on logs or manual DB inspection for provider/job failure triage
+- The chosen hardening slice measurably reduces reliance on logs or manual DB inspection for recovery readiness, backup status, or restore rehearsals
 - The slice remains narrow, testable, and grounded in tracked backend docs rather than ad hoc changes
 - New support remains inside accepted backend boundaries and does not leak into public route logic
 - The implementation includes the necessary tests and remains buildable after this slice
 - No public route redesign, player work, or broader out-of-scope platform drift is introduced
-- Alert-ready provider/job failure visibility is expressed through tracked ingest/backend/admin boundaries rather than raw logs or manual DB inspection
+- Recovery-readiness and backup/restore visibility is expressed through tracked ingest/backend/admin boundaries rather than raw logs or manual DB inspection
 
 Current user-requested improvement to implement:
 1. Continue using the fixed backend workflow without ad hoc phases
@@ -97,7 +97,8 @@ Current baseline:
 - The Workstream 1 exit gate is now met for one provider lane
 - Workstream 2 / Slice 3 is accepted, so audited reorder / replace / unpublish lifecycle mutations are now exposed through deterministic rendered admin coverage and the Workstream 2 operator control-plane exit gate is met
 - Workstream 3 / Slice 2 is accepted, so future publish scheduling, schedule clearing/rescheduling, and published visibility hide/restore now flow through bounded review/catalog/admin workflows and the Workstream 3 governance exit gate is met
-- The repo still lacks the remaining operator-control completion slices, governance completion slices, and final launch-readiness work
+- Workstream 4 / Slice 6 is accepted, so provider/job failures now surface explicit severity, alert-ready state, and escalation reason through bounded ingest/health/admin contracts with deterministic `/admin/queue-failures` coverage
+- The repo still lacks the remaining recovery-readiness and final launch-validation work needed to close Workstream 4 and the final operator-ready readiness sweep
 
 ## Remaining Backend Auto Queue
 
@@ -106,9 +107,8 @@ The Coordinator should continue through the remaining backend work packages in t
 Current queued path after the active slice:
 
 1. Active next slice for the Workstream 4 exit gate:
-   - `Workstream 4 / Slice 6: Provider Failure Visibility And Alert-Ready Signaling`
-2. Remaining hardening slices needed to reach the Workstream 4 exit gate:
    - `Workstream 4 / Slice 7: Recovery Readiness And Backup-Restore Guardrails`
+2. Remaining hardening slices needed to reach the Workstream 4 exit gate:
    - `Workstream 4 / Slice 8: Final Launch Validation`
 3. Final backend readiness sweep:
    - reconcile accepted slices against `docs/backend-spec.md`

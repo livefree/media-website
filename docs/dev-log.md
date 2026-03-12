@@ -3,7 +3,12 @@
 2026-03-11
 
 Reviewer:
+- Accepted Workstream 4 / Slice 6 on code/test/build review: provider/job failures now surface bounded severity, alert-ready state, escalation reason, and deterministic rendered operator coverage on `/admin/queue-failures` without expanding beyond accepted ingest/health/admin boundaries
 - Accepted Workstream 3 / Slice 2 on code/test/build review: bounded future publish scheduling, schedule clearing, hidden/restored published visibility, and visibility-gated public serving now flow through tracked review/catalog/admin boundaries with deterministic rendered admin coverage on `/admin/review/[queueEntryId]` and `/admin/catalog/[publicId]`
+
+Coordinator:
+- Promoted the accepted Workstream 4 / Slice 6 hardening milestone to version `0.28.0`
+- Switched the active task from accepted `Workstream 4 / Slice 6` into `Workstream 4 / Slice 7: Recovery Readiness And Backup-Restore Guardrails`, keeping the fixed backend queue intact as the next remaining hardening slice
 
 Media Ingest:
 - Added bounded ingest-side alert-ready failure signaling for `Workstream 4 / Slice 6`, so page ingest plus scheduled source refresh/probe execution telemetry now emits explicit severity and escalation reasons instead of leaving repeated versus terminal failures implicit in retry state alone
