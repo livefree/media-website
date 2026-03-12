@@ -2,6 +2,9 @@
 
 2026-03-11
 
+Reviewer:
+- Accepted Workstream 3 / Slice 2 on code/test/build review: bounded future publish scheduling, schedule clearing, hidden/restored published visibility, and visibility-gated public serving now flow through tracked review/catalog/admin boundaries with deterministic rendered admin coverage on `/admin/review/[queueEntryId]` and `/admin/catalog/[publicId]`
+
 Media Ingest:
 - Added shared ingest execution telemetry helpers that stamp structured lifecycle metadata onto provider page ingest, scheduled source refresh, and scheduled source probe job/run records, including deterministic attempt counts, duration, checkpoint context, and stable failure classification without adding new public routes or dashboards
 - Extended offline-safe ingest job tests to verify structured success, failure, and repeated-attempt telemetry for page ingest plus refresh/probe job flows using the existing provider/job boundaries
