@@ -17,6 +17,8 @@ import type {
   SourceProbeKind,
 } from "../../../server/provider";
 import type {
+  QueueFailureAlertSeverity,
+  QueueFailureEscalationReason,
   AdminQueueFailureItemRecord,
   AdminQueueFailureQuery,
   AdminRepairQueueItemRecord,
@@ -362,6 +364,29 @@ function unmapQueueFailureRetryState(value: unknown): QueueFailureRetryState | n
   }
 }
 
+function unmapQueueFailureAlertSeverity(value: unknown): QueueFailureAlertSeverity | null {
+  switch (value) {
+    case "retrying_noise":
+    case "degraded_attention":
+    case "operator_action_required":
+      return value;
+    default:
+      return null;
+  }
+}
+
+function unmapQueueFailureEscalationReason(value: unknown): QueueFailureEscalationReason | null {
+  switch (value) {
+    case "none":
+    case "first_retryable_failure":
+    case "repeated_retryable_failure":
+    case "terminal_failure":
+      return value;
+    default:
+      return null;
+  }
+}
+
 function inferJobTypeFromScope(scope: QueueFailureScope): QueueFailureJobType {
   switch (scope) {
     case "page":
@@ -374,7 +399,7 @@ function inferJobTypeFromScope(scope: QueueFailureScope): QueueFailureJobType {
   }
 }
 
-function inferVisibilityState(input: {
+export function inferVisibilityState(input: {
   status: QueueFailureExecutionStatus;
   retryState: QueueFailureRetryState;
   attemptCount: number;
@@ -400,6 +425,7 @@ interface ExecutionTelemetrySnapshot {
   actorId?: string | null;
   attemptCount?: number | null;
   retryState?: QueueFailureRetryState | null;
+  failureSignal?: AdminQueueFailureItemRecord["failureSignal"];
   startedAt?: Date | null;
   finishedAt?: Date | null;
   durationMs?: number | null;
@@ -411,7 +437,7 @@ interface ExecutionTelemetrySnapshot {
   counts?: AdminQueueFailureItemRecord["counts"];
 }
 
-function extractExecutionTelemetry(metadata: Prisma.JsonValue | null): ExecutionTelemetrySnapshot | null {
+export function extractExecutionTelemetry(metadata: Prisma.JsonValue | null): ExecutionTelemetrySnapshot | null {
   if (!isRecord(metadata)) {
     return null;
   }
@@ -459,6 +485,14 @@ function extractExecutionTelemetry(metadata: Prisma.JsonValue | null): Execution
       }
     : null;
 
+  const failureSignal = isRecord(execution.failureSignal)
+    ? {
+        severity: unmapQueueFailureAlertSeverity(execution.failureSignal.severity),
+        alertReady: toBooleanOrNull(execution.failureSignal.alertReady) ?? false,
+        escalationReason: unmapQueueFailureEscalationReason(execution.failureSignal.escalationReason),
+      }
+    : null;
+
   return {
     status: unmapIngestExecutionStatus(execution.status),
     jobType: unmapQueueFailureJobType(metadata.jobType),
@@ -472,6 +506,14 @@ function extractExecutionTelemetry(metadata: Prisma.JsonValue | null): Execution
     actorId: toStringOrNull(execution.actorId),
     attemptCount: toNumberOrNull(execution.attemptCount),
     retryState: unmapQueueFailureRetryState(execution.retryState),
+    failureSignal:
+      failureSignal && failureSignal.severity && failureSignal.escalationReason
+        ? {
+            severity: failureSignal.severity,
+            alertReady: failureSignal.alertReady,
+            escalationReason: failureSignal.escalationReason,
+          }
+        : null,
     startedAt: toDateOrNull(execution.startedAt),
     finishedAt: toDateOrNull(execution.finishedAt),
     durationMs: toNumberOrNull(execution.durationMs),
@@ -559,6 +601,7 @@ function mapAdminQueueFailureItemRecord(record: AdminQueueFailureJobPayload): Ad
     providerItemId: latestRun?.providerItemId ?? null,
     attemptCount,
     retryState,
+    failureSignal: telemetry?.failureSignal ?? null,
     startedAt: telemetry?.startedAt ?? latestRun?.startedAt ?? record.startedAt ?? null,
     finishedAt: telemetry?.finishedAt ?? latestRun?.finishedAt ?? record.finishedAt ?? null,
     durationMs: telemetry?.durationMs ?? null,
@@ -607,6 +650,8 @@ function matchesQueueFailureQuery(record: AdminQueueFailureItemRecord, query?: A
     record.failure?.category,
     record.failure?.code,
     record.failure?.errorName,
+    record.failureSignal?.severity,
+    record.failureSignal?.escalationReason,
     record.target?.providerItemId,
     record.target?.providerLineKey,
     record.target?.sourceId,

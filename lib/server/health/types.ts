@@ -20,11 +20,31 @@ export type RepairQueueStatus = (typeof repairQueueStatuses)[number];
 
 export const queueFailureVisibilityStates = ["failed", "retrying"] as const;
 export type QueueFailureVisibilityState = (typeof queueFailureVisibilityStates)[number];
+export const queueFailureAlertSeverities = [
+  "retrying_noise",
+  "degraded_attention",
+  "operator_action_required",
+] as const;
+export type QueueFailureAlertSeverity = (typeof queueFailureAlertSeverities)[number];
+
+export const queueFailureEscalationReasons = [
+  "none",
+  "first_retryable_failure",
+  "repeated_retryable_failure",
+  "terminal_failure",
+] as const;
+export type QueueFailureEscalationReason = (typeof queueFailureEscalationReasons)[number];
 
 export type QueueFailureJobType = "provider_page_ingest" | "scheduled_source_refresh" | "scheduled_source_probe";
 export type QueueFailureExecutionStatus = "pending" | "running" | "succeeded" | "failed" | "cancelled" | "partial";
 export type QueueFailureScope = "page" | "detail" | "source_refresh" | "source_probe";
 export type QueueFailureRetryState = "none" | "retrying" | "retryable_failure" | "terminal_failure";
+
+export interface QueueFailureAlertSignal {
+  severity: QueueFailureAlertSeverity;
+  alertReady: boolean;
+  escalationReason: QueueFailureEscalationReason;
+}
 
 export interface QueueFailureTriageContext {
   sourceId: string;
@@ -71,6 +91,7 @@ export interface AdminQueueFailureItemRecord {
   providerItemId?: string | null;
   attemptCount: number;
   retryState: QueueFailureRetryState;
+  failureSignal?: QueueFailureAlertSignal | null;
   startedAt?: Date | null;
   finishedAt?: Date | null;
   durationMs?: number | null;

@@ -429,6 +429,7 @@ Reviewer:
 - Accepted Workstream 3 / Slice 2 on review: future publish scheduling, schedule clearing/rescheduling, and published visibility hide/restore now flow through bounded review/catalog/admin workflows with deterministic render-level admin coverage, so the Workstream 3 governance exit gate is closed without reopening public or provider scope
 - Promoted the accepted Workstream 3 governance exit gate milestone to version `0.27.0`
 - Switched the active task from accepted `Workstream 3 / Slice 2` into `Workstream 4 / Slice 6: Provider Failure Visibility And Alert-Ready Signaling`, keeping the fixed backend queue intact and carrying hardening completion forward as the next required slice
+- Data Catalog added bounded backend support for `Workstream 4 / Slice 6`: queue-failure repository mapping now preserves alert-ready failure severity and escalation reason from ingest telemetry into privileged operator item records, `lib/server/health` exposes the narrowed failure-signal contract, and focused backend tests cover both valid/malformed telemetry parsing and admin queue-failure item shaping without reopening UI scope
 
 Planner:
 - Added the handoff for `Workstream 4 / Slice 6: Provider Failure Visibility And Alert-Ready Signaling`, narrowing the next hardening slice to bounded severity/escalation modeling, alert-ready operator visibility, and optional minimal queue-failure UI follow-up without reopening monitoring-platform, public-route, or auth scope
