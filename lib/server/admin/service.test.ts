@@ -172,6 +172,11 @@ function createQueueFailureItem(overrides: Partial<AdminQueueFailureItemRecord> 
     providerItemId: "provider-item-1",
     attemptCount: 3,
     retryState: "terminal_failure",
+    failureSignal: {
+      severity: "operator_action_required",
+      alertReady: true,
+      escalationReason: "terminal_failure",
+    },
     startedAt: new Date("2026-03-11T08:00:00.000Z"),
     finishedAt: new Date("2026-03-11T08:05:00.000Z"),
     durationMs: 300000,
@@ -933,6 +938,11 @@ function createDependencies() {
             scope: "source_refresh",
             attemptCount: 2,
             retryState: "retrying",
+            failureSignal: {
+              severity: "degraded_attention",
+              alertReady: false,
+              escalationReason: "first_retryable_failure",
+            },
             lastErrorSummary: "Retry scheduled after upstream timeout.",
             failure: {
               category: "upstream_timeout",
@@ -1094,10 +1104,13 @@ test("getAdminQueueFailureMonitoringPage returns privileged triage records for f
   assert.equal(page.summary.sourceRefreshItems, 1);
   assert.equal(page.summary.sourceProbeItems, 1);
   assert.equal(page.items[0]?.failure?.code, "http_500");
+  assert.equal(page.items[0]?.failureSignal?.severity, "operator_action_required");
+  assert.equal(page.items[0]?.failureSignal?.escalationReason, "terminal_failure");
   assert.equal(page.items[0]?.target?.providerLineKey, "main");
   assert.equal(page.items[0]?.request?.page, 4);
   assert.equal(page.items[0]?.checkpoint?.page, 3);
   assert.equal(page.items[1]?.visibilityState, "retrying");
+  assert.equal(page.items[1]?.failureSignal?.severity, "degraded_attention");
 });
 
 test("getAdminModerationQueuePage builds operator summaries for moderation reports", async () => {
