@@ -96,6 +96,14 @@ export interface PersistNormalizationBatchResult {
   duplicateSignals: PersistedDuplicateSignalRecord[];
 }
 
+export interface PendingNormalizedCandidateListItemRecord {
+  candidate: PersistedNormalizedCandidateRecord;
+  aliasCount: number;
+  matchSuggestionCount: number;
+  duplicateSignalCount: number;
+}
+
 export interface NormalizationPersistenceRepository {
   persistNormalizationBatch(input: PersistNormalizationBatchInput): Promise<PersistNormalizationBatchResult>;
+  listPendingNormalizedCandidates(): Promise<PendingNormalizedCandidateListItemRecord[]>;
 }

@@ -6,6 +6,7 @@ import { logger } from "../logging";
 import { applyCatalogPublication } from "../catalog/publish";
 import { runInTransaction } from "../../db/transactions";
 import { createDefaultReviewWorkflowRepository, createReviewWorkflowRepository } from "../../db/repositories/review";
+import { createDefaultNormalizationPersistenceRepository } from "../../db/repositories/normalization";
 import { requireFuturePublishAt } from "./scheduling";
 
 import type {
@@ -34,6 +35,7 @@ import type {
   ReviewQueueListItemRecord,
   ReviewWorkflowRepository,
 } from "../../db/repositories/review";
+import type { PendingNormalizedCandidateListItemRecord } from "../../db/repositories/normalization/types";
 
 const reviewLogger = logger.child({ subsystem: "review.service" });
 
@@ -380,6 +382,11 @@ export async function updateManualTitleSubmissionStatus(
 export async function listReviewQueue(): Promise<ReviewQueueListItemRecord[]> {
   requirePrivilegedAdminAccess("operator");
   return createDefaultReviewWorkflowRepository().listReviewQueue();
+}
+
+export async function listPendingNormalizedCandidates(): Promise<PendingNormalizedCandidateListItemRecord[]> {
+  requirePrivilegedAdminAccess("operator");
+  return createDefaultNormalizationPersistenceRepository().listPendingNormalizedCandidates();
 }
 
 export async function getReviewQueueDetail(queueEntryId: string): Promise<ReviewQueueDetailRecord | null> {

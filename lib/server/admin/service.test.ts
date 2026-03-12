@@ -23,12 +23,14 @@ import {
   getAdminQueueFailureMonitoringPage,
   getAdminRepairQueuePage,
   getAdminSourceInventoryPage,
+  getAdminPendingNormalizedCandidatesPage,
   reorderAdminPublishedSources,
   replaceAdminPublishedSource,
   restoreAdminPublishedCatalogVisibility,
   resolveAdminModerationReport,
   resolveAdminRepairQueueEntry,
   scheduleAdminReviewPublication,
+  queueAdminNormalizedCandidateForReview,
   unpublishAdminPublishedCatalogRecord,
   updateAdminManualSourceSubmissionStatus,
   updateAdminManualTitleSubmissionStatus,
@@ -38,12 +40,19 @@ import {
 import type { AdminBackendDependencies } from "./types";
 import type { AdminQueueFailureItemRecord, AdminRepairQueueItemRecord, RecoveryReadinessRecord } from "../health";
 import type { AdminSourceInventoryItemRecord, ManualSourceSubmissionDetailRecord, ManualSourceSubmissionRecord } from "../source";
-import type { ManualTitleSubmissionDetailRecord, ManualTitleSubmissionRecord, ModerationReportDetailRecord, ModerationReportRecord } from "../review";
+import type {
+  ManualTitleSubmissionDetailRecord,
+  ManualTitleSubmissionRecord,
+  ModerationReportDetailRecord,
+  ModerationReportRecord,
+  QueueNormalizedCandidateRequest,
+} from "../review";
 import type {
   AdminPublishedCatalogDetailRecord,
   AdminPublishedCatalogListItemRecord,
 } from "./types";
 import type { FinalLaunchValidationRecord } from "../catalog";
+import type { PendingNormalizedCandidateListItemRecord } from "../../db/repositories/normalization/types";
 
 process.env.ADMIN_ACCESS_STUB_ROLE = "operator";
 process.env.ADMIN_ACCESS_STUB_ACTOR_ID = "operator-test";
@@ -636,6 +645,39 @@ function createManualSourceSubmissionDetail(
   };
 }
 
+function createPendingNormalizedCandidateListItem(
+  overrides: Partial<PendingNormalizedCandidateListItemRecord> = {},
+): PendingNormalizedCandidateListItemRecord {
+  return {
+    candidate: {
+      id: "candidate-1",
+      stagingCandidateId: "staging-1",
+      providerId: "provider-1",
+      providerItemId: "provider-item-1",
+      status: "normalized",
+      title: { display: "Northline Station", comparable: "northline station" },
+      originalTitle: { display: "北線車站", comparable: "北線車站" },
+      summary: "A normalized candidate awaiting review.",
+      mediaType: "series",
+      releaseYear: 2026,
+      region: "JP",
+      language: "ja",
+      seasonEpisodeHints: null,
+      sourceSummary: null,
+      evidence: null,
+      warnings: [],
+      normalizationNotes: [],
+      failureSummary: null,
+      createdAt: new Date("2026-03-11T07:00:00.000Z"),
+      updatedAt: new Date("2026-03-11T07:00:00.000Z"),
+      ...(overrides.candidate ?? {}),
+    },
+    aliasCount: overrides.aliasCount ?? 2,
+    matchSuggestionCount: overrides.matchSuggestionCount ?? 1,
+    duplicateSignalCount: overrides.duplicateSignalCount ?? 0,
+  };
+}
+
 function createDependencies() {
   const calls = {
     getPublishedCatalogMigrationPreflight: 0,
@@ -896,6 +938,14 @@ function createDependencies() {
           createdAt: new Date("2026-03-11T09:00:00.000Z"),
           updatedAt: new Date("2026-03-11T12:05:00.000Z"),
         };
+      },
+      async listPendingNormalizedCandidates() {
+        calls.listPendingNormalizedCandidates += 1;
+        return [];
+      },
+      async queueNormalizedCandidateForReview(input) {
+        calls.queueNormalizedCandidateForReview.push(input as Record<string, unknown>);
+        return null;
       },
     },
     source: {
@@ -1475,6 +1525,79 @@ test("manual source submission admin flows expose list, detail, create, and stat
       linkedRepairQueueEntryId: "repair-1",
     },
   });
+});
+
+test("getAdminPendingNormalizedCandidatesPage returns operator-facing summary", async () => {
+  const { dependencies } = createDependencies();
+  const pendingItems = [
+    createPendingNormalizedCandidateListItem(),
+    createPendingNormalizedCandidateListItem({
+      candidate: {
+        id: "candidate-2",
+        stagingCandidateId: "staging-2",
+        status: "warning",
+        title: { display: "Glass Harbor", comparable: "glass harbor" },
+        mediaType: "movie",
+      },
+      aliasCount: 1,
+      matchSuggestionCount: 0,
+      duplicateSignalCount: 2,
+    }),
+  ];
+  dependencies.review.listPendingNormalizedCandidates = async () => pendingItems;
+
+  const page = await getAdminPendingNormalizedCandidatesPage(dependencies);
+
+  assert.equal(page.title, "Pending Normalized Candidates");
+  assert.equal(page.summary.totalCandidates, 2);
+  assert.equal(page.summary.normalizedCandidates, 1);
+  assert.equal(page.summary.warningCandidates, 1);
+  assert.equal(page.summary.totalAliases, 3);
+  assert.equal(page.summary.totalMatchSuggestions, 1);
+  assert.equal(page.summary.totalDuplicateSignals, 2);
+  assert.equal(page.items, pendingItems);
+});
+
+test("queueAdminNormalizedCandidateForReview delegates to review dependency", async () => {
+  const { dependencies } = createDependencies();
+  const requests: QueueNormalizedCandidateRequest[] = [];
+  const queueResult = {
+    id: "queue-123",
+    normalizedCandidateId: "candidate-queue-1",
+    canonicalMediaId: null,
+    status: "pending",
+    assignedReviewerId: "reviewer-42",
+    latestDecisionType: null,
+    latestDecisionSummary: null,
+    scheduledPublishAt: null,
+    queuedAt: new Date("2026-03-12T00:00:00.000Z"),
+    startedAt: null,
+    reviewedAt: null,
+    createdAt: new Date("2026-03-12T00:00:00.000Z"),
+    updatedAt: new Date("2026-03-12T00:00:00.000Z"),
+  };
+
+  dependencies.review.queueNormalizedCandidateForReview = async (input) => {
+    requests.push(input);
+    return queueResult;
+  };
+
+  const result = await queueAdminNormalizedCandidateForReview(
+    {
+      normalizedCandidateId: "candidate-queue-1",
+      assignedReviewerId: "reviewer-42",
+      actorId: "operator-1",
+      requestId: "req-queue-1",
+    },
+    dependencies,
+  );
+
+  assert.equal(requests.length, 1);
+  assert.equal(requests[0]?.normalizedCandidateId, "candidate-queue-1");
+  assert.equal(requests[0]?.assignedReviewerId, "reviewer-42");
+  assert.equal(requests[0]?.actorId, "operator-1");
+  assert.equal(requests[0]?.requestId, "req-queue-1");
+  assert.equal(result, queueResult);
 });
 
 test("admin repair queue actions use backend-owned status transitions", async () => {

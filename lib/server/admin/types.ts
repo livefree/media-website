@@ -35,6 +35,7 @@ import type {
   ModerationReportRecord,
   ModerationReportStatus,
   ModerationReportStatusUpdateInput,
+  QueueNormalizedCandidateRequest,
 } from "../review";
 import type {
   AdminSourceInventoryItemRecord,
@@ -50,6 +51,7 @@ import type {
   SourceInventoryQuery,
   SourceOrderingUpdate,
 } from "../source";
+import type { PendingNormalizedCandidateListItemRecord } from "../../db/repositories/normalization/types";
 
 export interface AdminSourceInventorySummary {
   totalItems: number;
@@ -183,6 +185,29 @@ export interface AdminManualSourceSubmissionPageRecord {
   appliedFilters: ManualSourceSubmissionQuery;
   summary: AdminManualSourceSubmissionSummary;
   items: ManualSourceSubmissionRecord[];
+}
+
+export interface AdminPendingNormalizedCandidateSummary {
+  totalCandidates: number;
+  normalizedCandidates: number;
+  warningCandidates: number;
+  totalAliases: number;
+  totalMatchSuggestions: number;
+  totalDuplicateSignals: number;
+}
+
+export interface AdminPendingNormalizedCandidatesPageRecord {
+  title: string;
+  description: string;
+  summary: AdminPendingNormalizedCandidateSummary;
+  items: PendingNormalizedCandidateListItemRecord[];
+}
+
+export interface AdminQueueNormalizedCandidateRequest {
+  normalizedCandidateId: string;
+  assignedReviewerId?: string;
+  actorId?: string;
+  requestId?: string;
 }
 
 export type AdminPublishedCatalogSort = "published_at" | "updated_at" | "title" | "release_year";
@@ -369,6 +394,8 @@ export interface AdminBackendDependencies {
       requestId?: string;
       notes?: string;
     }): Promise<unknown>;
+    listPendingNormalizedCandidates(): Promise<PendingNormalizedCandidateListItemRecord[]>;
+    queueNormalizedCandidateForReview(request: QueueNormalizedCandidateRequest): Promise<unknown>;
   };
   source: {
     listAdminSourceInventory(query?: SourceInventoryQuery): Promise<AdminSourceInventoryItemRecord[]>;

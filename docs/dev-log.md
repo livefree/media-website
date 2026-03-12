@@ -5,6 +5,9 @@
 Planner:
 - Added the `Operator Workflow Console / Slice 2` handoff in [docs/handovers/planner-operator-workflow-console-slice2.md](/Users/livefree/projects/media-website-v2/docs/handovers/planner-operator-workflow-console-slice2.md), defining the normalized-to-review gap, ownership boundaries, acceptance checklist, execution order, test/build requirements, and how the resulting contracts feed Slice 3
 
+Data Catalog:
+- Implemented the Slice 2 backend contracts: `listPendingNormalizedCandidates` now lives in [lib/db/repositories/normalization/index.ts](/Users/livefree/projects/media-website-v2/lib/db/repositories/normalization/index.ts), admin services expose pending candidates plus the queue action in [lib/server/admin/service.ts](/Users/livefree/projects/media-website-v2/lib/server/admin/service.ts) with tests, and `listPendingNormalizedCandidates` is surfaced from [lib/server/review/service.ts](/Users/livefree/projects/media-website-v2/lib/server/review/service.ts). Verified with `node --import ./scripts/register-server-only-loader.mjs --experimental-strip-types --test lib/server/admin/service.test.ts` and `npm run build`.
+
 Coordinator:
 - Marked `Execution Framework Reconstruction / Slice 1` complete in the Project Frame and switched the active execution entry to `Operator Workflow Console / Slice 2: Queue Entry Actions And Review Handoff`, so downstream agents now resume the operator-workflow program under the new dual-layer model
 - Reconstructed the execution workflow into a two-layer model by adding [docs/project-frame.md](/Users/livefree/projects/media-website-v2/docs/project-frame.md), shrinking [task.md](/Users/livefree/projects/media-website-v2/task.md) to the active-slice contract only, tightening the stop/ask-user rule in [AGENTS.md](/Users/livefree/projects/media-website-v2/AGENTS.md), and updating execution/versioning docs so persistent program state no longer drifts across multiple files
@@ -478,6 +481,7 @@ Reviewer:
 - Promoted the accepted Workstream 3 governance exit gate milestone to version `0.27.0`
 - Switched the active task from accepted `Workstream 3 / Slice 2` into `Workstream 4 / Slice 6: Provider Failure Visibility And Alert-Ready Signaling`, keeping the fixed backend queue intact and carrying hardening completion forward as the next required slice
 - Data Catalog added bounded backend support for `Workstream 4 / Slice 6`: queue-failure repository mapping now preserves alert-ready failure severity and escalation reason from ingest telemetry into privileged operator item records, `lib/server/health` exposes the narrowed failure-signal contract, and focused backend tests cover both valid/malformed telemetry parsing and admin queue-failure item shaping without reopening UI scope
+- Data Catalog added Operator Workflow Console / Slice 2 backend support: normalization persistence can list pending normalized candidates with alias/match/duplicate counts, admin service exposes a pending-candidate operator page plus queue action wiring shared with the planned Slice 3 summaries, and `node --import ./scripts/register-server-only-loader.mjs --experimental-strip-types --test lib/server/admin/service.test.ts` plus `npm run build` both passed
 
 Planner:
 - Added the handoff for `Workstream 4 / Slice 6: Provider Failure Visibility And Alert-Ready Signaling`, narrowing the next hardening slice to bounded severity/escalation modeling, alert-ready operator visibility, and optional minimal queue-failure UI follow-up without reopening monitoring-platform, public-route, or auth scope

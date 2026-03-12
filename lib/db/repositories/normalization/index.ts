@@ -26,6 +26,7 @@ import type {
   PersistedDuplicateSignalRecord,
   PersistedMatchSuggestionRecord,
   PersistedNormalizedCandidateRecord,
+  PendingNormalizedCandidateListItemRecord,
 } from "./types";
 
 const normalizedMediaTypeMap = {
@@ -488,6 +489,30 @@ export class NormalizationPersistenceRepository
       matchSuggestions,
       duplicateSignals,
     };
+  }
+
+  async listPendingNormalizedCandidates(): Promise<PendingNormalizedCandidateListItemRecord[]> {
+    const records = await this.db.normalizedCandidate.findMany({
+      where: {
+        reviewQueueEntry: null,
+        status: {
+          in: ["NORMALIZED", "WARNING"],
+        },
+      },
+      include: {
+        aliases: true,
+        matchSuggestions: true,
+        duplicateSignals: true,
+      },
+      orderBy: [{ createdAt: "asc" }],
+    });
+
+    return records.map((record) => ({
+      candidate: mapNormalizedCandidateRecord(record),
+      aliasCount: record.aliases.length,
+      matchSuggestionCount: record.matchSuggestions.length,
+      duplicateSignalCount: record.duplicateSignals.length,
+    }));
   }
 
   private async upsertNormalizedCandidate(candidate: NormalizedCandidateDraft) {

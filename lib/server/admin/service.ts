@@ -1,7 +1,7 @@
 import "server-only";
 
 import { requirePrivilegedAdminAccess } from "./access";
-
+import type { PendingNormalizedCandidateListItemRecord } from "../../db/repositories/normalization/types";
 import type {
   AdminReviewPublicationScheduleActionRequest,
   AdminBackendDependencies,
@@ -19,6 +19,9 @@ import type {
   AdminRepairQueueActionRequest,
   AdminRepairQueuePageRecord,
   AdminSourceInventoryPageRecord,
+  AdminPendingNormalizedCandidateSummary,
+  AdminPendingNormalizedCandidatesPageRecord,
+  AdminQueueNormalizedCandidateRequest,
 } from "./types";
 import type { AdminQueueFailureQuery, RepairQueueQuery, RepairQueueStatus } from "../health";
 import type {
@@ -73,6 +76,8 @@ async function getDefaultAdminDependencies(): Promise<AdminBackendDependencies> 
       updateManualTitleSubmissionStatus: review.updateManualTitleSubmissionStatus,
       scheduleReviewPublication: review.scheduleReviewPublication,
       clearScheduledReviewPublication: review.clearScheduledReviewPublication,
+      listPendingNormalizedCandidates: review.listPendingNormalizedCandidates,
+      queueNormalizedCandidateForReview: review.queueNormalizedCandidateForReview,
     },
     source: {
       listAdminSourceInventory: source.listAdminSourceInventory,
@@ -196,6 +201,19 @@ function buildModerationQueueSummary(items: AdminModerationQueuePageRecord["item
     inReviewItems: items.filter((item) => item.status === "in_review").length,
     resolvedItems: items.filter((item) => item.status === "resolved").length,
     dismissedItems: items.filter((item) => item.status === "dismissed").length,
+  };
+}
+
+function buildPendingNormalizedSummary(
+  items: PendingNormalizedCandidateListItemRecord[],
+): AdminPendingNormalizedCandidateSummary {
+  return {
+    totalCandidates: items.length,
+    normalizedCandidates: items.filter((item) => item.candidate.status === "normalized").length,
+    warningCandidates: items.filter((item) => item.candidate.status === "warning").length,
+    totalAliases: items.reduce((sum, item) => sum + item.aliasCount, 0),
+    totalMatchSuggestions: items.reduce((sum, item) => sum + item.matchSuggestionCount, 0),
+    totalDuplicateSignals: items.reduce((sum, item) => sum + item.duplicateSignalCount, 0),
   };
 }
 
@@ -403,6 +421,36 @@ export async function getAdminManualSourceSubmissionPage(
     summary: buildManualSubmissionSummary(items),
     items,
   };
+}
+
+export async function getAdminPendingNormalizedCandidatesPage(
+  dependencies?: AdminBackendDependencies,
+): Promise<AdminPendingNormalizedCandidatesPageRecord> {
+  requirePrivilegedAdminAccess("operator");
+  const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
+  const pending = await resolvedDependencies.review.listPendingNormalizedCandidates();
+
+  return {
+    title: "Pending Normalized Candidates",
+    description: "Normalized candidates awaiting operator review queue placement.",
+    summary: buildPendingNormalizedSummary(pending),
+    items: pending,
+  };
+}
+
+export async function queueAdminNormalizedCandidateForReview(
+  request: AdminQueueNormalizedCandidateRequest,
+  dependencies?: AdminBackendDependencies,
+) {
+  requirePrivilegedAdminAccess("operator");
+  const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
+
+  return resolvedDependencies.review.queueNormalizedCandidateForReview({
+    normalizedCandidateId: request.normalizedCandidateId,
+    assignedReviewerId: request.assignedReviewerId,
+    actorId: request.actorId,
+    requestId: request.requestId,
+  });
 }
 
 export async function getAdminManualSourceSubmissionDetailByPublicId(
