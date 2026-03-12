@@ -6,6 +6,8 @@ import type {
   AdminPublishedCatalogQuery,
 } from "../../../server/admin";
 import type {
+  HidePublishedCatalogInput,
+  HidePublishedCatalogResult,
   PublishedCatalogPageRecord,
   PublishedCatalogQueryInput,
   PublishedDetailRecord,
@@ -13,6 +15,8 @@ import type {
   PublishedListDirectoryRecord,
   PublishedListRecord,
   PublishedListSummaryRecord,
+  RestorePublishedCatalogVisibilityInput,
+  RestorePublishedCatalogVisibilityResult,
   UnpublishPublishedCatalogInput,
   UnpublishPublishedCatalogResult,
   PublishedWatchQuery,
@@ -29,5 +33,7 @@ export interface PublishedCatalogRepository {
   getPublishedListByPublicId(publicId: string): Promise<PublishedListRecord | null>;
   getPublishedListDirectory(): Promise<PublishedListDirectoryRecord>;
   getPublishedFeaturedLists(limit?: number): Promise<PublishedListSummaryRecord[]>;
+  hidePublishedCatalogRecord(input: HidePublishedCatalogInput): Promise<HidePublishedCatalogResult>;
+  restorePublishedCatalogVisibility(input: RestorePublishedCatalogVisibilityInput): Promise<RestorePublishedCatalogVisibilityResult>;
   unpublishPublishedCatalogRecord(input: UnpublishPublishedCatalogInput): Promise<UnpublishPublishedCatalogResult>;
 }

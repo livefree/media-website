@@ -358,15 +358,26 @@ enum PublishAuditAction {
   QUEUED
   REVIEW_STARTED
   REVIEW_DECISION_RECORDED
+  PUBLISH_SCHEDULED
+  PUBLISH_SCHEDULE_CLEARED
   PUBLISH_STARTED
   PUBLISH_SUCCEEDED
   PUBLISH_FAILED
+  VISIBILITY_HIDDEN
+  VISIBILITY_RESTORED
 }
 
 enum OperatorLifecycleMutationAction {
   SOURCE_REORDERED
   SOURCE_REPLACED
   CATALOG_UNPUBLISHED
+  CATALOG_HIDDEN
+  CATALOG_RESTORED
+}
+
+enum PublishedVisibilityState {
+  VISIBLE
+  HIDDEN
 }
 
 enum ModerationReportKind {
@@ -468,6 +479,7 @@ model MediaTitle {
   ratingCount           Int               @default(0)
   popularityScore       Float             @default(0)
   isFeatured            Boolean           @default(false)
+  visibilityState       PublishedVisibilityState @default(VISIBLE)
   publishedAt           DateTime?
   createdAt             DateTime          @default(now())
   updatedAt             DateTime          @updatedAt
@@ -1228,6 +1240,7 @@ model ReviewQueueEntry {
   assignedReviewerId    String?
   latestDecisionType    ReviewDecisionType?
   latestDecisionSummary String?
+  scheduledPublishAt    DateTime?
   queuedAt              DateTime           @default(now())
   startedAt             DateTime?
   reviewedAt            DateTime?

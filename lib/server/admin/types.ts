@@ -2,10 +2,15 @@ import "server-only";
 
 import type { MigrationPreflightRecord } from "../../db/migration-safety";
 import type {
+  HidePublishedCatalogInput,
+  HidePublishedCatalogResult,
   PublishedMediaStatus,
   PublishedMediaType,
   PublishedPlaybackResourceRecord,
+  PublishedVisibilityState,
   PublishedSeasonRecord,
+  RestorePublishedCatalogVisibilityInput,
+  RestorePublishedCatalogVisibilityResult,
   UnpublishPublishedCatalogInput,
   UnpublishPublishedCatalogResult,
 } from "../catalog";
@@ -195,6 +200,7 @@ export interface AdminPublishedCatalogListItemRecord {
   backdropUrl?: string | null;
   seasonCount?: number | null;
   episodeCount?: number | null;
+  visibilityState: PublishedVisibilityState;
   publishedAt: string;
   updatedAt: string;
   streamCount: number;
@@ -237,6 +243,7 @@ export interface AdminPublishedCatalogReviewContextRecord {
   status: string;
   latestDecisionType?: string | null;
   latestDecisionSummary?: string | null;
+  scheduledPublishAt?: string | null;
   updatedAt: string;
 }
 
@@ -286,6 +293,7 @@ export interface AdminPublishedCatalogDetailRecord {
     episodeRuntimeMinutes?: number | null;
     seasonCount?: number | null;
     episodeCount?: number | null;
+    visibilityState: PublishedVisibilityState;
     posterUrl?: string | null;
     backdropUrl?: string | null;
     canonicalWatchHref: string;
@@ -308,6 +316,8 @@ export interface AdminBackendDependencies {
     getPublishedCatalogMigrationPreflight(): Promise<MigrationPreflightRecord>;
     queryAdminPublishedCatalog(query?: AdminPublishedCatalogQuery): Promise<AdminPublishedCatalogPageRecord>;
     getAdminPublishedCatalogDetailByPublicId(publicId: string): Promise<AdminPublishedCatalogDetailRecord | null>;
+    hidePublishedCatalogRecord(input: HidePublishedCatalogInput): Promise<HidePublishedCatalogResult>;
+    restorePublishedCatalogVisibility(input: RestorePublishedCatalogVisibilityInput): Promise<RestorePublishedCatalogVisibilityResult>;
     unpublishPublishedCatalogRecord(input: UnpublishPublishedCatalogInput): Promise<UnpublishPublishedCatalogResult>;
   };
   review: {
@@ -331,6 +341,19 @@ export interface AdminBackendDependencies {
         reviewQueueEntryId?: string;
       },
     ): Promise<ManualTitleSubmissionDetailRecord>;
+    scheduleReviewPublication(input: {
+      queueEntryId: string;
+      publishAt: string;
+      actorId?: string;
+      requestId?: string;
+      notes?: string;
+    }): Promise<unknown>;
+    clearScheduledReviewPublication(input: {
+      queueEntryId: string;
+      actorId?: string;
+      requestId?: string;
+      notes?: string;
+    }): Promise<unknown>;
   };
   source: {
     listAdminSourceInventory(query?: SourceInventoryQuery): Promise<AdminSourceInventoryItemRecord[]>;
@@ -355,4 +378,12 @@ export interface AdminBackendDependencies {
 export interface AdminRepairQueueStatusAction {
   status: RepairQueueStatus;
   request: AdminRepairQueueActionRequest;
+}
+
+export interface AdminReviewPublicationScheduleActionRequest {
+  queueEntryId: string;
+  publishAt: string;
+  actorId?: string;
+  requestId?: string;
+  notes?: string;
 }

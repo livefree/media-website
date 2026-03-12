@@ -3,6 +3,7 @@ import "server-only";
 import { requirePrivilegedAdminAccess } from "./access";
 
 import type {
+  AdminReviewPublicationScheduleActionRequest,
   AdminBackendDependencies,
   AdminMigrationSafetyPageRecord,
   AdminQueueFailureMonitoringPageRecord,
@@ -35,7 +36,14 @@ import type {
   ManualTitleSubmissionQuery,
   ModerationReportQuery,
 } from "../review";
-import type { UnpublishPublishedCatalogInput, UnpublishPublishedCatalogResult } from "../catalog";
+import type {
+  HidePublishedCatalogInput,
+  HidePublishedCatalogResult,
+  RestorePublishedCatalogVisibilityInput,
+  RestorePublishedCatalogVisibilityResult,
+  UnpublishPublishedCatalogInput,
+  UnpublishPublishedCatalogResult,
+} from "../catalog";
 
 async function getDefaultAdminDependencies(): Promise<AdminBackendDependencies> {
   const catalog = await import("../catalog");
@@ -49,6 +57,8 @@ async function getDefaultAdminDependencies(): Promise<AdminBackendDependencies> 
       queryAdminPublishedCatalog: catalog.getAdminPublishedCatalogPage,
       getAdminPublishedCatalogDetailByPublicId: catalog.getAdminPublishedCatalogDetailByPublicId,
       unpublishPublishedCatalogRecord: catalog.unpublishPublishedCatalogRecord,
+      hidePublishedCatalogRecord: catalog.hidePublishedCatalogRecord,
+      restorePublishedCatalogVisibility: catalog.restorePublishedCatalogVisibility,
     },
     review: {
       listModerationReports: review.listModerationReports,
@@ -58,6 +68,8 @@ async function getDefaultAdminDependencies(): Promise<AdminBackendDependencies> 
       getManualTitleSubmissionDetailByPublicId: review.getManualTitleSubmissionDetailByPublicId,
       createManualTitleSubmission: review.createManualTitleSubmission,
       updateManualTitleSubmissionStatus: review.updateManualTitleSubmissionStatus,
+      scheduleReviewPublication: review.scheduleReviewPublication,
+      clearScheduledReviewPublication: review.clearScheduledReviewPublication,
     },
     source: {
       listAdminSourceInventory: source.listAdminSourceInventory,
@@ -452,4 +464,40 @@ export async function unpublishAdminPublishedCatalogRecord(
   requirePrivilegedAdminAccess("operator");
   const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
   return resolvedDependencies.catalog.unpublishPublishedCatalogRecord(input);
+}
+
+export async function hideAdminPublishedCatalogRecord(
+  input: HidePublishedCatalogInput,
+  dependencies?: AdminBackendDependencies,
+): Promise<HidePublishedCatalogResult> {
+  requirePrivilegedAdminAccess("operator");
+  const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
+  return resolvedDependencies.catalog.hidePublishedCatalogRecord(input);
+}
+
+export async function restoreAdminPublishedCatalogVisibility(
+  input: RestorePublishedCatalogVisibilityInput,
+  dependencies?: AdminBackendDependencies,
+): Promise<RestorePublishedCatalogVisibilityResult> {
+  requirePrivilegedAdminAccess("operator");
+  const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
+  return resolvedDependencies.catalog.restorePublishedCatalogVisibility(input);
+}
+
+export async function scheduleAdminReviewPublication(
+  request: AdminReviewPublicationScheduleActionRequest,
+  dependencies?: AdminBackendDependencies,
+) {
+  requirePrivilegedAdminAccess("operator");
+  const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
+  return resolvedDependencies.review.scheduleReviewPublication(request);
+}
+
+export async function clearAdminScheduledReviewPublication(
+  request: Omit<AdminReviewPublicationScheduleActionRequest, "publishAt">,
+  dependencies?: AdminBackendDependencies,
+) {
+  requirePrivilegedAdminAccess("operator");
+  const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
+  return resolvedDependencies.review.clearScheduledReviewPublication(request);
 }

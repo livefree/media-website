@@ -13,6 +13,7 @@ interface MediaRow {
   status: "COMPLETED" | "ARCHIVED";
   isFeatured: boolean;
   publishedAt: Date | null;
+  visibilityState: "VISIBLE" | "HIDDEN";
 }
 
 function createMediaRow(overrides: Partial<MediaRow> = {}): MediaRow {
@@ -26,6 +27,7 @@ function createMediaRow(overrides: Partial<MediaRow> = {}): MediaRow {
       Object.prototype.hasOwnProperty.call(overrides, "publishedAt")
         ? (overrides.publishedAt ?? null)
         : new Date("2026-03-11T10:00:00.000Z"),
+    visibilityState: overrides.visibilityState ?? "VISIBLE",
   };
 }
 
@@ -52,6 +54,7 @@ function createRepository(seedRows: MediaRow[]) {
           id: row.id,
           publicId: row.publicId,
           status: row.status,
+          visibilityState: row.visibilityState,
         };
       },
     },
@@ -90,6 +93,7 @@ test("unpublishPublishedCatalogRecord archives the published title and records a
   assert.equal(rows[0]?.status, "ARCHIVED");
   assert.equal(rows[0]?.isFeatured, false);
   assert.equal(rows[0]?.publishedAt, null);
+  assert.equal(rows[0]?.visibilityState, "HIDDEN");
   assert.equal(audits[0]?.action, "CATALOG_UNPUBLISHED");
 });
 
@@ -113,4 +117,41 @@ test("unpublishPublishedCatalogRecord rejects already-unpublished titles", async
       error.code === "catalog_unpublish_already_unpublished" &&
       error.status === 409,
   );
+});
+
+test("hidePublishedCatalogRecord hides visible published titles and records an audit", async () => {
+  const { rows, audits, repository } = createRepository([createMediaRow()]);
+
+  const result = await repository.hidePublishedCatalogRecord({
+    mediaPublicId: "med_public_1",
+    actorId: "operator-1",
+    requestId: "hide-1",
+    notes: "Temporarily suppress from public serving.",
+  });
+
+  assert.equal(result.auditId, "audit-1");
+  assert.equal(result.visibilityState, "hidden");
+  assert.equal(rows[0]?.visibilityState, "HIDDEN");
+  assert.equal(rows[0]?.isFeatured, false);
+  assert.equal(audits[0]?.action, "CATALOG_HIDDEN");
+});
+
+test("restorePublishedCatalogVisibility restores hidden published titles and records an audit", async () => {
+  const { rows, audits, repository } = createRepository([
+    createMediaRow({
+      visibilityState: "HIDDEN",
+    }),
+  ]);
+
+  const result = await repository.restorePublishedCatalogVisibility({
+    mediaPublicId: "med_public_1",
+    actorId: "operator-1",
+    requestId: "restore-1",
+    notes: "Restore public serving after review.",
+  });
+
+  assert.equal(result.auditId, "audit-1");
+  assert.equal(result.visibilityState, "visible");
+  assert.equal(rows[0]?.visibilityState, "VISIBLE");
+  assert.equal(audits[0]?.action, "CATALOG_RESTORED");
 });

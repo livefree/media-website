@@ -284,6 +284,10 @@ export interface UnpublishPublishedCatalogInput {
   notes?: string;
 }
 
+export const publishedVisibilityStates = ["visible", "hidden"] as const;
+
+export type PublishedVisibilityState = (typeof publishedVisibilityStates)[number];
+
 export interface UnpublishPublishedCatalogResult {
   auditId: string;
   summary: string;
@@ -291,6 +295,38 @@ export interface UnpublishPublishedCatalogResult {
   mediaId: string;
   mediaPublicId: string;
   status: PublishedMediaStatus;
+}
+
+export interface HidePublishedCatalogInput {
+  mediaPublicId: string;
+  actorId?: string;
+  requestId?: string;
+  notes?: string;
+}
+
+export interface HidePublishedCatalogResult {
+  auditId: string;
+  summary: string;
+  recordedAt: string;
+  mediaId: string;
+  mediaPublicId: string;
+  visibilityState: PublishedVisibilityState;
+}
+
+export interface RestorePublishedCatalogVisibilityInput {
+  mediaPublicId: string;
+  actorId?: string;
+  requestId?: string;
+  notes?: string;
+}
+
+export interface RestorePublishedCatalogVisibilityResult {
+  auditId: string;
+  summary: string;
+  recordedAt: string;
+  mediaId: string;
+  mediaPublicId: string;
+  visibilityState: PublishedVisibilityState;
 }
 
 export interface PublishedFeaturedListDiscoveryRecord {

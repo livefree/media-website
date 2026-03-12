@@ -45,6 +45,7 @@ export interface ReviewQueueEntryUpdateInput {
   latestDecisionType?: ReviewDecisionType;
   latestDecisionSummary?: string;
   canonicalMediaId?: string;
+  scheduledPublishAt?: string | null;
 }
 
 export interface ReviewDecisionCreateInput {
@@ -98,6 +99,7 @@ export interface PersistedReviewQueueEntryRecord {
   assignedReviewerId?: string | null;
   latestDecisionType?: ReviewDecisionType | null;
   latestDecisionSummary?: string | null;
+  scheduledPublishAt?: Date | null;
   queuedAt: Date;
   startedAt?: Date | null;
   reviewedAt?: Date | null;

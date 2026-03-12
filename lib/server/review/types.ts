@@ -33,9 +33,13 @@ export const publishAuditActions = [
   "queued",
   "review_started",
   "review_decision_recorded",
+  "publish_scheduled",
+  "publish_schedule_cleared",
   "publish_started",
   "publish_succeeded",
   "publish_failed",
+  "visibility_hidden",
+  "visibility_restored",
 ] as const;
 
 export type PublishAuditAction = (typeof publishAuditActions)[number];
@@ -241,4 +245,19 @@ export interface PublishReviewDecisionRequest {
   reviewDecisionId: string;
   actorId?: string;
   requestId?: string;
+}
+
+export interface ScheduleReviewPublicationRequest {
+  queueEntryId: string;
+  publishAt: string;
+  actorId?: string;
+  requestId?: string;
+  notes?: string;
+}
+
+export interface ClearScheduledReviewPublicationRequest {
+  queueEntryId: string;
+  actorId?: string;
+  requestId?: string;
+  notes?: string;
 }

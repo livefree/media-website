@@ -37,6 +37,12 @@ function createCatalogDependencies(options: { allowRuntime?: boolean } = {}) {
       async queryAdminPublishedCatalog() {
         throw new Error("not needed");
       },
+      async hidePublishedCatalogRecord() {
+        throw new Error("not needed");
+      },
+      async restorePublishedCatalogVisibility() {
+        throw new Error("not needed");
+      },
       async getPublishedDetailBySlug() {
         throw new Error("not needed");
       },

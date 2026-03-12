@@ -50,7 +50,12 @@ import type {
   PublishedResourceKind,
   PublishedResourceProvider,
   PublishedResourceStatus,
+  PublishedVisibilityState,
   PublishedSeasonRecord,
+  HidePublishedCatalogInput,
+  HidePublishedCatalogResult,
+  RestorePublishedCatalogVisibilityInput,
+  RestorePublishedCatalogVisibilityResult,
   UnpublishPublishedCatalogInput,
   UnpublishPublishedCatalogResult,
   PublishedWatchQuery,
@@ -179,8 +184,11 @@ const publishedListInclude = {
         not: null,
       },
       media: {
-        publishedAt: {
-          not: null,
+        is: {
+          publishedAt: {
+            not: null,
+          },
+          visibilityState: "VISIBLE",
         },
       },
     },
@@ -234,6 +242,17 @@ function mapMediaStatus(value: string): PublishedMediaStatus {
   }
 
   throw new Error(`Unsupported media status: ${value}`);
+}
+
+function mapPublishedVisibilityState(value: string): PublishedVisibilityState {
+  switch (value) {
+    case "VISIBLE":
+      return "visible";
+    case "HIDDEN":
+      return "hidden";
+  }
+
+  throw new Error(`Unsupported published visibility state: ${value}`);
 }
 
 function mapResourceKind(value: string): PublishedResourceKind {
@@ -716,6 +735,7 @@ function buildPublishedWhere(input: PublishedCatalogQueryInput): Prisma.MediaTit
     publishedAt: {
       not: null,
     },
+    visibilityState: "VISIBLE",
   };
 
   if (scope !== "all") {
@@ -882,6 +902,7 @@ function mapAdminPublishedCatalogListItem(media: AdminPublishedMediaPayload): Ad
     backdropUrl,
     seasonCount: media.seasonCount,
     episodeCount: media.episodeCount,
+    visibilityState: mapPublishedVisibilityState(media.visibilityState),
     publishedAt: (media.publishedAt ?? media.updatedAt).toISOString(),
     updatedAt: media.updatedAt.toISOString(),
     streamCount: countResourcesByKind(allResources, "stream"),
@@ -1014,6 +1035,7 @@ function mapAdminPublishedCatalogDetail(media: AdminPublishedMediaPayload): Admi
     episodeRuntimeMinutes: media.episodeRuntimeMinutes,
     seasonCount: media.seasonCount,
     episodeCount: media.episodeCount,
+    visibilityState: mapPublishedVisibilityState(media.visibilityState),
     posterUrl: getPrimaryArtwork(media.artwork, "POSTER"),
     backdropUrl: getPrimaryArtwork(media.artwork, "BACKDROP"),
     canonicalWatchHref: buildPublishedWatchHref(buildPublishedWatchQuery({ publicId: media.publicId })),
@@ -1044,6 +1066,7 @@ function mapAdminPublishedCatalogDetail(media: AdminPublishedMediaPayload): Admi
           status: mapAdminReviewStatus(media.reviewQueueEntries[0].status),
           latestDecisionType: mapAdminReviewDecisionType(media.reviewQueueEntries[0].latestDecisionType),
           latestDecisionSummary: media.reviewQueueEntries[0].latestDecisionSummary,
+          scheduledPublishAt: media.reviewQueueEntries[0].scheduledPublishAt?.toISOString() ?? null,
           updatedAt: media.reviewQueueEntries[0].updatedAt.toISOString(),
         }
       : undefined,
@@ -1136,8 +1159,16 @@ function mapPublishedListSummary(list: PublishedListPayload): PublishedListSumma
   };
 }
 
-function buildLifecycleAuditSummary(title: string) {
-  return `Unpublished catalog record '${title}'.`;
+function buildLifecycleAuditSummary(action: "CATALOG_UNPUBLISHED" | "CATALOG_HIDDEN" | "CATALOG_RESTORED", title: string) {
+  switch (action) {
+    case "CATALOG_HIDDEN":
+      return `Hidden published catalog record '${title}'.`;
+    case "CATALOG_RESTORED":
+      return `Restored published visibility for catalog record '${title}'.`;
+    case "CATALOG_UNPUBLISHED":
+    default:
+      return `Unpublished catalog record '${title}'.`;
+  }
 }
 
 function mapPublishedList(list: PublishedListPayload): PublishedListRecord | null {
@@ -1268,6 +1299,7 @@ function mapPublishedList(list: PublishedListPayload): PublishedListRecord | nul
 
 export class PublishedCatalogRepository extends BaseRepository implements PublishedCatalogRepositoryContract {
   private async createOperatorLifecycleAudit(input: {
+    action?: "CATALOG_UNPUBLISHED" | "CATALOG_HIDDEN" | "CATALOG_RESTORED";
     actorId?: string;
     requestId?: string;
     mediaId?: string | null;
@@ -1277,7 +1309,7 @@ export class PublishedCatalogRepository extends BaseRepository implements Publis
   }) {
     return this.db.operatorLifecycleMutationAudit.create({
       data: {
-        action: "CATALOG_UNPUBLISHED",
+        action: input.action ?? "CATALOG_UNPUBLISHED",
         actorId: input.actorId,
         requestId: input.requestId,
         mediaId: input.mediaId ?? null,
@@ -1369,6 +1401,7 @@ export class PublishedCatalogRepository extends BaseRepository implements Publis
         publishedAt: {
           not: null,
         },
+        visibilityState: "VISIBLE",
       },
       include: publishedMediaInclude,
     });
@@ -1383,6 +1416,7 @@ export class PublishedCatalogRepository extends BaseRepository implements Publis
         publishedAt: {
           not: null,
         },
+        visibilityState: "VISIBLE",
       },
       include: publishedMediaInclude,
     });
@@ -1411,6 +1445,7 @@ export class PublishedCatalogRepository extends BaseRepository implements Publis
         publishedAt: {
           not: null,
         },
+        visibilityState: "VISIBLE",
       },
       include: publishedMediaInclude,
     });
@@ -1619,6 +1654,7 @@ export class PublishedCatalogRepository extends BaseRepository implements Publis
         status: "ARCHIVED",
         isFeatured: false,
         publishedAt: null,
+        visibilityState: "HIDDEN",
       },
       select: {
         id: true,
@@ -1628,10 +1664,11 @@ export class PublishedCatalogRepository extends BaseRepository implements Publis
     });
 
     const audit = await this.createOperatorLifecycleAudit({
+      action: "CATALOG_UNPUBLISHED",
       actorId: input.actorId,
       requestId: input.requestId,
       mediaId: updated.id,
-      summary: buildLifecycleAuditSummary(media.title),
+      summary: buildLifecycleAuditSummary("CATALOG_UNPUBLISHED", media.title),
       notes: input.notes,
       metadata: {
         mediaPublicId: updated.publicId,
@@ -1645,6 +1682,151 @@ export class PublishedCatalogRepository extends BaseRepository implements Publis
       mediaId: updated.id,
       mediaPublicId: updated.publicId,
       status: mapMediaStatus(updated.status),
+    };
+  }
+
+  async hidePublishedCatalogRecord(input: HidePublishedCatalogInput): Promise<HidePublishedCatalogResult> {
+    const media = await this.db.mediaTitle.findUnique({
+      where: {
+        publicId: input.mediaPublicId,
+      },
+      select: {
+        id: true,
+        publicId: true,
+        title: true,
+        publishedAt: true,
+        visibilityState: true,
+      },
+    });
+
+    if (!media) {
+      throw new BackendError(`Published catalog record '${input.mediaPublicId}' was not found.`, {
+        status: 404,
+        code: "catalog_hide_not_found",
+      });
+    }
+
+    if (!media.publishedAt) {
+      throw new BackendError(`Catalog record '${input.mediaPublicId}' is not currently published.`, {
+        status: 409,
+        code: "catalog_hide_not_published",
+      });
+    }
+
+    if (media.visibilityState === "HIDDEN") {
+      throw new BackendError(`Catalog record '${input.mediaPublicId}' is already hidden.`, {
+        status: 409,
+        code: "catalog_hide_already_hidden",
+      });
+    }
+
+    const updated = await this.db.mediaTitle.update({
+      where: {
+        id: media.id,
+      },
+      data: {
+        isFeatured: false,
+        visibilityState: "HIDDEN",
+      },
+      select: {
+        id: true,
+        publicId: true,
+        visibilityState: true,
+      },
+    });
+
+    const audit = await this.createOperatorLifecycleAudit({
+      action: "CATALOG_HIDDEN",
+      actorId: input.actorId,
+      requestId: input.requestId,
+      mediaId: updated.id,
+      summary: buildLifecycleAuditSummary("CATALOG_HIDDEN", media.title),
+      notes: input.notes,
+      metadata: {
+        mediaPublicId: updated.publicId,
+      },
+    });
+
+    return {
+      auditId: audit.id,
+      summary: audit.summary,
+      recordedAt: audit.createdAt.toISOString(),
+      mediaId: updated.id,
+      mediaPublicId: updated.publicId,
+      visibilityState: mapPublishedVisibilityState(updated.visibilityState),
+    };
+  }
+
+  async restorePublishedCatalogVisibility(
+    input: RestorePublishedCatalogVisibilityInput,
+  ): Promise<RestorePublishedCatalogVisibilityResult> {
+    const media = await this.db.mediaTitle.findUnique({
+      where: {
+        publicId: input.mediaPublicId,
+      },
+      select: {
+        id: true,
+        publicId: true,
+        title: true,
+        publishedAt: true,
+        visibilityState: true,
+      },
+    });
+
+    if (!media) {
+      throw new BackendError(`Published catalog record '${input.mediaPublicId}' was not found.`, {
+        status: 404,
+        code: "catalog_restore_visibility_not_found",
+      });
+    }
+
+    if (!media.publishedAt) {
+      throw new BackendError(`Catalog record '${input.mediaPublicId}' is not currently published.`, {
+        status: 409,
+        code: "catalog_restore_visibility_not_published",
+      });
+    }
+
+    if (media.visibilityState === "VISIBLE") {
+      throw new BackendError(`Catalog record '${input.mediaPublicId}' is already visible.`, {
+        status: 409,
+        code: "catalog_restore_visibility_already_visible",
+      });
+    }
+
+    const updated = await this.db.mediaTitle.update({
+      where: {
+        id: media.id,
+      },
+      data: {
+        visibilityState: "VISIBLE",
+      },
+      select: {
+        id: true,
+        publicId: true,
+        visibilityState: true,
+      },
+    });
+
+    const audit = await this.createOperatorLifecycleAudit({
+      action: "CATALOG_RESTORED",
+      actorId: input.actorId,
+      requestId: input.requestId,
+      mediaId: updated.id,
+      summary: buildLifecycleAuditSummary("CATALOG_RESTORED", media.title),
+      notes: input.notes,
+      metadata: {
+        mediaPublicId: updated.publicId,
+      },
+    });
+
+    return {
+      auditId: audit.id,
+      summary: audit.summary,
+      recordedAt: audit.createdAt.toISOString(),
+      mediaId: updated.id,
+      mediaPublicId: updated.publicId,
+      visibilityState: mapPublishedVisibilityState(updated.visibilityState),
     };
   }
 
@@ -1662,6 +1844,7 @@ export class PublishedCatalogRepository extends BaseRepository implements Publis
         publishedAt: {
           not: null,
         },
+        visibilityState: "VISIBLE",
         OR: [
           {
             type: media.type,

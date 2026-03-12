@@ -102,6 +102,12 @@ test("golden backend validation proves staged anime output can normalize, publis
       async queryAdminPublishedCatalog() {
         throw new Error("admin catalog read is not part of the golden validation path");
       },
+      async hidePublishedCatalogRecord() {
+        throw new Error("admin catalog visibility control is not part of the golden validation path");
+      },
+      async restorePublishedCatalogVisibility() {
+        throw new Error("admin catalog visibility control is not part of the golden validation path");
+      },
       async getPublishedDetailBySlug(slug: string) {
         return slug === fixtures.detail.media.slug ? fixtures.detail : null;
       },
