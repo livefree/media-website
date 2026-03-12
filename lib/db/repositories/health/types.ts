@@ -13,6 +13,7 @@ import type {
   RepairQueueStatus,
   SourceProbeRunRecord,
 } from "../../../server/health";
+import type { IngestLaunchValidationEvidenceRecord } from "../../../server/ingest/launch-validation";
 
 export interface SourceHealthRepository {
   recordSourceRefreshHealth(
@@ -21,6 +22,7 @@ export interface SourceHealthRepository {
   recordSourceProbeHealth(
     request: PersistSourceProbeHealthRequest,
   ): Promise<{ probeRun: SourceProbeRunRecord; repairQueue: RepairQueueEntryRecord[] }>;
+  getIngestLaunchValidationEvidence(): Promise<IngestLaunchValidationEvidenceRecord>;
   getRecoveryReadiness(): Promise<RecoveryReadinessRecord>;
   listAdminQueueFailures(query?: AdminQueueFailureQuery): Promise<AdminQueueFailureItemRecord[]>;
   listRepairQueue(statuses?: RepairQueueStatus[]): Promise<RepairQueueEntryRecord[]>;

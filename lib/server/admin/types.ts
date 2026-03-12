@@ -2,6 +2,7 @@ import "server-only";
 
 import type { MigrationPreflightRecord } from "../../db/migration-safety";
 import type {
+  FinalLaunchValidationRecord,
   HidePublishedCatalogInput,
   HidePublishedCatalogResult,
   PublishedMediaStatus,
@@ -112,6 +113,12 @@ export interface AdminRecoveryReadinessPageRecord {
   title: string;
   description: string;
   readiness: RecoveryReadinessRecord;
+}
+
+export interface AdminFinalLaunchValidationPageRecord {
+  title: string;
+  description: string;
+  validation: FinalLaunchValidationRecord;
 }
 
 export interface AdminRepairQueueActionRequest {
@@ -321,6 +328,7 @@ export interface AdminPublishedCatalogDetailRecord {
 export interface AdminBackendDependencies {
   catalog: {
     getPublishedCatalogMigrationPreflight(): Promise<MigrationPreflightRecord>;
+    getFinalLaunchValidation(): Promise<FinalLaunchValidationRecord>;
     queryAdminPublishedCatalog(query?: AdminPublishedCatalogQuery): Promise<AdminPublishedCatalogPageRecord>;
     getAdminPublishedCatalogDetailByPublicId(publicId: string): Promise<AdminPublishedCatalogDetailRecord | null>;
     hidePublishedCatalogRecord(input: HidePublishedCatalogInput): Promise<HidePublishedCatalogResult>;

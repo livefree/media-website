@@ -1,12 +1,18 @@
 import "server-only";
 
-import { requirePrivilegedAdminAccess } from "../admin/access";
+import {
+  hasSufficientAdminRole,
+  requirePrivilegedAdminAccess,
+  resolveAdminAccessFromValues,
+} from "../admin/access";
 
 import {
   assertMigrationPreflightReady,
   getMigrationPreflightRecord,
   type MigrationPreflightRecord,
 } from "../../db/migration-safety";
+import { buildFinalLaunchValidationRecord } from "../../db/final-launch-validation";
+import { createDefaultSourceHealthRepository } from "../../db/repositories/health";
 import type {
   AdminPublishedCatalogDetailRecord,
   AdminPublishedCatalogPageRecord,
@@ -29,9 +35,16 @@ import type {
   UnpublishPublishedCatalogResult,
   PublishedWatchQuery,
   PublishedWatchRecord,
+  FinalLaunchValidationRecord,
 } from "./types";
 import { runInTransaction } from "../../db/transactions";
 import { createPublishedCatalogRepository } from "../../db/repositories/catalog";
+import type {
+  AdminQueueFailureItemRecord,
+  AdminRepairQueueItemRecord,
+  RecoveryReadinessRecord,
+} from "../health";
+import type { IngestLaunchValidationEvidenceRecord } from "../ingest/launch-validation";
 
 interface PublishedCatalogServiceDependencies {
   repository: {
@@ -56,6 +69,22 @@ interface PublishedCatalogServiceDependencies {
   };
 }
 
+interface FinalLaunchValidationServiceDependencies {
+  repository: Pick<
+    PublishedCatalogServiceDependencies["repository"],
+    "queryPublishedCatalog" | "queryAdminPublishedCatalog" | "getPublishedDetailByPublicId" | "resolvePublishedWatch"
+  >;
+  migration: {
+    getPublishedCatalogMigrationPreflight(): Promise<MigrationPreflightRecord>;
+  };
+  health: {
+    getIngestLaunchValidationEvidence(): Promise<IngestLaunchValidationEvidenceRecord>;
+    getRecoveryReadiness(): Promise<RecoveryReadinessRecord>;
+    listAdminQueueFailures(): Promise<AdminQueueFailureItemRecord[]>;
+    listAdminRepairQueue(): Promise<AdminRepairQueueItemRecord[]>;
+  };
+}
+
 async function getDefaultPublishedCatalogDependencies(): Promise<PublishedCatalogServiceDependencies> {
   const { createDefaultPublishedCatalogRepository } = await import("../../db/repositories/catalog");
   const repository = createDefaultPublishedCatalogRepository();
@@ -67,6 +96,107 @@ async function getDefaultPublishedCatalogDependencies(): Promise<PublishedCatalo
       getPublishedCatalogMigrationPreflight: () => getMigrationPreflightRecord("published_catalog_runtime"),
     },
   };
+}
+
+async function getDefaultFinalLaunchValidationDependencies(): Promise<FinalLaunchValidationServiceDependencies> {
+  const { createDefaultPublishedCatalogRepository } = await import("../../db/repositories/catalog");
+  const repository = createDefaultPublishedCatalogRepository();
+  const healthRepository = createDefaultSourceHealthRepository();
+
+  return {
+    repository,
+    migration: {
+      getPublishedCatalogMigrationPreflight: () => getMigrationPreflightRecord("published_catalog_runtime"),
+    },
+    health: {
+      getIngestLaunchValidationEvidence: () => healthRepository.getIngestLaunchValidationEvidence(),
+      getRecoveryReadiness: () => healthRepository.getRecoveryReadiness(),
+      listAdminQueueFailures: () => healthRepository.listAdminQueueFailures(),
+      listAdminRepairQueue: () => healthRepository.listAdminRepairQueue(),
+    },
+  };
+}
+
+function buildAdminAccessEvidence(access: ReturnType<typeof requirePrivilegedAdminAccess>) {
+  return {
+    currentActorId: access.actorId ?? null,
+    currentRole: access.role ?? null,
+    currentSource: access.source,
+    privilegedSessionValidated: hasSufficientAdminRole(access.role, "operator"),
+    anonymousDenied: !hasSufficientAdminRole(resolveAdminAccessFromValues({}).role, "operator"),
+    viewerDenied: !hasSufficientAdminRole(resolveAdminAccessFromValues({ envRole: "viewer" }).role, "operator"),
+    operatorAllowed: hasSufficientAdminRole(resolveAdminAccessFromValues({ envRole: "operator" }).role, "operator"),
+  };
+}
+
+function buildHealthEvidence(
+  queueFailures: AdminQueueFailureItemRecord[],
+  repairQueue: AdminRepairQueueItemRecord[],
+) {
+  return {
+    queueFailureCount: queueFailures.length,
+    failedQueueFailureCount: queueFailures.filter((item) => item.visibilityState === "failed").length,
+    retryingQueueFailureCount: queueFailures.filter((item) => item.visibilityState === "retrying").length,
+    openRepairCount: repairQueue.filter((item) => item.status === "open").length,
+    inProgressRepairCount: repairQueue.filter((item) => item.status === "in_progress").length,
+    waitingProviderRepairCount: repairQueue.filter((item) => item.status === "waiting_provider").length,
+  };
+}
+
+export async function getFinalLaunchValidation(
+  dependencies?: FinalLaunchValidationServiceDependencies,
+): Promise<FinalLaunchValidationRecord> {
+  const access = requirePrivilegedAdminAccess("operator");
+  const resolvedDependencies = dependencies ?? (await getDefaultFinalLaunchValidationDependencies());
+  const [ingestValidation, migrationPreflight, recoveryReadiness, queueFailures, repairQueue, publicPage, adminPage] =
+    await Promise.all([
+      resolvedDependencies.health.getIngestLaunchValidationEvidence(),
+      resolvedDependencies.migration.getPublishedCatalogMigrationPreflight(),
+      resolvedDependencies.health.getRecoveryReadiness(),
+      resolvedDependencies.health.listAdminQueueFailures(),
+      resolvedDependencies.health.listAdminRepairQueue(),
+      resolvedDependencies.repository.queryPublishedCatalog({
+        scope: "all",
+        page: 1,
+        pageSize: 1,
+      }),
+      resolvedDependencies.repository.queryAdminPublishedCatalog({
+        page: 1,
+        pageSize: 1,
+      }),
+    ]);
+
+  const sampleCard = publicPage.items[0] ?? null;
+  const sampleAdminItem = adminPage.items[0] ?? null;
+  const sampleMediaPublicId = sampleCard?.publicId ?? sampleAdminItem?.publicId ?? null;
+  const detail = sampleMediaPublicId
+    ? await resolvedDependencies.repository.getPublishedDetailByPublicId(sampleMediaPublicId)
+    : null;
+  const watch = sampleMediaPublicId
+    ? await resolvedDependencies.repository.resolvePublishedWatch({
+        mediaPublicId: sampleMediaPublicId,
+        episodePublicId: detail?.defaultEpisodePublicId,
+      })
+    : null;
+
+  return buildFinalLaunchValidationRecord({
+    ingestValidation,
+    migrationPreflight,
+    recoveryReadiness,
+    adminAccessEvidence: buildAdminAccessEvidence(access),
+    healthEvidence: buildHealthEvidence(queueFailures, repairQueue),
+    catalogEvidence: {
+      adminPublishedCount: adminPage.summary.totalItems,
+      publicPublishedCount: publicPage.totalItems,
+      sampleMediaPublicId,
+      sampleMediaTitle: sampleCard?.title ?? sampleAdminItem?.title ?? null,
+      sampleCanonicalWatchHref: sampleCard?.canonicalWatchHref ?? sampleAdminItem?.canonicalWatchHref ?? null,
+      sampleDetailAvailable: Boolean(detail),
+      sampleWatchAvailable: Boolean(watch),
+      sampleSourceResolutionReason: watch?.sourceResolutionReason ?? null,
+      sampleSelectedResourceHealthState: watch?.selectedResource?.healthState ?? null,
+    },
+  });
 }
 
 export async function getPublishedCatalogMigrationPreflight(

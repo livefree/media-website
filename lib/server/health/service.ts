@@ -1,5 +1,6 @@
 import "server-only";
 
+import { getFinalLaunchValidation as getCatalogFinalLaunchValidation } from "../catalog";
 import { requirePrivilegedAdminAccess } from "../admin/access";
 
 import { createDefaultSourceHealthRepository } from "../../db/repositories/health";
@@ -8,6 +9,7 @@ import type {
   AdminQueueFailureItemRecord,
   AdminQueueFailureQuery,
   AdminRepairQueueItemRecord,
+  FinalLaunchValidationRecord,
   PersistSourceProbeHealthRequest,
   PersistSourceRefreshHealthRequest,
   RecoveryReadinessRecord,
@@ -37,6 +39,11 @@ export async function listRepairQueue(statuses?: RepairQueueStatus[]): Promise<R
 export async function getRecoveryReadiness(): Promise<RecoveryReadinessRecord> {
   requirePrivilegedAdminAccess("operator");
   return createDefaultSourceHealthRepository().getRecoveryReadiness();
+}
+
+export async function getHealthFinalLaunchValidation(): Promise<FinalLaunchValidationRecord> {
+  requirePrivilegedAdminAccess("operator");
+  return getCatalogFinalLaunchValidation();
 }
 
 export async function listAdminQueueFailures(query?: AdminQueueFailureQuery): Promise<AdminQueueFailureItemRecord[]> {
