@@ -337,6 +337,11 @@ test("executeScheduledSourceProbeJob marks durable failure state when probing th
       executionTelemetry?: {
         status?: string;
         attemptCount?: number;
+        failureSignal?: {
+          severity?: string;
+          alertReady?: boolean;
+          escalationReason?: string;
+        } | null;
         failure?: {
           category?: string;
           code?: string;
@@ -349,6 +354,9 @@ test("executeScheduledSourceProbeJob marks durable failure state when probing th
   assert.equal(failureTelemetry?.attemptCount, 1);
   assert.equal(failureTelemetry?.retryState, "retryable_failure");
   assert.equal(failureTelemetry?.lastErrorSummary, "Probe transport failed.");
+  assert.equal(failureTelemetry?.failureSignal?.severity, "degraded_attention");
+  assert.equal(failureTelemetry?.failureSignal?.alertReady, false);
+  assert.equal(failureTelemetry?.failureSignal?.escalationReason, "first_retryable_failure");
   assert.equal(failureTelemetry?.failure?.category, "provider_request");
   assert.equal(failureTelemetry?.failure?.code, "provider_request_failed");
   assert.equal(failureTelemetry?.failure?.retryable, true);
@@ -390,10 +398,87 @@ test("executeScheduledSourceRefreshJob increments attempt telemetry on repeated 
   assert.equal(calls.updateIngestJobStatus[0]?.input.attemptCount, 3);
   const runningTelemetry = (
     calls.updateIngestRunStatus[0]?.input.metadata as {
-      executionTelemetry?: { attemptCount?: number; retryState?: string; lastErrorSummary?: string | null };
+      executionTelemetry?: {
+        attemptCount?: number;
+        retryState?: string;
+        lastErrorSummary?: string | null;
+        failureSignal?: {
+          severity?: string;
+          alertReady?: boolean;
+          escalationReason?: string;
+        } | null;
+      };
     }
   )?.executionTelemetry;
   assert.equal(runningTelemetry?.attemptCount, 3);
   assert.equal(runningTelemetry?.retryState, "retrying");
   assert.equal(runningTelemetry?.lastErrorSummary, "Previous refresh failed.");
+  assert.equal(runningTelemetry?.failureSignal?.severity, "retrying_noise");
+  assert.equal(runningTelemetry?.failureSignal?.alertReady, false);
+  assert.equal(runningTelemetry?.failureSignal?.escalationReason, "none");
+});
+
+test("executeScheduledSourceProbeJob escalates repeated retryable failures into alert-ready signaling", async () => {
+  const registry = createDefaultProviderRegistry();
+  const { calls, persistence, health } = createSourceJobDouble({
+    attemptCount: 1,
+    lastErrorSummary: "Previous probe transport failed.",
+  });
+  const http: ProviderHttpClient = {
+    async fetchJson() {
+      throw new Error("manifest probe should not call fetchJson.");
+    },
+    async fetchText() {
+      throw new BackendError("Probe transport still failing.", {
+        status: 503,
+        code: "provider_request_failed",
+      });
+    },
+  };
+
+  await assert.rejects(
+    () =>
+      executeScheduledSourceProbeJob(
+        persistence,
+        health,
+        registry,
+        {
+          providerKey: "jszyapi_vod_json",
+          reason: "scheduled",
+          probeKind: "manifest",
+          requestId: "req-source-job",
+          actorId: "codex",
+          target: createTarget(),
+        },
+        {
+          http,
+          now: () => new Date("2026-03-11T08:00:00.000Z"),
+        },
+      ),
+    (error: unknown) => {
+      assert.ok(error instanceof BackendError);
+      assert.equal(error.code, "provider_request_failed");
+      return true;
+    },
+  );
+
+  const failureTelemetry = (
+    calls.updateIngestRunStatus.at(-1)?.input.metadata as {
+      executionTelemetry?: {
+        attemptCount?: number;
+        retryState?: string;
+        failureSignal?: {
+          severity?: string;
+          alertReady?: boolean;
+          escalationReason?: string;
+        } | null;
+      };
+    }
+  )?.executionTelemetry;
+
+  assert.equal(failureTelemetry?.attemptCount, 2);
+  assert.equal(failureTelemetry?.retryState, "retryable_failure");
+  assert.equal(failureTelemetry?.failureSignal?.severity, "operator_action_required");
+  assert.equal(failureTelemetry?.failureSignal?.alertReady, true);
+  assert.equal(failureTelemetry?.failureSignal?.escalationReason, "repeated_retryable_failure");
 });
