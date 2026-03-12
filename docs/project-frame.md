@@ -111,6 +111,9 @@ The Coordinator is not responsible for personally designing or implementing spec
 5. `Slice 5: Publish To Public Runtime Verification`
    - status: `planned`
    - target: prove that accepted published records become visible through the public runtime without bypassing the operator workflow
+6. `Slice 6: Post-Launch Operator Guide In README`
+   - status: `planned`
+   - target: after launch-development verification is complete, add a concise backend operator workflow guide to `README.md`
 
 Any new slice must be added here before it can become active in `task.md`.
 

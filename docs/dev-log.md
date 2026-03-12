@@ -15,6 +15,7 @@ UI Shell:
 - Added the `/admin/normalized` operator workflow page with pending normalized candidate summaries, queue-for-review action, admin nav entry, and deterministic render coverage so operators can now send normalized items into `/admin/review` through the UI
 
 Coordinator:
+- Added a planned follow-up slice in the Project Frame: after launch-development validation is complete, document the backend operator workflow as a concise guide in `README.md`
 - Accepted `Operator Workflow Console / Slice 3`, promoted the project to version `0.33.0`, and advanced the active execution entry to `Launch Validation And Runtime Proof / Slice 1: Real Intake To Review Queue Validation`
 - Accepted `Operator Workflow Console / Slice 2`, promoted the project to version `0.32.0`, and advanced the active execution entry to `Operator Workflow Console / Slice 3: Workflow Landing And Cross-Surface Summary`
 - Marked `Execution Framework Reconstruction / Slice 1` complete in the Project Frame and switched the active execution entry to `Operator Workflow Console / Slice 2: Queue Entry Actions And Review Handoff`, so downstream agents now resume the operator-workflow program under the new dual-layer model
