@@ -2,6 +2,9 @@
 
 2026-03-11
 
+Planner:
+- Added the `Workstream 4 / Slice 8: Final Launch Validation` handoff in `docs/handovers/planner-workstream4-slice8-final-launch-validation.md`, defining scope, non-goals, exact agent order, required test commands, acceptance checks, and that `ui-shell` is optional unless bounded operator launch-validation presentation is required
+
 Data Catalog:
 - Implemented `Workstream 4 / Slice 7` backend support for recovery readiness and backup-restore guardrails by adding durable backup-artifact and restore-rehearsal persistence, a deterministic recovery-readiness read model with explicit `ready` / `degraded` / `blocked` states plus bounded reason codes, and privileged admin/health contracts that expose backup freshness and restore rehearsal status without direct DB inspection
 - Added deterministic backend coverage for recovery-readiness classification and the new admin recovery-readiness page contract, keeping the slice inside `lib/db/`, `lib/server/health/`, and `lib/server/admin/` without reopening public-route or broader operator-surface scope
