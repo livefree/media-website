@@ -6,6 +6,7 @@ import {
   createAdminManualSourceSubmission,
   createAdminManualTitleSubmission,
   clearAdminScheduledReviewPublication,
+  getAdminRecoveryReadinessPage,
   hideAdminPublishedCatalogRecord,
   getAdminMigrationSafetyPage,
   dismissAdminModerationReport,
@@ -34,7 +35,7 @@ import {
 } from "./service";
 
 import type { AdminBackendDependencies } from "./types";
-import type { AdminQueueFailureItemRecord, AdminRepairQueueItemRecord } from "../health";
+import type { AdminQueueFailureItemRecord, AdminRepairQueueItemRecord, RecoveryReadinessRecord } from "../health";
 import type { AdminSourceInventoryItemRecord, ManualSourceSubmissionDetailRecord, ManualSourceSubmissionRecord } from "../source";
 import type { ManualTitleSubmissionDetailRecord, ManualTitleSubmissionRecord, ModerationReportDetailRecord, ModerationReportRecord } from "../review";
 import type {
@@ -533,6 +534,7 @@ function createManualSourceSubmissionDetail(
 function createDependencies() {
   const calls = {
     getPublishedCatalogMigrationPreflight: 0,
+    getRecoveryReadiness: 0,
     queryAdminPublishedCatalog: [] as Array<Record<string, unknown> | undefined>,
     getAdminPublishedCatalogDetailByPublicId: [] as string[],
     unpublishPublishedCatalogRecord: [] as Array<Record<string, unknown>>,
@@ -998,6 +1000,47 @@ function createDependencies() {
           resolvedAt: input.status === "resolved" ? new Date("2026-03-11T12:00:00.000Z") : null,
         });
       },
+      async getRecoveryReadiness(): Promise<RecoveryReadinessRecord> {
+        calls.getRecoveryReadiness += 1;
+        return {
+          state: "degraded",
+          reasonCode: "backup_stale",
+          summary: "Recovery readiness is degraded. The latest recorded backup artifact is stale.",
+          checkedAt: new Date("2026-03-11T12:00:00.000Z"),
+          policy: {
+            backupMaxAgeHours: 48,
+            restoreMaxAgeHours: 336,
+          },
+          backupArtifact: {
+            id: "backup-1",
+            artifactKey: "backup-2026-03-08",
+            summary: "Nightly backup completed.",
+            artifactRef: "backups/2026-03-08/atlas.dump",
+            coverageScope: "catalog_runtime",
+            completedAt: new Date("2026-03-08T11:00:00.000Z"),
+            expiresAt: new Date("2026-03-15T11:00:00.000Z"),
+            metadata: {
+              objectCount: 42,
+            },
+          },
+          latestRestoreRehearsal: {
+            id: "restore-1",
+            backupArtifactId: "backup-1",
+            status: "succeeded",
+            summary: "Restore rehearsal completed successfully.",
+            notes: null,
+            actorId: "operator-1",
+            requestId: "restore-1",
+            rehearsedAt: new Date("2026-03-10T10:00:00.000Z"),
+            metadata: {
+              restoredRows: 42,
+            },
+          },
+          contributingReasonCodes: ["backup_stale"],
+          backupAgeHours: 73,
+          restoreAgeHours: 26,
+        };
+      },
     },
   };
 
@@ -1053,6 +1096,18 @@ test("getAdminMigrationSafetyPage exposes privileged migration preflight visibil
   assert.equal(page.preflight.status, "ready");
   assert.equal(page.preflight.metadata?.rolloutState, "ready");
   assert.equal(page.preflight.metadata?.metadata?.rolloutTicket, "ops-123");
+});
+
+test("getAdminRecoveryReadinessPage exposes bounded operator recovery state without DB inspection", async () => {
+  const { calls, dependencies } = createDependencies();
+  const page = await getAdminRecoveryReadinessPage(dependencies);
+
+  assert.equal(calls.getRecoveryReadiness, 1);
+  assert.equal(page.title, "Recovery Readiness");
+  assert.equal(page.readiness.state, "degraded");
+  assert.equal(page.readiness.reasonCode, "backup_stale");
+  assert.equal(page.readiness.backupArtifact?.artifactKey, "backup-2026-03-08");
+  assert.equal(page.readiness.latestRestoreRehearsal?.status, "succeeded");
 });
 
 test("getAdminPublishedCatalogManagementDetailByPublicId returns operator detail or null", async () => {

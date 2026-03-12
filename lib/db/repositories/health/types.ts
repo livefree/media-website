@@ -6,6 +6,7 @@ import type {
   AdminRepairQueueItemRecord,
   PersistSourceProbeHealthRequest,
   PersistSourceRefreshHealthRequest,
+  RecoveryReadinessRecord,
   RepairQueueQuery,
   RepairQueueEntryRecord,
   RepairQueueStatusUpdateInput,
@@ -20,6 +21,7 @@ export interface SourceHealthRepository {
   recordSourceProbeHealth(
     request: PersistSourceProbeHealthRequest,
   ): Promise<{ probeRun: SourceProbeRunRecord; repairQueue: RepairQueueEntryRecord[] }>;
+  getRecoveryReadiness(): Promise<RecoveryReadinessRecord>;
   listAdminQueueFailures(query?: AdminQueueFailureQuery): Promise<AdminQueueFailureItemRecord[]>;
   listRepairQueue(statuses?: RepairQueueStatus[]): Promise<RepairQueueEntryRecord[]>;
   listAdminRepairQueue(query?: RepairQueueQuery): Promise<AdminRepairQueueItemRecord[]>;

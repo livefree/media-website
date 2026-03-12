@@ -7,6 +7,7 @@ import type {
   AdminBackendDependencies,
   AdminMigrationSafetyPageRecord,
   AdminQueueFailureMonitoringPageRecord,
+  AdminRecoveryReadinessPageRecord,
   AdminManualSourceSubmissionPageRecord,
   AdminManualTitleSubmissionPageRecord,
   AdminModerationActionRequest,
@@ -82,6 +83,7 @@ async function getDefaultAdminDependencies(): Promise<AdminBackendDependencies> 
       updateManualSourceSubmissionStatus: source.updateManualSourceSubmissionStatus,
     },
     health: {
+      getRecoveryReadiness: health.getRecoveryReadiness,
       listAdminQueueFailures: health.listAdminQueueFailures,
       listAdminRepairQueue: health.listAdminRepairQueue,
       updateRepairQueueEntryStatus: health.updateRepairQueueEntryStatus,
@@ -109,6 +111,20 @@ export async function getAdminMigrationSafetyPage(
     title: "Migration Safety",
     description: "Privileged rollout guardrail state for the published catalog runtime.",
     preflight,
+  };
+}
+
+export async function getAdminRecoveryReadinessPage(
+  dependencies?: AdminBackendDependencies,
+): Promise<AdminRecoveryReadinessPageRecord> {
+  requirePrivilegedAdminAccess("operator");
+  const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
+  const readiness = await resolvedDependencies.health.getRecoveryReadiness();
+
+  return {
+    title: "Recovery Readiness",
+    description: "Operator recovery guardrail state for backup freshness and restore rehearsal health.",
+    readiness,
   };
 }
 

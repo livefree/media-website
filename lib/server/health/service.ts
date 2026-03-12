@@ -10,6 +10,7 @@ import type {
   AdminRepairQueueItemRecord,
   PersistSourceProbeHealthRequest,
   PersistSourceRefreshHealthRequest,
+  RecoveryReadinessRecord,
   RepairQueueQuery,
   RepairQueueEntryRecord,
   RepairQueueStatusUpdateInput,
@@ -31,6 +32,11 @@ export async function persistSourceProbeHealth(
 
 export async function listRepairQueue(statuses?: RepairQueueStatus[]): Promise<RepairQueueEntryRecord[]> {
   return createDefaultSourceHealthRepository().listRepairQueue(statuses);
+}
+
+export async function getRecoveryReadiness(): Promise<RecoveryReadinessRecord> {
+  requirePrivilegedAdminAccess("operator");
+  return createDefaultSourceHealthRepository().getRecoveryReadiness();
 }
 
 export async function listAdminQueueFailures(query?: AdminQueueFailureQuery): Promise<AdminQueueFailureItemRecord[]> {
