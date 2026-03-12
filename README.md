@@ -1,6 +1,6 @@
 # Media Catalog Demo (Codex Multi-Agent Project)
 
-Current project version: `0.31.0`
+Current project version: `0.31.1`
 
 This project started as a front-end information-architecture recreation of a media catalog website and is now moving into a backend-first aggregation phase using Codex with a multi-agent workflow.
 
@@ -9,6 +9,8 @@ The active direction is no longer just shell replication. The next milestone is 
 Versioning follows the project rules in [docs/versioning.md](/Users/livefree/projects/media-website-v2/docs/versioning.md).
 
 Backend delivery and completion workflow is tracked in [docs/backend-delivery-workflow.md](/Users/livefree/projects/media-website-v2/docs/backend-delivery-workflow.md).
+
+Persistent project execution state now lives in [docs/project-frame.md](/Users/livefree/projects/media-website-v2/docs/project-frame.md), while the active slice lives in [task.md](/Users/livefree/projects/media-website-v2/task.md).
 
 ## Goals
 
@@ -152,8 +154,8 @@ flowchart TD
 
 ## Coordinator Workflow
 
-1. Read `task.md`
-2. Update `docs/roadmap.md`
+1. Read [docs/project-frame.md](/Users/livefree/projects/media-website-v2/docs/project-frame.md) for persistent project state
+2. Read [task.md](/Users/livefree/projects/media-website-v2/task.md) for the active slice
 3. Assign tasks to sub-agents inside the Coordinator thread
 4. Require each agent to branch from the latest `main`
 5. Let each agent commit within its ownership scope

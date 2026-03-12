@@ -2,13 +2,22 @@
 
 Status: tracked backend delivery workflow complete under the agreed scope.
 
+This document is now a historical backend-program record plus a fixed delivery rulebook.
+
+Execution now uses a two-layer model:
+
+- [docs/project-frame.md](/Users/livefree/projects/media-website-v2/docs/project-frame.md) for persistent program state, workstreams, blockers, launch criteria, and approved slice queue
+- [task.md](/Users/livefree/projects/media-website-v2/task.md) for the active slice only
+
+This file should not be used as the live current-slice tracker.
+
 This document answers three questions:
 
 1. How far the project is from the target described in `reference-assets/backend.md`
 2. What is already complete after Rounds A-F
 3. What fixed workflow must be used from the current state to the final backend target
 
-This file is the maintained execution guide. It exists so later work does not drift into temporary or ad hoc process.
+This file remains the maintained backend execution guide. It exists so later work does not drift into temporary or ad hoc process.
 
 ## 1. Current Position
 
@@ -33,7 +42,7 @@ The current accepted platform baseline includes:
 
 Current version baseline:
 
-- `0.31.0`
+- `0.31.1`
 
 ## Naming Convention
 
@@ -257,7 +266,7 @@ The currently active slice should always be read from [task.md](/Users/livefree/
 
 With Workstreams 1, 2, and 3 accepted plus Workstream 4 / Slices 1-8 accepted, the fixed tracked backend queue is exhausted.
 
-No new backend work packages should be treated as automatic continuation of this queue unless tracked docs are explicitly reopened.
+No new backend work packages should be treated as automatic continuation of this queue unless tracked docs are explicitly reopened through the Project Frame and an active slice is set in `task.md`.
 
 ## 9. Launch Gate
 

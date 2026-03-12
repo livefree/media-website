@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.31.0`
+Current version: `0.31.1`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.31.0` an appropriate current milestone: the tracked backend program is now closed with the final readiness sweep accepted. Under the documented scope, the backend is considered operator-ready, with the remaining residual items explicitly out of tracked scope rather than still sitting in the active backend queue.
+That makes `0.31.1` an appropriate current milestone: the tracked backend program remains closed with the final readiness sweep accepted, and the execution framework has now been tightened so persistent project state lives in `docs/project-frame.md` while `task.md` is reduced to the active slice contract. Under the documented scope, the backend is considered operator-ready, with the remaining residual items explicitly out of the closed backend queue.
 
 ## Rules
 
@@ -76,7 +76,7 @@ That makes `0.31.0` an appropriate current milestone: the tracked backend progra
 - `0.30.x`
   Current baseline with final launch validation accepted: operators can now inspect explicit backend launch state, per-domain validation outcomes, and blocking/degraded reasons on a bounded admin surface before the final readiness sweep.
 - `0.31.x`
-  Current baseline with the tracked backend delivery queue closed: the final readiness sweep is accepted and the backend is documented as operator-ready under the agreed scope, while broader post-launch items remain explicitly out of scope.
+  Current baseline with the tracked backend delivery queue closed: the final readiness sweep is accepted, the backend is documented as operator-ready under the agreed scope, and execution now uses a two-layer Project Frame plus active-slice model instead of mixing persistent program state into `task.md`.
 - `1.0.0`
   First production-ready launch baseline.
 

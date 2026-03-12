@@ -4,6 +4,8 @@ Defines how Codex agents collaborate in this repository.
 
 ## Agent Roles
 
+The role definitions below are authoritative. Each agent must keep a single primary responsibility and should not absorb adjacent responsibilities just because context is available.
+
 Coordinator
 
 - Owns task definition, agent sequencing, merge order, and acceptance flow
@@ -67,6 +69,30 @@ Reviewer
 Backend-phase reinterpretation:
 - Expands into backend workflow acceptance, including staging isolation, review/publish rules, schema/contract drift, source health fallback behavior, and admin-flow acceptance
 
+## Execution Framework
+
+Project execution uses two layers only:
+
+1. `Project Frame / Master Plan`
+   - persistent project state
+   - active stage
+   - approved workstreams
+   - target states
+   - blockers
+   - launch criteria
+   - approved slice queue
+   - source of truth: `docs/project-frame.md`
+2. `Current Slice Execution`
+   - active slice only
+   - inputs
+   - outputs
+   - acceptance checklist
+   - non-goals
+   - completion recording
+   - source of truth: `task.md`
+
+`task.md` is the sole execution entry for current work. Long-lived context must live in `docs/project-frame.md`, not inside `task.md`.
+
 ## File Ownership
 
 UI Shell
@@ -108,7 +134,7 @@ Reviewer
 - Agents should not modify files owned by other agents unless required.
 - Each task should document changes in docs/dev-log.md.
 - Coordinator decides merge order.
-- Coordinator defines the active task in `task.md` before downstream implementation begins when the work introduces a new refinement round or acceptance checklist.
+- Coordinator defines the active slice in `task.md` before downstream implementation begins.
 - All module agents are coordinated as sub-agents under the Coordinator thread by default. Users do not need to manage separate agent threads for Planner, UI Shell, Data Catalog, Media Ingest, Search Filter, Detail Player, or Reviewer.
 - Agents may use git directly during execution for branch, status, staging, and commit workflows within their assigned scope.
 - All agent branches must be cut from the latest Coordinator integration branch, not from stale personal branches.
@@ -120,6 +146,25 @@ Reviewer
 - Coordinator may inspect status, branches, and handoffs, but must not patch specialist-owned runtime defects directly.
 - If reviewer runtime validation cannot be completed, the candidate must remain unmerged and cannot be represented as accepted.
 - User visual/interaction review is authoritative for UI acceptance; a user-rejected candidate must be treated as failed and moved into a new refinement round instead of being argued from code inspection.
+- Coordinator should function as dispatcher, synthesizer, and final decision-maker. Coordinator should not expand into universal design or implementation ownership when a specialist scope exists.
+- New work must be framed as a slice that can be completed in one continuous execution chain. If a task cannot plausibly finish in one chain, Coordinator must split it before dispatch.
+- `task.md` must use executable checklist items, not narrative-only acceptance prose.
+
+## Stop / Ask-User Rule
+
+Agents may stop and ask the user only when all of the following are true:
+
+1. the active slice checklist cannot be completed from existing docs, code, or local environment
+2. the blocker cannot be cleared autonomously inside the owning agent scope
+3. two attempts to resolve the blocker have already failed for environmental or contradictory-requirement reasons
+
+If those conditions are not all true, agents must continue execution.
+
+When a real blocker does occur:
+
+- Coordinator records it in `docs/dev-log.md`
+- the active slice stays active in `task.md`
+- no downstream agent should be dispatched as if the blocked slice were complete
 
 Skill boundaries for interactive player work:
 - Planner defines scope, acceptance criteria, and validation sequence only.
@@ -248,6 +293,11 @@ Active backend execution must now use only:
 
 Do not invent new top-level naming systems beyond those two.
 
+Backend execution context now follows the two-layer model:
+
+- `docs/project-frame.md` holds the master plan and approved slice queue
+- `task.md` holds only the active slice contract
+
 Backend-phase workflow rules:
 
 - Every external provider must enter through an adapter owned by `media-ingest`
@@ -261,7 +311,7 @@ Backend-phase workflow rules:
 
 Current project version:
 
-`0.31.0`
+`0.31.1`
 
 Versioning model:
 
