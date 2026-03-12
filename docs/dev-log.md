@@ -8,6 +8,9 @@ Planner:
 Data Catalog:
 - Implemented the Slice 2 backend contracts: `listPendingNormalizedCandidates` now lives in [lib/db/repositories/normalization/index.ts](/Users/livefree/projects/media-website-v2/lib/db/repositories/normalization/index.ts), admin services expose pending candidates plus the queue action in [lib/server/admin/service.ts](/Users/livefree/projects/media-website-v2/lib/server/admin/service.ts) with tests, and `listPendingNormalizedCandidates` is surfaced from [lib/server/review/service.ts](/Users/livefree/projects/media-website-v2/lib/server/review/service.ts). Verified with `node --import ./scripts/register-server-only-loader.mjs --experimental-strip-types --test lib/server/admin/service.test.ts` and `npm run build`.
 
+UI Shell:
+- Added the `/admin/normalized` operator workflow page with pending normalized candidate summaries, queue-for-review action, admin nav entry, and deterministic render coverage so operators can now send normalized items into `/admin/review` through the UI
+
 Coordinator:
 - Marked `Execution Framework Reconstruction / Slice 1` complete in the Project Frame and switched the active execution entry to `Operator Workflow Console / Slice 2: Queue Entry Actions And Review Handoff`, so downstream agents now resume the operator-workflow program under the new dual-layer model
 - Reconstructed the execution workflow into a two-layer model by adding [docs/project-frame.md](/Users/livefree/projects/media-website-v2/docs/project-frame.md), shrinking [task.md](/Users/livefree/projects/media-website-v2/task.md) to the active-slice contract only, tightening the stop/ask-user rule in [AGENTS.md](/Users/livefree/projects/media-website-v2/AGENTS.md), and updating execution/versioning docs so persistent program state no longer drifts across multiple files

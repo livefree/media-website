@@ -44,6 +44,11 @@ const sections = [
     label: "Moderation",
   },
   {
+    href: "/admin/normalized",
+    id: "pending-normalized",
+    label: "Pending normalized",
+  },
+  {
     href: "/admin/manual-titles",
     id: "manual-titles",
     label: "Manual titles",
@@ -67,6 +72,7 @@ export function AdminOperatorNav({
     | "recovery-readiness"
     | "review"
     | "moderation"
+    | "pending-normalized"
     | "manual-titles"
     | "manual-sources";
 }) {
