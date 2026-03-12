@@ -43,6 +43,7 @@ Scope for this round:
 - Current active slice: `Workstream 2 / Slice 3: Source And Catalog Lifecycle Mutations`
 - This slice is mapped to the remaining `reorder / replace / unpublish operations` portion of the Workstream 2 exit gate in `docs/backend-delivery-workflow.md` and `docs/roadmap.md`
 - Current refinement status: planner, backend, and admin UI implementation are integrated locally for this slice, and reviewer has confirmed the backend-backed reorder / replace / unpublish workflows are real; the only open follow-up is the planner-required deterministic UI coverage for the rendered operator mutation entry points and their narrow result-state wiring on `/admin/catalog/[publicId]`
+- Current refinement status: planner, backend, and admin UI implementation are integrated locally for this slice, and reviewer has confirmed the backend-backed reorder / replace / unpublish workflows are real; helper/view-model coverage has been strengthened, but the slice is still blocked on deterministic rendered-surface coverage for the actual reorder / replace / unpublish controls and their visible result-state wiring on `/admin/catalog/[publicId]`
 - Owned surfaces:
   - Planner: architecture, roadmap alignment, round-specific handoff docs
   - Data Catalog: `lib/db/`, `lib/server/catalog/`, `lib/server/source/`, `lib/server/admin/`, and schema support required for operator lifecycle actions in this slice
@@ -69,6 +70,7 @@ Current user-requested improvement to implement:
 5. Keep documenting accepted backend milestones, testing coverage, and version bumps as the queue advances
 6. Continue through the remaining operator-control, governance, and hardening slices until the backend reaches an operator-ready state or a real blocker occurs
 7. For the current slice, close the reviewer-held gap by adding deterministic UI coverage for the actual admin mutation entry points before treating the slice as accepted
+8. The current follow-up must cover the rendered admin detail surface itself, not only helper/view-model functions
 
 Current baseline:
 - Round A monolith foundations are present under `lib/server/` and `lib/db/`
