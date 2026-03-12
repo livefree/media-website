@@ -18,3 +18,4 @@ export * from "./sync-scheduler";
 export * from "./sync-orchestration";
 export * from "./source-jobs";
 export * from "./worker";
+export * from "./launch-validation";
