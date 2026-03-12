@@ -6,6 +6,7 @@ Planner:
 - Added the `Operator Workflow Console / Slice 2` handoff in [docs/handovers/planner-operator-workflow-console-slice2.md](/Users/livefree/projects/media-website-v2/docs/handovers/planner-operator-workflow-console-slice2.md), defining the normalized-to-review gap, ownership boundaries, acceptance checklist, execution order, test/build requirements, and how the resulting contracts feed Slice 3
 
 Coordinator:
+- Marked `Execution Framework Reconstruction / Slice 1` complete in the Project Frame and switched the active execution entry to `Operator Workflow Console / Slice 2: Queue Entry Actions And Review Handoff`, so downstream agents now resume the operator-workflow program under the new dual-layer model
 - Reconstructed the execution workflow into a two-layer model by adding [docs/project-frame.md](/Users/livefree/projects/media-website-v2/docs/project-frame.md), shrinking [task.md](/Users/livefree/projects/media-website-v2/task.md) to the active-slice contract only, tightening the stop/ask-user rule in [AGENTS.md](/Users/livefree/projects/media-website-v2/AGENTS.md), and updating execution/versioning docs so persistent program state no longer drifts across multiple files
 
 Reviewer:

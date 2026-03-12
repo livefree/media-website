@@ -11,11 +11,11 @@ Persistent program context lives in:
 
 ## Active Slice
 
-`Execution Framework Reconstruction / Slice 1: Dual-Layer Execution Model`
+`Operator Workflow Console / Slice 2: Queue Entry Actions And Review Handoff`
 
 ## Why This Slice Exists
 
-The project has accepted backend foundations, but the execution framework still mixes persistent project state with active-slice state. This slice exists to make the workflow lower-overhead and more deterministic before the next operator-facing program resumes.
+The backend is accepted as operator-ready and the execution framework has been normalized, but operators still cannot see or perform the transition from normalized candidates into the review queue. This slice exists to make that handoff visible and operator-actionable.
 
 ## Inputs
 
@@ -24,36 +24,38 @@ The project has accepted backend foundations, but the execution framework still 
 - [docs/roadmap.md](/Users/livefree/projects/media-website-v2/docs/roadmap.md)
 - [docs/architecture.md](/Users/livefree/projects/media-website-v2/docs/architecture.md)
 - [docs/backend-delivery-workflow.md](/Users/livefree/projects/media-website-v2/docs/backend-delivery-workflow.md)
-- current coordination docs and handover indexing rules
-- planner handoff for this slice:
-  [docs/handovers/planner-execution-framework-reconstruction.md](/Users/livefree/projects/media-website-v2/docs/handovers/planner-execution-framework-reconstruction.md)
+- existing backend contracts for ingest, normalization, review, admin catalog, source health, and launch validation
+- current admin routes and their current empty/opaque workflow gaps
+- planner handoff for this slice: `to be added before implementation`
 
 ## Outputs
 
-- `docs/project-frame.md` as the persistent master-plan layer
-- reduced `task.md` that contains only the active slice contract
-- tightened stop/ask rule and coordinator-scope rules in coordination docs
+- operator-visible entry points for normalized candidates before review
+- explicit operator action to queue normalized candidates for review
+- coherent linkage from normalized state into `/admin/review`
 - reviewer acceptance or findings document for this slice
 - `docs/dev-log.md` entry recording scope and outcome
 
 ## Ownership And Order
 
 1. Coordinator aligns this slice to the Project Frame and dispatches in order.
-2. Planner defines scope, checklist, and non-goals.
-3. Reviewer validates that the workflow changes do not alter backend architecture or system design.
-4. Coordinator merges only after reviewer acceptance.
+2. Planner defines scope, checklist, ownership boundaries, and non-goals.
+3. Media Ingest implements only ingest-side visibility or intake support required by the slice.
+4. Data Catalog implements backend read models, queueing contracts, and admin-service support required by the slice.
+5. UI Shell implements the operator-facing admin workflow surfaces and navigation.
+6. Reviewer validates the slice against the checklist and confirms no architecture drift.
+7. Coordinator merges only after reviewer acceptance.
 
 ## Acceptance Checklist
 
 - [ ] Docs aligned: Project Frame, roadmap, architecture, and backend workflow checked before implementation
 - [ ] Handoff published: planner handoff exists for this slice
 - [ ] Ownership respected: each agent changes only its owned files
-- [ ] Artifact delivered: `docs/project-frame.md` defines product goal, current stage, workstreams, blockers, milestones, launch criteria, and approved slice queue
-- [ ] Artifact delivered: `task.md` contains current slice only and no longer carries full historical program state
-- [ ] Artifact delivered: stop/ask-user rule is explicit and strict in coordination docs
-- [ ] Artifact delivered: coordinator role is limited to dispatch + synthesis + merge decision in coordination docs
-- [ ] Artifact delivered: acceptance criteria are expressed as executable checklist items
-- [ ] Tests/checks run and recorded as appropriate for docs/process work
+- [ ] Artifact delivered: operators can see normalized candidates that are not yet in review
+- [ ] Artifact delivered: operators have a bounded action to queue a normalized candidate for review
+- [ ] Artifact delivered: after queueing, the handoff into `/admin/review` is visible and coherent
+- [ ] Artifact delivered: workflow visibility uses tracked backend contracts, not route-local ad hoc state
+- [ ] Tests/builds run and recorded by implementing agents
 - [ ] Reviewer acceptance recorded before merge
 - [ ] Dev-log updated
 - [ ] Version decision recorded by Coordinator
@@ -62,8 +64,10 @@ The project has accepted backend foundations, but the execution framework still 
 
 - no backend architecture changes
 - no system design changes
-- no runtime feature work
-- no public/admin UI expansion in this slice
+- no public-route redesign
+- no player work
+- no broad auth/session expansion
+- no new top-level workflow naming system
 - no ad hoc roadmap expansion
 
 ## Stop / Ask-User Rule For This Slice
