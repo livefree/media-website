@@ -12,6 +12,8 @@ Reviewer:
 - Accepted Workstream 3 / Slice 2 on code/test/build review: bounded future publish scheduling, schedule clearing, hidden/restored published visibility, and visibility-gated public serving now flow through tracked review/catalog/admin boundaries with deterministic rendered admin coverage on `/admin/review/[queueEntryId]` and `/admin/catalog/[publicId]`
 
 Coordinator:
+- Promoted the accepted Workstream 4 / Slice 7 hardening milestone to version `0.29.0`
+- Switched the active task from accepted `Workstream 4 / Slice 7` into `Workstream 4 / Slice 8: Final Launch Validation`, keeping the fixed backend queue intact as the final remaining hardening slice before the readiness sweep
 - Promoted the accepted Workstream 4 / Slice 6 hardening milestone to version `0.28.0`
 - Switched the active task from accepted `Workstream 4 / Slice 6` into `Workstream 4 / Slice 7: Recovery Readiness And Backup-Restore Guardrails`, keeping the fixed backend queue intact as the next remaining hardening slice
 

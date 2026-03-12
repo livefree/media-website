@@ -33,7 +33,7 @@ The current accepted platform baseline includes:
 
 Current version baseline:
 
-- `0.28.0`
+- `0.29.0`
 
 ## Naming Convention
 
@@ -51,9 +51,9 @@ Measured against `reference-assets/backend.md`, the architecture foundation is n
 The easiest way to think about the gap is:
 
 - architecture and data-flow foundation: largely in place
-- operator control plane: still incomplete
-- real provider operation: still incomplete
-- production hardening: still incomplete
+- operator control plane: complete within the tracked backend scope
+- real provider operation: one-provider lane operational, broader coverage still incomplete
+- production hardening: final validation still incomplete
 
 ### Completed or largely established
 
@@ -71,19 +71,16 @@ The easiest way to think about the gap is:
   - contracts and ingest boundaries exist
   - one provider lane is now operational, but broader provider coverage and production worker deployment remain incomplete
 - admin operations
-  - review UI, published catalog UI, source inventory UI, repair queue UI, and moderation/manual-submission flows now exist
-  - lifecycle mutations and some operator-control completions still remain
+  - review UI, published catalog UI, source inventory UI, repair queue UI, moderation/manual-submission flows, and lifecycle mutations now exist
+  - broader post-launch control-plane expansion may still remain, but the tracked operator-control slices are accepted
 - source maintenance
-  - health state and repair queue exist in backend form
-  - full operator workflows around replacement and retirement still remain
+  - health state, repair queue, and bounded lifecycle workflows exist in backend form
+  - broader production policy automation may still remain beyond the tracked backend scope
 
 ### Not complete
 
-- full admin control plane
 - broader provider coverage and production worker deployment model
-- observability, metrics, alerts, and queue visibility
-- RBAC / auth hardening for admin operations
-- backup, restore, migration safety, and production readiness
+- final launch validation and operator-ready exit confirmation
 
 ## 3. Completion Assessment
 
@@ -99,10 +96,9 @@ The project is now past the "prototype backend" stage, but not yet at the "opera
 
 The remaining work is concentrated in:
 
-1. operator/admin control plane completion
-2. governance completion
-3. observability, security, and launch hardening
-4. broader provider coverage beyond the first operational lane
+1. final launch-validation hardening
+2. operator-ready backend readiness confirmation
+3. broader provider coverage beyond the first operational lane after the tracked backend target is closed
 
 ## 4. Non-Ad-Hoc Delivery Rule
 
@@ -192,82 +188,25 @@ Use:
 
 ## 7. Remaining Program Of Work
 
-The remaining path to the backend target should now be run as four fixed workstreams.
+The remaining path to the backend target should now be run as the final hardening slice plus a readiness sweep.
 
-### Workstream 1: Make provider intake operational
+### Final remaining queue
 
-Mapped to:
+Accepted to date:
 
-- completion hardening of roadmap Phases 2 and 6
+- Workstream 1 exit gate complete
+- Workstream 2 exit gate complete
+- Workstream 3 exit gate complete
+- Workstream 4 / Slices 1-7 accepted
 
-Deliverables:
+Remaining deliverables:
 
-- real provider adapters for target providers
-- incremental and backfill job execution
-- throttling, retry, checkpoint, and resumability
-- scheduled refresh and source probe jobs
-- Redis-backed or equivalent operational worker execution
-
-Exit gate:
-
-- the system can continuously ingest and refresh provider data without manual scripts
-
-### Workstream 2: Build the operator control plane
-
-Mapped to:
-
-- roadmap Phase 7
-
-Deliverables:
-
-- review queue management
-- published catalog management
-- source inventory management
-- repair queue management
-- reorder / replace / unpublish operations
-- manual title creation and manual source submission
+1. `Workstream 4 / Slice 8: Final Launch Validation`
+2. Final backend readiness sweep against `docs/backend-spec.md`, `docs/roadmap.md`, and this workflow
 
 Exit gate:
 
-- operators no longer need direct DB edits for core catalog and source workflows
-
-### Workstream 3: Add moderation and content governance
-
-Mapped to:
-
-- roadmap Phase 7
-
-Deliverables:
-
-- broken-source report handling
-- moderation queue
-- visibility control
-- publish scheduling
-- audit-friendly operator actions
-
-Exit gate:
-
-- editor and moderator responsibilities are executable inside the product
-
-### Workstream 4: Production hardening
-
-Mapped to:
-
-- roadmap Phase 8
-
-Deliverables:
-
-- structured logging
-- metrics and alerts
-- queue failure monitoring
-- provider failure visibility
-- RBAC / auth hardening
-- backup and restore procedures
-- migration safety
-- end-to-end validation across ingest -> normalize -> review -> publish -> watch -> healthcheck
-
-Exit gate:
-
+- the backend is operator-ready under the tracked scope, with final launch-validation coverage and a documented readiness decision
 - the system can run as an operated production backend instead of a development-stage backend
 
 ## 8. Immediate Next Planned Sequence
@@ -308,6 +247,8 @@ The accepted execution baseline now includes:
 - Workstream 4 / Slice 3
 - Workstream 4 / Slice 4
 - Workstream 4 / Slice 5
+- Workstream 4 / Slice 6
+- Workstream 4 / Slice 7
 - Workstream 2 / Slice 3
 - Workstream 3 / Slice 2
 
@@ -315,13 +256,11 @@ The currently active slice should always be read from [task.md](/Users/livefree/
 
 ## 8B. Current Queue After Workstream 1 Exit Gate
 
-With Workstreams 1, 2, and 3 now accepted, the fixed remaining queue is:
+With Workstreams 1, 2, and 3 accepted plus Workstream 4 / Slices 1-7 accepted, the fixed remaining queue is:
 
-1. Workstream 4 / Slice 7
-   recovery readiness and backup/restore guardrails needed to close the operational hardening gap beyond migration safety
-2. Workstream 4 / Slice 8
+1. Workstream 4 / Slice 8
    final launch-validation follow-up needed to confirm the backend can be operated end to end without direct DB intervention
-3. Final backend readiness sweep
+2. Final backend readiness sweep
    reconcile accepted slices against `docs/backend-spec.md` and confirm the operator-ready exit gate
 
 No new backend work packages should skip ahead of this queue unless tracked docs are updated first.

@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.28.0`
+Current version: `0.29.0`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.28.0` an appropriate current milestone: the platform now converts queue-failure telemetry into an alert-ready operator signal, with explicit severity, escalation reason, privileged queue-failure presentation, and deterministic render coverage in place, while recovery-readiness and final launch-validation hardening still remain unfinished.
+That makes `0.29.0` an appropriate current milestone: the platform now exposes bounded recovery-readiness and backup/restore guardrails through explicit `ready` / `degraded` / `blocked` operator state, backup freshness, and restore-rehearsal visibility, while final launch-validation hardening still remains unfinished.
 
 ## Rules
 
@@ -71,6 +71,8 @@ That makes `0.28.0` an appropriate current milestone: the platform now converts 
   Baseline with the Workstream 3 governance exit gate closed: moderation/manual-submission workflows plus publish scheduling and visibility control are now executable through bounded admin and review/catalog workflows without direct database edits.
 - `0.28.x`
   Current baseline with alert-ready provider/job failure signaling in place: operators can now distinguish retrying noise from degraded or operator-action-required failures through bounded ingest/health/admin contracts and deterministic `/admin/queue-failures` coverage.
+- `0.29.x`
+  Current baseline with bounded recovery-readiness and backup/restore guardrails in place: operators can now assess backup freshness, restore rehearsal status, and explicit `ready` / `degraded` / `blocked` recovery state through deterministic admin coverage without direct database inspection.
 - `1.0.0`
   First production-ready launch baseline.
 

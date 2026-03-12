@@ -162,7 +162,7 @@ Rules:
 - Each agent commits only files within its ownership scope
 - Each agent should make small, task-scoped commits with clear messages
 - Agents must not rewrite history, force-push, or modify another agent's branch unless explicitly directed by the Coordinator
-- Accepted work should be integrated back into `codex/coordinator-baseline` before the next dependent agent starts
+- Accepted work should be integrated back into `main` before the next dependent agent starts
 - Agents should not continue new task work on top of an outdated branch after the integration branch has moved
 - Coordinator decides merge order
 - Merge order usually follows:
@@ -261,7 +261,7 @@ Backend-phase workflow rules:
 
 Current project version:
 
-`0.28.0`
+`0.29.0`
 
 Versioning model:
 
