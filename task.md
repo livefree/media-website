@@ -11,11 +11,11 @@ Persistent program context lives in:
 
 ## Active Slice
 
-`Operator Workflow Console / Slice 2: Queue Entry Actions And Review Handoff`
+`Operator Workflow Console / Slice 3: Workflow Landing And Cross-Surface Summary`
 
 ## Why This Slice Exists
 
-The backend is accepted as operator-ready and the execution framework has been normalized, but operators still cannot see or perform the transition from normalized candidates into the review queue. This slice exists to make that handoff visible and operator-actionable.
+Operators can now see pending normalized candidates and queue them into review, but the operator workflow is still fragmented across separate admin pages. This slice exists to provide one landing view that summarizes the current pipeline state and gives operators coherent links into intake, review, catalog, source health, and launch validation.
 
 ## Inputs
 
@@ -24,15 +24,15 @@ The backend is accepted as operator-ready and the execution framework has been n
 - [docs/roadmap.md](/Users/livefree/projects/media-website-v2/docs/roadmap.md)
 - [docs/architecture.md](/Users/livefree/projects/media-website-v2/docs/architecture.md)
 - [docs/backend-delivery-workflow.md](/Users/livefree/projects/media-website-v2/docs/backend-delivery-workflow.md)
-- existing backend contracts for ingest, normalization, review, admin catalog, source health, and launch validation
-- current admin routes and their current empty/opaque workflow gaps
+- accepted Slice 2 backend and UI contracts for pending normalized candidates and review handoff
+- existing admin routes for review, catalog, sources, repair, queue failures, recovery readiness, and final launch validation
 - planner handoff for this slice: `to be added before implementation`
 
 ## Outputs
 
-- operator-visible entry points for normalized candidates before review
-- explicit operator action to queue normalized candidates for review
-- coherent linkage from normalized state into `/admin/review`
+- one operator landing page summarizing intake, review, catalog, source health, and launch validation state
+- coherent cross-links into the existing admin surfaces
+- reusable summary contracts that avoid duplicating route-local logic
 - reviewer acceptance or findings document for this slice
 - `docs/dev-log.md` entry recording scope and outcome
 
@@ -40,9 +40,9 @@ The backend is accepted as operator-ready and the execution framework has been n
 
 1. Coordinator aligns this slice to the Project Frame and dispatches in order.
 2. Planner defines scope, checklist, ownership boundaries, and non-goals.
-3. Media Ingest implements only ingest-side visibility or intake support required by the slice.
-4. Data Catalog implements backend read models, queueing contracts, and admin-service support required by the slice.
-5. UI Shell implements the operator-facing admin workflow surfaces and navigation.
+3. Media Ingest participates only if planner determines an ingest summary contract is missing.
+4. Data Catalog implements backend summary/read-model support required by the landing page.
+5. UI Shell implements the operator-facing landing surface and cross-links.
 6. Reviewer validates the slice against the checklist and confirms no architecture drift.
 7. Coordinator merges only after reviewer acceptance.
 
@@ -51,10 +51,10 @@ The backend is accepted as operator-ready and the execution framework has been n
 - [ ] Docs aligned: Project Frame, roadmap, architecture, and backend workflow checked before implementation
 - [ ] Handoff published: planner handoff exists for this slice
 - [ ] Ownership respected: each agent changes only its owned files
-- [ ] Artifact delivered: operators can see normalized candidates that are not yet in review
-- [ ] Artifact delivered: operators have a bounded action to queue a normalized candidate for review
-- [ ] Artifact delivered: after queueing, the handoff into `/admin/review` is visible and coherent
-- [ ] Artifact delivered: workflow visibility uses tracked backend contracts, not route-local ad hoc state
+- [ ] Artifact delivered: operators have one landing view that summarizes the current pipeline state
+- [ ] Artifact delivered: the landing view links coherently into intake, review, catalog, source health, and launch validation surfaces
+- [ ] Artifact delivered: landing-page data uses tracked backend contracts, not route-local ad hoc state
+- [ ] Artifact delivered: the landing page reuses existing admin capabilities rather than recreating them in a new workflow silo
 - [ ] Tests/builds run and recorded by implementing agents
 - [ ] Reviewer acceptance recorded before merge
 - [ ] Dev-log updated

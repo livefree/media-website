@@ -51,7 +51,8 @@ Why this is the current stage:
 | Tracked backend queue (`Rounds A-F`, `Workstreams 1-4`) | Complete | `docs/backend-delivery-workflow.md`, `docs/handovers/reviewer-final-backend-readiness-sweep-acceptance.md` |
 | Execution framework hardening | Complete | `docs/project-frame.md`, `task.md`, and `docs/handovers/reviewer-execution-framework-reconstruction-slice1-acceptance.md` |
 | Operator workflow console | In progress | Active slice in `task.md` |
-| Operator-visible ingest-to-publish flow | Not yet complete | Review queue emptiness still opaque to operators |
+| Operator-visible normalized-to-review handoff | Complete | `docs/handovers/reviewer-operator-workflow-console-slice2-acceptance.md` |
+| Operator-visible ingest-to-publish flow | In progress | Pending one landing view that summarizes the full operator path |
 | Launch-ready operator path | Pending | Depends on workflow-console completion and runtime proof |
 
 ## Launch Criteria
@@ -99,10 +100,10 @@ The Coordinator is not responsible for personally designing or implementing spec
    - status: `done`
    - target: move persistent project state into a master plan doc, reduce `task.md` to the active slice contract, tighten stop/ask rules, and normalize checklist-driven execution
 2. `Slice 2: Queue Entry Actions And Review Handoff`
-   - status: `active`
+   - status: `done`
    - target: make the transition from normalized candidates into review queue visible and operator-actionable
 3. `Slice 3: Workflow Landing And Cross-Surface Summary`
-   - status: `planned`
+   - status: `active`
    - target: give operators one landing page that summarizes current pipeline state and links to source health, review, catalog, and launch validation
 
 Any new slice must be added here before it can become active in `task.md`.
