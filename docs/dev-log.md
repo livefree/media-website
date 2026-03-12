@@ -20,11 +20,14 @@ Data Catalog:
 - Added deterministic backend coverage for recovery-readiness classification and the new admin recovery-readiness page contract, keeping the slice inside `lib/db/`, `lib/server/health/`, and `lib/server/admin/` without reopening public-route or broader operator-surface scope
 
 Reviewer:
+- Accepted Workstream 4 / Slice 8 on code/test/build review: final launch validation now exposes an explicit bounded `ready` / `degraded` / `blocked` model, per-domain launch evidence, and operator-visible blocking/degraded reasons on `/admin/final-launch-validation` with deterministic rendered coverage, while staying inside accepted ingest/backend/admin boundaries and avoiding readiness-sweep drift
 - Accepted Workstream 4 / Slice 7 on code/test/build review: recovery readiness now exposes an explicit finite `ready` / `degraded` / `blocked` model with bounded reason codes, operator-visible backup freshness and restore rehearsal visibility, and deterministic admin rendering on `/admin/recovery-readiness` without reopening public-route, player, or broader backup-orchestration scope
 - Accepted Workstream 4 / Slice 6 on code/test/build review: provider/job failures now surface bounded severity, alert-ready state, escalation reason, and deterministic rendered operator coverage on `/admin/queue-failures` without expanding beyond accepted ingest/health/admin boundaries
 - Accepted Workstream 3 / Slice 2 on code/test/build review: bounded future publish scheduling, schedule clearing, hidden/restored published visibility, and visibility-gated public serving now flow through tracked review/catalog/admin boundaries with deterministic rendered admin coverage on `/admin/review/[queueEntryId]` and `/admin/catalog/[publicId]`
 
 Coordinator:
+- Promoted the accepted Workstream 4 / Slice 8 hardening milestone to version `0.30.0`
+- Switched the active task from accepted `Workstream 4 / Slice 8` into the `Final Backend Readiness Sweep`, leaving the queue with only the closing readiness reconciliation step
 - Promoted the accepted Workstream 4 / Slice 7 hardening milestone to version `0.29.0`
 - Switched the active task from accepted `Workstream 4 / Slice 7` into `Workstream 4 / Slice 8: Final Launch Validation`, keeping the fixed backend queue intact as the final remaining hardening slice before the readiness sweep
 - Promoted the accepted Workstream 4 / Slice 6 hardening milestone to version `0.28.0`

@@ -23,7 +23,7 @@ PlayerShell
 
 ## Current Active Task
 
-### Workstream 4 / Slice 8: Final Launch Validation
+### Final Backend Readiness Sweep
 
 Coordinator-only rule:
 - Coordinator may define scope, update task docs, dispatch agents, review ownership, and merge accepted work.
@@ -31,37 +31,32 @@ Coordinator-only rule:
 
 Required execution order for this task:
 1. Coordinator aligns the work package to `docs/backend-spec.md`, `docs/roadmap.md`, and `docs/backend-delivery-workflow.md`
-2. Planner defines the implementation breakdown, ownership boundaries, testing scope, and acceptance checklist for the active hardening slice
-3. Media Ingest implements final validation instrumentation or runtime support when the slice touches ingest execution or validation paths
-4. Data Catalog implements the backend support required by the chosen final validation slice
-5. UI Shell implements operator-facing admin surface changes only if the slice requires new bounded launch-validation or readiness presentation
-6. Reviewer validates operator workflow correctness, scope discipline, and test/build coverage before merge
-7. User review remains authoritative for planning direction; rejected backend structure must not be represented as accepted
+2. Planner defines the readiness-sweep checklist, tracked exit criteria, evidence sources, and whether any follow-up implementation is still required
+3. Reviewer validates the accepted slices, tracked backend docs, and current runtime evidence against the readiness-sweep checklist
+4. Coordinator records the readiness decision, any residual launch gaps, and final queue status
+5. User review remains authoritative for planning direction; rejected backend structure must not be represented as accepted
 
 Scope for this round:
 - Continue the fixed backend auto queue from `docs/backend-delivery-workflow.md` on top of the accepted backend foundation
-- Implement one narrow hardening slice at a time rather than broad platform-wide changes in a single pass
-- Current active slice: `Workstream 4 / Slice 8: Final Launch Validation`
-- This slice is mapped to the next remaining Workstream 4 hardening queue item in `docs/backend-delivery-workflow.md` and `docs/roadmap.md`
-- Current refinement status: Workstreams 1, 2, and 3 are accepted, and Workstream 4 / Slices 1-7 are now accepted; the next open backend queue item is final launch validation
+- Reconcile the now-accepted backend slices against `docs/backend-spec.md`, `docs/roadmap.md`, and `docs/backend-delivery-workflow.md`
+- Current active item: `Final Backend Readiness Sweep`
+- This sweep is the final queued backend work item after accepted `Workstream 4 / Slice 8`
+- Current refinement status: Workstreams 1, 2, and 3 are accepted, Workstream 4 / Slices 1-8 are accepted, and the remaining task is to document whether the backend is operator-ready under the tracked scope
 - Owned surfaces:
-  - Planner: architecture, roadmap alignment, round-specific handoff docs
-  - Media Ingest: final validation execution, readiness evidence, or bounded probe support required by this slice
-  - Data Catalog: `lib/db/`, `lib/server/health/`, `lib/server/admin/`, and schema/support required for bounded launch-validation and operator-readiness evidence in this slice
-  - UI Shell: admin/operator surfaces required to expose accepted launch-validation or final-readiness state in this slice
-  - Reviewer: acceptance and findings docs only
+  - Planner: readiness-sweep checklist, exit-criteria alignment, and handoff docs
+  - Reviewer: readiness acceptance/findings docs only
+  - Coordinator: queue closure, versioning, and tracked readiness decision
+- No new runtime feature work unless the sweep identifies a concrete tracked blocker
 - No public route redesign
 - No player work
 - No broad auth/session product expansion
-- No broad admin suite expansion beyond the minimal final-validation actions or visibility required by this slice
+- No ad hoc roadmap expansion during the sweep
 
 Acceptance criteria:
-- The chosen hardening slice yields deterministic final launch-validation evidence for the accepted backend scope without reopening completed workstreams
-- The slice remains narrow, testable, and grounded in tracked backend docs rather than ad hoc changes
-- New support remains inside accepted backend boundaries and does not leak into public route logic
-- The implementation includes the necessary tests and remains buildable after this slice
-- No public route redesign, player work, or broader out-of-scope platform drift is introduced
-- Final validation and operator-readiness evidence is expressed through tracked ingest/backend/admin boundaries rather than ad hoc scripts or manual DB inspection alone
+- The readiness sweep reconciles accepted implementation against `docs/backend-spec.md`, `docs/roadmap.md`, and `docs/backend-delivery-workflow.md`
+- The sweep records whether the backend is operator-ready under the tracked scope and, if not, identifies only the remaining tracked gaps
+- No new runtime feature work is folded into the sweep unless a concrete blocker is first documented
+- The readiness result remains grounded in accepted tests, accepted slices, and current tracked docs rather than ad hoc interpretation
 
 Current user-requested improvement to implement:
 1. Continue using the fixed backend workflow without ad hoc phases
@@ -69,8 +64,8 @@ Current user-requested improvement to implement:
 3. Continue auto-executing the tracked backend work packages until a real blocker occurs
 4. Keep the queue fixed and advance directly to the next uncompleted work package after each accepted slice
 5. Keep documenting accepted backend milestones, testing coverage, and version bumps as the queue advances
-6. Continue through the remaining operator-control, governance, and hardening slices until the backend reaches an operator-ready state or a real blocker occurs
-7. Continue the fixed backend queue into the remaining Workstream 4 hardening slices without reopening completed Workstream 1-3 scopes
+6. Continue through the remaining hardening and readiness queue until the backend reaches an operator-ready state or a real blocker occurs
+7. Finish the queue with a tracked readiness sweep rather than reopening completed slices
 
 Current baseline:
 - Round A monolith foundations are present under `lib/server/` and `lib/db/`
@@ -99,7 +94,8 @@ Current baseline:
 - Workstream 3 / Slice 2 is accepted, so future publish scheduling, schedule clearing/rescheduling, and published visibility hide/restore now flow through bounded review/catalog/admin workflows and the Workstream 3 governance exit gate is met
 - Workstream 4 / Slice 6 is accepted, so provider/job failures now surface explicit severity, alert-ready state, and escalation reason through bounded ingest/health/admin contracts with deterministic `/admin/queue-failures` coverage
 - Workstream 4 / Slice 7 is accepted, so recovery readiness now exposes explicit bounded `ready` / `degraded` / `blocked` state, backup freshness, and restore rehearsal visibility through deterministic `/admin/recovery-readiness` coverage
-- The repo still lacks the final launch-validation slice and the closing operator-ready readiness sweep needed to close Workstream 4
+- Workstream 4 / Slice 8 is accepted, so final launch validation now exposes explicit backend launch state, per-domain validation outcomes, and blocking/degraded reasons on `/admin/final-launch-validation` with deterministic backend and rendered coverage
+- The only remaining queued backend item is the closing operator-ready readiness sweep
 
 ## Remaining Backend Auto Queue
 
@@ -107,16 +103,15 @@ The Coordinator should continue through the remaining backend work packages in t
 
 Current queued path after the active slice:
 
-1. Active next slice for the Workstream 4 exit gate:
-   - `Workstream 4 / Slice 8: Final Launch Validation`
-2. Final backend readiness sweep:
+1. Active final backend queue item:
+   - `Final Backend Readiness Sweep`
+2. Sweep objectives:
    - reconcile accepted slices against `docs/backend-spec.md`
    - confirm operator-ready exit gate and launch-readiness gaps in tracked docs before any post-backend program starts
 
-Each queued item still requires:
+This remaining readiness item requires:
 
 1. task alignment in this file
 2. planner handoff
-3. specialist implementation in owned scope
-4. reviewer acceptance
-5. coordinator merge, versioning if warranted, and push
+3. reviewer acceptance
+4. coordinator queue-closure decision, versioning if warranted, and push

@@ -33,7 +33,7 @@ The current accepted platform baseline includes:
 
 Current version baseline:
 
-- `0.29.0`
+- `0.30.0`
 
 ## Naming Convention
 
@@ -53,7 +53,7 @@ The easiest way to think about the gap is:
 - architecture and data-flow foundation: largely in place
 - operator control plane: complete within the tracked backend scope
 - real provider operation: one-provider lane operational, broader coverage still incomplete
-- production hardening: final validation still incomplete
+- production hardening: accepted through final launch validation, with only readiness confirmation still incomplete
 
 ### Completed or largely established
 
@@ -96,9 +96,8 @@ The project is now past the "prototype backend" stage, but not yet at the "opera
 
 The remaining work is concentrated in:
 
-1. final launch-validation hardening
-2. operator-ready backend readiness confirmation
-3. broader provider coverage beyond the first operational lane after the tracked backend target is closed
+1. operator-ready backend readiness confirmation
+2. broader provider coverage beyond the first operational lane after the tracked backend target is closed
 
 ## 4. Non-Ad-Hoc Delivery Rule
 
@@ -197,12 +196,11 @@ Accepted to date:
 - Workstream 1 exit gate complete
 - Workstream 2 exit gate complete
 - Workstream 3 exit gate complete
-- Workstream 4 / Slices 1-7 accepted
+- Workstream 4 / Slices 1-8 accepted
 
 Remaining deliverables:
 
-1. `Workstream 4 / Slice 8: Final Launch Validation`
-2. Final backend readiness sweep against `docs/backend-spec.md`, `docs/roadmap.md`, and this workflow
+1. Final backend readiness sweep against `docs/backend-spec.md`, `docs/roadmap.md`, and this workflow
 
 Exit gate:
 
@@ -249,6 +247,7 @@ The accepted execution baseline now includes:
 - Workstream 4 / Slice 5
 - Workstream 4 / Slice 6
 - Workstream 4 / Slice 7
+- Workstream 4 / Slice 8
 - Workstream 2 / Slice 3
 - Workstream 3 / Slice 2
 
@@ -256,11 +255,9 @@ The currently active slice should always be read from [task.md](/Users/livefree/
 
 ## 8B. Current Queue After Workstream 1 Exit Gate
 
-With Workstreams 1, 2, and 3 accepted plus Workstream 4 / Slices 1-7 accepted, the fixed remaining queue is:
+With Workstreams 1, 2, and 3 accepted plus Workstream 4 / Slices 1-8 accepted, the fixed remaining queue is:
 
-1. Workstream 4 / Slice 8
-   final launch-validation follow-up needed to confirm the backend can be operated end to end without direct DB intervention
-2. Final backend readiness sweep
+1. Final backend readiness sweep
    reconcile accepted slices against `docs/backend-spec.md` and confirm the operator-ready exit gate
 
 No new backend work packages should skip ahead of this queue unless tracked docs are updated first.

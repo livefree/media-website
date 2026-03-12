@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.29.0`
+Current version: `0.30.0`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.29.0` an appropriate current milestone: the platform now exposes bounded recovery-readiness and backup/restore guardrails through explicit `ready` / `degraded` / `blocked` operator state, backup freshness, and restore-rehearsal visibility, while final launch-validation hardening still remains unfinished.
+That makes `0.30.0` an appropriate current milestone: the backend now exposes explicit final launch-validation evidence through bounded ingest, catalog, health, and admin contracts, with a minimal operator-facing `/admin/final-launch-validation` surface and deterministic backend/render coverage in place. The only remaining queued backend item is the closing readiness sweep that reconciles the accepted slices against the tracked backend target.
 
 ## Rules
 
@@ -73,6 +73,8 @@ That makes `0.29.0` an appropriate current milestone: the platform now exposes b
   Current baseline with alert-ready provider/job failure signaling in place: operators can now distinguish retrying noise from degraded or operator-action-required failures through bounded ingest/health/admin contracts and deterministic `/admin/queue-failures` coverage.
 - `0.29.x`
   Current baseline with bounded recovery-readiness and backup/restore guardrails in place: operators can now assess backup freshness, restore rehearsal status, and explicit `ready` / `degraded` / `blocked` recovery state through deterministic admin coverage without direct database inspection.
+- `0.30.x`
+  Current baseline with final launch validation accepted: operators can now inspect explicit backend launch state, per-domain validation outcomes, and blocking/degraded reasons on a bounded admin surface before the final readiness sweep.
 - `1.0.0`
   First production-ready launch baseline.
 
