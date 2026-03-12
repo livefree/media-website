@@ -1,0 +1,153 @@
+.adminPage {
+  min-height: 100vh;
+  padding: 40px 32px 64px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 148, 84, 0.12), transparent 35%),
+    linear-gradient(180deg, #0b111f 0%, #070a11 100%);
+  color: #edf1fb;
+}
+
+.adminShell {
+  max-width: 1360px;
+  margin: 0 auto;
+  display: grid;
+  gap: 24px;
+}
+
+.adminHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  padding: 24px 28px;
+  border: 1px solid rgba(166, 184, 219, 0.18);
+  border-radius: 28px;
+  background: rgba(8, 13, 25, 0.84);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #ffb06e;
+}
+
+.adminTitle {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.6rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.adminSubtitle {
+  margin: 10px 0 0;
+  max-width: 760px;
+  color: rgba(226, 233, 247, 0.76);
+  line-height: 1.6;
+}
+
+.headerMeta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.metricPill {
+  padding: 12px 16px;
+  border: 1px solid rgba(166, 184, 219, 0.18);
+  border-radius: 999px;
+  background: rgba(22, 29, 48, 0.72);
+  color: rgba(240, 243, 252, 0.86);
+  font-size: 0.94rem;
+}
+
+.panelGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.panel {
+  border: 1px solid rgba(166, 184, 219, 0.14);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(19, 25, 43, 0.94), rgba(11, 16, 31, 0.94));
+  padding: 20px;
+  display: grid;
+  gap: 14px;
+  min-height: 200px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.panelSubtitle {
+  margin: 0;
+  color: rgba(226, 233, 247, 0.68);
+  line-height: 1.55;
+}
+
+.pillRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.microPill {
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(27, 35, 55, 0.74);
+  border: 1px solid rgba(166, 184, 219, 0.12);
+  color: rgba(236, 241, 251, 0.82);
+  font-size: 0.85rem;
+}
+
+.actionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.primaryLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff9e56, #ff7048);
+  color: #1b0d07;
+  font-weight: 600;
+}
+
+.secondaryLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(166, 184, 219, 0.2);
+  color: rgba(236, 241, 251, 0.8);
+}
+
+.warningState,
+.emptyState {
+  padding: 18px 20px;
+  border-radius: 18px;
+  border: 1px dashed rgba(166, 184, 219, 0.2);
+  background: rgba(15, 20, 36, 0.74);
+  color: rgba(226, 233, 247, 0.75);
+}
+
+.warningState {
+  border-style: solid;
+  border-color: rgba(255, 160, 99, 0.38);
+  background: rgba(56, 28, 12, 0.38);
+  color: #ffd9ad;
+}

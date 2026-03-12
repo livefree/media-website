@@ -4,6 +4,11 @@ import styles from "./admin-source-repair.module.css";
 
 const sections = [
   {
+    href: "/admin/workflow",
+    id: "workflow",
+    label: "Workflow overview",
+  },
+  {
     href: "/admin/catalog",
     id: "catalog",
     label: "Published catalog",
@@ -64,6 +69,7 @@ export function AdminOperatorNav({
   activeSection,
 }: {
   activeSection:
+    | "workflow"
     | "catalog"
     | "sources"
     | "repair"

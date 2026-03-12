@@ -11,6 +11,7 @@ Data Catalog:
 - Added the Slice 3 backend landing summary contract: [lib/server/admin/service.ts](/Users/livefree/projects/media-website-v2/lib/server/admin/service.ts) now aggregates pending normalized counts, review queue status, catalog summary, source health metrics, recovery readiness, and launch validation into one operator workflow landing record with supporting types/tests so the upcoming landing page can render without route-local queries. Verified with `npm run test -- lib/server/admin/service.test.ts` and `npm run build`.
 
 UI Shell:
+- Added the `/admin/workflow` operator landing surface via [components/admin/AdminWorkflowLandingPage.tsx](/Users/livefree/projects/media-website-v2/components/admin/AdminWorkflowLandingPage.tsx) and [app/admin/workflow/page.tsx](/Users/livefree/projects/media-website-v2/app/admin/workflow/page.tsx), wiring the backend summary contract into summary cards with CTA links, nav entry, and deterministic render coverage so operators can see the entire ingest → review → catalog → source health → launch state in one place
 - Added the `/admin/normalized` operator workflow page with pending normalized candidate summaries, queue-for-review action, admin nav entry, and deterministic render coverage so operators can now send normalized items into `/admin/review` through the UI
 
 Coordinator:
