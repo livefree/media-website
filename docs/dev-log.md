@@ -31,6 +31,9 @@ Reviewer:
 Planner:
 - Added the `Final Backend Readiness Sweep` handoff in [docs/handovers/planner-final-backend-readiness-sweep.md](/Users/livefree/projects/media-website-v2/docs/handovers/planner-final-backend-readiness-sweep.md), defining the exact reconciliation checklist, operator-ready exit criteria under tracked scope, evidence sources, execution order, non-goals, and mandatory stop-and-escalate rules if a new tracked blocker is discovered
 
+Media Ingest:
+- Ran `npm run ingest:provider:jszyapi` (manual mode) at 2026-03-12T23:11:38Z; the command succeeded with `{ providerKey: "jszyapi_vod_json", itemCount: 20, rawPayloadCount: 1, page: 1, checkpointPage: 2 }`, providing the required ingest evidence without any ingest code changes.
+
 2026-03-11
 
 Reviewer:
