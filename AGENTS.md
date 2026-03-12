@@ -261,7 +261,7 @@ Backend-phase workflow rules:
 
 Current project version:
 
-`0.30.0`
+`0.31.0`
 
 Versioning model:
 

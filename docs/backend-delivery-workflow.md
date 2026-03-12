@@ -1,6 +1,6 @@
 # Backend Delivery Workflow
 
-Status: active delivery workflow for the post-Round-F backend phase.
+Status: tracked backend delivery workflow complete under the agreed scope.
 
 This document answers three questions:
 
@@ -33,7 +33,7 @@ The current accepted platform baseline includes:
 
 Current version baseline:
 
-- `0.30.0`
+- `0.31.0`
 
 ## Naming Convention
 
@@ -46,14 +46,14 @@ Use only these labels for backend execution going forward:
 
 ## 2. Distance To The Backend Target
 
-Measured against `reference-assets/backend.md`, the architecture foundation is now mostly in place, but the operational backend is not yet complete.
+Measured against `reference-assets/backend.md`, the tracked backend program is now complete under its agreed scope, but broader post-launch and expansion work still remains outside that tracked scope.
 
 The easiest way to think about the gap is:
 
 - architecture and data-flow foundation: largely in place
 - operator control plane: complete within the tracked backend scope
 - real provider operation: one-provider lane operational, broader coverage still incomplete
-- production hardening: accepted through final launch validation, with only readiness confirmation still incomplete
+- production hardening: accepted through final launch validation and readiness confirmation
 
 ### Completed or largely established
 
@@ -77,27 +77,27 @@ The easiest way to think about the gap is:
   - health state, repair queue, and bounded lifecycle workflows exist in backend form
   - broader production policy automation may still remain beyond the tracked backend scope
 
-### Not complete
+### Still outside the completed tracked scope
 
 - broader provider coverage and production worker deployment model
-- final launch validation and operator-ready exit confirmation
+- post-launch infrastructure automation and expansion work
 
 ## 3. Completion Assessment
 
-If the target is the full backend described in `backend.md`, the project is not at the end state yet.
+If the target is the tracked backend program defined through `task.md`, `docs/backend-spec.md`, and this workflow, the queue is now complete. If the target is the full long-horizon platform vision implied by `backend.md`, additional out-of-scope follow-on work still remains.
 
 A practical assessment is:
 
 - foundational backend architecture: strong
-- operational backend completeness: medium
-- launch-readiness: still incomplete
+- operational backend completeness under tracked scope: strong
+- launch-readiness under tracked scope: accepted
 
-The project is now past the "prototype backend" stage, but not yet at the "operated media aggregation platform" stage.
+The project is now past the "prototype backend" stage and has closed the tracked operator-ready backend queue, but it is not yet the full long-horizon post-launch platform.
 
-The remaining work is concentrated in:
+Residual follow-on work is concentrated in:
 
-1. operator-ready backend readiness confirmation
-2. broader provider coverage beyond the first operational lane after the tracked backend target is closed
+1. broader provider coverage beyond the first operational lane
+2. post-launch infrastructure and expansion work outside the tracked backend queue
 
 ## 4. Non-Ad-Hoc Delivery Rule
 
@@ -187,7 +187,7 @@ Use:
 
 ## 7. Remaining Program Of Work
 
-The remaining path to the backend target should now be run as the final hardening slice plus a readiness sweep.
+The tracked backend queue has now been exhausted.
 
 ### Final remaining queue
 
@@ -200,12 +200,12 @@ Accepted to date:
 
 Remaining deliverables:
 
-1. Final backend readiness sweep against `docs/backend-spec.md`, `docs/roadmap.md`, and this workflow
+- none inside the completed tracked backend queue
 
 Exit gate:
 
-- the backend is operator-ready under the tracked scope, with final launch-validation coverage and a documented readiness decision
-- the system can run as an operated production backend instead of a development-stage backend
+- met: the backend is operator-ready under the tracked scope, with final launch-validation coverage and a documented readiness decision
+- met: the system can run as an operated development backend without direct DB intervention for the tracked operator workflows
 
 ## 8. Immediate Next Planned Sequence
 
@@ -255,12 +255,9 @@ The currently active slice should always be read from [task.md](/Users/livefree/
 
 ## 8B. Current Queue After Workstream 1 Exit Gate
 
-With Workstreams 1, 2, and 3 accepted plus Workstream 4 / Slices 1-8 accepted, the fixed remaining queue is:
+With Workstreams 1, 2, and 3 accepted plus Workstream 4 / Slices 1-8 accepted, the fixed tracked backend queue is exhausted.
 
-1. Final backend readiness sweep
-   reconcile accepted slices against `docs/backend-spec.md` and confirm the operator-ready exit gate
-
-No new backend work packages should skip ahead of this queue unless tracked docs are updated first.
+No new backend work packages should be treated as automatic continuation of this queue unless tracked docs are explicitly reopened.
 
 ## 9. Launch Gate
 
@@ -274,4 +271,4 @@ The backend target from `backend.md` should only be considered substantially com
 - observability and security are in place
 - key operations no longer require direct database manipulation
 
-Until those gates are met, the project should be treated as a strong pre-launch backend platform, not a finished aggregation backend.
+Those gates are met for the tracked backend scope. Any future work beyond this point should be treated as a new tracked program, not silent continuation of the completed backend queue.

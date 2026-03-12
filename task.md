@@ -23,7 +23,7 @@ PlayerShell
 
 ## Current Active Task
 
-### Final Backend Readiness Sweep
+### Backend Queue Closed
 
 Coordinator-only rule:
 - Coordinator may define scope, update task docs, dispatch agents, review ownership, and merge accepted work.
@@ -31,32 +31,30 @@ Coordinator-only rule:
 
 Required execution order for this task:
 1. Coordinator aligns the work package to `docs/backend-spec.md`, `docs/roadmap.md`, and `docs/backend-delivery-workflow.md`
-2. Planner defines the readiness-sweep checklist, tracked exit criteria, evidence sources, and whether any follow-up implementation is still required
-3. Reviewer validates the accepted slices, tracked backend docs, and current runtime evidence against the readiness-sweep checklist
-4. Coordinator records the readiness decision, any residual launch gaps, and final queue status
-5. User review remains authoritative for planning direction; rejected backend structure must not be represented as accepted
+2. Planner and Reviewer handoffs remain the authoritative record for the completed readiness sweep
+3. Coordinator records final queue status, any explicitly out-of-scope residuals, and the next program must be opened as a new tracked task
+4. User review remains authoritative for future planning direction
 
 Scope for this round:
 - Continue the fixed backend auto queue from `docs/backend-delivery-workflow.md` on top of the accepted backend foundation
-- Reconcile the now-accepted backend slices against `docs/backend-spec.md`, `docs/roadmap.md`, and `docs/backend-delivery-workflow.md`
-- Current active item: `Final Backend Readiness Sweep`
-- This sweep is the final queued backend work item after accepted `Workstream 4 / Slice 8`
-- Current refinement status: Workstreams 1, 2, and 3 are accepted, Workstream 4 / Slices 1-8 are accepted, and the remaining task is to document whether the backend is operator-ready under the tracked scope
+- Record the now-completed backend queue status after the accepted `Final Backend Readiness Sweep`
+- Current active item: `Backend Queue Closed`
+- The tracked backend queue is complete through accepted Workstream 4 / Slice 8 and the accepted final readiness sweep
+- Current refinement status: Workstreams 1, 2, and 3 are accepted, Workstream 4 / Slices 1-8 are accepted, and the backend is accepted as operator-ready under the tracked scope
 - Owned surfaces:
-  - Planner: readiness-sweep checklist, exit-criteria alignment, and handoff docs
-  - Reviewer: readiness acceptance/findings docs only
+  - Planner: completed readiness-sweep handoff docs
+  - Reviewer: completed readiness acceptance docs
   - Coordinator: queue closure, versioning, and tracked readiness decision
-- No new runtime feature work unless the sweep identifies a concrete tracked blocker
+- No new runtime feature work is active in this closed queue state
 - No public route redesign
 - No player work
 - No broad auth/session product expansion
 - No ad hoc roadmap expansion during the sweep
 
 Acceptance criteria:
-- The readiness sweep reconciles accepted implementation against `docs/backend-spec.md`, `docs/roadmap.md`, and `docs/backend-delivery-workflow.md`
-- The sweep records whether the backend is operator-ready under the tracked scope and, if not, identifies only the remaining tracked gaps
-- No new runtime feature work is folded into the sweep unless a concrete blocker is first documented
-- The readiness result remains grounded in accepted tests, accepted slices, and current tracked docs rather than ad hoc interpretation
+- The final readiness sweep is accepted and recorded in tracked docs
+- The backend is marked operator-ready under the tracked scope
+- Residual items are explicitly recorded as out of scope rather than left in an implicit queue
 
 Current user-requested improvement to implement:
 1. Continue using the fixed backend workflow without ad hoc phases
@@ -64,8 +62,8 @@ Current user-requested improvement to implement:
 3. Continue auto-executing the tracked backend work packages until a real blocker occurs
 4. Keep the queue fixed and advance directly to the next uncompleted work package after each accepted slice
 5. Keep documenting accepted backend milestones, testing coverage, and version bumps as the queue advances
-6. Continue through the remaining hardening and readiness queue until the backend reaches an operator-ready state or a real blocker occurs
-7. Finish the queue with a tracked readiness sweep rather than reopening completed slices
+6. The backend queue is now complete under the tracked scope
+7. Any future backend work must be opened as a new tracked program rather than silent continuation
 
 Current baseline:
 - Round A monolith foundations are present under `lib/server/` and `lib/db/`
@@ -95,23 +93,18 @@ Current baseline:
 - Workstream 4 / Slice 6 is accepted, so provider/job failures now surface explicit severity, alert-ready state, and escalation reason through bounded ingest/health/admin contracts with deterministic `/admin/queue-failures` coverage
 - Workstream 4 / Slice 7 is accepted, so recovery readiness now exposes explicit bounded `ready` / `degraded` / `blocked` state, backup freshness, and restore rehearsal visibility through deterministic `/admin/recovery-readiness` coverage
 - Workstream 4 / Slice 8 is accepted, so final launch validation now exposes explicit backend launch state, per-domain validation outcomes, and blocking/degraded reasons on `/admin/final-launch-validation` with deterministic backend and rendered coverage
-- The only remaining queued backend item is the closing operator-ready readiness sweep
+- The final backend readiness sweep is accepted, so the backend queue is now closed and the backend is documented as operator-ready under the tracked scope
 
 ## Remaining Backend Auto Queue
 
-The Coordinator should continue through the remaining backend work packages in tracked order, without introducing ad hoc phases, until the backend reaches an operator-ready state or a real blocker occurs.
+The fixed backend auto queue has been exhausted. New backend work must be opened as a new tracked task instead of being treated as silent continuation.
 
-Current queued path after the active slice:
+Current queue status:
 
-1. Active final backend queue item:
-   - `Final Backend Readiness Sweep`
-2. Sweep objectives:
-   - reconcile accepted slices against `docs/backend-spec.md`
-   - confirm operator-ready exit gate and launch-readiness gaps in tracked docs before any post-backend program starts
+1. Tracked backend queue: closed
+2. Follow-on work: not active in this task file until a new tracked program is opened
 
-This remaining readiness item requires:
+This closed queue state now requires:
 
-1. task alignment in this file
-2. planner handoff
-3. reviewer acceptance
-4. coordinator queue-closure decision, versioning if warranted, and push
+1. preserving the tracked acceptance record
+2. opening any future work as a new tracked task instead of extending the closed queue implicitly

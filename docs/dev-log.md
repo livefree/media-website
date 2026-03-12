@@ -11,6 +11,7 @@ Planner:
 2026-03-11
 
 Reviewer:
+- Accepted the final backend readiness sweep: the tracked backend queue now reconciles cleanly against `task.md`, `docs/backend-spec.md`, `docs/roadmap.md`, and `docs/backend-delivery-workflow.md`, with only explicitly out-of-scope residual work left beyond the accepted program boundary
 - Accepted Workstream 4 / Slice 8 on code/test/build review: final launch validation now exposes an explicit bounded `ready` / `degraded` / `blocked` model, per-domain launch evidence, and operator-visible blocking/degraded reasons on `/admin/final-launch-validation` with deterministic rendered coverage, while staying inside accepted ingest/backend/admin boundaries and avoiding readiness-sweep drift
 
 UI Shell:
@@ -34,6 +35,8 @@ Reviewer:
 - Accepted Workstream 3 / Slice 2 on code/test/build review: bounded future publish scheduling, schedule clearing, hidden/restored published visibility, and visibility-gated public serving now flow through tracked review/catalog/admin boundaries with deterministic rendered admin coverage on `/admin/review/[queueEntryId]` and `/admin/catalog/[publicId]`
 
 Coordinator:
+- Promoted the accepted final backend readiness sweep milestone to version `0.31.0`
+- Closed the tracked backend queue after the accepted readiness sweep and updated the task/workflow docs so any future backend work must reopen as a new tracked program
 - Promoted the accepted Workstream 4 / Slice 8 hardening milestone to version `0.30.0`
 - Switched the active task from accepted `Workstream 4 / Slice 8` into the `Final Backend Readiness Sweep`, leaving the queue with only the closing readiness reconciliation step
 - Promoted the accepted Workstream 4 / Slice 7 hardening milestone to version `0.29.0`
