@@ -53,6 +53,7 @@ import type {
 } from "./types";
 import type { FinalLaunchValidationRecord } from "../catalog";
 import type { PendingNormalizedCandidateListItemRecord } from "../../db/repositories/normalization/types";
+import type { ReviewQueueListItemRecord } from "../../db/repositories/review/types";
 
 process.env.ADMIN_ACCESS_STUB_ROLE = "operator";
 process.env.ADMIN_ACCESS_STUB_ACTOR_ID = "operator-test";
@@ -224,6 +225,50 @@ function createQueueFailureItem(overrides: Partial<AdminQueueFailureItemRecord> 
       warningCount: 1,
     },
     ...overrides,
+  };
+}
+
+function createReviewQueueListItem(overrides: Partial<ReviewQueueListItemRecord> = {}): ReviewQueueListItemRecord {
+  const baseCandidate = {
+    id: "normalized-1",
+    stagingCandidateId: "staging-1",
+    providerId: "provider-1",
+    providerItemId: "provider-item-1",
+    status: "normalized",
+    title: { display: "Harbor Line", normalized: "harbor line" },
+    mediaType: "series",
+    releaseYear: 2026,
+    region: "JP",
+    language: "ja",
+    warnings: [],
+    normalizationNotes: [],
+    createdAt: new Date("2026-03-11T09:00:00.000Z"),
+    updatedAt: new Date("2026-03-11T10:00:00.000Z"),
+  };
+
+  const baseQueueEntry = {
+    id: "queue-entry-1",
+    normalizedCandidateId: baseCandidate.id,
+    canonicalMediaId: null,
+    status: "pending",
+    assignedReviewerId: null,
+    latestDecisionType: null,
+    latestDecisionSummary: null,
+    scheduledPublishAt: null,
+    queuedAt: new Date("2026-03-11T09:05:00.000Z"),
+    startedAt: null,
+    reviewedAt: null,
+    createdAt: new Date("2026-03-11T09:05:00.000Z"),
+    updatedAt: new Date("2026-03-11T09:05:00.000Z"),
+  };
+
+  return {
+    queueEntry: { ...baseQueueEntry, ...(overrides.queueEntry ?? {}) },
+    candidate: { ...baseCandidate, ...(overrides.candidate ?? {}) },
+    aliasCount: overrides.aliasCount ?? 0,
+    matchSuggestionCount: overrides.matchSuggestionCount ?? 0,
+    duplicateSignalCount: overrides.duplicateSignalCount ?? 0,
+    latestPublishOperation: overrides.latestPublishOperation ?? null,
   };
 }
 

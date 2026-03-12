@@ -2,13 +2,16 @@ import "server-only";
 
 import { requirePrivilegedAdminAccess } from "./access";
 import type { PendingNormalizedCandidateListItemRecord } from "../../db/repositories/normalization/types";
+import type { ReviewQueueListItemRecord } from "../../db/repositories/review/types";
 import type {
   AdminReviewPublicationScheduleActionRequest,
   AdminBackendDependencies,
   AdminFinalLaunchValidationPageRecord,
   AdminMigrationSafetyPageRecord,
   AdminQueueFailureMonitoringPageRecord,
+  AdminQueueFailureMonitoringSummary,
   AdminRecoveryReadinessPageRecord,
+  AdminRepairQueueSummary,
   AdminManualSourceSubmissionPageRecord,
   AdminManualTitleSubmissionPageRecord,
   AdminModerationActionRequest,
@@ -19,11 +22,15 @@ import type {
   AdminRepairQueueActionRequest,
   AdminRepairQueuePageRecord,
   AdminSourceInventoryPageRecord,
+  AdminSourceInventorySummary,
   AdminPendingNormalizedCandidateSummary,
   AdminPendingNormalizedCandidatesPageRecord,
   AdminQueueNormalizedCandidateRequest,
+  AdminPublishedCatalogListSummary,
+  AdminWorkflowLandingPageRecord,
+  AdminWorkflowLandingSummary,
 } from "./types";
-import type { AdminQueueFailureQuery, RepairQueueQuery, RepairQueueStatus } from "../health";
+import type { AdminQueueFailureQuery, RecoveryReadinessRecord, RepairQueueQuery, RepairQueueStatus } from "../health";
 import type {
   CreateManualSourceSubmissionInput,
   ManualSourceSubmissionQuery,
@@ -48,6 +55,7 @@ import type {
   RestorePublishedCatalogVisibilityResult,
   UnpublishPublishedCatalogInput,
   UnpublishPublishedCatalogResult,
+  FinalLaunchValidationRecord,
 } from "../catalog";
 
 async function getDefaultAdminDependencies(): Promise<AdminBackendDependencies> {
@@ -78,6 +86,7 @@ async function getDefaultAdminDependencies(): Promise<AdminBackendDependencies> 
       clearScheduledReviewPublication: review.clearScheduledReviewPublication,
       listPendingNormalizedCandidates: review.listPendingNormalizedCandidates,
       queueNormalizedCandidateForReview: review.queueNormalizedCandidateForReview,
+      listReviewQueue: review.listReviewQueue,
     },
     source: {
       listAdminSourceInventory: source.listAdminSourceInventory,
@@ -214,6 +223,66 @@ function buildPendingNormalizedSummary(
     totalAliases: items.reduce((sum, item) => sum + item.aliasCount, 0),
     totalMatchSuggestions: items.reduce((sum, item) => sum + item.matchSuggestionCount, 0),
     totalDuplicateSignals: items.reduce((sum, item) => sum + item.duplicateSignalCount, 0),
+  };
+}
+
+function buildReviewQueueLandingSummary(entries: ReviewQueueListItemRecord[]) {
+  return {
+    totalEntries: entries.length,
+    pendingEntries: entries.filter((entry) => entry.queueEntry.status === "pending").length,
+    href: "/admin/review",
+  };
+}
+
+function buildPendingNormalizedLandingSummary(
+  summary: AdminPendingNormalizedCandidateSummary,
+): AdminWorkflowLandingSummary["pendingNormalized"] {
+  return {
+    totalCandidates: summary.totalCandidates,
+    warningCandidates: summary.warningCandidates,
+    href: "/admin/normalized",
+  };
+}
+
+function buildCatalogLandingSummary(
+  summary: AdminPublishedCatalogListSummary,
+): AdminWorkflowLandingSummary["catalog"] {
+  return {
+    totalTitles: summary.totalItems,
+    titlesWithRepairs: summary.titlesWithRepairs,
+    episodicTitles: summary.episodicTitles,
+    href: "/admin/catalog",
+  };
+}
+
+function buildSourceHealthLandingSummary(options: {
+  source: AdminSourceInventorySummary;
+  repair: AdminRepairQueueSummary;
+  failures: AdminQueueFailureMonitoringSummary;
+}): AdminWorkflowLandingSummary["sourceHealth"] {
+  return {
+    unhealthySources: options.source.unhealthyItems,
+    openRepairItems: options.repair.openItems,
+    failedQueueJobs: options.failures.failedItems,
+    hrefs: {
+      sources: "/admin/sources",
+      repair: "/admin/repair",
+      queueFailures: "/admin/queue-failures",
+    },
+  };
+}
+
+function buildLaunchLandingSummary(options: {
+  recovery: RecoveryReadinessRecord;
+  launch: FinalLaunchValidationRecord;
+}): AdminWorkflowLandingSummary["launchReadiness"] {
+  return {
+    recoveryState: options.recovery.state,
+    launchState: options.launch.state,
+    hrefs: {
+      recovery: "/admin/recovery-readiness",
+      launch: "/admin/final-launch-validation",
+    },
   };
 }
 
@@ -451,6 +520,57 @@ export async function queueAdminNormalizedCandidateForReview(
     actorId: request.actorId,
     requestId: request.requestId,
   });
+}
+
+export async function getAdminWorkflowLandingPage(
+  dependencies?: AdminBackendDependencies,
+): Promise<AdminWorkflowLandingPageRecord> {
+  requirePrivilegedAdminAccess("operator");
+  const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
+
+  const [
+    pendingNormalized,
+    reviewQueue,
+    catalogPage,
+    sourceInventoryItems,
+    repairQueueItems,
+    queueFailureItems,
+    recoveryReadiness,
+    finalLaunchValidation,
+  ] = await Promise.all([
+    resolvedDependencies.review.listPendingNormalizedCandidates(),
+    resolvedDependencies.review.listReviewQueue(),
+    resolvedDependencies.catalog.queryAdminPublishedCatalog({ page: 1, pageSize: 1 }),
+    resolvedDependencies.source.listAdminSourceInventory(),
+    resolvedDependencies.health.listAdminRepairQueue(),
+    resolvedDependencies.health.listAdminQueueFailures(),
+    resolvedDependencies.health.getRecoveryReadiness(),
+    resolvedDependencies.catalog.getFinalLaunchValidation(),
+  ]);
+
+  const pendingSummary = buildPendingNormalizedSummary(pendingNormalized);
+  const sourceSummary = buildSourceInventorySummary(sourceInventoryItems);
+  const repairSummary = buildRepairQueueSummary(repairQueueItems);
+  const queueFailureSummary = buildQueueFailureMonitoringSummary(queueFailureItems);
+
+  return {
+    title: "Workflow Overview",
+    description: "Operator snapshot of intake, review, catalog, source, and launch guardrail state.",
+    summary: {
+      pendingNormalized: buildPendingNormalizedLandingSummary(pendingSummary),
+      reviewQueue: buildReviewQueueLandingSummary(reviewQueue),
+      catalog: buildCatalogLandingSummary(catalogPage.summary),
+      sourceHealth: buildSourceHealthLandingSummary({
+        source: sourceSummary,
+        repair: repairSummary,
+        failures: queueFailureSummary,
+      }),
+      launchReadiness: buildLaunchLandingSummary({
+        recovery: recoveryReadiness,
+        launch: finalLaunchValidation,
+      }),
+    },
+  };
 }
 
 export async function getAdminManualSourceSubmissionDetailByPublicId(

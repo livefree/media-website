@@ -52,6 +52,7 @@ import type {
   SourceOrderingUpdate,
 } from "../source";
 import type { PendingNormalizedCandidateListItemRecord } from "../../db/repositories/normalization/types";
+import type { ReviewQueueListItemRecord } from "../../db/repositories/review/types";
 
 export interface AdminSourceInventorySummary {
   totalItems: number;
@@ -208,6 +209,49 @@ export interface AdminQueueNormalizedCandidateRequest {
   assignedReviewerId?: string;
   actorId?: string;
   requestId?: string;
+}
+
+export interface AdminWorkflowLandingSummary {
+  pendingNormalized: {
+    totalCandidates: number;
+    warningCandidates: number;
+    href: string;
+  };
+  reviewQueue: {
+    totalEntries: number;
+    pendingEntries: number;
+    href: string;
+  };
+  catalog: {
+    totalTitles: number;
+    titlesWithRepairs: number;
+    episodicTitles: number;
+    href: string;
+  };
+  sourceHealth: {
+    unhealthySources: number;
+    openRepairItems: number;
+    failedQueueJobs: number;
+    hrefs: {
+      sources: string;
+      repair: string;
+      queueFailures: string;
+    };
+  };
+  launchReadiness: {
+    recoveryState: RecoveryReadinessRecord["state"];
+    launchState: FinalLaunchValidationRecord["state"];
+    hrefs: {
+      recovery: string;
+      launch: string;
+    };
+  };
+}
+
+export interface AdminWorkflowLandingPageRecord {
+  title: string;
+  description: string;
+  summary: AdminWorkflowLandingSummary;
 }
 
 export type AdminPublishedCatalogSort = "published_at" | "updated_at" | "title" | "release_year";
@@ -396,6 +440,7 @@ export interface AdminBackendDependencies {
     }): Promise<unknown>;
     listPendingNormalizedCandidates(): Promise<PendingNormalizedCandidateListItemRecord[]>;
     queueNormalizedCandidateForReview(request: QueueNormalizedCandidateRequest): Promise<unknown>;
+    listReviewQueue(): Promise<ReviewQueueListItemRecord[]>;
   };
   source: {
     listAdminSourceInventory(query?: SourceInventoryQuery): Promise<AdminSourceInventoryItemRecord[]>;
