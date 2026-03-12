@@ -83,6 +83,7 @@ export interface QueueFailureSummary {
   errorName: string;
 }
 
+export type { FinalLaunchValidationRecord } from "../../db/final-launch-validation";
 export type {
   RecoveryBackupArtifactRecord,
   RecoveryReadinessPolicy,

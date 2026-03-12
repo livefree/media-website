@@ -5,6 +5,7 @@ import { requirePrivilegedAdminAccess } from "./access";
 import type {
   AdminReviewPublicationScheduleActionRequest,
   AdminBackendDependencies,
+  AdminFinalLaunchValidationPageRecord,
   AdminMigrationSafetyPageRecord,
   AdminQueueFailureMonitoringPageRecord,
   AdminRecoveryReadinessPageRecord,
@@ -55,6 +56,7 @@ async function getDefaultAdminDependencies(): Promise<AdminBackendDependencies> 
   return {
     catalog: {
       getPublishedCatalogMigrationPreflight: catalog.getPublishedCatalogMigrationPreflight,
+      getFinalLaunchValidation: catalog.getFinalLaunchValidation,
       queryAdminPublishedCatalog: catalog.getAdminPublishedCatalogPage,
       getAdminPublishedCatalogDetailByPublicId: catalog.getAdminPublishedCatalogDetailByPublicId,
       unpublishPublishedCatalogRecord: catalog.unpublishPublishedCatalogRecord,
@@ -125,6 +127,20 @@ export async function getAdminRecoveryReadinessPage(
     title: "Recovery Readiness",
     description: "Operator recovery guardrail state for backup freshness and restore rehearsal health.",
     readiness,
+  };
+}
+
+export async function getAdminFinalLaunchValidationPage(
+  dependencies?: AdminBackendDependencies,
+): Promise<AdminFinalLaunchValidationPageRecord> {
+  requirePrivilegedAdminAccess("operator");
+  const resolvedDependencies = dependencies ?? (await getDefaultAdminDependencies());
+  const validation = await resolvedDependencies.catalog.getFinalLaunchValidation();
+
+  return {
+    title: "Final Launch Validation",
+    description: "Bounded launch-validation summary for the accepted backend scope and operator guardrails.",
+    validation,
   };
 }
 

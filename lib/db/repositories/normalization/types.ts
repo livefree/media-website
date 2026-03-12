@@ -12,7 +12,7 @@ import type {
   NormalizedSeasonEpisodeHints,
   NormalizedSourceSummary,
   NormalizedTextValue,
-} from "../../../server/normalize";
+} from "../../../server/normalize/types";
 
 export const normalizedCandidatePersistenceStatuses = ["normalized", "warning", "failed"] as const;
 export type NormalizedCandidatePersistenceStatus = (typeof normalizedCandidatePersistenceStatuses)[number];

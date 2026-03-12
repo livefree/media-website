@@ -1,7 +1,7 @@
 import "server-only";
 
 import { requireDb } from "../client";
-import { createRepositoryContext, type RepositoryContext } from "../repositories";
+import { createRepositoryContext, type RepositoryContext } from "../repositories/types";
 import { logger } from "../../server/logging";
 
 import type { RequestContextMetadata, TransactionBoundaryOptions } from "../../../types/backend";

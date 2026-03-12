@@ -107,6 +107,17 @@ export function resolveCurrentAdminAccess(): ResolvedAdminAccess {
   });
 }
 
+export function hasSufficientAdminRole(
+  role: AdminAccessRole | null | undefined,
+  minimumRole: PrivilegedAdminRole = "operator",
+): boolean {
+  if (!role) {
+    return false;
+  }
+
+  return roleRank[role] >= roleRank[minimumRole];
+}
+
 export function requirePrivilegedAdminAccess(minimumRole: PrivilegedAdminRole = "operator"): ResolvedAdminAccess {
   const access = resolveCurrentAdminAccess();
 
@@ -117,7 +128,7 @@ export function requirePrivilegedAdminAccess(minimumRole: PrivilegedAdminRole = 
     });
   }
 
-  if (roleRank[access.role] < roleRank[minimumRole]) {
+  if (!hasSufficientAdminRole(access.role, minimumRole)) {
     throw new BackendError("The current identity does not have sufficient admin privileges.", {
       status: 403,
       code: "admin_access_forbidden",

@@ -5,7 +5,7 @@ import type {
   PersistedCandidateAliasRecord,
   PersistedNormalizedCandidateRecord,
 } from "../../db/repositories/normalization/types";
-import type { NormalizedCandidateDraft, StagingNormalizationRecord } from "../normalize";
+import type { NormalizedCandidateDraft, StagingNormalizationRecord } from "../normalize/types";
 import type { StagingProviderItem } from "../provider";
 import type {
   PublishedCatalogCard,

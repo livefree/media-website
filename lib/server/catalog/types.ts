@@ -1,6 +1,16 @@
 import "server-only";
 
 import type { PersistedCandidateAliasRecord, PersistedNormalizedCandidateRecord } from "../../db/repositories/normalization/types";
+export type {
+  FinalLaunchValidationAdminAccessEvidence,
+  FinalLaunchValidationCatalogEvidence,
+  FinalLaunchValidationDomainKey,
+  FinalLaunchValidationDomainRecord,
+  FinalLaunchValidationHealthEvidence,
+  FinalLaunchValidationReasonCode,
+  FinalLaunchValidationRecord,
+  FinalLaunchValidationState,
+} from "../../db/final-launch-validation";
 import type { ReviewDecisionType } from "../review";
 
 export type PublishedCatalogScope = "all" | "movie" | "series" | "anime";

@@ -6,6 +6,7 @@ import {
   createAdminManualSourceSubmission,
   createAdminManualTitleSubmission,
   clearAdminScheduledReviewPublication,
+  getAdminFinalLaunchValidationPage,
   getAdminRecoveryReadinessPage,
   hideAdminPublishedCatalogRecord,
   getAdminMigrationSafetyPage,
@@ -42,6 +43,7 @@ import type {
   AdminPublishedCatalogDetailRecord,
   AdminPublishedCatalogListItemRecord,
 } from "./types";
+import type { FinalLaunchValidationRecord } from "../catalog";
 
 process.env.ADMIN_ACCESS_STUB_ROLE = "operator";
 process.env.ADMIN_ACCESS_STUB_ACTOR_ID = "operator-test";
@@ -364,6 +366,109 @@ function createPublishedCatalogDetail(
   };
 }
 
+function createFinalLaunchValidationRecord(
+  overrides: Partial<FinalLaunchValidationRecord> = {},
+): FinalLaunchValidationRecord {
+  return {
+    state: "ready",
+    reasonCode: "ready",
+    summary: "Final launch validation is ready across ingest, catalog publishing, source health, admin access, and launch guardrails.",
+    checkedAt: new Date("2026-03-11T12:00:00.000Z"),
+    contributingReasonCodes: ["ready"],
+    ingestValidation: {
+      state: "ready",
+      reasonCode: "ready",
+      summary: "Ingest launch validation evidence is healthy.",
+      checkedAt: new Date("2026-03-11T12:00:00.000Z"),
+      acceptedProviderLane: {
+        providerKey: "jszyapi_vod_json",
+        adapterKey: "jszyapi_vod_json",
+        displayName: "jszyapi Base VOD JSON",
+        accepted: true,
+      },
+      policy: {
+        providerExecutionMaxAgeHours: 24,
+        scheduledExecutionMaxAgeHours: 24,
+        probeEvidenceMaxAgeHours: 24,
+      },
+      contributingReasonCodes: ["ready"],
+      domains: [],
+    },
+    catalogEvidence: {
+      adminPublishedCount: 2,
+      publicPublishedCount: 2,
+      sampleMediaPublicId: "med_public_1",
+      sampleMediaTitle: "Northline Station",
+      sampleCanonicalWatchHref: "/watch?v=med_public_1",
+      sampleDetailAvailable: true,
+      sampleWatchAvailable: true,
+      sampleSourceResolutionReason: "preferred_healthy",
+      sampleSelectedResourceHealthState: "healthy",
+    },
+    healthEvidence: {
+      queueFailureCount: 1,
+      failedQueueFailureCount: 1,
+      retryingQueueFailureCount: 0,
+      openRepairCount: 1,
+      inProgressRepairCount: 0,
+      waitingProviderRepairCount: 0,
+    },
+    adminAccessEvidence: {
+      currentActorId: "operator-test",
+      currentRole: "operator",
+      currentSource: "env",
+      privilegedSessionValidated: true,
+      anonymousDenied: true,
+      viewerDenied: true,
+      operatorAllowed: true,
+    },
+    migrationPreflight: {
+      target: "published_catalog_runtime",
+      status: "ready",
+      reasonCode: "ready",
+      summary: "Ready.",
+      expectedSchemaDigest: "digest-123",
+      checkedAt: new Date("2026-03-11T12:00:00.000Z"),
+      metadata: null,
+    },
+    recoveryReadiness: {
+      state: "ready",
+      reasonCode: "ready",
+      summary: "Recovery readiness is healthy.",
+      checkedAt: new Date("2026-03-11T12:00:00.000Z"),
+      policy: {
+        backupMaxAgeHours: 48,
+        restoreMaxAgeHours: 336,
+      },
+      backupArtifact: {
+        id: "backup-1",
+        artifactKey: "backup-2026-03-11",
+        summary: "Nightly backup completed.",
+        completedAt: new Date("2026-03-11T08:00:00.000Z"),
+      },
+      latestRestoreRehearsal: {
+        id: "restore-1",
+        status: "succeeded",
+        summary: "Restore rehearsal completed successfully.",
+        rehearsedAt: new Date("2026-03-10T12:00:00.000Z"),
+      },
+      contributingReasonCodes: ["ready"],
+      backupAgeHours: 4,
+      restoreAgeHours: 24,
+    },
+    domains: [
+      {
+        domain: "ingest",
+        state: "ready",
+        reasonCode: "ready",
+        summary: "Accepted provider-lane ingest validation is ready.",
+        supportingEvidence: {},
+      },
+    ],
+    ...overrides,
+  };
+}
+
 function createModerationReport(overrides: Partial<ModerationReportRecord> = {}): ModerationReportRecord {
   return {
     id: "moderation-1",
@@ -534,6 +639,7 @@ function createManualSourceSubmissionDetail(
 function createDependencies() {
   const calls = {
     getPublishedCatalogMigrationPreflight: 0,
+    getFinalLaunchValidation: 0,
     getRecoveryReadiness: 0,
     queryAdminPublishedCatalog: [] as Array<Record<string, unknown> | undefined>,
     getAdminPublishedCatalogDetailByPublicId: [] as string[],
@@ -623,6 +729,10 @@ function createDependencies() {
       async getAdminPublishedCatalogDetailByPublicId(publicId) {
         calls.getAdminPublishedCatalogDetailByPublicId.push(publicId);
         return publicId === "missing" ? null : createPublishedCatalogDetail();
+      },
+      async getFinalLaunchValidation() {
+        calls.getFinalLaunchValidation += 1;
+        return createFinalLaunchValidationRecord();
       },
       async unpublishPublishedCatalogRecord(input) {
         calls.unpublishPublishedCatalogRecord.push(input as Record<string, unknown>);
@@ -1108,6 +1218,17 @@ test("getAdminRecoveryReadinessPage exposes bounded operator recovery state with
   assert.equal(page.readiness.reasonCode, "backup_stale");
   assert.equal(page.readiness.backupArtifact?.artifactKey, "backup-2026-03-08");
   assert.equal(page.readiness.latestRestoreRehearsal?.status, "succeeded");
+});
+
+test("getAdminFinalLaunchValidationPage exposes the bounded final launch-validation contract", async () => {
+  const { calls, dependencies } = createDependencies();
+  const page = await getAdminFinalLaunchValidationPage(dependencies);
+
+  assert.equal(calls.getFinalLaunchValidation, 1);
+  assert.equal(page.title, "Final Launch Validation");
+  assert.equal(page.validation.state, "ready");
+  assert.equal(page.validation.catalogEvidence.sampleMediaPublicId, "med_public_1");
+  assert.equal(page.validation.adminAccessEvidence.currentRole, "operator");
 });
 
 test("getAdminPublishedCatalogManagementDetailByPublicId returns operator detail or null", async () => {

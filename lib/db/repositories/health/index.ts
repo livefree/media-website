@@ -41,6 +41,10 @@ import type {
   SourceProbeRunRecord,
   SourceProbeStatus,
 } from "../../../server/health";
+import {
+  buildIngestLaunchValidationEvidence,
+  type IngestLaunchValidationEvidenceRecord,
+} from "../../../server/ingest/launch-validation";
 import type { SourceHealthRepository as SourceHealthRepositoryContract } from "./types";
 
 const sourceHealthStateMap = {
@@ -1395,6 +1399,129 @@ export class SourceHealthRepository extends BaseRepository implements SourceHeal
       probeRun: mapSourceProbeRunRecord(probeRun),
       repairQueue: repairQueueRecords,
     };
+  }
+
+  async getIngestLaunchValidationEvidence(): Promise<IngestLaunchValidationEvidenceRecord> {
+    const acceptedProviderLane = await this.db.providerRegistry.findFirst({
+      where: {
+        enabled: true,
+        capabilities: {
+          has: "CATALOG",
+        },
+      },
+      orderBy: [{ updatedAt: "desc" }, { adapterKey: "asc" }],
+      select: {
+        id: true,
+        adapterKey: true,
+        displayName: true,
+        lastSuccessfulSyncAt: true,
+      },
+    });
+
+    if (!acceptedProviderLane) {
+      return buildIngestLaunchValidationEvidence({
+        acceptedProviderLane: null,
+        providerExecution: null,
+        schedule: null,
+        queueTelemetry: {
+          failures: [],
+        },
+        probeRecovery: null,
+      });
+    }
+
+    const [schedule, latestRefreshEvidence, latestProbeEvidence, openRepairCount, queueFailures] = await Promise.all([
+      this.db.providerSyncLaneState.findUnique({
+        where: {
+          providerKey: acceptedProviderLane.adapterKey,
+        },
+        select: {
+          nextIncrementalAt: true,
+          nextBackfillAt: true,
+          lastIncrementalCompletedAt: true,
+          lastBackfillCompletedAt: true,
+        },
+      }),
+      this.db.sourceProbeRun.findFirst({
+        where: {
+          providerId: acceptedProviderLane.id,
+          probeKind: "METADATA_REFRESH",
+          completedAt: {
+            not: null,
+          },
+        },
+        orderBy: [{ completedAt: "desc" }, { startedAt: "desc" }],
+        select: {
+          completedAt: true,
+          observedState: true,
+        },
+      }),
+      this.db.sourceProbeRun.findFirst({
+        where: {
+          providerId: acceptedProviderLane.id,
+          probeKind: {
+            in: ["AVAILABILITY", "MANIFEST", "PLAYBACK", "DOWNLOAD", "SUBTITLE"],
+          },
+          completedAt: {
+            not: null,
+          },
+        },
+        orderBy: [{ completedAt: "desc" }, { startedAt: "desc" }],
+        select: {
+          completedAt: true,
+          observedState: true,
+        },
+      }),
+      this.db.repairQueueEntry.count({
+        where: {
+          providerId: acceptedProviderLane.id,
+          status: {
+            in: ["OPEN", "IN_PROGRESS", "WAITING_PROVIDER"],
+          },
+        },
+      }),
+      this.listAdminQueueFailures({
+        providerKeys: [acceptedProviderLane.adapterKey],
+        limit: 25,
+      }),
+    ]);
+
+    return buildIngestLaunchValidationEvidence({
+      acceptedProviderLane: {
+        providerKey: acceptedProviderLane.adapterKey,
+        adapterKey: acceptedProviderLane.adapterKey,
+        displayName: acceptedProviderLane.displayName,
+        accepted: true,
+      },
+      providerExecution: {
+        lastSuccessfulPageIngestAt: acceptedProviderLane.lastSuccessfulSyncAt,
+      },
+      schedule: {
+        enabled: Boolean(schedule),
+        lastIncrementalCompletedAt: schedule?.lastIncrementalCompletedAt ?? null,
+        lastBackfillCompletedAt: schedule?.lastBackfillCompletedAt ?? null,
+        nextIncrementalAt: schedule?.nextIncrementalAt ?? null,
+        nextBackfillAt: schedule?.nextBackfillAt ?? null,
+      },
+      queueTelemetry: {
+        failures: queueFailures.map((failure) => ({
+          jobType: failure.jobType,
+          alertSignal: failure.failureSignal ?? null,
+          lastErrorSummary: failure.lastErrorSummary ?? null,
+        })),
+      },
+      probeRecovery: {
+        latestRefreshObservedAt: latestRefreshEvidence?.completedAt ?? null,
+        latestRefreshObservedState: latestRefreshEvidence?.observedState
+          ? unmapSourceHealthState(latestRefreshEvidence.observedState)
+          : null,
+        latestProbeObservedAt: latestProbeEvidence?.completedAt ?? null,
+        latestProbeObservedState: latestProbeEvidence?.observedState
+          ? unmapSourceHealthState(latestProbeEvidence.observedState)
+          : null,
+        openRepairCount,
+      },
+    });
   }
 }
 
