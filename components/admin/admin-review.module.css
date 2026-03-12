@@ -237,6 +237,28 @@
   gap: 16px;
 }
 
+.scheduleSection {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(166, 184, 219, 0.16);
+  display: grid;
+  gap: 14px;
+}
+
+.scheduleHeader {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.inlineActionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .detailHeadingRow {
   display: flex;
   justify-content: space-between;

@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 import {
+  submitPublishedCatalogHideAction,
+  submitPublishedCatalogRestoreVisibilityAction,
   submitPublishedCatalogUnpublishAction,
   submitPublishedSourceReorderAction,
   submitPublishedSourceReplaceAction,
@@ -332,6 +334,7 @@ export function AdminPublishedCatalogDetailPage({
                 <div className={styles.badgeRow}>
                   <span className={styles.badge}>{formatAdminCatalogLabel(media.type)}</span>
                   <span className={styles.badge}>{formatAdminCatalogLabel(media.status)}</span>
+                  <span className={styles.badge}>{formatAdminCatalogLabel(media.visibilityState)}</span>
                   <span className={styles.badge}>{media.publicId}</span>
                 </div>
 
@@ -425,6 +428,10 @@ export function AdminPublishedCatalogDetailPage({
                 <span className={styles.detailValue}>{formatDate(media.publishedAt)}</span>
               </div>
               <div className={styles.detailTile}>
+                <span className={styles.detailLabel}>Visibility</span>
+                <span className={styles.detailValue}>{formatAdminCatalogLabel(media.visibilityState)}</span>
+              </div>
+              <div className={styles.detailTile}>
                 <span className={styles.detailLabel}>Tagline</span>
                 <span className={styles.detailValue}>{media.tagline ?? "No published tagline."}</span>
               </div>
@@ -462,9 +469,65 @@ export function AdminPublishedCatalogDetailPage({
               <div className={styles.panelHeader}>
                 <div>
                   <h2 className={styles.panelTitle}>Lifecycle Mutations</h2>
-                  <p className={styles.panelSubtitle}>Narrow catalog withdrawal control backed by the published catalog admin boundary.</p>
+                  <p className={styles.panelSubtitle}>Narrow visibility and withdrawal controls backed by the published catalog admin boundary.</p>
                 </div>
               </div>
+
+              <div className={styles.governanceCard}>
+                <div>
+                  <h3 className={styles.mutationTitle}>Visibility state</h3>
+                  <p className={styles.cardMeta}>Public serving only exposes records that remain published and visible.</p>
+                </div>
+                <span className={styles.metricPill}>{formatAdminCatalogLabel(media.visibilityState)}</span>
+              </div>
+
+              {media.visibilityState === "visible" ? (
+                <form action={submitPublishedCatalogHideAction} className={styles.mutationForm}>
+                  <input name="mediaPublicId" type="hidden" value={media.publicId} />
+                  <input name="returnTo" type="hidden" value={backHref} />
+
+                  <div className={styles.mutationHeadingRow}>
+                    <div>
+                      <h4 className={styles.mutationTitle}>Hide published visibility</h4>
+                      <p className={styles.cardMeta}>Temporarily remove this record from public serving without withdrawing it.</p>
+                    </div>
+                  </div>
+
+                  <label className={styles.fieldLabel}>
+                    Visibility notes
+                    <input className={styles.fieldInput} name="notes" placeholder="Hide until the release window opens." />
+                  </label>
+
+                  <div className={styles.linkRow}>
+                    <button className={styles.secondaryButton} type="submit">
+                      Hide visibility
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <form action={submitPublishedCatalogRestoreVisibilityAction} className={styles.mutationForm}>
+                  <input name="mediaPublicId" type="hidden" value={media.publicId} />
+                  <input name="returnTo" type="hidden" value={backHref} />
+
+                  <div className={styles.mutationHeadingRow}>
+                    <div>
+                      <h4 className={styles.mutationTitle}>Restore published visibility</h4>
+                      <p className={styles.cardMeta}>Return this record to public serving without recreating the catalog entry.</p>
+                    </div>
+                  </div>
+
+                  <label className={styles.fieldLabel}>
+                    Restore notes
+                    <input className={styles.fieldInput} name="notes" placeholder="Restore now that release timing is approved." />
+                  </label>
+
+                  <div className={styles.linkRow}>
+                    <button className={styles.primaryButton} type="submit">
+                      Restore visibility
+                    </button>
+                  </div>
+                </form>
+              )}
 
               <form action={submitPublishedCatalogUnpublishAction} className={styles.mutationForm}>
                 <input name="mediaPublicId" type="hidden" value={lifecycleMutations.unpublish.mediaPublicId} />
@@ -502,6 +565,12 @@ export function AdminPublishedCatalogDetailPage({
                   <div className={styles.timelineItem}>
                     <span className={styles.detailLabel}>Decision summary</span>
                     <span className={styles.detailValue}>{reviewContext.latestDecisionSummary ?? "No summary recorded"}</span>
+                  </div>
+                  <div className={styles.timelineItem}>
+                    <span className={styles.detailLabel}>Scheduled publish</span>
+                    <span className={styles.detailValue}>
+                      {reviewContext.scheduledPublishAt ? formatDate(reviewContext.scheduledPublishAt) : "No future publish scheduled"}
+                    </span>
                   </div>
                   <Link className={styles.secondaryLink} href={`/admin/review/${reviewContext.queueEntryId}`}>
                     Open review context
