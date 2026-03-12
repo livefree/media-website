@@ -24,6 +24,11 @@ const sections = [
     label: "Queue failures",
   },
   {
+    href: "/admin/final-launch-validation",
+    id: "final-launch-validation",
+    label: "Launch validation",
+  },
+  {
     href: "/admin/recovery-readiness",
     id: "recovery-readiness",
     label: "Recovery readiness",
@@ -58,6 +63,7 @@ export function AdminOperatorNav({
     | "sources"
     | "repair"
     | "queue-failures"
+    | "final-launch-validation"
     | "recovery-readiness"
     | "review"
     | "moderation"
