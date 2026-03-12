@@ -8,7 +8,8 @@ import {
 import styles from "./admin-published-catalog.module.css";
 import { AdminOperatorNav } from "./AdminOperatorNav";
 import {
-  buildPublishedSourceReplacementOptions,
+  buildAdminPublishedCatalogDetailFeedback,
+  buildPublishedCatalogLifecycleMutationViewModel,
   formatAdminCatalogLabel,
 } from "./admin-published-catalog.helpers";
 
@@ -102,8 +103,7 @@ function renderResourceSection(title: string, resources: AdminPublishedResourceR
 }
 
 function renderStreamResourceSection(
-  mediaPublicId: string,
-  backHref: string,
+  lifecycleSources: ReturnType<typeof buildPublishedCatalogLifecycleMutationViewModel>["sources"],
   resources: AdminPublishedResourceRecord[],
   emptyMessage: string,
 ) {
@@ -122,7 +122,11 @@ function renderStreamResourceSection(
       ) : (
         <div className={styles.resourceList}>
           {resources.map((resource) => {
-            const replacementOptions = buildPublishedSourceReplacementOptions(resources, resource.publicId);
+            const lifecycleSource = lifecycleSources.find((entry) => entry.resourceId === resource.id);
+
+            if (!lifecycleSource) {
+              return null;
+            }
 
             return (
               <article className={styles.resourceCard} key={resource.id}>
@@ -165,9 +169,9 @@ function renderStreamResourceSection(
 
                 <div className={styles.mutationGrid}>
                   <form action={submitPublishedSourceReorderAction} className={styles.mutationForm}>
-                    <input name="mediaPublicId" type="hidden" value={mediaPublicId} />
-                    <input name="resourceId" type="hidden" value={resource.id} />
-                    <input name="returnTo" type="hidden" value={backHref} />
+                    <input name="mediaPublicId" type="hidden" value={lifecycleSource.reorder.mediaPublicId} />
+                    <input name="resourceId" type="hidden" value={lifecycleSource.reorder.resourceId} />
+                    <input name="returnTo" type="hidden" value={lifecycleSource.reorder.returnTo} />
 
                     <div className={styles.mutationHeadingRow}>
                       <div>
@@ -179,16 +183,16 @@ function renderStreamResourceSection(
                     <div className={styles.mutationFieldGrid}>
                       <label className={styles.fieldLabel}>
                         Priority
-                        <input className={styles.fieldInput} defaultValue={resource.priority} name="priority" type="number" />
+                        <input className={styles.fieldInput} defaultValue={lifecycleSource.reorder.defaultPriority} name="priority" type="number" />
                       </label>
                       <label className={styles.fieldLabel}>
                         Mirror
-                        <input className={styles.fieldInput} defaultValue={resource.mirrorOrder} name="mirrorOrder" type="number" />
+                        <input className={styles.fieldInput} defaultValue={lifecycleSource.reorder.defaultMirrorOrder} name="mirrorOrder" type="number" />
                       </label>
                     </div>
 
                     <label className={styles.toggleLabel}>
-                      <input defaultChecked={resource.isPreferred} name="isPreferred" type="checkbox" value="1" />
+                      <input defaultChecked={lifecycleSource.reorder.defaultPreferred} name="isPreferred" type="checkbox" value="1" />
                       Preferred source
                     </label>
 
@@ -199,15 +203,15 @@ function renderStreamResourceSection(
 
                     <div className={styles.linkRow}>
                       <button className={styles.primaryButton} type="submit">
-                        Save ordering
+                        {lifecycleSource.reorder.submitLabel}
                       </button>
                     </div>
                   </form>
 
                   <form action={submitPublishedSourceReplaceAction} className={styles.mutationForm}>
-                    <input name="mediaPublicId" type="hidden" value={mediaPublicId} />
-                    <input name="sourcePublicId" type="hidden" value={resource.publicId} />
-                    <input name="returnTo" type="hidden" value={backHref} />
+                    <input name="mediaPublicId" type="hidden" value={lifecycleSource.replace.mediaPublicId} />
+                    <input name="sourcePublicId" type="hidden" value={lifecycleSource.replace.sourcePublicId} />
+                    <input name="returnTo" type="hidden" value={lifecycleSource.replace.returnTo} />
 
                     <div className={styles.mutationHeadingRow}>
                       <div>
@@ -222,7 +226,7 @@ function renderStreamResourceSection(
                         <option value="" disabled>
                           Select replacement line
                         </option>
-                        {replacementOptions.map((option) => (
+                        {lifecycleSource.replace.replacementOptions.map((option) => (
                           <option key={option.value} value={option.value}>
                             {option.label}
                           </option>
@@ -236,8 +240,8 @@ function renderStreamResourceSection(
                     </label>
 
                     <div className={styles.linkRow}>
-                      <button className={styles.secondaryLink} disabled={replacementOptions.length === 0} type="submit">
-                        Replace source
+                      <button className={styles.secondaryLink} disabled={lifecycleSource.replace.disabled} type="submit">
+                        {lifecycleSource.replace.submitLabel}
                       </button>
                     </div>
                   </form>
@@ -270,6 +274,13 @@ export function AdminPublishedCatalogDetailPage({
   flashMessage?: string;
   publicId?: string;
 }) {
+  const feedback = buildAdminPublishedCatalogDetailFeedback({
+    publicId,
+    detail,
+    flashMessage,
+    errorMessage,
+  });
+
   if (!detail) {
     return (
       <main className={styles.catalogPage}>
@@ -289,14 +300,15 @@ export function AdminPublishedCatalogDetailPage({
             </div>
           </header>
 
-          {flashMessage ? <div className={styles.warningState}>{flashMessage}</div> : null}
-          <div className={styles.warningState}>{errorMessage ?? `Published catalog record '${publicId ?? "unknown"}' is unavailable.`}</div>
+          {feedback.flashMessage ? <div className={styles.warningState}>{feedback.flashMessage}</div> : null}
+          <div className={styles.warningState}>{feedback.errorMessage}</div>
         </div>
       </main>
     );
   }
 
   const { media, sourceSummary, reviewContext, episodeDiagnostics, recentAudits, seasons } = detail;
+  const lifecycleMutations = buildPublishedCatalogLifecycleMutationViewModel(detail, backHref);
 
   return (
     <main className={styles.catalogPage}>
@@ -358,8 +370,8 @@ export function AdminPublishedCatalogDetailPage({
           </div>
         </header>
 
-        {errorMessage ? <div className={styles.warningState}>{errorMessage}</div> : null}
-        {flashMessage ? <div className={styles.warningState}>{flashMessage}</div> : null}
+        {feedback.errorMessage ? <div className={styles.warningState}>{feedback.errorMessage}</div> : null}
+        {feedback.flashMessage ? <div className={styles.warningState}>{feedback.flashMessage}</div> : null}
 
         <div className={styles.detailLayout}>
           <section className={styles.panel}>
@@ -455,17 +467,17 @@ export function AdminPublishedCatalogDetailPage({
               </div>
 
               <form action={submitPublishedCatalogUnpublishAction} className={styles.mutationForm}>
-                <input name="mediaPublicId" type="hidden" value={media.publicId} />
-                <input name="returnTo" type="hidden" value={backHref} />
+                <input name="mediaPublicId" type="hidden" value={lifecycleMutations.unpublish.mediaPublicId} />
+                <input name="returnTo" type="hidden" value={lifecycleMutations.unpublish.returnTo} />
 
                 <label className={styles.fieldLabel}>
                   Withdrawal notes
-                  <input className={styles.fieldInput} name="notes" placeholder="Withdraw until source integrity review completes." />
+                  <input className={styles.fieldInput} name="notes" placeholder={lifecycleMutations.unpublish.notesPlaceholder} />
                 </label>
 
                 <div className={styles.linkRow}>
                   <button className={styles.dangerButton} type="submit">
-                    Unpublish record
+                    {lifecycleMutations.unpublish.submitLabel}
                   </button>
                 </div>
               </form>
@@ -555,7 +567,7 @@ export function AdminPublishedCatalogDetailPage({
           )}
         </section>
 
-        {renderStreamResourceSection(media.publicId, backHref, detail.streamResources, "No published stream resources are available for this record.")}
+        {renderStreamResourceSection(lifecycleMutations.sources, detail.streamResources, "No published stream resources are available for this record.")}
         {renderResourceSection("Download Resources", detail.downloadResources, "No published download resources are available for this record.")}
         {renderResourceSection("Subtitle Resources", detail.subtitleResources, "No published subtitle resources are available for this record.")}
 

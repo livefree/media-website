@@ -1,4 +1,9 @@
-import type { AdminPublishedCatalogQuery, AdminPublishedCatalogSort, AdminPublishedResourceRecord } from "../../lib/server/admin";
+import type {
+  AdminPublishedCatalogDetailRecord,
+  AdminPublishedCatalogQuery,
+  AdminPublishedCatalogSort,
+  AdminPublishedResourceRecord,
+} from "../../lib/server/admin";
 import type { PublishedMediaStatus, PublishedMediaType } from "../../lib/server/catalog";
 
 type RouteSearchParams = Record<string, string | string[] | undefined>;
@@ -22,6 +27,50 @@ export interface AdminPublishedCatalogDetailSearchState {
 export interface PublishedSourceReplacementOption {
   value: string;
   label: string;
+}
+
+export interface PublishedSourceReorderEntryPoint {
+  mediaPublicId: string;
+  resourceId: string;
+  returnTo: string;
+  defaultPriority: number;
+  defaultMirrorOrder: number;
+  defaultPreferred: boolean;
+  submitLabel: string;
+}
+
+export interface PublishedSourceReplaceEntryPoint {
+  mediaPublicId: string;
+  sourcePublicId: string;
+  returnTo: string;
+  replacementOptions: PublishedSourceReplacementOption[];
+  submitLabel: string;
+  disabled: boolean;
+}
+
+export interface PublishedSourceLifecycleEntryPoint {
+  resourceId: string;
+  resourcePublicId: string;
+  resourceLabel: string;
+  reorder: PublishedSourceReorderEntryPoint;
+  replace: PublishedSourceReplaceEntryPoint;
+}
+
+export interface PublishedCatalogUnpublishEntryPoint {
+  mediaPublicId: string;
+  returnTo: string;
+  submitLabel: string;
+  notesPlaceholder: string;
+}
+
+export interface PublishedCatalogLifecycleMutationViewModel {
+  unpublish: PublishedCatalogUnpublishEntryPoint;
+  sources: PublishedSourceLifecycleEntryPoint[];
+}
+
+export interface AdminPublishedCatalogDetailFeedback {
+  flashMessage?: string;
+  errorMessage?: string;
 }
 
 const catalogTypeOptions = ["all", "movie", "series", "anime", "variety", "documentary", "special"] as const satisfies Array<
@@ -202,6 +251,58 @@ export function buildPublishedSourceReplacementOptions(
         .filter(Boolean)
         .join(" · "),
     }));
+}
+
+export function buildPublishedCatalogLifecycleMutationViewModel(
+  detail: Pick<AdminPublishedCatalogDetailRecord, "media" | "streamResources">,
+  backHref: string,
+): PublishedCatalogLifecycleMutationViewModel {
+  return {
+    unpublish: {
+      mediaPublicId: detail.media.publicId,
+      returnTo: backHref,
+      submitLabel: "Unpublish record",
+      notesPlaceholder: "Withdraw until source integrity review completes.",
+    },
+    sources: detail.streamResources.map((resource) => {
+      const replacementOptions = buildPublishedSourceReplacementOptions(detail.streamResources, resource.publicId);
+
+      return {
+        resourceId: resource.id,
+        resourcePublicId: resource.publicId,
+        resourceLabel: resource.label,
+        reorder: {
+          mediaPublicId: detail.media.publicId,
+          resourceId: resource.id,
+          returnTo: backHref,
+          defaultPriority: resource.priority,
+          defaultMirrorOrder: resource.mirrorOrder,
+          defaultPreferred: resource.isPreferred,
+          submitLabel: "Save ordering",
+        },
+        replace: {
+          mediaPublicId: detail.media.publicId,
+          sourcePublicId: resource.publicId,
+          returnTo: backHref,
+          replacementOptions,
+          submitLabel: "Replace source",
+          disabled: replacementOptions.length === 0,
+        },
+      };
+    }),
+  };
+}
+
+export function buildAdminPublishedCatalogDetailFeedback(input: {
+  publicId?: string;
+  detail?: AdminPublishedCatalogDetailRecord;
+  flashMessage?: string;
+  errorMessage?: string;
+}): AdminPublishedCatalogDetailFeedback {
+  return {
+    flashMessage: input.flashMessage,
+    errorMessage: input.detail ? input.errorMessage : input.errorMessage ?? `Published catalog record '${input.publicId ?? "unknown"}' is unavailable.`,
+  };
 }
 
 export function formatAdminCatalogLabel(value: string) {
