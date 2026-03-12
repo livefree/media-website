@@ -420,3 +420,4 @@ Reviewer:
 - Accepted Workstream 2 / Slice 3 on review: the slice now has deterministic rendered-surface coverage for reorder / replace / unpublish controls and visible result-state wiring on `/admin/catalog/[publicId]`, so the Workstream 2 lifecycle mutation gap is closed without reopening backend scope
 - Promoted the accepted Workstream 2 operator control-plane exit gate milestone to version `0.26.0`
 - Switched the active task from accepted `Workstream 2 / Slice 3` into `Workstream 3 / Slice 2: Publish Scheduling And Visibility Control`, keeping the fixed backend queue intact and carrying governance completion forward as the next required slice
+- Added the planner handoff for `Workstream 3 / Slice 2`, narrowing the next governance pass to bounded publish scheduling plus visibility control through existing review/catalog/admin boundaries rather than a broad workflow-system redesign
