@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.32.0`
+Current version: `0.33.0`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.32.0` an appropriate current milestone: the tracked backend program remains closed with the final readiness sweep accepted, the execution framework has been tightened into the Project Frame plus active-slice model, and operators now have a real pending-normalized-to-review handoff inside the admin product. Under the documented scope, the backend is considered operator-ready, with the remaining residual items explicitly out of the closed backend queue.
+That makes `0.33.0` an appropriate current milestone: the tracked backend program remains closed with the final readiness sweep accepted, the execution framework has been tightened into the Project Frame plus active-slice model, and the operator workflow console now includes both the pending-normalized review handoff and a landing page that summarizes the full operator path. Under the documented scope, the backend is considered operator-ready, with the remaining residual items explicitly out of the closed backend queue.
 
 ## Rules
 
@@ -79,6 +79,8 @@ That makes `0.32.0` an appropriate current milestone: the tracked backend progra
   Current baseline with the tracked backend delivery queue closed: the final readiness sweep is accepted, the backend is documented as operator-ready under the agreed scope, and execution now uses a two-layer Project Frame plus active-slice model instead of mixing persistent program state into `task.md`.
 - `0.32.x`
   Current baseline with the first accepted operator-workflow-console capability: operators can now inspect pending normalized candidates and queue them into review through bounded admin contracts and UI, while the next slice focuses on one landing summary across the existing workflow surfaces.
+- `0.33.x`
+  Current baseline with the operator workflow console completed for the current stage: `/admin/workflow` now summarizes intake, review, catalog attention, source health, and launch readiness through tracked backend contracts and links operators into the existing admin surfaces.
 - `1.0.0`
   First production-ready launch baseline.
 

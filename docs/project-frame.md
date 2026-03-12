@@ -24,13 +24,13 @@ Build a lawful streaming-style media aggregation platform with:
 
 ## Current Stage
 
-`Stage: Operator Workflow Console Build-out`
+`Stage: Launch Validation And Runtime Proof`
 
 Why this is the current stage:
 
 - the tracked backend program is already accepted as operator-ready under the previously agreed backend scope
-- execution governance has now been normalized through the Project Frame plus active-slice model
-- the next gap is operator workflow visibility: admin users still cannot follow the intake -> normalized -> review handoff path coherently
+- the operator workflow console is now complete enough for daily operator navigation
+- the next gap is proof: real provider-backed data still needs to be traced through intake, review, publish, and public runtime using the now-visible operator surfaces
 
 ## Master Workstreams
 
@@ -39,8 +39,8 @@ Why this is the current stage:
 | Public Runtime Shell | Active maintenance | Public browse/search/watch surfaces remain stable while backend/operator work continues | `ui-shell`, `search-filter`, `detail-player`, `reviewer` | User-reported regressions that block testing |
 | Backend Operator-Ready Core | Complete | Provider intake, staging, normalization, review/publish, published catalog serving, source health, and admin operations are accepted under tracked scope | `planner`, `media-ingest`, `data-catalog`, `ui-shell`, `reviewer` | Closed |
 | Execution Framework Governance | Complete | Master plan, active slice, stop/ask policy, checklist discipline, and coordinator scope are unambiguous and low-overhead | `planner`, `coordinator`, `reviewer` | Closed |
-| Operator Workflow Console | Active | Admin users can see and act through ingest -> normalized -> review -> publish flow without opaque queue gaps | `planner`, `media-ingest`, `data-catalog`, `ui-shell`, `reviewer` | Missing state aggregation, missing operator actions, failed acceptance |
-| Launch Validation And Runtime Proof | Pending follow-up | Real provider data can be traced through operator-visible workflow and verified in public runtime | `planner`, `media-ingest`, `data-catalog`, `detail-player`, `reviewer` | No reviewable items, missing test path, environment outage |
+| Operator Workflow Console | Complete | Admin users can see and act through ingest -> normalized -> review -> publish flow without opaque queue gaps | `planner`, `media-ingest`, `data-catalog`, `ui-shell`, `reviewer` | Closed |
+| Launch Validation And Runtime Proof | Active | Real provider data can be traced through operator-visible workflow and verified in public runtime | `planner`, `media-ingest`, `data-catalog`, `detail-player`, `reviewer` | No reviewable items, missing test path, environment outage |
 | Post-Launch Expansion | Deferred | Broader provider coverage, production automation, and expansion beyond the tracked backend scope | future tracked program | Not part of the active program |
 
 ## Milestones
@@ -50,10 +50,10 @@ Why this is the current stage:
 | Frontend shell and player foundation | Complete | `docs/architecture.md`, player/detail history in `docs/handovers/` |
 | Tracked backend queue (`Rounds A-F`, `Workstreams 1-4`) | Complete | `docs/backend-delivery-workflow.md`, `docs/handovers/reviewer-final-backend-readiness-sweep-acceptance.md` |
 | Execution framework hardening | Complete | `docs/project-frame.md`, `task.md`, and `docs/handovers/reviewer-execution-framework-reconstruction-slice1-acceptance.md` |
-| Operator workflow console | In progress | Active slice in `task.md` |
+| Operator workflow console | Complete | `docs/handovers/reviewer-operator-workflow-console-slice2-acceptance.md` and `docs/handovers/reviewer-operator-workflow-console-slice3-acceptance.md` |
 | Operator-visible normalized-to-review handoff | Complete | `docs/handovers/reviewer-operator-workflow-console-slice2-acceptance.md` |
-| Operator-visible ingest-to-publish flow | In progress | Pending one landing view that summarizes the full operator path |
-| Launch-ready operator path | Pending | Depends on workflow-console completion and runtime proof |
+| Operator-visible ingest-to-publish flow | Complete at workflow-console level | `/admin/workflow` plus existing admin routes now summarize and link the full operator path |
+| Launch-ready operator path | In progress | Depends on runtime proof against real provider-backed data |
 
 ## Launch Criteria
 
@@ -92,7 +92,7 @@ The Coordinator is not responsible for personally designing or implementing spec
 
 ### Active Program
 
-`Operator Workflow Console`
+`Launch Validation And Runtime Proof`
 
 ### Queue
 
@@ -103,8 +103,14 @@ The Coordinator is not responsible for personally designing or implementing spec
    - status: `done`
    - target: make the transition from normalized candidates into review queue visible and operator-actionable
 3. `Slice 3: Workflow Landing And Cross-Surface Summary`
-   - status: `active`
+   - status: `done`
    - target: give operators one landing page that summarizes current pipeline state and links to source health, review, catalog, and launch validation
+4. `Slice 4: Real Intake To Review Queue Validation`
+   - status: `active`
+   - target: prove that real provider-backed intake can create operator-visible reviewable items through the admin workflow
+5. `Slice 5: Publish To Public Runtime Verification`
+   - status: `planned`
+   - target: prove that accepted published records become visible through the public runtime without bypassing the operator workflow
 
 Any new slice must be added here before it can become active in `task.md`.
 
