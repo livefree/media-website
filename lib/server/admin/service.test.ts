@@ -1603,6 +1603,37 @@ test("getAdminPendingNormalizedCandidatesPage returns operator-facing summary", 
   assert.equal(page.items, pendingItems);
 });
 
+test("getAdminPendingNormalizedCandidatesPage surfaces ingest metadata", async () => {
+  const { dependencies } = createDependencies();
+  const ingestCandidate = createPendingNormalizedCandidateListItem({
+    candidate: {
+      ingestJobId: "job-123",
+      ingestRunId: "run-456",
+      ingestRequestId: "req-789",
+      ingestActorId: "operator-1",
+      ingestMode: "manual",
+      ingestScope: "page",
+      ingestStartedAt: new Date("2026-03-11T07:00:00.000Z"),
+      ingestFinishedAt: new Date("2026-03-11T07:05:00.000Z"),
+    },
+  });
+
+  dependencies.review.listPendingNormalizedCandidates = async () => [ingestCandidate];
+
+  const page = await getAdminPendingNormalizedCandidatesPage(dependencies);
+
+  const candidate = page.items[0].candidate;
+
+  assert.equal(candidate.ingestJobId, "job-123");
+  assert.equal(candidate.ingestRunId, "run-456");
+  assert.equal(candidate.ingestRequestId, "req-789");
+  assert.equal(candidate.ingestActorId, "operator-1");
+  assert.equal(candidate.ingestMode, "manual");
+  assert.equal(candidate.ingestScope, "page");
+  assert.equal(candidate.ingestStartedAt?.toISOString(), "2026-03-11T07:00:00.000Z");
+  assert.equal(candidate.ingestFinishedAt?.toISOString(), "2026-03-11T07:05:00.000Z");
+});
+
 test("queueAdminNormalizedCandidateForReview delegates to review dependency", async () => {
   const { dependencies } = createDependencies();
   const requests: QueueNormalizedCandidateRequest[] = [];

@@ -38,6 +38,8 @@ import type {
   PersistedMatchSuggestionRecord,
   PersistedNormalizedCandidateRecord,
 } from "../normalization/types";
+import type { IngestMode } from "../../../server/ingest";
+import type { IngestRunScope } from "../staging/types";
 import type {
   PersistedPublishAuditRecord,
   PersistedPublishOperationRecord,
@@ -261,6 +263,34 @@ function mapManualTitleTypeHint(value?: ManualTitleSubmissionRecord["typeHint"] 
 
 function unmapNormalizedMediaType(value: keyof typeof normalizedMediaTypeMap): NormalizedMediaType {
   return normalizedMediaTypeMap[value];
+}
+
+function unmapReviewNormalizedCandidateIngestMode(value: string): IngestMode {
+  switch (value) {
+    case "BACKFILL":
+      return "backfill";
+    case "INCREMENTAL":
+      return "incremental";
+    case "MANUAL":
+      return "manual";
+  }
+
+  throw new Error(`Unsupported ingest mode: ${value}`);
+}
+
+function unmapReviewNormalizedCandidateIngestScope(value: string): IngestRunScope {
+  switch (value) {
+    case "PAGE":
+      return "page";
+    case "DETAIL":
+      return "detail";
+    case "SOURCE_REFRESH":
+      return "source_refresh";
+    case "SOURCE_PROBE":
+      return "source_probe";
+  }
+
+  throw new Error(`Unsupported ingest run scope: ${value}`);
 }
 
 function unmapCandidateAliasSource(value: keyof typeof candidateAliasSourceMap): NormalizedAliasValue["source"] {
@@ -536,14 +566,33 @@ function unmapRepairQueueStatus(
   throw new Error(`Unsupported moderation repair queue status: ${value}`);
 }
 
+type NormalizedCandidateReviewPayload = Prisma.NormalizedCandidateGetPayload<Record<string, never>> & {
+  stagingCandidate?: {
+    ingestJobId: string | null;
+    ingestRunId: string | null;
+    ingestRun?: {
+      requestId: string | null;
+      actorId: string | null;
+      mode: string;
+      scope: string;
+      startedAt: Date;
+      finishedAt: Date | null;
+    } | null;
+  } | null;
+};
+
 function mapNormalizedCandidateRecord(
-  record: Prisma.NormalizedCandidateGetPayload<Record<string, never>>,
+  record: NormalizedCandidateReviewPayload,
 ): PersistedNormalizedCandidateRecord {
+  const staging = record.stagingCandidate;
+  const ingestRun = staging?.ingestRun ?? null;
   return {
     id: record.id,
     stagingCandidateId: record.stagingCandidateId,
     providerId: record.providerId,
     providerItemId: record.providerItemId,
+    ingestJobId: staging?.ingestJobId ?? null,
+    ingestRunId: staging?.ingestRunId ?? null,
     status:
       record.status === "FAILED" ? "failed" : record.status === "WARNING" ? "warning" : "normalized",
     title: {
@@ -570,6 +619,12 @@ function mapNormalizedCandidateRecord(
     failureSummary: record.failureSummary,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
+    ingestRequestId: ingestRun?.requestId ?? null,
+    ingestActorId: ingestRun?.actorId ?? null,
+    ingestMode: ingestRun ? unmapReviewNormalizedCandidateIngestMode(ingestRun.mode) : null,
+    ingestScope: ingestRun ? unmapReviewNormalizedCandidateIngestScope(ingestRun.scope) : null,
+    ingestStartedAt: ingestRun?.startedAt ?? null,
+    ingestFinishedAt: ingestRun?.finishedAt ?? null,
   };
 }
 
@@ -920,6 +975,20 @@ const reviewQueueDetailInclude = {
       aliases: { orderBy: [{ source: "asc" }, { comparableValue: "asc" }] },
       matchSuggestions: { orderBy: [{ confidence: "desc" }, { createdAt: "desc" }] },
       duplicateSignals: { orderBy: [{ confidence: "desc" }, { createdAt: "desc" }] },
+      stagingCandidate: {
+        include: {
+          ingestRun: {
+            select: {
+              requestId: true,
+              actorId: true,
+              mode: true,
+              scope: true,
+              startedAt: true,
+              finishedAt: true,
+            },
+          },
+        },
+      },
     },
   },
   decisions: {
@@ -1082,6 +1151,20 @@ export class ReviewWorkflowRepository extends BaseRepository implements ReviewWo
             aliases: true,
             matchSuggestions: true,
             duplicateSignals: true,
+            stagingCandidate: {
+              include: {
+                ingestRun: {
+                  select: {
+                    requestId: true,
+                    actorId: true,
+                    mode: true,
+                    scope: true,
+                    startedAt: true,
+                    finishedAt: true,
+                  },
+                },
+              },
+            },
           },
         },
         publishOperations: {

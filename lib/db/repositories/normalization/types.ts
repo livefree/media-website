@@ -13,6 +13,8 @@ import type {
   NormalizedSourceSummary,
   NormalizedTextValue,
 } from "../../../server/normalize/types";
+import type { IngestMode } from "../../../server/ingest";
+import type { IngestRunScope } from "../staging/types";
 
 export const normalizedCandidatePersistenceStatuses = ["normalized", "warning", "failed"] as const;
 export type NormalizedCandidatePersistenceStatus = (typeof normalizedCandidatePersistenceStatuses)[number];
@@ -44,11 +46,19 @@ export interface PersistedNormalizedCandidateRecord {
   stagingCandidateId: string;
   providerId: string;
   providerItemId: string;
+  ingestJobId?: string | null;
+  ingestRunId?: string | null;
   status: NormalizedCandidatePersistenceStatus;
   title: NormalizedTextValue;
   originalTitle?: NormalizedTextValue | null;
   summary?: string | null;
   mediaType: NormalizedMediaType;
+  ingestRequestId?: string | null;
+  ingestActorId?: string | null;
+  ingestMode?: IngestMode | null;
+  ingestScope?: IngestRunScope | null;
+  ingestStartedAt?: Date | null;
+  ingestFinishedAt?: Date | null;
   releaseYear?: number | null;
   region?: string | null;
   language?: string | null;

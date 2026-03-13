@@ -28,6 +28,8 @@ import type {
   PersistedNormalizedCandidateRecord,
   PendingNormalizedCandidateListItemRecord,
 } from "./types";
+import type { IngestMode } from "../../../server/ingest";
+import type { IngestRunScope } from "../staging/types";
 
 const normalizedMediaTypeMap = {
   movie: "MOVIE",
@@ -136,6 +138,34 @@ function unmapNormalizedMediaType(value: string): NormalizedMediaType {
   }
 
   throw new Error(`Unsupported normalized media type: ${value}`);
+}
+
+function unmapNormalizedCandidateIngestMode(value: string): IngestMode {
+  switch (value) {
+    case "BACKFILL":
+      return "backfill";
+    case "INCREMENTAL":
+      return "incremental";
+    case "MANUAL":
+      return "manual";
+  }
+
+  throw new Error(`Unsupported ingest mode: ${value}`);
+}
+
+function unmapNormalizedCandidateIngestScope(value: string): IngestRunScope {
+  switch (value) {
+    case "PAGE":
+      return "page";
+    case "DETAIL":
+      return "detail";
+    case "SOURCE_REFRESH":
+      return "source_refresh";
+    case "SOURCE_PROBE":
+      return "source_probe";
+  }
+
+  throw new Error(`Unsupported ingest run scope: ${value}`);
 }
 
 function unmapNormalizedCandidateStatus(value: string): NormalizedCandidatePersistenceStatus {
@@ -262,14 +292,33 @@ function getDuplicateSignalTargetSource(signal: { kind: PersistedDuplicateSignal
   return signal.kind === "candidate_canonical" ? "canonical" : "normalized_candidate";
 }
 
+type NormalizedCandidateWithIngestPayload = Prisma.NormalizedCandidateGetPayload<Record<string, never>> & {
+  stagingCandidate?: {
+    ingestJobId: string | null;
+    ingestRunId: string | null;
+    ingestRun?: {
+      requestId: string | null;
+      actorId: string | null;
+      mode: string;
+      scope: string;
+      startedAt: Date;
+      finishedAt: Date | null;
+    } | null;
+  } | null;
+};
+
 function mapNormalizedCandidateRecord(
-  record: Prisma.NormalizedCandidateGetPayload<Record<string, never>>,
+  record: NormalizedCandidateWithIngestPayload,
 ): PersistedNormalizedCandidateRecord {
+  const staging = record.stagingCandidate;
+  const ingestRun = staging?.ingestRun ?? null;
   return {
     id: record.id,
     stagingCandidateId: record.stagingCandidateId,
     providerId: record.providerId,
     providerItemId: record.providerItemId,
+    ingestJobId: staging?.ingestJobId ?? null,
+    ingestRunId: staging?.ingestRunId ?? null,
     status: unmapNormalizedCandidateStatus(record.status),
     title: {
       display: record.titleDisplay,
@@ -295,6 +344,12 @@ function mapNormalizedCandidateRecord(
     failureSummary: record.failureSummary,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
+    ingestRequestId: ingestRun?.requestId ?? null,
+    ingestActorId: ingestRun?.actorId ?? null,
+    ingestMode: ingestRun ? unmapNormalizedCandidateIngestMode(ingestRun.mode) : null,
+    ingestScope: ingestRun ? unmapNormalizedCandidateIngestScope(ingestRun.scope) : null,
+    ingestStartedAt: ingestRun?.startedAt ?? null,
+    ingestFinishedAt: ingestRun?.finishedAt ?? null,
   };
 }
 
@@ -503,6 +558,20 @@ export class NormalizationPersistenceRepository
         aliases: true,
         matchSuggestions: true,
         duplicateSignals: true,
+        stagingCandidate: {
+          include: {
+            ingestRun: {
+              select: {
+                requestId: true,
+                actorId: true,
+                mode: true,
+                scope: true,
+                startedAt: true,
+                finishedAt: true,
+              },
+            },
+          },
+        },
       },
       orderBy: [{ createdAt: "asc" }],
     });

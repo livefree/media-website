@@ -37,7 +37,7 @@ test("buildJszyapiVodUrl assembles bounded page requests", () => {
     now,
   );
 
-  assert.equal(url, "https://jszyapi.com/api.php/provide/vod/at/json?ac=videolist&pg=2&h=6");
+  assert.equal(url, "https://jszyapi.com/api.php/provide/vod/from/jsm3u8/at/json?ac=videolist&pg=2&h=6");
 });
 
 test("jszyapi page fetch parses staging-safe items and keeps raw payload separate", async () => {
@@ -61,7 +61,7 @@ test("jszyapi page fetch parses staging-safe items and keeps raw payload separat
     createContext(http, new Date("2026-03-10T12:00:00.000Z")),
   );
 
-  assert.equal(requestedUrl, "https://jszyapi.com/api.php/provide/vod/at/json?ac=videolist&pg=2&h=6");
+  assert.equal(requestedUrl, "https://jszyapi.com/api.php/provide/vod/from/jsm3u8/at/json?ac=videolist&pg=2&h=6");
   assert.equal(result.providerKey, "jszyapi_vod_json");
   assert.equal(result.items.length, 2);
   assert.equal(result.rawPayloads.length, 1);

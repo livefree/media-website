@@ -24,7 +24,7 @@ import type {
   SourceHealthFinding,
 } from "./types";
 
-const JSZYAPI_VOD_JSON_BASE_URL = "https://jszyapi.com/api.php/provide/vod/at/json";
+const JSZYAPI_VOD_JSON_BASE_URL = "https://jszyapi.com/api.php/provide/vod/from/jsm3u8/at/json";
 
 const jszyapiListItemSchema = z
   .object({
