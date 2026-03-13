@@ -106,10 +106,10 @@ The Coordinator is not responsible for personally designing or implementing spec
    - status: `done`
    - target: give operators one landing page that summarizes current pipeline state and links to source health, review, catalog, and launch validation
 4. `Slice 4: Real Intake To Review Queue Validation`
-   - status: `active`
+   - status: `done`
    - target: prove that real provider-backed intake can create operator-visible reviewable items through the admin workflow
 5. `Slice 5: Publish To Public Runtime Verification`
-   - status: `planned`
+   - status: `active`
    - target: prove that accepted published records become visible through the public runtime without bypassing the operator workflow
 6. `Slice 6: Post-Launch Operator Guide In README`
    - status: `planned`

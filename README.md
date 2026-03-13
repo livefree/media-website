@@ -1,6 +1,6 @@
 # Media Catalog Demo (Codex Multi-Agent Project)
 
-Current project version: `0.33.0`
+Current project version: `0.33.1`
 
 This project started as a front-end information-architecture recreation of a media catalog website and is now moving into a backend-first aggregation phase using Codex with a multi-agent workflow.
 

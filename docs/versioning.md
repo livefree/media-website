@@ -1,6 +1,6 @@
 # Versioning
 
-Current version: `0.33.0`
+Current version: `0.33.1`
 
 ## Rationale
 
@@ -17,7 +17,7 @@ The project is not yet launch-ready:
 - the API layer is still partial
 - auth, admin, production playback/runtime hardening, and ops/deployment are incomplete
 
-That makes `0.33.0` an appropriate current milestone: the tracked backend program remains closed with the final readiness sweep accepted, the execution framework has been tightened into the Project Frame plus active-slice model, and the operator workflow console now includes both the pending-normalized review handoff and a landing page that summarizes the full operator path. Under the documented scope, the backend is considered operator-ready, with the remaining residual items explicitly out of the closed backend queue.
+`0.33.1` is the current patch baseline after accepting Launch Validation runtime-proof Slice 4 (real intake to review queue) and advancing execution to Slice 5 (publish to public runtime verification). This is a proof-sequencing and contract-traceability increment, not a new platform milestone.
 
 ## Rules
 
